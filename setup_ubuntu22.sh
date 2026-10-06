@@ -24,6 +24,5 @@ fi
 rosdep update --rosdistro humble
 rosdep install --from-paths "$hardware_root/src" --ignore-src --rosdistro humble -y
 "${root_command[@]}" python3 "$hardware_root/scripts/fix_humble_cmake.py"
-CMAKE_BUILD_PARALLEL_LEVEL="${BUILD_JOBS:-2}" PIP_CONSTRAINT="$hardware_root/requirements-build.txt" \
-  python3 -m pip install --user -r "$hardware_root/requirements-hardware.txt" cmake
+python3 -m pip install --user -r "$hardware_root/requirements-build.txt"
 echo "Dependencies installed. Run ./scripts/build_hardware.sh and source ./source.sh."

@@ -1,3 +1,0 @@
-# Keep compatibility with Ubuntu 22.04's cv_bridge and OpenCV NumPy ABI.
-numpy<2
-pupil-apriltags==1.0.4.post11

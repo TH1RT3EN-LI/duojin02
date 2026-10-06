@@ -93,7 +93,6 @@ def generate_launch_description():
             launch_arguments={
                 "params_file": os.path.join(lidar_share, "config", "duojin01_n10plus.yaml"),
                 "serial_port": LaunchConfiguration("lidar_serial_port"),
-                "lidar_model": LaunchConfiguration("lidar_model"),
                 "scan_topic": "/scan",
                 "frame_id": "laser",
             }.items(),
@@ -132,7 +131,6 @@ def generate_launch_description():
             DeclareLaunchArgument("base_params_file", default_value=os.path.join(bringup_share, "config", "base_driver.yaml")),
             DeclareLaunchArgument("base_serial_baudrate", default_value="115200"),
             DeclareLaunchArgument("lidar_serial_port", default_value="/dev/lslidar"),
-            DeclareLaunchArgument("lidar_model", default_value="N10Plus"),
             DeclareLaunchArgument("odom0", default_value="/odom"),
             DeclareLaunchArgument("imu0", default_value="/imu"),
             DeclareLaunchArgument("publish_robot_model", default_value="true"),

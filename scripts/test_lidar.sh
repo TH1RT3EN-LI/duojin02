@@ -14,3 +14,4 @@ colcon --log-base "$lidar_test_root/log" build \
 source "$lidar_test_root/install/setup.bash"
 ROS_LOCALHOST_ONLY=1 ROS_DOMAIN_ID="${LIDAR_TEST_DOMAIN_ID:-94}" \
   ctest --test-dir "$lidar_test_root/build/lslidar_driver" --output-on-failure
+python3 "$hardware_root/tests/integration/lidar_output_probe.py"

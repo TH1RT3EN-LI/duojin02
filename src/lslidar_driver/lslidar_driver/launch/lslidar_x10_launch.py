@@ -1,4 +1,4 @@
-"""Unified X10 driver connected to the Duojin01 hardware interfaces."""
+"""N10Plus serial driver connected to the Duojin01 hardware interfaces."""
 
 import os
 
@@ -15,7 +15,6 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument("params_file", default_value=config),
         DeclareLaunchArgument("serial_port", default_value="/dev/lslidar"),
-        DeclareLaunchArgument("lidar_model", default_value="N10Plus"),
         DeclareLaunchArgument("frame_id", default_value="laser"),
         DeclareLaunchArgument("scan_topic", default_value="/scan"),
         Node(
@@ -26,8 +25,6 @@ def generate_launch_description():
             output="screen",
             emulate_tty=True,
             parameters=[LaunchConfiguration("params_file"), {
-                "lidar_type": "X10",
-                "lidar_model": LaunchConfiguration("lidar_model"),
                 "serial_port": LaunchConfiguration("serial_port"),
                 "frame_id": LaunchConfiguration("frame_id"),
                 "laserscan_topic": LaunchConfiguration("scan_topic"),

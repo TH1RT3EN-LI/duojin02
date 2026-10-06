@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BRINGUP = ROOT / "src/duojin01_bringup"
 sys.path.insert(0, str(BRINGUP))
 FORBIDDEN = re.compile(
-    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin01_(?:sim|controller_emulator|gz|safety_watchdog)")
+    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin01_(?:camera|mission|msgs)|lslidar_msgs|duojin01_(?:sim|controller_emulator|gz|safety_watchdog)")
 
 
 def load_launch(name):
@@ -33,8 +33,9 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         name = tree.findtext("name")
         assert not FORBIDDEN.search(name), name
         packages[name] = tree
-    assert {"duojin01_base_driver", "duojin01_camera", "duojin01_mission",
-            "duojin01_msgs", "lslidar_driver"} <= packages.keys()
+    assert set(packages) == {
+        "duojin01_base_driver", "duojin01_bringup", "duojin01_description",
+        "duojin01_slam_tools", "duojin01_teleop", "lslidar_driver"}
     for name, tree in packages.items():
         for element in tree:
             if element.tag.endswith("depend"):
@@ -69,7 +70,7 @@ def test_all_hardware_configuration_clocks_are_real():
 
 @pytest.mark.parametrize("name", [
     "base", "mapping", "navigation", "nav2", "slam",
-    "save_map", "joy_teleop", "camera", "mission",
+    "save_map", "joy_teleop",
 ])
 def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
     from launch.actions import DeclareLaunchArgument
@@ -129,7 +130,7 @@ def test_command_sources_reach_base_through_plain_velocity_arbitration():
 
 
 def test_removed_modules_leave_no_launch_or_configuration_references():
-    removed = re.compile(r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop")
+    removed = re.compile(r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop|duojin01_camera|duojin01_mission|gcode|calibration_file|lidar_model")
     for directory in (BRINGUP / "launch", BRINGUP / "config"):
         for path in directory.rglob("*"):
             if path.is_file() and path.suffix in {".py", ".yaml", ".rviz", ".json"}:
@@ -170,7 +171,7 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
     include = next(item for item in children if isinstance(item, IncludeLaunchDescription))
     context = LaunchContext()
     context.launch_configurations.update(
-        params_file="/ws/config/nav2.yaml", lidar_serial_port="/dev/test_lidar", lidar_model="N10Plus")
+        params_file="/ws/config/nav2.yaml", lidar_serial_port="/dev/test_lidar")
     include.launch_description_source.get_launch_description(context)
     path = include.launch_description_source.location
     assert Path(path) == lidar_share / "launch/lslidar_x10_launch.py"
@@ -188,7 +189,6 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
             action.execute(context)
     assert context.launch_configurations["params_file"] == "/ws/config/nav2.yaml"
     configuration = yaml.safe_load(Path(values["params_file"]).read_text())["lslidar_driver_node"]["ros__parameters"]
-    assert configuration["invert_azimuth"] is True
     assert configuration["use_sim_time"] is False
     assert not (lidar_share / "src/lslidar_driver.cc").exists()
     assert not (lidar_share / "params/lsx10.yaml").exists()

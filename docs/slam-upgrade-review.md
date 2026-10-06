@@ -16,7 +16,7 @@
 | 地图最新状态 | 栅格发布周期可能落后于已处理的扫描 | 保存前通过 `dynamic_map` 刷新栅格；导出路径支持空格和引号 |
 | 位姿图续建 | 原版读取失败仍返回成功，指定旧图后可能继续生成新图 | 加载失败明确终止；建图节点退出后结束整个启动流程 |
 | 离线建图 | 没有独立工作流；录包时钟首次切换可能清空早到的 TF | 独立 ROS 域、暂停启动并确认 SLAM 已接收录包时钟，再播放传感器数据；过滤 TF 所有权，校验计数与队列，再导出快照 |
-| 构建 | apt 的原版库不会包含本项目修复，ARM64 AprilTag 需要源码构建 | 校验源码和补丁，单独构建 SLAM 覆盖层；固定 PEP 517 构建工具版本；编译默认 2 作业、1 包并行 |
+| 构建 | apt 的原版库不会包含本项目修复 | 校验源码和补丁，单独构建 SLAM 覆盖层；固定 CMake 版本；编译默认 2 作业、1 包并行 |
 | ARM64 ROS 依赖 / 工具链 | CMake 3.22 的 ARM64 配置重复出现找库失败；仅改 rcutils 导出不充分 | 固定 CMake 3.27.9，并按上游修复去掉多余的 `-latomic` 导出；先检查实际库的符号与依赖，不改动库二进制 |
 
 原始反馈尚无设备时间戳，当前使用主机收到有效帧的时间；USB 延迟和一个定时周期内覆盖多个反馈仍可能影响积分。EKF 本来只融合底盘速度和 IMU 角速度，所以原始 `/odom` 的修复不能解释成此前 EKF 距离也按同一比例错误。
@@ -27,7 +27,7 @@
 
 固定 [SLAM Toolbox Humble 2.6.10](https://github.com/SteveMacenski/slam_toolbox/tree/8293d21fe5c816d0405e0cc1f3eb46c70659c267)，提交 `8293d21fe5c816d0405e0cc1f3eb46c70659c267`。来源、下载 SHA256 和补丁名称在 `patches/slam_toolbox/source.json`；项目修复在 `humble-hardware.patch`。此 Karto 实现的角度 getter 可以在 [固定源码](https://github.com/SteveMacenski/slam_toolbox/blob/8293d21fe5c816d0405e0cc1f3eb46c70659c267/lib/karto_sdk/src/Mapper.cpp)核对。
 
-`scripts/prepare_slam_backend.py` 校验压缩包、应用补丁，源码放入忽略目录 `.cache/slam_backend/`。补丁操作隔离父目录的 Git 上下文，并用反向检查确认实际源码已包含修改；缓存只写了清单却没有补丁时会重建。`build_slam_backend.sh` 构建到 `install/slam_backend`，然后才构建 10 个真机包。运行时 `hardware_build.json` 记录实际源码和补丁校验值，地图快照也保存此信息及 SLAM 参数。直接执行普通 `colcon build` 不足以生成这个补丁覆盖层，请使用项目构建脚本。
+`scripts/prepare_slam_backend.py` 校验压缩包、应用补丁，源码放入忽略目录 `.cache/slam_backend/`。补丁操作隔离父目录的 Git 上下文，并用反向检查确认实际源码已包含修改；缓存只写了清单却没有补丁时会重建。`build_slam_backend.sh` 构建到 `install/slam_backend`，然后才构建当前 6 个真机包。运行时 `hardware_build.json` 记录实际源码和补丁校验值，地图快照也保存此信息及 SLAM 参数。直接执行普通 `colcon build` 不足以生成这个补丁覆盖层，请使用项目构建脚本。
 
 官方较新发行线不能直接当作 Humble 的更新。当前保留兼容 Humble 的版本，并对具体问题施加小范围补丁。
 
@@ -111,9 +111,9 @@ Orin 上这条二维 SLAM、AMCL、Humble MPPI 主要使用 CPU。先用 `tegras
 
 参数对照也应拆开进行：同一范围的栅格从 0.03 m 改成 0.05 m，格数约为原来的 36%；地图刷新间隔可比较 1 / 2 / 3 秒。两者影响输出细节、刷新延迟和资源开销，应使用同一录包分别导出，记录闭环墙面偏差、保存 / 重载结果以及板端峰值内存。精度指标要有实测参考，队列处理数量不能代替精度。
 
-## 验证证据与限制
+## 升级时的验证证据与限制（2026-10-05）
 
-本次使用 Ubuntu 22.04 / Humble 的 AMD64 容器与 ARM64 / QEMU 容器，构造伪串口、服务和二维录包，不接入真实设备：
+以下是精简前 SLAM 升级的历史验证记录；当前 6 包架构的回归见 [本轮减法记录](hardware-simplification.md)。升级时使用 Ubuntu 22.04 / Humble 的 AMD64 容器与 ARM64 / QEMU 容器，构造伪串口、服务和二维录包，不接入真实设备：
 
 - 两个架构均编译 10 个真机包和固定源码 SLAM 覆盖层，使用 CMake 3.27.9；36 项 Python 测试、10 项雷达协议测试、11 个启动入口解析通过。
 - 原生覆盖层与镜像内后端分别检查；回归测试复现并覆盖 Git 父目录造成的补丁误报，校验缓存恢复后实际源码包含补丁。

@@ -15,16 +15,10 @@ RUN printf 'APT::Install-Recommends "false";\nAPT::Install-Suggests "false";\n' 
     apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake git git-lfs pkg-config curl ca-certificates \
     python3-pip python3-colcon-common-extensions python3-rosdep python3-pytest \
-    python3-numpy python3-opencv python3-yaml python3-serial \
+    python3-yaml \
     libboost-thread-dev \
     ros-humble-asio-cmake-module \
     && rm -rf /var/lib/apt/lists/*
-
-COPY requirements-hardware.txt /tmp/requirements-hardware.txt
-COPY requirements-build.txt /tmp/requirements-build.txt
-ARG BUILD_JOBS=2
-ENV CMAKE_BUILD_PARALLEL_LEVEL=${BUILD_JOBS}
-RUN PIP_CONSTRAINT=/tmp/requirements-build.txt python3 -m pip install --no-cache-dir -r /tmp/requirements-hardware.txt
 
 COPY --from=package_manifests /package-manifests /tmp/hardware-dependencies/src
 RUN if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then rosdep init; fi && \
@@ -38,7 +32,7 @@ FROM ${DEPENDENCIES_IMAGE} AS hardware_dependencies
 COPY scripts/fix_humble_cmake.py /opt/duojin01/tools/fix_humble_cmake.py
 RUN python3 /opt/duojin01/tools/fix_humble_cmake.py
 COPY requirements-build.txt /tmp/requirements-build.txt
-RUN python3 -m pip install --no-cache-dir -c /tmp/requirements-build.txt cmake
+RUN python3 -m pip install --no-cache-dir -r /tmp/requirements-build.txt
 
 FROM hardware_dependencies AS slam_source
 COPY scripts/prepare_slam_backend.py /source/scripts/prepare_slam_backend.py

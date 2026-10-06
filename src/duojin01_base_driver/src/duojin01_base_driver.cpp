@@ -12,7 +12,6 @@
 #include <vector>
 #include <array>
 #include <functional>
-#include <stdexcept>
 
 #include "io_context/io_context.hpp"
 #include "serial_driver/serial_port.hpp"
@@ -61,26 +60,16 @@ public:
             static_cast<uint32_t>(serial_baud_rate_), drivers::serial_driver::FlowControl::NONE,
             drivers::serial_driver::Parity::NONE, drivers::serial_driver::StopBits::ONE);
         imu_yaw_rate_bias_ = this->declare_parameter<double>("imu_yaw_rate_bias", 0.0);
-        if (!std::isfinite(imu_yaw_rate_bias_)) {
-            throw std::invalid_argument("imu_yaw_rate_bias must be finite");
-        }
         const double imu_yaw_rate_variance =
             this->declare_parameter<double>("imu_yaw_rate_variance", 1e-6);
-        if (!std::isfinite(imu_yaw_rate_variance) || imu_yaw_rate_variance <= 0.0) {
-            throw std::invalid_argument("imu_yaw_rate_variance must be finite and positive");
-        }
         auto load_twist_variances = [this](const std::string &name,
             const std::array<double, 36> &defaults) {
             std::vector<double> diagonal;
             for (size_t axis = 0; axis < 6; ++axis) diagonal.push_back(defaults[axis * 7]);
             const auto values = this->declare_parameter<std::vector<double>>(name, diagonal);
-            if (values.size() != 6) throw std::invalid_argument(name + " must contain six variances");
             std::array<double, 36> result{};
             for (size_t axis = 0; axis < 6; ++axis) {
-                if (!std::isfinite(values[axis]) || values[axis] <= 0.0) {
-                    throw std::invalid_argument(name + " variances must be finite and positive");
-                }
-                result[axis * 7] = values[axis];
+                result[axis * 7] = values.at(axis);
             }
             return result;
         };
@@ -129,7 +118,7 @@ public:
                 500ms, std::bind(&Duojin01BaseDriverNode::try_open_serial_port, this));
         }
         // -------- timer loop --------
-        auto period = std::chrono::milliseconds(static_cast<int>(1000.0 / std::max(1, loop_hz_)));
+        auto period = std::chrono::duration<double>(1.0 / loop_hz_);
         timer_ = this->create_wall_timer(period, std::bind(&Duojin01BaseDriverNode::on_timer, this));
 
         last_frame_steady_time_ = std::chrono::steady_clock::now();
@@ -192,21 +181,16 @@ private:
      * @author litianshun (litianshun.cn@gmail.com)
      * @date 2026-01-25
      */
-    static inline int16_t saturate_i16_from_scaled(float value, float scale) noexcept
+    static inline int16_t saturate_i16_from_scaled(double value, double scale) noexcept
     {
-        const float scaled_f = value * scale;
-
-        if (!std::isfinite(scaled_f))
+        const double scaled = value * scale;
+        if (!std::isfinite(scaled))
         {
             return 0;
         }
-        const int32_t scaled = static_cast<int32_t>(std::lround(scaled_f));
-
-        if (scaled > std::numeric_limits<int16_t>::max())
-            return std::numeric_limits<int16_t>::max();
-        if (scaled < std::numeric_limits<int16_t>::min())
-            return std::numeric_limits<int16_t>::min();
-        return static_cast<int16_t>(scaled);
+        return static_cast<int16_t>(std::lround(std::clamp(scaled,
+            static_cast<double>(std::numeric_limits<int16_t>::min()),
+            static_cast<double>(std::numeric_limits<int16_t>::max()))));
     }
     /**
      * @brief 编码hl
@@ -228,31 +212,23 @@ private:
      */
     void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        auto &tx = send_data_.tx;
-
-        tx[0] = duojin01::FRAME_HEADER;
-        tx[1] = 0;
-        tx[2] = 0;
-
-        constexpr float k_mmps = 1000.0f;
-
-        const int16_t vx_mmps = saturate_i16_from_scaled(static_cast<float>(msg->linear.x), k_mmps);
-        const int16_t vy_mmps = saturate_i16_from_scaled(static_cast<float>(msg->linear.y), k_mmps);
-        const int16_t wz_mradps = saturate_i16_from_scaled(static_cast<float>(msg->angular.z), k_mmps); // 这里和源码一致保持对角速度的缩放，由于下位机的具体逻辑几近不可知，暂时保持一致避免出现错误
+        auto &tx = tx_buf_;
+        constexpr double k_mmps = 1000.0;
+        const int16_t vx_mmps = saturate_i16_from_scaled(msg->linear.x, k_mmps);
+        const int16_t vy_mmps = saturate_i16_from_scaled(msg->linear.y, k_mmps);
+        const int16_t wz_mradps = saturate_i16_from_scaled(msg->angular.z, k_mmps);
 
         encode_i16_be(vx_mmps, tx[3], tx[4]);
         encode_i16_be(vy_mmps, tx[5], tx[6]);
         encode_i16_be(wz_mradps, tx[7], tx[8]);
 
         tx[9] = xor_checksum(tx.data(), 9);
-        tx[10] = duojin01::FRAME_TAIL;
 
         try
         {
             if (serial_ && serial_->is_open())
             {
-                std::vector<uint8_t> buf(tx.begin(), tx.end());
-                serial_->send(buf);
+                serial_->send(tx);
             }
             else
             {
@@ -279,16 +255,10 @@ private:
      */
     void send_stop_command()
     {
-        auto &tx = send_data_.tx;
-        tx[0] = duojin01::FRAME_HEADER;
-        tx[1] = 0; tx[2] = 0;
-        tx[3] = 0; tx[4] = 0;
-        tx[5] = 0; tx[6] = 0;
-        tx[7] = 0; tx[8] = 0;
+        auto &tx = tx_buf_;
+        std::fill(tx.begin() + 3, tx.begin() + 9, 0);
         tx[9] = xor_checksum(tx.data(), 9);
-        tx[10] = duojin01::FRAME_TAIL;
-        std::vector<uint8_t> buf(tx.begin(), tx.end());
-        serial_->send(buf);
+        serial_->send(tx);
     }
 
     /**
@@ -307,7 +277,7 @@ private:
         serial_reconnecting_ = true;
         {
             std::lock_guard<std::mutex> lk(state_mtx_);
-            frame_ready_.store(false, std::memory_order_release);
+            frame_ready_ = false;
         }
         sample_time_ready_ = false;
 
@@ -342,7 +312,7 @@ private:
     void on_timer()
     {
         // ── 重连中：跳过所有处理，等待 try_open_serial_port 完成 ──
-        if (serial_reconnecting_)
+        if (serial_reconnecting_ || !serial_)
             return;
 
         // ── serial health check ──
@@ -353,34 +323,25 @@ private:
             return;
         }
         // 1) 端口被库关闭（EOF / 设备拔出）
-        if (serial_ && !serial_->is_open())
+        if (!serial_->is_open())
         {
             handle_serial_error("port closed unexpectedly (possible cable disconnect / EOF)");
             return;
         }
-        // 2) 端口看似打开但长时间无数据（静默故障）
-        if (serial_ && serial_->is_open())
-        {
-            std::chrono::steady_clock::time_point last_received;
-            {
-                std::lock_guard<std::mutex> lk(state_mtx_);
-                last_received = last_frame_steady_time_;
-            }
-            const double since_last = std::chrono::duration<double>(
-                std::chrono::steady_clock::now() - last_received).count();
-            if (since_last > 0.5) // 200 Hz 主循环 → 0.5 s 无帧 = 尽快重连
-            {
-                handle_serial_error(
-                    "no data received for " + std::to_string(since_last) + " seconds (silent failure)");
-                return;
-            }
-        }
-
         duojin01::VelPosData vel;
         sensor_msgs::msg::Imu imu;
         float voltage = 0.0f;
         rclcpp::Time received_stamp;
-        if (!get_sensor_data(vel, imu, voltage, received_stamp)) {
+        std::chrono::steady_clock::time_point last_received;
+        const bool has_frame = get_sensor_data(vel, imu, voltage, received_stamp, last_received);
+        const double since_last = std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - last_received).count();
+        if (since_last > 0.5) {
+            handle_serial_error(
+                "no data received for " + std::to_string(since_last) + " seconds (silent failure)");
+            return;
+        }
+        if (!has_frame) {
             return;
         }
         double dt = 0.0;
@@ -447,12 +408,15 @@ private:
      * @date 2026-01-25
      */
     bool get_sensor_data(duojin01::VelPosData &vel, sensor_msgs::msg::Imu &imu,
-                         float &voltage, rclcpp::Time &stamp)
+                         float &voltage, rclcpp::Time &stamp,
+                         std::chrono::steady_clock::time_point &last_received)
     {
         std::lock_guard<std::mutex> lk(state_mtx_);
-        if (!frame_ready_.exchange(false, std::memory_order_acq_rel)) {
+        last_received = last_frame_steady_time_;
+        if (!frame_ready_) {
             return false;
         }
+        frame_ready_ = false;
         vel = robot_vel_;
         imu = imu_msg_;
         voltage = power_voltage_;
@@ -582,16 +546,9 @@ private:
         {
             std::lock_guard<std::mutex> lk(state_mtx_);
 
-            receive_data_.flag_stop = rx[1];
-            receive_data_.frame_header = rx[0];
-            receive_data_.frame_tail = rx[23];
-            receive_data_.rx = rx;
-
             robot_vel_.x = vx;
             robot_vel_.y = vy;
             robot_vel_.z = wz;
-
-            imu_data_ = imu_raw;
 
             imu_msg_.linear_acceleration.x = static_cast<double>(imu_raw.accele_x_data) / duojin01::ACCEl_RATIO;
             imu_msg_.linear_acceleration.y = static_cast<double>(imu_raw.accele_y_data) / duojin01::ACCEl_RATIO;
@@ -604,7 +561,7 @@ private:
             power_voltage_ = v;
             latest_frame_stamp_ = this->now();
             last_frame_steady_time_ = std::chrono::steady_clock::now();
-            frame_ready_.store(true, std::memory_order_release);
+            frame_ready_ = true;
         }
     }
 
@@ -639,7 +596,7 @@ private:
      * @author litianshun (litianshun.cn@gmail.com)
      * @date 2026-01-25
      */
-    void publish_imu(const rclcpp::Time &stamp, sensor_msgs::msg::Imu imu)
+    void publish_imu(const rclcpp::Time &stamp, sensor_msgs::msg::Imu &imu)
     {
         imu.header.stamp = stamp;
         imu_pub_->publish(imu);
@@ -761,7 +718,7 @@ private:
 
             {
                 std::lock_guard<std::mutex> lk(state_mtx_);
-                frame_ready_.store(false, std::memory_order_release);
+                frame_ready_ = false;
                 last_frame_steady_time_ = std::chrono::steady_clock::now();
             }
             sample_time_ready_ = false;
@@ -803,8 +760,8 @@ private:
     // --- serial EOF detection (set by io_context thread, read by ROS timer thread) ---
     std::atomic<bool> serial_eof_detected_{false};
 
-    // --- frame ready flag + lock for shared state ---
-    std::atomic<bool> frame_ready_{false};
+    // All feedback fields, including frame_ready_, are protected by state_mtx_.
+    bool frame_ready_{false};
     std::mutex state_mtx_;
 
     // -------- ROS entities --------
@@ -832,9 +789,9 @@ private:
     // Driver runtime state
     duojin01::VelPosData robot_pos_;
     duojin01::VelPosData robot_vel_;
-    duojin01::ReceiveFrame receive_data_;
-    duojin01::SendFrame send_data_;
-    duojin01::IMUData imu_data_;
+    // ROS callbacks run in the default mutually exclusive callback group.
+    std::vector<uint8_t> tx_buf_{duojin01::FRAME_HEADER, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 duojin01::FRAME_TAIL};
 
     float power_voltage_{0.0f};
 

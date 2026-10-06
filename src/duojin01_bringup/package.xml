@@ -14,8 +14,6 @@
 
   <exec_depend>duojin01_description</exec_depend>
   <exec_depend>duojin01_base_driver</exec_depend>
-  <exec_depend>duojin01_camera</exec_depend>
-  <exec_depend>duojin01_mission</exec_depend>
   <exec_depend>duojin01_slam_tools</exec_depend>
   <exec_depend>duojin01_teleop</exec_depend>
   <exec_depend>lslidar_driver</exec_depend>

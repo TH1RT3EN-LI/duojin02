@@ -2,19 +2,15 @@
 
 #include <cstdint>
 #include <array>
-#include <cmath>
 
 // ---------------------------
 // Protocol / constants
 // ---------------------------
 namespace duojin01
 {
-constexpr uint8_t SEND_DATA_CHECK   = 1;          // send checksum mode
-constexpr uint8_t READ_DATA_CHECK   = 0;          // recv checksum mode
 constexpr uint8_t FRAME_HEADER      = 0x7B;
 constexpr uint8_t FRAME_TAIL        = 0x7D;
 constexpr std::size_t RECEIVE_DATA_SIZE = 24;
-constexpr std::size_t SEND_DATA_SIZE    = 11;
 
 constexpr float PI = 3.1415926f;
 
@@ -81,19 +77,6 @@ struct IMUData
   int16_t gyros_x_data{0};
   int16_t gyros_y_data{0};
   int16_t gyros_z_data{0};
-};
-
-struct SendFrame
-{
-  std::array<uint8_t, SEND_DATA_SIZE> tx{};
-};
-
-struct ReceiveFrame
-{
-  std::array<uint8_t, RECEIVE_DATA_SIZE> rx{};
-  uint8_t flag_stop{0};
-  uint8_t frame_header{0};
-  uint8_t frame_tail{0};
 };
 
 } // namespace duojin01

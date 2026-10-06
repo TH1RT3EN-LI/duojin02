@@ -1,24 +1,9 @@
 lslidar_driver_node:
   ros__parameters:
-    lidar_type: X10
-    lidar_model: N10Plus
     serial_port: /dev/lslidar
     frame_id: laser
     laserscan_topic: /scan
     pointcloud_topic: /lslidar_point_cloud
     use_sim_time: false
-    publish_scan: true
-    publish_multiecholaserscan: false
-    use_high_precision: false
-    # Preserve the clockwise packet-angle convention of this robot's old N10_P driver.
-    invert_azimuth: true
-    N10Plus_hz: 10
     min_range: 0.30
     max_range: 100.0
-    angle_disable_min: 0
-    angle_disable_max: 0
-    enable_noise_filter: false
-    use_time_service: false
-    use_first_point_time: false
-    is_pretreatment: false
-    is_MatrixTransformation: false

@@ -1,8 +1,8 @@
 # Duojin01 真机工作区
 
-`hardware-only` 分支面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、雷达、USB 相机、建图、Nav2 导航，以及机械臂串口 G-code 和 AprilTag 任务工具。
+`hardware-only` 分支面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、N10Plus 雷达、建图、Nav2 导航和遥控。硬件配置统一，不保留相机、机械臂或旧设备兼容入口。
 
-雷达已替换为官方统一驱动 **V5.1.3_250822**，固定上游提交 `ecd9a836`，默认使用 X10/N10Plus 接入。旧 M10P/N10P 驱动和旧消息定义已删除；来源及项目补丁见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。
+雷达基于官方 **V5.1.3_250822** 的 N10Plus 串口实现，固定上游提交 `ecd9a836`，仅保留当前 108 字节双回波协议；来源及项目补丁见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。
 
 ## Docker：构建和运行
 
@@ -12,7 +12,7 @@
 ./scripts/build_image.sh
 ```
 
-生成 `duojin01:hardware-humble`。镜像从 `ros:humble-ros-base-jammy` 构建，包含已编译的全部 10 个真机 ROS 包；进入容器后即可使用 ROS 命令。镜像安装所需的 ROS 和硬件依赖，不添加 OSRF 软件源。
+生成 `duojin01:hardware-humble`。镜像从 `ros:humble-ros-base-jammy` 构建，包含已编译的全部 6 个真机 ROS 包；进入容器后即可使用 ROS 命令。镜像安装所需的 ROS 和硬件依赖，不添加 OSRF 软件源。
 
 Docker 将包依赖清单与源码编译分层缓存。固定源码的 SLAM Toolbox 2.6.10 覆盖层包含旋转筛选、Ceres 线程数与离线队列检查补丁，详见 [SLAM 升级与验证](docs/slam-upgrade-review.md)。编译默认 2 作业、1 包并行，适合从 Orin 开始联调。
 
@@ -33,10 +33,10 @@ docker tag duojin01:hardware-humble-arm64 duojin01:hardware-humble
 
 构建脚本会传递当前终端的代理变量；Linux 上的本地回环代理会自动使用构建主机网络，也可用 `DOCKER_BUILD_NETWORK` 指定网络。基础镜像拉取由 Docker 服务负责，如这一阶段超时，应配置 Docker 服务的网络代理，或先通过 `docker load` 导入官方基础镜像。代理配置不会写入生成镜像的运行环境。
 
-按真机实际端口映射设备；下面假设底盘和雷达已创建稳定设备名，机械臂在 `/dev/ttyUSB0`，USB 相机在 `/dev/video0`：
+底盘和雷达使用稳定设备名：
 
 ```bash
-DEV_LIST=/dev/duojin01_controller,/dev/lslidar,/dev/ttyUSB0,/dev/video0 \
+DEV_LIST=/dev/duojin01_controller,/dev/lslidar \
   ./scripts/dev.sh
 ./scripts/enter.sh
 ```
@@ -48,7 +48,7 @@ DEV_LIST=/dev/duojin01_controller,/dev/lslidar,/dev/ttyUSB0,/dev/video0 \
 ```bash
 # 示例：启用本机图形界面
 GUI=1 GPU=1 \
-  DEV_LIST=/dev/duojin01_controller,/dev/lslidar,/dev/ttyUSB0,/dev/video0 \
+  DEV_LIST=/dev/duojin01_controller,/dev/lslidar \
   ./scripts/dev.sh
 
 # 停止并删除本分支的开发容器
@@ -68,7 +68,7 @@ GUI=1 GPU=1 \
 source ./source.sh
 ```
 
-开发构建先生成 `install/slam_backend`，再将 10 个真机包构建到独立的 `build/hardware`、`install/hardware`、`log/hardware`。再次进入容器会优先加载这两个覆盖层；架构标记不匹配时会提示重新构建。
+开发构建先生成 `install/slam_backend`，再将 6 个真机包构建到独立的 `build/hardware`、`install/hardware`、`log/hardware`。再次进入容器会优先加载这两个覆盖层；架构标记不匹配时会提示重新构建。
 
 ## Ubuntu 22.04 原生构建
 
@@ -109,16 +109,6 @@ ros2 launch duojin01_bringup navigation.launch.py
 # 或显式指定地图；相对路径从工作区根目录解析
 ros2 launch duojin01_bringup navigation.launch.py map:=maps/0.yaml
 
-# 独立 USB 相机
-ros2 launch duojin01_bringup camera.launch.py device_id:=0
-# 使用真实相机标定文件
-ros2 launch duojin01_bringup camera.launch.py \
-  device_id:=0 calibration_file:=/ws/calibration.yaml
-
-# 机械臂串口任务 API；此入口不会自动执行任务序列
-ros2 launch duojin01_bringup mission.launch.py \
-  serial_port:=/dev/ttyUSB0 serial_baudrate:=115200
-
 # 键盘控制
 ros2 run duojin01_teleop keyboard_teleop_node
 ```
@@ -135,7 +125,6 @@ ros2 run duojin01_teleop keyboard_teleop_node
 | `slam_params_file` | 在线 / 离线 SLAM 参数配置 |
 | `pose_graph` / `map_start_pose` | 续建的位姿图及真实起始位置 |
 | `lidar_serial_port` | 雷达串口，默认 `/dev/lslidar`；底盘、建图和导航入口均支持 |
-| `lidar_model` | 统一驱动型号，默认 `N10Plus` |
 | `use_teleop` | 手柄链路开关，与雷达开关独立 |
 | `use_foxglove` | Foxglove Bridge 开关 |
 | `use_rviz` | 建图/导航的 RViz 开关 |
@@ -143,7 +132,7 @@ ros2 run duojin01_teleop keyboard_teleop_node
 
 无显示器时可设置 `use_rviz:=false`；不使用 Foxglove 时设置 `use_foxglove:=false`。可通过 `DUOJIN01_WORKSPACE_ROOT` 指定数据工作区的绝对路径，导航选图和保存地图使用相同根目录。
 
-雷达配置为 [`duojin01_n10plus.yaml`](src/lslidar_driver/lslidar_driver/config/duojin01_n10plus.yaml)，保持 `laser` 坐标系和 `/scan` 话题。`invert_azimuth: true` 保留原驱动的角度方向；10 Hz 下输出 540 个扫描格，多个有效回波落入同一格时取最近距离。旧 `fixed_scan_count`、`scan_count_warmup` 参数已由新版按型号和转速计算格数的机制替代。
+雷达配置为 [`duojin01_n10plus.yaml`](src/lslidar_driver/lslidar_driver/config/duojin01_n10plus.yaml)，保留串口、话题、坐标系和距离过滤配置。协议、460800 波特率、顺时针角度转换及 540 格输出固定对应当前 10 Hz N10Plus；每格取最近有效回波。换用其他硬件时应修改对应驱动，不通过兼容分支猜测协议。
 
 ## 验证
 
@@ -156,11 +145,9 @@ ros2 run duojin01_teleop keyboard_teleop_node
 ./scripts/test_lidar.sh
 ```
 
-验证包依赖边界、真实时钟配置、URDF/网格完整性、速度仲裁连接、地图路径以及全部真机启动入口的参数解析；不会启动硬件节点。真实串口、相机、雷达与机械臂动作仍需连接设备进行联调。
+验证包依赖边界、真实时钟配置、URDF/网格完整性、速度仲裁连接、地图路径以及全部启动入口的参数解析；不会打开物理设备。当前精简及回归结果见 [本轮减法记录](docs/hardware-simplification.md)。伪串口与构造录包证明软件路径可执行，真实雷达采集、地图精度和 Orin 实时性能仍需要板端验证。
 
-本分支使用 Ubuntu 22.04 / Humble 的 AMD64 容器和 ARM64 / QEMU 容器验证，两个架构均编译全部 10 个包及修补后的 SLAM 后端。检查包括 36 项 Python 测试、10 项雷达 C++ 测试、11 个启动入口解析、旋转筛选及完整离线回放，并核对 NumPy/OpenCV/AprilTag、cv_bridge 和驱动动态库。雷达测试使用构造的协议包和容器内伪终端，覆盖双回波、角度方向、不同帧的数据与时间戳、坏包丢弃、串口分段读取及断开。容器进入与地图持久化也已验证；ARM64 跨架构结果不能代替 Orin 真机的雷达采集、地图精度和实时性能验证。
-
-模块、接口和任务工具见 [README_DEVELOPMENT.md](README_DEVELOPMENT.md)。雷达的上游版本和本地定制差异见 [雷达驱动对比](docs/lidar-upstream-review.md)。自研 `duojin01_*` 包使用 GPL-3.0-only；第三方驱动遵循各自目录的许可证。
+模块和标准接口见 [README_DEVELOPMENT.md](README_DEVELOPMENT.md)。雷达来源和裁剪范围见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。自研 `duojin01_*` 包使用 GPL-3.0-only；第三方驱动遵循各自目录的许可证。
 
 录包、独立离线建图与位姿图续建的具体命令、验证记录和算法升级顺序见 [SLAM 升级与验证](docs/slam-upgrade-review.md)。集成回归测试使用容器内伪串口和构造录包：
 

@@ -11,6 +11,7 @@ import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Twist
 
 
 def frame(vx=1.0, gyro=100):
@@ -34,6 +35,7 @@ def run():
     odometry, inertial = [], []
     node.create_subscription(Odometry, '/odom', odometry.append, 100)
     node.create_subscription(Imu, '/imu', inertial.append, 100)
+    commands = node.create_publisher(Twist, '/cmd_vel', 10)
     logfile = '/tmp/base-feedback-probe.log'
     with open(logfile, 'w') as log:
         process = subprocess.Popen([
@@ -76,10 +78,55 @@ def run():
             assert inertial
             assert abs(inertial[-1].angular_velocity.z - (100 * 0.00026644 - 0.01)) < 1e-6
             assert inertial[-1].angular_velocity_covariance[8] == 0.02
+
+            # Check the actual wire bytes, including int16 saturation before rounding.
+            os.set_blocking(master, False)
+            def read_pending():
+                try:
+                    return os.read(master, 4096)
+                except BlockingIOError:
+                    return b''
+            read_pending()
+            for values, expected in [
+                ((1.234, -0.5, 0.75), (1234, -500, 750)),
+                ((1e100, -1e100, 32.768), (32767, -32768, 32767)),
+                ((float('nan'), float('inf'), -float('inf')), (0, 0, 0)),
+            ]:
+                command = Twist()
+                command.linear.x, command.linear.y, command.angular.z = values
+                commands.publish(command)
+                wire = b''
+                deadline = time.monotonic() + 2
+                while len(wire) < 11 and time.monotonic() < deadline:
+                    os.write(master, frame(vx=0.0))
+                    rclpy.spin_once(node, timeout_sec=0.02)
+                    wire += read_pending()
+                assert len(wire) == 11, wire
+                assert wire[0] == 0x7b and wire[-1] == 0x7d, wire
+                assert struct.unpack('>3h', wire[3:9]) == expected, wire
+                checksum = 0
+                for byte in wire[:9]:
+                    checksum ^= byte
+                assert wire[9] == checksum, wire
+
+            # Silence forces close/reopen; the first new frame must not integrate the gap.
+            until = time.monotonic() + 0.85
+            while time.monotonic() < until:
+                rclpy.spin_once(node, timeout_sec=0.01)
+            position_before = odometry[-1].pose.pose.position.x
+            before_reconnect = len(odometry)
+            for _ in range(8):
+                os.write(master, frame())
+                until = time.monotonic() + 0.1
+                while time.monotonic() < until:
+                    rclpy.spin_once(node, timeout_sec=0.005)
+            assert len(odometry) > before_reconnect, 'Feedback did not recover'
+            assert abs(odometry[before_reconnect].pose.pose.position.x - position_before) < 0.03
             print(json.dumps({'feedback_hz': 10, 'timer_hz': 200, 'samples': len(odometry),
                               'elapsed_seconds': elapsed, 'distance_meters': distance,
                               'ratio': distance / elapsed, 'custom_baud': 57600,
-                              'bad_checksum_ignored': True, 'calibration_parameters': 'passed'}, indent=2))
+                              'bad_checksum_ignored': True, 'calibration_parameters': 'passed',
+                              'command_encoding': 'passed', 'silent_reconnect': 'passed'}, indent=2))
         finally:
             os.killpg(process.pid, signal.SIGINT)
             try:

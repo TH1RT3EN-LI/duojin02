@@ -3,7 +3,6 @@
 import json
 import math
 import os
-import time
 import xml.etree.ElementTree as ET
 from array import array
 from pathlib import Path
@@ -52,9 +51,7 @@ class SaveMapClient(Node):
         self.graph_client = self.create_client(SerializePoseGraph, "/slam_toolbox/serialize_map")
 
     def await_response(self, future, description):
-        deadline = time.monotonic() + self.response_timeout
-        while rclpy.ok() and not future.done() and time.monotonic() < deadline:
-            rclpy.spin_once(self, timeout_sec=min(0.1, max(0.0, deadline - time.monotonic())))
+        rclpy.spin_until_future_complete(self, future, timeout_sec=self.response_timeout)
         if not future.done():
             future.cancel()
             raise TimeoutError(f"Timed out waiting for {description}")

@@ -1,0 +1,287 @@
+{
+  "date": "2026-10-06",
+  "branch": "hardware-only",
+  "base_commit": "b3f68deb4fef0b9af82b6c7368f9622e77477c20",
+  "physical_hardware_used": false,
+  "architectures": {
+    "amd64": {
+      "python_tests_passed": 34,
+      "lidar_cpp_tests_passed": 12,
+      "launch_entries_checked": 9,
+      "installed_lidar_probe": {
+        "paired_frames": 6,
+        "empty_frames": 2,
+        "disconnect_exit": 1
+      },
+      "slam_replay": {
+        "recorded": {
+          "backend": {
+            "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+            "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "patch": "humble-hardware.patch",
+            "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+            "version": "2.6.10"
+          },
+          "bag": "/tmp/duojin01-slam-replay-ImzPg9/rotation-bag",
+          "clock_primed": true,
+          "domain_id": 96,
+          "log": "/tmp/duojin01-slam-replay-ImzPg9/maps/.offline-session-1843.log",
+          "odom_source": "recorded",
+          "queue": {
+            "accepted": 24,
+            "clock_active": true,
+            "clock_nanoseconds": 13058531508,
+            "completed": 24,
+            "invalid": 0,
+            "processing": false,
+            "queued": 0,
+            "received": 24
+          },
+          "rate": 1.0,
+          "recorded_scan_count": 24,
+          "scan_count": 24,
+          "scan_start_time_ns": 0,
+          "storage_id": "sqlite3",
+          "topics": {
+            "/imu": "sensor_msgs/msg/Imu",
+            "/odom": "nav_msgs/msg/Odometry",
+            "/scan": "sensor_msgs/msg/LaserScan",
+            "/tf": "tf2_msgs/msg/TFMessage",
+            "/tf_static": "tf2_msgs/msg/TFMessage"
+          },
+          "warmup_skipped_scans": 0
+        },
+        "ekf": {
+          "backend": {
+            "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+            "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "patch": "humble-hardware.patch",
+            "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+            "version": "2.6.10"
+          },
+          "bag": "/tmp/duojin01-slam-replay-ImzPg9/rotation-bag",
+          "clock_primed": true,
+          "domain_id": 97,
+          "log": "/tmp/duojin01-slam-replay-ImzPg9/maps/.offline-session-1985.log",
+          "odom_source": "ekf",
+          "queue": {
+            "accepted": 19,
+            "clock_active": true,
+            "clock_nanoseconds": 13029220632,
+            "completed": 19,
+            "invalid": 0,
+            "processing": false,
+            "queued": 0,
+            "received": 19
+          },
+          "rate": 1.0,
+          "recorded_scan_count": 24,
+          "scan_count": 19,
+          "scan_start_time_ns": 10500000000,
+          "storage_id": "sqlite3",
+          "topics": {
+            "/imu": "sensor_msgs/msg/Imu",
+            "/odom": "nav_msgs/msg/Odometry",
+            "/scan": "sensor_msgs/msg/LaserScan",
+            "/tf": "tf2_msgs/msg/TFMessage",
+            "/tf_static": "tf2_msgs/msg/TFMessage"
+          },
+          "warmup_skipped_scans": 5
+        }
+      }
+    },
+    "arm64-qemu": {
+      "python_tests_passed": 34,
+      "lidar_cpp_tests_passed": 12,
+      "launch_entries_checked": 9,
+      "installed_lidar_probe": {
+        "paired_frames": 6,
+        "empty_frames": 2,
+        "disconnect_exit": 1
+      },
+      "slam_replay": {
+        "recorded": {
+          "backend": {
+            "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+            "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "patch": "humble-hardware.patch",
+            "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+            "version": "2.6.10"
+          },
+          "bag": "/tmp/duojin01-slam-replay-Rm14XG/rotation-bag",
+          "clock_primed": true,
+          "domain_id": 96,
+          "log": "/tmp/duojin01-slam-replay-Rm14XG/maps/.offline-session-3417.log",
+          "odom_source": "recorded",
+          "queue": {
+            "accepted": 24,
+            "clock_active": true,
+            "clock_nanoseconds": 12700782182,
+            "completed": 24,
+            "invalid": 0,
+            "processing": false,
+            "queued": 0,
+            "received": 24
+          },
+          "rate": 0.1,
+          "recorded_scan_count": 24,
+          "scan_count": 24,
+          "scan_start_time_ns": 0,
+          "storage_id": "sqlite3",
+          "topics": {
+            "/imu": "sensor_msgs/msg/Imu",
+            "/odom": "nav_msgs/msg/Odometry",
+            "/scan": "sensor_msgs/msg/LaserScan",
+            "/tf": "tf2_msgs/msg/TFMessage",
+            "/tf_static": "tf2_msgs/msg/TFMessage"
+          },
+          "warmup_skipped_scans": 0
+        },
+        "ekf": {
+          "backend": {
+            "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+            "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+            "patch": "humble-hardware.patch",
+            "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+            "version": "2.6.10"
+          },
+          "bag": "/tmp/duojin01-slam-replay-Rm14XG/rotation-bag",
+          "clock_primed": true,
+          "domain_id": 97,
+          "log": "/tmp/duojin01-slam-replay-Rm14XG/maps/.offline-session-3584.log",
+          "odom_source": "ekf",
+          "queue": {
+            "accepted": 19,
+            "clock_active": true,
+            "clock_nanoseconds": 12700035929,
+            "completed": 19,
+            "invalid": 0,
+            "processing": false,
+            "queued": 0,
+            "received": 19
+          },
+          "rate": 0.1,
+          "recorded_scan_count": 24,
+          "scan_count": 19,
+          "scan_start_time_ns": 10500000000,
+          "storage_id": "sqlite3",
+          "topics": {
+            "/imu": "sensor_msgs/msg/Imu",
+            "/odom": "nav_msgs/msg/Odometry",
+            "/scan": "sensor_msgs/msg/LaserScan",
+            "/tf": "tf2_msgs/msg/TFMessage",
+            "/tf_static": "tf2_msgs/msg/TFMessage"
+          },
+          "warmup_skipped_scans": 5
+        }
+      }
+    }
+  },
+  "fresh_runtime_image": {
+    "tag": "duojin01:hardware-humble-minimal",
+    "image_id": "sha256:f5a55c975d1b799438b8e2bf66dd06c4024ecc28916a8d98cb75a2b78d5dcc42",
+    "architecture": "amd64",
+    "dependency_layers_rebuilt_from_current_manifests": true,
+    "runtime_prefix": "/opt/duojin01/install",
+    "python_tests_passed": 34,
+    "lidar_cpp_tests_passed": 12,
+    "launch_entries_checked": 9,
+    "installed_lidar_probe": {
+      "executable": "/opt/duojin01/install/lib/lslidar_driver/lslidar_driver_node",
+      "paired_frames": 6,
+      "empty_frames": 2,
+      "disconnect_exit": 1
+    },
+    "pupil_apriltags_installed": false,
+    "slam_replay": {
+      "recorded": {
+        "backend": {
+          "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+          "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+          "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+          "patch": "humble-hardware.patch",
+          "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+          "version": "2.6.10"
+        },
+        "bag": "/tmp/duojin01-slam-replay-tfLeyi/rotation-bag",
+        "clock_primed": true,
+        "domain_id": 96,
+        "log": "/tmp/duojin01-slam-replay-tfLeyi/maps/.offline-session-1079.log",
+        "odom_source": "recorded",
+        "queue": {
+          "accepted": 24,
+          "clock_active": true,
+          "clock_nanoseconds": 13059042711,
+          "completed": 24,
+          "invalid": 0,
+          "processing": false,
+          "queued": 0,
+          "received": 24
+        },
+        "rate": 1.0,
+        "recorded_scan_count": 24,
+        "scan_count": 24,
+        "scan_start_time_ns": 0,
+        "storage_id": "sqlite3",
+        "topics": {
+          "/imu": "sensor_msgs/msg/Imu",
+          "/odom": "nav_msgs/msg/Odometry",
+          "/scan": "sensor_msgs/msg/LaserScan",
+          "/tf": "tf2_msgs/msg/TFMessage",
+          "/tf_static": "tf2_msgs/msg/TFMessage"
+        },
+        "warmup_skipped_scans": 0
+      },
+      "ekf": {
+        "backend": {
+          "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
+          "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+          "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
+          "patch": "humble-hardware.patch",
+          "patch_sha256": "10a819914410c382901e5350637144156ba5a61b8025aefa189d175af2133ef1",
+          "version": "2.6.10"
+        },
+        "bag": "/tmp/duojin01-slam-replay-tfLeyi/rotation-bag",
+        "clock_primed": true,
+        "domain_id": 97,
+        "log": "/tmp/duojin01-slam-replay-tfLeyi/maps/.offline-session-1221.log",
+        "odom_source": "ekf",
+        "queue": {
+          "accepted": 19,
+          "clock_active": true,
+          "clock_nanoseconds": 13058853475,
+          "completed": 19,
+          "invalid": 0,
+          "processing": false,
+          "queued": 0,
+          "received": 19
+        },
+        "rate": 1.0,
+        "recorded_scan_count": 24,
+        "scan_count": 19,
+        "scan_start_time_ns": 10500000000,
+        "storage_id": "sqlite3",
+        "topics": {
+          "/imu": "sensor_msgs/msg/Imu",
+          "/odom": "nav_msgs/msg/Odometry",
+          "/scan": "sensor_msgs/msg/LaserScan",
+          "/tf": "tf2_msgs/msg/TFMessage",
+          "/tf_static": "tf2_msgs/msg/TFMessage"
+        },
+        "warmup_skipped_scans": 5
+      }
+    }
+  },
+  "source_sha256": {
+    "src/duojin01_base_driver/src/duojin01_base_driver.cpp": "2da603cc835f81d52459185ad6412fc8ffbb78f6ef7ba74c4d4dc0abefc6e1dd",
+    "src/duojin01_slam_tools/duojin01_slam_tools/save_map.py": "df37d1ed6c55b50d75215c709b157bdff1ca97a1a2d74b1f272e9824894b003c",
+    "src/lslidar_driver/lslidar_driver/src/lslidar_x10_driver.cpp": "fefe34bcaaadf01a0698f6aa8874acf444571282a6984573cca321ba7fe858ad",
+    "src/lslidar_driver/lslidar_driver/src/lsiosr.cpp": "97e43dd6b310040d0e39b46c89761842f2f8a75a6a3304fb7afdd3b1ba06bd99",
+    "src/lslidar_driver/lslidar_driver/src/lslidar_driver_node.cpp": "239d09a8471b9a6f48fe18c734c564b94f625d0535f4362cb7caabc7e3a851f4",
+    "src/lslidar_driver/lslidar_driver/include/lslidar_driver/publication_worker.hpp": "cc1f9eb6cbba9c4591d141ecc1532c21dfbe8f0a8cef83ea35503ffb42d249de"
+  }
+}
