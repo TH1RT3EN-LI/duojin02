@@ -1,260 +1,92 @@
 <?xml version="1.0"?>
 <robot name="duojin01_hardware" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:property name="PI" value="3.1415926535897931" />
-  <xacro:property name="wheel_radius" value="0.050" />
-  <xacro:property name="wheel_width" value="0.0505" />
+  <xacro:include filename="chassis_geometry.xacro" />
 
-  <xacro:macro name="box_inertial" params="m x y z">
-    <inertial>
-      <mass value="${m}" />
-      <inertia
-        ixx="${m*(y*y+z*z)/12}" ixy="0" ixz="0"
-        iyy="${m*(x*x+z*z)/12}" iyz="0"
-        izz="${m*(x*x+y*y)/12}" />
-    </inertial>
-  </xacro:macro>
-
-  <xacro:macro name="cylinder_inertial" params="m r h">
-    <inertial>
-      <mass value="${m}" />
-      <inertia
-        ixx="${m*(3*r*r+h*h)/12}" ixy="0" ixz="0"
-        iyy="${m*(3*r*r+h*h)/12}" iyz="0"
-        izz="${m*r*r/2}" />
-    </inertial>
-  </xacro:macro>
-
-  <xacro:macro name="mecanum_wheel_unit"
-    params="prefix location_x location_y shaft_rpy wheel_mesh_file axis_sign">
+  <!-- Native CAD visuals use metres. Collision envelopes are independent. -->
+  <xacro:macro name="mecanum_wheel_unit" params="prefix cad_name x y z radius width">
+    <!-- Preserve existing shaft/joint names at the measured axle, without fake shafts. -->
     <joint name="${prefix}_wheel_shaft_joint" type="fixed">
-      <origin xyz="${location_x} ${location_y} ${wheel_radius}" rpy="${shaft_rpy}" />
       <parent link="base_link" />
       <child link="${prefix}_wheel_shaft" />
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0" />
     </joint>
-
-    <link name="${prefix}_wheel_shaft">
-      <visual>
-        <geometry>
-          <mesh filename="package://duojin01_description/meshes/wheel_shaft.stl"
-            scale="0.001 0.001 0.001" />
-        </geometry>
-        <material name="black" />
-      </visual>
-
-
-      <xacro:box_inertial m="0.2" x="0.05" y="0.05" z="0.05" />
-    </link>
-
+    <link name="${prefix}_wheel_shaft" />
     <joint name="${prefix}_wheel_joint" type="continuous">
-      <origin xyz="0 0.042 0" rpy="0 0 0" />
       <parent link="${prefix}_wheel_shaft" />
       <child link="${prefix}_wheel" />
-      <axis xyz="0 ${axis_sign} 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
     </joint>
-
     <link name="${prefix}_wheel">
       <visual>
         <geometry>
-          <mesh filename="${wheel_mesh_file}" scale="0.001 0.001 0.001" />
+          <mesh filename="package://duojin01_description/meshes/chassis_${cad_name}_wheel.dae" />
         </geometry>
-        <material name="black" />
-      </visual>
-
-      <collision name="${prefix}_wheel_collision">
-        <origin xyz="0 0 0" rpy="${PI/2} 0 0" />
-        <geometry>
-          <cylinder radius="${wheel_radius}" length="${wheel_width}" />
-        </geometry>
-      </collision>
-
-      <xacro:cylinder_inertial m="0.5" r="${wheel_radius}" h="${wheel_width}" />
-    </link>
-  </xacro:macro>
-
-  <xacro:macro name="pillar" params="prefix x y">
-    <joint name="${prefix}_pillar_joint" type="fixed">
-      <origin xyz="${x} ${y} 0.098" rpy="0 0 0" />
-      <parent link="base_link" />
-      <child link="${prefix}_pillar" />
-    </joint>
-    <link name="${prefix}_pillar">
-      <visual>
-        <geometry>
-          <box size="0.015 0.015 0.10" />
-        </geometry>
-        <material name="light_grey" />
       </visual>
       <collision>
+        <origin xyz="0 0 0" rpy="${PI/2} 0 0" />
         <geometry>
-          <box size="0.015 0.015 0.10" />
+          <cylinder radius="${radius}" length="${width}" />
         </geometry>
       </collision>
-      <xacro:box_inertial m="0.05" x="0.015" y="0.015" z="0.1" />
     </link>
   </xacro:macro>
 
   <xacro:macro name="duojin01_hardware_model">
-    <material name="black">
-      <color rgba="0.15 0.15 0.15 1.0" />
-    </material>
-    <material name="light_grey">
-      <color rgba="0.4 0.4 0.4 1.0" />
-    </material>
-    <material name="white">
-      <color rgba="1.0 1.0 1.0 1.0" />
-    </material>
-
     <link name="base_footprint" />
-
     <joint name="base_link_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0" />
       <parent link="base_footprint" />
       <child link="base_link" />
-    </joint>
-
-    <link name="base_link">
-      <visual>
-        <origin xyz="0 0 0.02" rpy="0 0 0" />
-        <geometry>
-          <mesh filename="package://duojin01_description/meshes/base_visual.stl"
-            scale="0.001 0.001 0.001" />
-        </geometry>
-        <material name="light_grey" />
-      </visual>
-
-      <visual name="surface_visual">
-        <origin xyz="0 0 0.14" rpy="0 0 0" />
-        <geometry>
-          <mesh filename="package://duojin01_description/meshes/surface_visual.stl"
-            scale="0.001 0.001 0.001" />
-        </geometry>
-        <material name="white" />
-      </visual>
-
-      <xacro:box_inertial m="10.0" x="0.4" y="0.3" z="0.1" />
-    </link>
-
-    <xacro:mecanum_wheel_unit
-      prefix="upper_left"
-      location_x="0.175" location_y="0.104"
-      shaft_rpy="0 0 0"
-      wheel_mesh_file="package://duojin01_description/meshes/mecanum_wheel_left.stl"
-      axis_sign="-1" />
-
-    <xacro:mecanum_wheel_unit
-      prefix="lower_left"
-      location_x="-0.150" location_y="0.104"
-      shaft_rpy="0 0 0"
-      wheel_mesh_file="package://duojin01_description/meshes/mecanum_wheel_right.stl"
-      axis_sign="-1" />
-
-    <xacro:mecanum_wheel_unit
-      prefix="upper_right"
-      location_x="0.175" location_y="-0.104"
-      shaft_rpy="${PI} 0 0"
-      wheel_mesh_file="package://duojin01_description/meshes/mecanum_wheel_right.stl"
-      axis_sign="1" />
-
-    <xacro:mecanum_wheel_unit
-      prefix="lower_right"
-      location_x="-0.150" location_y="-0.104"
-      shaft_rpy="${PI} 0 0"
-      wheel_mesh_file="package://duojin01_description/meshes/mecanum_wheel_left.stl"
-      axis_sign="1" />
-
-    <xacro:pillar prefix="upper_left" x="0.175" y="0.100" />
-    <xacro:pillar prefix="lower_left" x="-0.165" y="0.100" />
-    <xacro:pillar prefix="upper_right" x="0.175" y="-0.100" />
-    <xacro:pillar prefix="lower_right" x="-0.145" y="-0.100" />
-
-    <joint name="computer_joint" type="fixed">
-      <origin xyz="0.135 0 0.175" rpy="0 0 0" />
-      <parent link="base_link" />
-      <child link="computer" />
-    </joint>
-
-    <link name="computer">
-      <visual>
-        <geometry>
-          <box size="0.13 0.13 0.05" />
-        </geometry>
-        <material name="black" />
-      </visual>
-      <collision>
-        <geometry>
-          <box size="0.13 0.13 0.05" />
-        </geometry>
-      </collision>
-      <xacro:box_inertial m="0.5" x="0.13" y="0.13" z="0.05" />
-    </link>
-
-    <joint name="lidar_joint" type="fixed">
-      <origin xyz="0.1 0 0.11" rpy="0 0 0" />
-      <parent link="base_link" />
-      <child link="laser" />
-    </joint>
-
-    <link name="laser">
-      <inertial>
-        <mass value="0.03" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.0003" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.001" />
-      </inertial>
-
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <cylinder length="0.02" radius="0.02" />
-        </geometry>
-        <material name="black" />
-      </visual>
-
-      <visual>
-        <origin xyz="0 0 0.01" rpy="0 0 0" />
-        <geometry>
-          <cylinder length="0.02" radius="0.01" />
-        </geometry>
-        <material name="black" />
-      </visual>
-
-      <visual>
-        <origin xyz="0.015 0 -0.025" rpy="0 0 0" />
-        <geometry>
-          <cylinder length="0.03" radius="0.003" />
-        </geometry>
-        <material name="white" />
-      </visual>
-
-      <visual>
-        <origin xyz="-0.0075 0.013 -0.025" rpy="0 0 0" />
-        <geometry>
-          <cylinder length="0.03" radius="0.003" />
-        </geometry>
-        <material name="white" />
-      </visual>
-
-      <visual>
-        <origin xyz="-0.0075 -0.013 -0.025" rpy="0 0 0" />
-        <geometry>
-          <cylinder length="0.03" radius="0.003" />
-        </geometry>
-        <material name="white" />
-      </visual>
-    </link>
-
-    <joint name="imu_joint" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0" />
-      <parent link="base_link" />
-      <child link="imu_link" />
     </joint>
-
-    <link name="imu_link">
-      <inertial>
-        <mass value="0.01" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
-      </inertial>
+    <link name="base_link">
+      <visual name="chassis_shell">
+        <geometry><mesh filename="package://duojin01_description/meshes/chassis_shell.dae" /></geometry>
+      </visual>
+      <visual name="chassis_metal">
+        <geometry><mesh filename="package://duojin01_description/meshes/chassis_metal.dae" /></geometry>
+      </visual>
+      <visual name="chassis_battery">
+        <geometry><mesh filename="package://duojin01_description/meshes/chassis_battery.dae" /></geometry>
+      </visual>
+      <!-- Chassis body collision; wheel envelopes remain on their measured links. -->
+      <collision name="chassis_body_envelope">
+        <origin xyz="${chassis_body_center_x} ${chassis_body_center_y} ${chassis_body_center_z}" rpy="0 0 0" />
+        <geometry><box size="${chassis_body_size_x} ${chassis_body_size_y} ${chassis_body_size_z}" /></geometry>
+      </collision>
     </link>
 
+    <xacro:mecanum_wheel_unit prefix="upper_left" cad_name="front_left"
+      x="${front_left_x}" y="${front_left_y}" z="${front_left_z}"
+      radius="${front_left_radius}" width="${front_left_width}" />
+    <xacro:mecanum_wheel_unit prefix="lower_left" cad_name="rear_left"
+      x="${rear_left_x}" y="${rear_left_y}" z="${rear_left_z}"
+      radius="${rear_left_radius}" width="${rear_left_width}" />
+    <xacro:mecanum_wheel_unit prefix="upper_right" cad_name="front_right"
+      x="${front_right_x}" y="${front_right_y}" z="${front_right_z}"
+      radius="${front_right_radius}" width="${front_right_width}" />
+    <xacro:mecanum_wheel_unit prefix="lower_right" cad_name="rear_right"
+      x="${rear_right_x}" y="${rear_right_y}" z="${rear_right_z}"
+      radius="${rear_right_radius}" width="${rear_right_width}" />
+
+    <joint name="lidar_mount_joint" type="fixed">
+      <parent link="base_link" /><child link="lidar_mount" />
+      <origin xyz="${lidar_mount_x} ${lidar_mount_y} ${lidar_mount_z}" rpy="0 0 0" />
+    </joint>
+    <link name="lidar_mount">
+      <visual><geometry><mesh filename="package://duojin01_description/meshes/n10plus.dae" /></geometry></visual>
+    </link>
+    <!-- Zero marker faces forward (user confirmed). Optical height awaits calibration. -->
+    <joint name="lidar_joint" type="fixed">
+      <parent link="lidar_mount" /><child link="laser" />
+      <origin xyz="0 0 ${lidar_scan_offset_z}" rpy="0 0 ${lidar_scan_yaw}" />
+    </joint>
+    <link name="laser" />
+    <!-- CAD does not identify an IMU mounting datum; retain its existing transform. -->
+    <joint name="imu_joint" type="fixed">
+      <parent link="base_link" /><child link="imu_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <link name="imu_link" />
   </xacro:macro>
 </robot>

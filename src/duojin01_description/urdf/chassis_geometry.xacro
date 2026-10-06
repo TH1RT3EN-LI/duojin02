@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="chassis_geometry">
+  <!--Generated CAD geometry. See docs/chassis/measurements.json. Zero-heading status is recorded there; optical scan height and IMU still require hardware calibration.-->
+  <xacro:property name="PI" value="3.14159265359" />
+  <xacro:property name="lidar_mount_x" value="0.0924721442817" />
+  <xacro:property name="lidar_mount_y" value="-8.97794961929e-06" />
+  <xacro:property name="lidar_mount_z" value="0.114807665825" />
+  <xacro:property name="lidar_scan_offset_z" value="0.0154249999905" />
+  <xacro:property name="lidar_scan_yaw" value="0" />
+  <xacro:property name="chassis_body_center_x" value="-0.0005" />
+  <xacro:property name="chassis_body_size_x" value="0.427" />
+  <xacro:property name="chassis_body_center_y" value="-0.0005" />
+  <xacro:property name="chassis_body_size_y" value="0.381" />
+  <xacro:property name="chassis_body_center_z" value="0.1195" />
+  <xacro:property name="chassis_body_size_z" value="0.197" />
+  <xacro:property name="rear_left_x" value="-0.156377854743" />
+  <xacro:property name="rear_left_y" value="0.177391014993" />
+  <xacro:property name="rear_left_z" value="0.0503076651713" />
+  <xacro:property name="rear_left_width" value="0.0499999970198" />
+  <xacro:property name="rear_left_radius" value="0.050366981054" />
+  <xacro:property name="front_right_x" value="0.156433566859" />
+  <xacro:property name="front_right_y" value="-0.177691020072" />
+  <xacro:property name="front_right_z" value="0.0542500428386" />
+  <xacro:property name="front_right_width" value="0.0499999970198" />
+  <xacro:property name="front_right_radius" value="0.0503669874594" />
+  <xacro:property name="rear_right_x" value="-0.156377855977" />
+  <xacro:property name="rear_right_y" value="-0.177391014993" />
+  <xacro:property name="rear_right_z" value="0.0503076648392" />
+  <xacro:property name="rear_right_width" value="0.0499999970198" />
+  <xacro:property name="rear_right_radius" value="0.0503669857583" />
+  <xacro:property name="front_left_x" value="0.15632214386" />
+  <xacro:property name="front_left_y" value="0.177691020072" />
+  <xacro:property name="front_left_z" value="0.0513076659357" />
+  <xacro:property name="front_left_width" value="0.0499999970198" />
+  <xacro:property name="front_left_radius" value="0.0503669815498" />
+</robot>
