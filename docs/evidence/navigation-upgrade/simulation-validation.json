@@ -1,0 +1,127 @@
+{
+  "status": "passed",
+  "base_mode": "kinematic",
+  "noise": false,
+  "installed_assets": {
+    "quality_profile": "native-shell",
+    "visual_triangles": 3092505,
+    "source_archive_sha256": "d93e6bb2a731cceba861199dc13b86d40e639ec015137fd93c8b11a8519c5d6b",
+    "mesh_count": 58,
+    "model_sdf_sha256": "4ec121bceebb139904f3990b0d2783592cb507d1b5ba558f35b18db719f49fee"
+  },
+  "performance": {
+    "sim_seconds": 10.0,
+    "wall_seconds": 10.12132809497416,
+    "real_time_factor": 0.9880126309674313,
+    "topic_hz_sim": {
+      "clock": 1000.0,
+      "joints": 1000.0,
+      "head_info": 15.2,
+      "right_info": 15.2,
+      "left_info": 15.2,
+      "head": 15.2,
+      "right": 15.2,
+      "left": 15.2,
+      "overview": 15.1,
+      "raw_scan": 10.0,
+      "scan": 10.0,
+      "cloud": 10.0,
+      "imu": 100.0,
+      "ekf": 50.0,
+      "odom": 50.0
+    }
+  },
+  "lidar": {
+    "samples": 540,
+    "frame": "laser",
+    "time_increment": 0.0,
+    "nominal_scan_height_m": 0.14330766582,
+    "range_checks": {
+      "front": {
+        "bin": 270,
+        "measured_m": 2.908566951751709,
+        "expected_m": 2.9090157573313586,
+        "error_m": -0.00044880557964965817
+      },
+      "low_target": {
+        "bin": 232,
+        "measured_m": 3.2170655727386475,
+        "expected_m": 3.2185250708953888,
+        "error_m": -0.0014594981567412901
+      },
+      "raised_target": {
+        "bin": 308,
+        "measured_m": 3.2170684337615967,
+        "expected_m": 3.218534116525717,
+        "error_m": -0.0014656827641204018
+      },
+      "right": {
+        "bin": 135,
+        "measured_m": 2.4999489784240723,
+        "expected_m": 2.5000033228620864,
+        "error_m": -5.434443801410893e-05
+      },
+      "occlusion": {
+        "bin": 337,
+        "measured_m": 1.7693760395050049,
+        "expected_m": 1.770253435408803
+      }
+    },
+    "scan_period_median_s": 0.09999999999999964,
+    "finite_bins": 484,
+    "raw_finite_bins": 540,
+    "self_filtered_bins": 56
+  },
+  "images": {
+    "head": {
+      "width": 640,
+      "height": 480,
+      "mean": 90.29271701388889,
+      "std": 15.363964617365822,
+      "frame": "head_camera_optical_frame"
+    },
+    "left": {
+      "width": 640,
+      "height": 480,
+      "mean": 101.04947482638889,
+      "std": 45.13559341243828,
+      "frame": "left_camera_optical_frame"
+    },
+    "right": {
+      "width": 640,
+      "height": 480,
+      "mean": 106.68841905381944,
+      "std": 43.31841817627786,
+      "frame": "right_camera_optical_frame"
+    },
+    "overview": {
+      "width": 1280,
+      "height": 720,
+      "mean": 126.11652669270833,
+      "std": 25.95787654291603,
+      "frame": "overview_optical_frame"
+    }
+  },
+  "motor_stop_resume": "passed",
+  "motion": [
+    {
+      "case": "forward",
+      "dx": 0.19952953461276812,
+      "dy": 4.05251119269148e-05,
+      "dyaw": 0.00015369735184932667
+    },
+    {
+      "case": "strafe",
+      "dx": -0.0005154190817782678,
+      "dy": 0.20004529417244757,
+      "dyaw": 0.00016798533666167022
+    },
+    {
+      "case": "rotate",
+      "dx": -0.0010178401185154395,
+      "dy": -0.0007840095155976778,
+      "dyaw": 0.40394931145519436
+    }
+  ],
+  "command_watchdog": "passed"
+}

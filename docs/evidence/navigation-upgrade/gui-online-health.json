@@ -1,0 +1,83 @@
+{
+  "controller_server": "active",
+  "planner_server": "active",
+  "bt_navigator": "active",
+  "collision_monitor": "active",
+  "controller_parameters": {
+    "use_sim_time": {
+      "type": 1,
+      "bool_value": true,
+      "double_value": 0.0,
+      "string_value": ""
+    },
+    "general_goal_checker.plugin": {
+      "type": 4,
+      "bool_value": false,
+      "double_value": 0.0,
+      "string_value": "nav2_controller::StoppedGoalChecker"
+    },
+    "general_goal_checker.stateful": {
+      "type": 1,
+      "bool_value": false,
+      "double_value": 0.0,
+      "string_value": ""
+    },
+    "FollowPath.CostCritic.cost_weight": {
+      "type": 3,
+      "bool_value": false,
+      "double_value": 2.0,
+      "string_value": ""
+    }
+  },
+  "nodes": [
+    "navigation_delivery_health",
+    "sim_bridge",
+    "robot_state_publisher",
+    "twist_mux",
+    "ekf_filter_node",
+    "transform_listener_impl_606ddce21ce0",
+    "slam_toolbox",
+    "transform_listener_impl_61dd1ecb9460",
+    "rviz2",
+    "transform_listener_impl_5d47dc630a60",
+    "sim_devices",
+    "velocity_guard",
+    "transform_listener_impl_5f1801a60ae0",
+    "collision_monitor",
+    "transform_listener_impl_5697f40781f0",
+    "lifecycle_manager_guard",
+    "controller_server",
+    "local_costmap",
+    "transform_listener_impl_556da44a30b0",
+    "smoother_server",
+    "transform_listener_impl_5bfa6f9cc020",
+    "planner_server",
+    "global_costmap",
+    "transform_listener_impl_5b611abb14a0",
+    "behavior_server",
+    "transform_listener_impl_61ad8b3b7e30",
+    "bt_navigator",
+    "bt_navigator_navigate_to_pose_rclcpp_node",
+    "bt_navigator_navigate_through_poses_rclcpp_node",
+    "waypoint_follower",
+    "velocity_smoother",
+    "lifecycle_manager_navigation"
+  ],
+  "map": {
+    "resolution": 0.009999999776482582,
+    "width": 603,
+    "height": 503
+  },
+  "guard": {
+    "reason": "command_stale",
+    "scale": 0,
+    "compute_ms": 0.025603,
+    "localization_margin_m": 0,
+    "remembered_points": 29
+  },
+  "scan": {
+    "frame": "laser",
+    "count": 540,
+    "range_min": 0.30000001192092896
+  }
+}

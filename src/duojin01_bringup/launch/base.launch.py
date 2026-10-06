@@ -106,7 +106,7 @@ def generate_launch_description():
             name="twist_mux",
             output="screen",
             parameters=[twist_mux_config_path, {"use_sim_time": False}],
-            remappings=[("/cmd_vel_out", "/cmd_vel_base")],
+            remappings=[("/cmd_vel_out", "/cmd_vel_requested")],
         )
 
     base_driver_node = Node(
@@ -136,6 +136,8 @@ def generate_launch_description():
             DeclareLaunchArgument("publish_robot_model", default_value="true"),
             DeclareLaunchArgument("publish_joint_states", default_value="true"),
             twist_mux_node,
+            IncludeLaunchDescription(PythonLaunchDescriptionSource(
+                os.path.join(bringup_share, "launch", "velocity_guard.launch.py"))),
             base_driver_node,
             joint_state_publisher,
             robot_state_publisher,

@@ -1,0 +1,71 @@
+velocity_guard:
+  ros__parameters:
+    use_sim_time: false
+    footprint:
+    - 0.213
+    - 0.191465
+    - 0.201465
+    - 0.203
+    - -0.202879
+    - 0.203
+    - -0.214
+    - 0.191879
+    - -0.214
+    - -0.190465
+    - -0.201465
+    - -0.203
+    - 0.202879
+    - -0.203
+    - 0.213
+    - -0.192879
+    clearance_margin_m: 0.008
+    range_error_m: 0.015
+    reaction_time_s: 0.2
+    braking_deceleration_mps2: 0.4
+    angular_deceleration_radps2: 0.8
+    scan_timeout_s: 0.3
+    command_timeout_s: 0.25
+    obstacle_memory_radius_m: 2.5
+collision_monitor:
+  ros__parameters:
+    use_sim_time: false
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    cmd_vel_in_topic: /cmd_vel_guarded
+    cmd_vel_out_topic: /cmd_vel_base
+    transform_tolerance: 0.1
+    source_timeout: 0.3
+    base_shift_correction: true
+    stop_pub_timeout: 1.0
+    polygons:
+    - FootprintStop
+    FootprintStop:
+      type: polygon
+      points:
+      - 0.221
+      - 0.199465
+      - 0.209465
+      - 0.21100000000000002
+      - -0.210879
+      - 0.21100000000000002
+      - -0.222
+      - 0.199879
+      - -0.222
+      - -0.198465
+      - -0.209465
+      - -0.21100000000000002
+      - 0.210879
+      - -0.21100000000000002
+      - 0.221
+      - -0.200879
+      action_type: stop
+      max_points: 0
+      visualize: true
+      polygon_pub_topic: /navigation/stop_polygon
+      enabled: true
+    observation_sources:
+    - scan
+    scan:
+      type: scan
+      topic: /scan
+      enabled: true

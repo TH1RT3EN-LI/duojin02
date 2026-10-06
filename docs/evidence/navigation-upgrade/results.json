@@ -1,0 +1,3743 @@
+[
+  {
+    "case": "corridor_0.40",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0106432156549028,
+    "path_length_m": 0.306375921078705,
+    "goal_position_error_m": 3.392007420936079,
+    "goal_yaw_error_rad": 3.0409849356268306,
+    "localization_rmse_m": 0.027188001949806657,
+    "localization_p95_m": 0.0691560187620326,
+    "localization_yaw_rmse_rad": 0.012490258783087843,
+    "localization_samples": 893,
+    "truth_samples": 893,
+    "sim_elapsed_s": 18.168,
+    "wall_elapsed_s": 18.172970195068046,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 9.078788467011458,
+        "peak_rss_mib": 43.828125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 7.537107406575549,
+        "peak_rss_mib": 45.2734375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.19451161536757,
+        "peak_rss_mib": 54.84765625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.40-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.40",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0105682867673296,
+    "path_length_m": 0.314291282169053,
+    "goal_position_error_m": 3.3624451046975725,
+    "goal_yaw_error_rad": 2.8984610792313457,
+    "localization_rmse_m": 0.00890631083553665,
+    "localization_p95_m": 0.01429544382041973,
+    "localization_yaw_rmse_rad": 0.005007663340079916,
+    "localization_samples": 2299,
+    "truth_samples": 2299,
+    "sim_elapsed_s": 46.279,
+    "wall_elapsed_s": 46.406780999852344,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 6.713614585989454,
+        "peak_rss_mib": 44.765625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.0829720227591,
+        "peak_rss_mib": 32.0859375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 11.906345608809776,
+        "peak_rss_mib": 54.81640625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 69.4391981126935,
+        "peak_rss_mib": 123.2890625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.626144723890933,
+        "peak_rss_mib": 33.5859375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": 1.9982944999999999,
+    "guard_reasons": {
+      "command_stale": 719,
+      "clear": 203
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.40-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.44",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0106422102252055,
+    "path_length_m": 0.3104458889987379,
+    "goal_position_error_m": 3.392099559766753,
+    "goal_yaw_error_rad": 3.041011854276131,
+    "localization_rmse_m": 0.02894322868861176,
+    "localization_p95_m": 0.06933300406481112,
+    "localization_yaw_rmse_rad": 0.014267150554381925,
+    "localization_samples": 918,
+    "truth_samples": 918,
+    "sim_elapsed_s": 18.665,
+    "wall_elapsed_s": 18.673380565829575,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 8.60595417004172,
+        "peak_rss_mib": 43.70703125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 7.2178970458414415,
+        "peak_rss_mib": 45.66015625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.829241051065364,
+        "peak_rss_mib": 54.71484375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.44-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 1.7061671396395676e-07
+  },
+  {
+    "case": "corridor_0.44",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0105853855929747,
+    "path_length_m": 0.31434269899511014,
+    "goal_position_error_m": 3.3806836869016275,
+    "goal_yaw_error_rad": 2.9664443477913838,
+    "localization_rmse_m": 0.008697101770532676,
+    "localization_p95_m": 0.014309240286579844,
+    "localization_yaw_rmse_rad": 0.0052661440797573626,
+    "localization_samples": 1999,
+    "truth_samples": 1999,
+    "sim_elapsed_s": 40.281,
+    "wall_elapsed_s": 40.50491297082044,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 6.795489363273595,
+        "peak_rss_mib": 43.55859375
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.020340114264266,
+        "peak_rss_mib": 31.84765625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 11.742205885068346,
+        "peak_rss_mib": 54.375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 63.68272936391322,
+        "peak_rss_mib": 123.25
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.694892367236277,
+        "peak_rss_mib": 33.72265625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": 2.0887474999999993,
+    "guard_reasons": {
+      "command_stale": 601,
+      "clear": 203
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.44-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.46",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0106422102252055,
+    "path_length_m": 0.3064222657923983,
+    "goal_position_error_m": 3.391971817860655,
+    "goal_yaw_error_rad": 3.0410002685166573,
+    "localization_rmse_m": 0.029214711034202052,
+    "localization_p95_m": 0.06933795797417891,
+    "localization_yaw_rmse_rad": 0.014650842236421255,
+    "localization_samples": 908,
+    "truth_samples": 908,
+    "sim_elapsed_s": 18.458,
+    "wall_elapsed_s": 18.67401153407991,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 8.545832525616829,
+        "peak_rss_mib": 44.453125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 7.158522050679031,
+        "peak_rss_mib": 45.16796875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.770075117696448,
+        "peak_rss_mib": 54.74609375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.46-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 1.69672551450351e-07
+  },
+  {
+    "case": "corridor_0.46",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.5395219569579119,
+    "path_length_m": 0.9017417886850319,
+    "goal_position_error_m": 2.830462800563625,
+    "goal_yaw_error_rad": 2.8940407749196053,
+    "localization_rmse_m": 0.007112065601466411,
+    "localization_p95_m": 0.012688957355902732,
+    "localization_yaw_rmse_rad": 0.003961734171988371,
+    "localization_samples": 1433,
+    "truth_samples": 1433,
+    "sim_elapsed_s": 28.967,
+    "wall_elapsed_s": 29.18402524595149,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 8.589275307694695,
+        "peak_rss_mib": 43.9921875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.801303713031717,
+        "peak_rss_mib": 30.65625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 12.305451563268724,
+        "peak_rss_mib": 59.89453125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 37.09164602261627,
+        "peak_rss_mib": 99.3203125
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.589275307694693,
+        "peak_rss_mib": 33.6328125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 50.25869803503156,
+    "guard_compute_p95_ms": 2.1114599999999992,
+    "guard_reasons": {
+      "command_stale": 281,
+      "clear": 296
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.46-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.48",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0106414053281476,
+    "path_length_m": 0.3063946767260088,
+    "goal_position_error_m": 3.392001289351018,
+    "goal_yaw_error_rad": 3.0409908741446063,
+    "localization_rmse_m": 0.02802793303147986,
+    "localization_p95_m": 0.06941506018331806,
+    "localization_yaw_rmse_rad": 0.013255109219669313,
+    "localization_samples": 892,
+    "truth_samples": 892,
+    "sim_elapsed_s": 18.13,
+    "wall_elapsed_s": 18.164819831959903,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 9.479052132159685,
+        "peak_rss_mib": 43.953125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 7.423354079402164,
+        "peak_rss_mib": 44.99609375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.137840460963619,
+        "peak_rss_mib": 54.24609375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.48-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 1.6978585582642364e-07
+  },
+  {
+    "case": "corridor_0.48",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.035977638218709806,
+    "path_length_m": 2.518346988118723,
+    "goal_position_error_m": 2.3052877687811986,
+    "goal_yaw_error_rad": 1.7108089647061644,
+    "localization_rmse_m": 0.0067260295099192706,
+    "localization_p95_m": 0.008524228521766153,
+    "localization_yaw_rmse_rad": 0.0018327076304721515,
+    "localization_samples": 2147,
+    "truth_samples": 2147,
+    "sim_elapsed_s": 43.245,
+    "wall_elapsed_s": 43.689188277116045,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 9.688791864471217,
+        "peak_rss_mib": 44.796875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.016822885060689,
+        "peak_rss_mib": 31.19140625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 21.468689886741977,
+        "peak_rss_mib": 63.38671875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 20.4231368078422,
+        "peak_rss_mib": 95.0078125
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 9.549384787284582,
+        "peak_rss_mib": 33.93359375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 51.948554220143706,
+    "guard_compute_p95_ms": 2.2704719999999994,
+    "guard_reasons": {
+      "command_stale": 107,
+      "clear": 743,
+      "measured_braking_collision": 7,
+      "braking_slowdown": 11
+    },
+    "controller_deadline_warnings": 1,
+    "artifact_directory": "corridor_0.48-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.003986898874645223
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.18956023094878097,
+    "path_length_m": 2.3165183189092837,
+    "goal_position_error_m": 2.3691159176089864,
+    "goal_yaw_error_rad": 1.014824514400671,
+    "localization_rmse_m": 0.010612852898302199,
+    "localization_p95_m": 0.01290087110845552,
+    "localization_yaw_rmse_rad": 0.009464682411004116,
+    "localization_samples": 2751,
+    "truth_samples": 2751,
+    "sim_elapsed_s": 55.322,
+    "wall_elapsed_s": 55.55900090513751,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.149342256483382,
+        "peak_rss_mib": 44.98828125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 27.827439859850706,
+        "peak_rss_mib": 54.88671875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.287754856343077,
+        "peak_rss_mib": 56.171875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 34.34147564694285,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.50-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "baseline",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.1940382173830117,
+    "path_length_m": 2.277688371473127,
+    "goal_position_error_m": 2.370064498567169,
+    "goal_yaw_error_rad": 0.9833586481960421,
+    "localization_rmse_m": 0.022051842093818667,
+    "localization_p95_m": 0.03316195434565485,
+    "localization_yaw_rmse_rad": 0.012009805527889425,
+    "localization_samples": 2756,
+    "truth_samples": 2756,
+    "sim_elapsed_s": 55.427,
+    "wall_elapsed_s": 55.55530775198713,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.481535430134066,
+        "peak_rss_mib": 45.06640625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 28.055757863002746,
+        "peak_rss_mib": 54.54296875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.436320921512395,
+        "peak_rss_mib": 56.34765625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 34.27420783555135,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 2,
+    "artifact_directory": "corridor_0.50-baseline-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "baseline",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.18628720212399108,
+    "path_length_m": 2.2414687818068115,
+    "goal_position_error_m": 2.3726636696637238,
+    "goal_yaw_error_rad": 1.0330381561819655,
+    "localization_rmse_m": 0.012508225497460206,
+    "localization_p95_m": 0.02007990305939688,
+    "localization_yaw_rmse_rad": 0.010577773391693815,
+    "localization_samples": 2745,
+    "truth_samples": 2745,
+    "sim_elapsed_s": 55.205,
+    "wall_elapsed_s": 55.559629591880366,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.681243553926409,
+        "peak_rss_mib": 44.7578125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 28.06678730563564,
+        "peak_rss_mib": 58.39453125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.782959701557927,
+        "peak_rss_mib": 56.82421875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 34.363393345847726,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 1,
+    "artifact_directory": "corridor_0.50-baseline-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.04148839565802809,
+    "path_length_m": 3.8175072340842986,
+    "goal_position_error_m": 0.013166693756913261,
+    "goal_yaw_error_rad": 0.001282022327442227,
+    "localization_rmse_m": 0.006761539957779929,
+    "localization_p95_m": 0.008548425285454962,
+    "localization_yaw_rmse_rad": 0.0012050993422523446,
+    "localization_samples": 1421,
+    "truth_samples": 1421,
+    "sim_elapsed_s": 28.706,
+    "wall_elapsed_s": 28.726323618087918,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.4944481229661335,
+        "peak_rss_mib": 44.73046875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.458760274761533,
+        "peak_rss_mib": 31.73828125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 19.485565119711946,
+        "peak_rss_mib": 63.0
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 16.9517278971853,
+        "peak_rss_mib": 94.05859375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 9.992597497288177,
+        "peak_rss_mib": 33.67578125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.67177381133661,
+    "guard_compute_p95_ms": 1.9723385,
+    "guard_reasons": {
+      "command_stale": 15,
+      "clear": 532,
+      "measured_braking_collision": 6,
+      "braking_slowdown": 15
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.50-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008713631672695775
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "upgraded",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.03805624980615156,
+    "path_length_m": 3.7362835504737064,
+    "goal_position_error_m": 0.01335917284671969,
+    "goal_yaw_error_rad": 0.00100021475795536,
+    "localization_rmse_m": 0.006485283375690183,
+    "localization_p95_m": 0.007593841113992004,
+    "localization_yaw_rmse_rad": 0.0015707600176413225,
+    "localization_samples": 1691,
+    "truth_samples": 1691,
+    "sim_elapsed_s": 34.129,
+    "wall_elapsed_s": 34.445462211966515,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 6.84792181836042,
+        "peak_rss_mib": 44.20703125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.67158048398204,
+        "peak_rss_mib": 31.17578125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 17.545962770648806,
+        "peak_rss_mib": 63.21484375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 14.31303830704517,
+        "peak_rss_mib": 97.4296875
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 9.551822278828912,
+        "peak_rss_mib": 34.0
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 52.20318520441651,
+    "guard_compute_p95_ms": 2.172937999999998,
+    "guard_reasons": {
+      "command_stale": 16,
+      "clear": 405,
+      "measured_braking_collision": 5,
+      "braking_slowdown": 257
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.50-upgraded-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008965482856502735
+  },
+  {
+    "case": "corridor_0.50",
+    "variant": "upgraded",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.04168480646441164,
+    "path_length_m": 3.7337490074590787,
+    "goal_position_error_m": 0.012366685311928582,
+    "goal_yaw_error_rad": 0.0002871030417418423,
+    "localization_rmse_m": 0.007546067569024204,
+    "localization_p95_m": 0.012538990007012708,
+    "localization_yaw_rmse_rad": 0.000647632742177855,
+    "localization_samples": 1378,
+    "truth_samples": 1378,
+    "sim_elapsed_s": 27.858,
+    "wall_elapsed_s": 27.873565681045875,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.2321746290534135,
+        "peak_rss_mib": 44.48828125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.268517215129059,
+        "peak_rss_mib": 31.421875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 19.515968722621523,
+        "peak_rss_mib": 62.046875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 16.099765631510866,
+        "peak_rss_mib": 94.828125
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 9.994211170802457,
+        "peak_rss_mib": 34.1953125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.57485867291689,
+    "guard_compute_p95_ms": 1.9412075,
+    "guard_reasons": {
+      "command_stale": 15,
+      "clear": 495,
+      "measured_braking_collision": 5,
+      "braking_slowdown": 37
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.50-upgraded-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008569799818687995
+  },
+  {
+    "case": "corridor_0.56",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.20863074403725604,
+    "path_length_m": 2.129583421224627,
+    "goal_position_error_m": 2.338438045026172,
+    "goal_yaw_error_rad": 1.0283333307129365,
+    "localization_rmse_m": 0.011621461225526796,
+    "localization_p95_m": 0.016277515888661,
+    "localization_yaw_rmse_rad": 0.008414432337332356,
+    "localization_samples": 2760,
+    "truth_samples": 2760,
+    "sim_elapsed_s": 55.502,
+    "wall_elapsed_s": 55.55550903896801,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.518176893332494,
+        "peak_rss_mib": 44.29296875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 28.82579043004556,
+        "peak_rss_mib": 55.609375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.527977985430164,
+        "peak_rss_mib": 56.78515625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 34.36775109730661,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 2,
+    "artifact_directory": "corridor_0.56-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "corridor_0.56",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.07010791483947645,
+    "path_length_m": 3.839805184098983,
+    "goal_position_error_m": 0.009554700156014184,
+    "goal_yaw_error_rad": 0.0002946111404543395,
+    "localization_rmse_m": 0.0073104975926424134,
+    "localization_p95_m": 0.01297843322063739,
+    "localization_yaw_rmse_rad": 0.0014759851191475993,
+    "localization_samples": 956,
+    "truth_samples": 956,
+    "sim_elapsed_s": 19.412,
+    "wall_elapsed_s": 19.5237299350556,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 6.885746598939523,
+        "peak_rss_mib": 43.37890625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.46524298984398,
+        "peak_rss_mib": 31.71484375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 24.021268669582916,
+        "peak_rss_mib": 57.42578125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 22.549506037748515,
+        "peak_rss_mib": 96.90234375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 9.251079400101956,
+        "peak_rss_mib": 34.3359375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.9051950648427,
+    "guard_compute_p95_ms": 1.8641634999999999,
+    "guard_reasons": {
+      "command_stale": 24,
+      "clear": 360
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "corridor_0.56-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.00783118198928591
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.11056233996817157,
+    "path_length_m": 3.8609892926162472,
+    "goal_position_error_m": 0.03940640826006979,
+    "goal_yaw_error_rad": 0.004884872566971883,
+    "localization_rmse_m": 0.018660119470924247,
+    "localization_p95_m": 0.03812741201378442,
+    "localization_yaw_rmse_rad": 0.008122420812567116,
+    "localization_samples": 791,
+    "truth_samples": 791,
+    "sim_elapsed_s": 16.121000000000002,
+    "wall_elapsed_s": 16.432231090962887,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 14.49033725356719,
+        "peak_rss_mib": 43.64453125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.295631843511686,
+        "peak_rss_mib": 52.90625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.55812677424377,
+        "peak_rss_mib": 50.9140625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.141960460692644,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 1,
+    "artifact_directory": "dynamic_crossing-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.109736619049702
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "baseline",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.1098364154798238,
+    "path_length_m": 3.8504488002958723,
+    "goal_position_error_m": 0.04290996755647508,
+    "goal_yaw_error_rad": 0.00289242872082525,
+    "localization_rmse_m": 0.024406793078925872,
+    "localization_p95_m": 0.06546194580615775,
+    "localization_yaw_rmse_rad": 0.013925492022831469,
+    "localization_samples": 703,
+    "truth_samples": 703,
+    "sim_elapsed_s": 14.418,
+    "wall_elapsed_s": 14.533363291062415,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 15.20341214606592,
+        "peak_rss_mib": 42.84765625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.196265199818164,
+        "peak_rss_mib": 52.34375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.281221919501411,
+        "peak_rss_mib": 50.8046875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.30702998302877,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 1,
+    "artifact_directory": "dynamic_crossing-baseline-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.11136370312031102
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "baseline",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.10981604199603602,
+    "path_length_m": 3.8559446044212486,
+    "goal_position_error_m": 0.04291845630039509,
+    "goal_yaw_error_rad": 0.0037009707985542666,
+    "localization_rmse_m": 0.014621483110122728,
+    "localization_p95_m": 0.02271684173134637,
+    "localization_yaw_rmse_rad": 0.0037389256211002937,
+    "localization_samples": 784,
+    "truth_samples": 784,
+    "sim_elapsed_s": 15.985,
+    "wall_elapsed_s": 16.19328669901006,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 14.119958742619072,
+        "peak_rss_mib": 43.140625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.016182612494067,
+        "peak_rss_mib": 53.8046875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.060621560758871,
+        "peak_rss_mib": 50.51171875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.71808951487765,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 1,
+    "artifact_directory": "dynamic_crossing-baseline-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.10181158647697766
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.09773253913458156,
+    "path_length_m": 3.993031863535275,
+    "goal_position_error_m": 0.007616318938959424,
+    "goal_yaw_error_rad": 0.0009807887425892763,
+    "localization_rmse_m": 0.007400071309411168,
+    "localization_p95_m": 0.010059277409158443,
+    "localization_yaw_rmse_rad": 0.000670443280871574,
+    "localization_samples": 918,
+    "truth_samples": 918,
+    "sim_elapsed_s": 18.659,
+    "wall_elapsed_s": 18.773870083969086,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 12.714575513356213,
+        "peak_rss_mib": 43.5625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.162359131977953,
+        "peak_rss_mib": 30.80078125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 20.65424493872712,
+        "peak_rss_mib": 59.50390625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.605935391136303,
+        "peak_rss_mib": 64.37109375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.717580770115779,
+        "peak_rss_mib": 31.125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 51.291586412116885,
+    "guard_compute_p95_ms": 0.7323195999999997,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 365,
+      "measured_braking_collision": 2,
+      "braking_slowdown": 1
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "dynamic_crossing-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.007641145176350954
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "upgraded",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.05898715158674929,
+    "path_length_m": 3.9460866682281495,
+    "goal_position_error_m": 0.00628764057943428,
+    "goal_yaw_error_rad": 0.0010053509451559126,
+    "localization_rmse_m": 0.007688075944343,
+    "localization_p95_m": 0.011306609147142935,
+    "localization_yaw_rmse_rad": 0.0011859001879092406,
+    "localization_samples": 905,
+    "truth_samples": 905,
+    "sim_elapsed_s": 18.4,
+    "wall_elapsed_s": 18.613636000081897,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 11.879943974854706,
+        "peak_rss_mib": 43.3984375
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.772678340805021,
+        "peak_rss_mib": 31.21875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 18.763649829443416,
+        "peak_rss_mib": 58.9921875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.38257729066851,
+        "peak_rss_mib": 64.296875
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.438843423507152,
+        "peak_rss_mib": 30.140625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.97079090774059,
+    "guard_compute_p95_ms": 0.7626920999999998,
+    "guard_reasons": {
+      "command_stale": 2,
+      "clear": 362,
+      "measured_braking_collision": 2,
+      "braking_slowdown": 1
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "dynamic_crossing-upgraded-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.00841436685106235
+  },
+  {
+    "case": "dynamic_crossing",
+    "variant": "upgraded",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.08310911478105754,
+    "path_length_m": 3.926179403648997,
+    "goal_position_error_m": 0.00686319306927158,
+    "goal_yaw_error_rad": 0.0005674588881452963,
+    "localization_rmse_m": 0.007211774820990388,
+    "localization_p95_m": 0.009548774296672056,
+    "localization_yaw_rmse_rad": 0.0006467699329691185,
+    "localization_samples": 863,
+    "truth_samples": 863,
+    "sim_elapsed_s": 17.609,
+    "wall_elapsed_s": 17.72389657702297,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 12.37774898804357,
+        "peak_rss_mib": 43.0546875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.138794765197222,
+        "peak_rss_mib": 31.8984375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 20.495249487179116,
+        "peak_rss_mib": 60.13671875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.578067903341822,
+        "peak_rss_mib": 65.44140625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.656933094929275,
+        "peak_rss_mib": 30.9375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 51.32648799335584,
+    "guard_compute_p95_ms": 0.6793946000000001,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 344,
+      "measured_braking_collision": 2,
+      "braking_slowdown": 1
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "dynamic_crossing-upgraded-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008953467472193851
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0845121889763836,
+    "path_length_m": 3.392558632707129,
+    "goal_position_error_m": 0.0232634627308285,
+    "goal_yaw_error_rad": 0.03415758435999913,
+    "localization_rmse_m": 0.05350579565938116,
+    "localization_p95_m": 0.19746624795722872,
+    "localization_yaw_rmse_rad": 0.026976827922336532,
+    "localization_samples": 513,
+    "truth_samples": 513,
+    "sim_elapsed_s": 10.55,
+    "wall_elapsed_s": 10.562526144087315,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 18.586629574400263,
+        "peak_rss_mib": 43.66796875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.581597693798205,
+        "peak_rss_mib": 48.29296875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.994968119397947,
+        "peak_rss_mib": 50.6328125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.01044455822557,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.04077023556947844
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "baseline",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0845121736083754,
+    "path_length_m": 3.3912207944517,
+    "goal_position_error_m": 0.029901907719069438,
+    "goal_yaw_error_rad": 0.03219149893406795,
+    "localization_rmse_m": 0.06767133088516583,
+    "localization_p95_m": 0.21198855192255517,
+    "localization_yaw_rmse_rad": 0.0440670125313331,
+    "localization_samples": 516,
+    "truth_samples": 516,
+    "sim_elapsed_s": 10.623,
+    "wall_elapsed_s": 10.732271143002436,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 17.97675124607128,
+        "peak_rss_mib": 43.53125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.966418466547402,
+        "peak_rss_mib": 50.13671875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.691346297148754,
+        "peak_rss_mib": 50.23828125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.85174566647038,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-baseline-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "baseline",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0845122497355209,
+    "path_length_m": 3.3863359773539248,
+    "goal_position_error_m": 0.026510519958816623,
+    "goal_yaw_error_rad": 0.03584735070452638,
+    "localization_rmse_m": 0.029216410181764966,
+    "localization_p95_m": 0.10303410210719748,
+    "localization_yaw_rmse_rad": 0.011957558344683006,
+    "localization_samples": 510,
+    "truth_samples": 510,
+    "sim_elapsed_s": 10.501,
+    "wall_elapsed_s": 10.503195337951183,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 17.28369585730158,
+        "peak_rss_mib": 43.4296875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 26.674836958956778,
+        "peak_rss_mib": 49.7578125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.393968409637579,
+        "peak_rss_mib": 50.59375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.62717181444168,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-baseline-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.9910606219634079,
+    "path_length_m": 3.589305016339649,
+    "goal_position_error_m": 0.0068294341851092835,
+    "goal_yaw_error_rad": 0.0003250144198010675,
+    "localization_rmse_m": 0.022676351364283365,
+    "localization_p95_m": 0.03686847891709067,
+    "localization_yaw_rmse_rad": 0.0019319944410128315,
+    "localization_samples": 1209,
+    "truth_samples": 1209,
+    "sim_elapsed_s": 24.474,
+    "wall_elapsed_s": 24.62510437401943,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.0363481684122124,
+        "peak_rss_mib": 43.25
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.369429738514565,
+        "peak_rss_mib": 32.0234375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 18.73583831825737,
+        "peak_rss_mib": 54.16796875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.82666160771236,
+        "peak_rss_mib": 64.98046875
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.61924091609133,
+        "peak_rss_mib": 30.9765625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 51.173638028558344,
+    "guard_compute_p95_ms": 0.7163442999999999,
+    "guard_reasons": {
+      "command_stale": 4,
+      "measured_braking_collision": 173,
+      "clear": 310
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.006060139156619652
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "upgraded",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.9736701985463263,
+    "path_length_m": 3.6222237077638777,
+    "goal_position_error_m": 0.007935765036052712,
+    "goal_yaw_error_rad": 0.0008374554972107219,
+    "localization_rmse_m": 0.008767865013482992,
+    "localization_p95_m": 0.010782550649732697,
+    "localization_yaw_rmse_rad": 0.004095444066238818,
+    "localization_samples": 770,
+    "truth_samples": 770,
+    "sim_elapsed_s": 15.696,
+    "wall_elapsed_s": 15.72289071814157,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 6.99485781747326,
+        "peak_rss_mib": 43.61328125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.128827801976572,
+        "peak_rss_mib": 31.546875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 16.521187987936845,
+        "peak_rss_mib": 54.5
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.394563978471732,
+        "peak_rss_mib": 64.03515625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 6.7950047369740245,
+        "peak_rss_mib": 30.765625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.386989559046924,
+    "guard_compute_p95_ms": 0.63262565,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 307
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-upgraded-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008261026070479457
+  },
+  {
+    "case": "initial_pose_error",
+    "variant": "upgraded",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.8695962980201744,
+    "path_length_m": 3.8529760560211215,
+    "goal_position_error_m": 0.006743376131701109,
+    "goal_yaw_error_rad": 9.626822985315969e-05,
+    "localization_rmse_m": 0.012916141895647866,
+    "localization_p95_m": 0.020700633284947045,
+    "localization_yaw_rmse_rad": 0.004238477185136963,
+    "localization_samples": 1322,
+    "truth_samples": 1322,
+    "sim_elapsed_s": 26.753,
+    "wall_elapsed_s": 26.97521059704013,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 8.257367044019405,
+        "peak_rss_mib": 42.4140625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.050811128911547,
+        "peak_rss_mib": 31.96875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 17.72129000314667,
+        "peak_rss_mib": 53.74609375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.55900602279637,
+        "peak_rss_mib": 63.59765625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.465564724729873,
+        "peak_rss_mib": 30.90625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.78496397472918,
+    "guard_compute_p95_ms": 0.6590785999999998,
+    "guard_reasons": {
+      "command_stale": 4,
+      "measured_braking_collision": 170,
+      "clear": 359
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "initial_pose_error-upgraded-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008562704264146945
+  },
+  {
+    "case": "legacy_map_3cm",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0513643026927681,
+    "path_length_m": 3.4406383512592287,
+    "goal_position_error_m": 0.032017481113450756,
+    "goal_yaw_error_rad": 0.027262853305228485,
+    "localization_rmse_m": 0.020881310818825202,
+    "localization_p95_m": 0.05839650722099308,
+    "localization_yaw_rmse_rad": 0.0095589429488994,
+    "localization_samples": 524,
+    "truth_samples": 524,
+    "sim_elapsed_s": 10.789000000000001,
+    "wall_elapsed_s": 10.79256505984813,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 15.582226236483862,
+        "peak_rss_mib": 35.0546875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 23.07368115787034,
+        "peak_rss_mib": 49.07421875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 5.893277871490693,
+        "peak_rss_mib": 37.3203125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.62925963010639,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "legacy_map_3cm-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.058978364799873687
+  },
+  {
+    "case": "legacy_map_3cm",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.9754389260471483,
+    "path_length_m": 3.602294711633763,
+    "goal_position_error_m": 0.018812685784276216,
+    "goal_yaw_error_rad": 0.0012866661245596878,
+    "localization_rmse_m": 0.010813638641701406,
+    "localization_p95_m": 0.014230610522728272,
+    "localization_yaw_rmse_rad": 0.0008896709748551576,
+    "localization_samples": 684,
+    "truth_samples": 684,
+    "sim_elapsed_s": 13.982000000000001,
+    "wall_elapsed_s": 14.092937292065471,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 13.09859440381471,
+        "peak_rss_mib": 34.5390625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.5862988810141765,
+        "peak_rss_mib": 31.0703125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 16.35474216521498,
+        "peak_rss_mib": 57.09375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.252329104936959,
+        "peak_rss_mib": 47.08984375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 6.660302239227819,
+        "peak_rss_mib": 30.70703125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.74657897930592,
+    "guard_compute_p95_ms": 0.318342,
+    "guard_reasons": {
+      "clear": 276
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "legacy_map_3cm-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.010069016995628656
+  },
+  {
+    "case": "online_thin",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.159059135946412,
+    "path_length_m": 3.7681646266635784,
+    "goal_position_error_m": 0.024876918073367813,
+    "goal_yaw_error_rad": 0.0023319739211914063,
+    "localization_rmse_m": 0.006657455092661336,
+    "localization_p95_m": 0.009965500827385839,
+    "localization_yaw_rmse_rad": 0.009147629851400342,
+    "localization_samples": 1523,
+    "truth_samples": 1523,
+    "sim_elapsed_s": 30.752000000000002,
+    "wall_elapsed_s": 30.964540716959164,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 7.929135137129935,
+        "peak_rss_mib": 52.5078125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 16.022095380398916,
+        "peak_rss_mib": 54.21875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.847889436612216,
+        "peak_rss_mib": 54.59375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.95059194881469,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.049754722726422604
+  },
+  {
+    "case": "online_thin",
+    "variant": "baseline",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.10212982174181555,
+    "path_length_m": 3.5706133218831897,
+    "goal_position_error_m": 0.03662838815762318,
+    "goal_yaw_error_rad": 0.03152328734483347,
+    "localization_rmse_m": 0.009165832916845158,
+    "localization_p95_m": 0.014330598621685212,
+    "localization_yaw_rmse_rad": 0.0037579449608602586,
+    "localization_samples": 823,
+    "truth_samples": 823,
+    "sim_elapsed_s": 16.771,
+    "wall_elapsed_s": 16.884659374831244,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 9.629509979123513,
+        "peak_rss_mib": 52.89453125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 24.40687120494827,
+        "peak_rss_mib": 53.03515625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.630932436286558,
+        "peak_rss_mib": 55.109375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.03964446624741,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-baseline-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.10392062578288479
+  },
+  {
+    "case": "online_thin",
+    "variant": "baseline",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.11899426425804024,
+    "path_length_m": 3.582787986217275,
+    "goal_position_error_m": 0.02130334714708239,
+    "goal_yaw_error_rad": 0.0036885743232383493,
+    "localization_rmse_m": 0.00691875111281099,
+    "localization_p95_m": 0.01160381425215735,
+    "localization_yaw_rmse_rad": 0.003654624827022197,
+    "localization_samples": 788,
+    "truth_samples": 788,
+    "sim_elapsed_s": 16.066,
+    "wall_elapsed_s": 16.17427165596746,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 9.026720540110517,
+        "peak_rss_mib": 49.8203125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 23.404996829000844,
+        "peak_rss_mib": 52.078125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.898993555655896,
+        "peak_rss_mib": 54.2734375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.83434459101409,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-baseline-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.05224803954917418
+  },
+  {
+    "case": "online_thin",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.18151408835853533,
+    "path_length_m": 3.971525770919608,
+    "goal_position_error_m": 0.006622124837139998,
+    "goal_yaw_error_rad": 0.0009462418610994895,
+    "localization_rmse_m": 0.006047994130942567,
+    "localization_p95_m": 0.011519515125764164,
+    "localization_yaw_rmse_rad": 0.004890618063272472,
+    "localization_samples": 1712,
+    "truth_samples": 1712,
+    "sim_elapsed_s": 34.545,
+    "wall_elapsed_s": 34.55772812408395,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 8.611771143009557,
+        "peak_rss_mib": 51.89453125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.171577334110348,
+        "peak_rss_mib": 31.66796875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 14.784030324006169,
+        "peak_rss_mib": 57.9296875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 40.76630230496333,
+        "peak_rss_mib": 117.015625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.2009690444960475,
+        "peak_rss_mib": 29.7734375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 51.113779935985804,
+    "guard_compute_p95_ms": 0.24531,
+    "guard_reasons": {
+      "command_stale": 259,
+      "clear": 426
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.009630013337900761
+  },
+  {
+    "case": "online_thin",
+    "variant": "upgraded",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.10668418307903557,
+    "path_length_m": 3.7509716363888037,
+    "goal_position_error_m": 0.009582546401672474,
+    "goal_yaw_error_rad": 0.0010676524562304264,
+    "localization_rmse_m": 0.006774629782258424,
+    "localization_p95_m": 0.013341081547224694,
+    "localization_yaw_rmse_rad": 0.006086792959401498,
+    "localization_samples": 1688,
+    "truth_samples": 1688,
+    "sim_elapsed_s": 34.06999999999999,
+    "wall_elapsed_s": 34.075925765093416,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 7.696576376491401,
+        "peak_rss_mib": 50.9609375
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 5.8768432022046735,
+        "peak_rss_mib": 31.234375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 13.036449133824581,
+        "peak_rss_mib": 57.8515625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 38.930357253183246,
+        "peak_rss_mib": 115.7578125
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 5.8768432022046735,
+        "peak_rss_mib": 29.9453125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.534614571370184,
+    "guard_compute_p95_ms": 0.212841,
+    "guard_reasons": {
+      "command_stale": 278,
+      "clear": 398
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-upgraded-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.009909252569427405
+  },
+  {
+    "case": "online_thin",
+    "variant": "upgraded",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.022374694994320127,
+    "path_length_m": 1.187175042086748,
+    "goal_position_error_m": 2.364344060683607,
+    "goal_yaw_error_rad": 0.7383607659763336,
+    "localization_rmse_m": 0.005570708431360083,
+    "localization_p95_m": 0.008257171305537624,
+    "localization_yaw_rmse_rad": 0.010523237961412751,
+    "localization_samples": 1951,
+    "truth_samples": 1951,
+    "sim_elapsed_s": 39.325,
+    "wall_elapsed_s": 39.54550305195153,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "async_slam_toolbox_node": {
+        "cpu_percent_one_core": 7.558495224074127,
+        "peak_rss_mib": 51.3984375
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.04605486989961,
+        "peak_rss_mib": 31.6640625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 12.91349692519783,
+        "peak_rss_mib": 57.25
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 39.79099350165125,
+        "peak_rss_mib": 122.00390625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 6.815456710521076,
+        "peak_rss_mib": 29.7109375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 51.20416320860386,
+    "guard_compute_p95_ms": 0.22871019999999995,
+    "guard_reasons": {
+      "command_stale": 450,
+      "clear": 147,
+      "measured_braking_collision": 146,
+      "braking_slowdown": 37,
+      "swept_collision": 5
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "online_thin-upgraded-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "open",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.068963853564894,
+    "path_length_m": 3.4585122912898525,
+    "goal_position_error_m": 0.04120617207260797,
+    "goal_yaw_error_rad": 0.022855849548588606,
+    "localization_rmse_m": 0.02102132226148453,
+    "localization_p95_m": 0.05473232185465622,
+    "localization_yaw_rmse_rad": 0.009326997165255039,
+    "localization_samples": 516,
+    "truth_samples": 516,
+    "sim_elapsed_s": 10.623,
+    "wall_elapsed_s": 10.633202830096707,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 17.88863965146111,
+        "peak_rss_mib": 43.7265625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 24.984133591426133,
+        "peak_rss_mib": 50.296875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.595811268136499,
+        "peak_rss_mib": 50.65234375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 33.86615193448961,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.08339072658571427
+  },
+  {
+    "case": "open",
+    "variant": "baseline",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0547884830038197,
+    "path_length_m": 3.4718311759217384,
+    "goal_position_error_m": 0.02875714209757364,
+    "goal_yaw_error_rad": 0.02329797516040949,
+    "localization_rmse_m": 0.028337785478255842,
+    "localization_p95_m": 0.07205941460616837,
+    "localization_yaw_rmse_rad": 0.01581871791231618,
+    "localization_samples": 523,
+    "truth_samples": 523,
+    "sim_elapsed_s": 10.76,
+    "wall_elapsed_s": 10.863671205937862,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 16.749638338327035,
+        "peak_rss_mib": 43.08984375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 25.029289107840974,
+        "peak_rss_mib": 49.8125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.281114376872639,
+        "peak_rss_mib": 51.25
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.393756883218884,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-baseline-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.00618738247032642
+  },
+  {
+    "case": "open",
+    "variant": "baseline",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0627691681996665,
+    "path_length_m": 3.464939404114371,
+    "goal_position_error_m": 0.032691125851270944,
+    "goal_yaw_error_rad": 0.022432857307057796,
+    "localization_rmse_m": 0.015199570265441702,
+    "localization_p95_m": 0.024512550445916933,
+    "localization_yaw_rmse_rad": 0.004792653990998332,
+    "localization_samples": 520,
+    "truth_samples": 520,
+    "sim_elapsed_s": 10.714,
+    "wall_elapsed_s": 10.733194275991991,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 18.992189819233637,
+        "peak_rss_mib": 42.78125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 26.48910685314165,
+        "peak_rss_mib": 48.9296875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.197040352551694,
+        "peak_rss_mib": 51.49609375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.425681352149695,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-baseline-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.07499214564443919
+  },
+  {
+    "case": "open",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.8595550335763642,
+    "path_length_m": 3.9079288218843966,
+    "goal_position_error_m": 0.011001615865529519,
+    "goal_yaw_error_rad": 0.0005185595634563112,
+    "localization_rmse_m": 0.006539663586960774,
+    "localization_p95_m": 0.010633812247359492,
+    "localization_yaw_rmse_rad": 0.0007612116940861073,
+    "localization_samples": 858,
+    "truth_samples": 858,
+    "sim_elapsed_s": 17.457,
+    "wall_elapsed_s": 17.473336114082485,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 11.81642173134075,
+        "peak_rss_mib": 42.96875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.407309145019575,
+        "peak_rss_mib": 31.7890625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 16.930992331473316,
+        "peak_rss_mib": 55.09765625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.641860669189503,
+        "peak_rss_mib": 65.00390625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.053978991013349,
+        "peak_rss_mib": 31.0546875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.94569092616439,
+    "guard_compute_p95_ms": 0.8556532,
+    "guard_reasons": {
+      "command_stale": 2,
+      "clear": 341
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.009905835660639906
+  },
+  {
+    "case": "open",
+    "variant": "upgraded",
+    "seed": 2,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.8783247106361389,
+    "path_length_m": 3.860848280106772,
+    "goal_position_error_m": 0.012049581119242097,
+    "goal_yaw_error_rad": 0.0006471177417274322,
+    "localization_rmse_m": 0.006366980527840865,
+    "localization_p95_m": 0.010036374319615116,
+    "localization_yaw_rmse_rad": 0.0014764602182991914,
+    "localization_samples": 831,
+    "truth_samples": 831,
+    "sim_elapsed_s": 16.922,
+    "wall_elapsed_s": 16.934564396971837,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 11.992667127333402,
+        "peak_rss_mib": 43.7265625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.08657602978792,
+        "peak_rss_mib": 30.97265625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 17.32274140614825,
+        "peak_rss_mib": 55.95703125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.540232651282878,
+        "peak_rss_mib": 63.765625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.05568044411789,
+        "peak_rss_mib": 30.890625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.54376978660002,
+    "guard_compute_p95_ms": 0.9518363499999999,
+    "guard_reasons": {
+      "command_stale": 3,
+      "clear": 329
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-upgraded-2",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.009473469290251033
+  },
+  {
+    "case": "open",
+    "variant": "upgraded",
+    "seed": 3,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.857893932926149,
+    "path_length_m": 3.9089273246634026,
+    "goal_position_error_m": 0.012190926703703997,
+    "goal_yaw_error_rad": 0.00023032466149364161,
+    "localization_rmse_m": 0.006360970379165404,
+    "localization_p95_m": 0.012262902751476658,
+    "localization_yaw_rmse_rad": 0.0006670427391406499,
+    "localization_samples": 850,
+    "truth_samples": 850,
+    "sim_elapsed_s": 17.313000000000002,
+    "wall_elapsed_s": 17.322992644039914,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 12.87547270365213,
+        "peak_rss_mib": 43.1171875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.055053536247744,
+        "peak_rss_mib": 31.98046875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 16.932128486994582,
+        "peak_rss_mib": 54.8125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.642440581903486,
+        "peak_rss_mib": 63.51953125
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.113311566684905,
+        "peak_rss_mib": 30.609375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.649963261093944,
+    "guard_compute_p95_ms": 0.8391928500000001,
+    "guard_reasons": {
+      "command_stale": 4,
+      "clear": 336
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "open-upgraded-3",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.01163710031333366
+  },
+  {
+    "case": "precision_doorway_0.46",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0106403983506267,
+    "path_length_m": 0.3064006397952415,
+    "goal_position_error_m": 3.392001878654319,
+    "goal_yaw_error_rad": 3.040992716882894,
+    "localization_rmse_m": 0.03171426993700043,
+    "localization_p95_m": 0.06948534654282237,
+    "localization_yaw_rmse_rad": 0.01393075122026709,
+    "localization_samples": 891,
+    "truth_samples": 891,
+    "sim_elapsed_s": 18.12,
+    "wall_elapsed_s": 18.22378682415001,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 8.564251471796567,
+        "peak_rss_mib": 44.0
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 6.8514011774372525,
+        "peak_rss_mib": 45.46484375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.565926128377367,
+        "peak_rss_mib": 53.859375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "precision_doorway_0.46-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 1.6978929521194643e-07
+  },
+  {
+    "case": "precision_doorway_0.46",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 6,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.3007634812453138,
+    "path_length_m": 1.1525624036977218,
+    "goal_position_error_m": 2.5783885982735892,
+    "goal_yaw_error_rad": 2.077095757502147,
+    "localization_rmse_m": 0.007570337431074807,
+    "localization_p95_m": 0.012725175837652945,
+    "localization_yaw_rmse_rad": 0.004137710219865157,
+    "localization_samples": 1455,
+    "truth_samples": 1455,
+    "sim_elapsed_s": 29.398,
+    "wall_elapsed_s": 29.522988143842667,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 9.373431566820717,
+        "peak_rss_mib": 43.890625
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.995612529649286,
+        "peak_rss_mib": 31.84765625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 13.818919331967306,
+        "peak_rss_mib": 60.66015625
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 35.08144608464518,
+        "peak_rss_mib": 98.78515625
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.78759209389442,
+        "peak_rss_mib": 33.44140625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": 50.86926579242572,
+    "guard_compute_p95_ms": 2.8337239999999855,
+    "guard_reasons": {
+      "command_stale": 255,
+      "clear": 330
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "precision_doorway_0.46-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.0
+  },
+  {
+    "case": "s_bend",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.13379171619633898,
+    "path_length_m": 3.8623693118256264,
+    "goal_position_error_m": 0.034783557512413826,
+    "goal_yaw_error_rad": 0.021654048400057455,
+    "localization_rmse_m": 0.019390582220032888,
+    "localization_p95_m": 0.041657010895317904,
+    "localization_yaw_rmse_rad": 0.009468798880233076,
+    "localization_samples": 663,
+    "truth_samples": 663,
+    "sim_elapsed_s": 13.552,
+    "wall_elapsed_s": 13.562985638156533,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 18.217081197703717,
+        "peak_rss_mib": 43.10546875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 29.97747538862637,
+        "peak_rss_mib": 51.0703125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.456687006781065,
+        "peak_rss_mib": 51.62890625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.04970136471093,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "s_bend-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.08309988522598895
+  },
+  {
+    "case": "s_bend",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.06297620070950871,
+    "path_length_m": 4.5507084677879766,
+    "goal_position_error_m": 0.0075837590806344495,
+    "goal_yaw_error_rad": 0.0026312889869981398,
+    "localization_rmse_m": 0.006660443994801062,
+    "localization_p95_m": 0.010019194592796937,
+    "localization_yaw_rmse_rad": 0.0018334007077364046,
+    "localization_samples": 976,
+    "truth_samples": 976,
+    "sim_elapsed_s": 19.803,
+    "wall_elapsed_s": 20.024189685005695,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 13.420803781149433,
+        "peak_rss_mib": 43.89453125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.864075216313069,
+        "peak_rss_mib": 31.62890625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 19.721410136421873,
+        "peak_rss_mib": 57.10546875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.605706241347727,
+        "peak_rss_mib": 66.359375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 8.042237380307101,
+        "peak_rss_mib": 31.41796875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.81391448620707,
+    "guard_compute_p95_ms": 1.1801559999999998,
+    "guard_reasons": {
+      "command_stale": 2,
+      "clear": 393
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "s_bend-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.008620386071458881
+  },
+  {
+    "case": "sensor_dropout",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 1.0845121736083754,
+    "path_length_m": 3.426205827396329,
+    "goal_position_error_m": 0.03147706530741967,
+    "goal_yaw_error_rad": 0.0012707130663613727,
+    "localization_rmse_m": 0.020057516148954423,
+    "localization_p95_m": 0.04410978796768227,
+    "localization_yaw_rmse_rad": 0.00948841471913063,
+    "localization_samples": 628,
+    "truth_samples": 710,
+    "sim_elapsed_s": 14.494,
+    "wall_elapsed_s": 14.602394342888147,
+    "localization_tf_failures": {
+      "ExtrapolationException": 82
+    },
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 16.70243723425241,
+        "peak_rss_mib": 42.87890625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 21.484759006452887,
+        "peak_rss_mib": 56.0546875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 6.709526068460369,
+        "peak_rss_mib": 51.5
+      }
+    },
+    "scan_dropout_stop_latency_s": 1.1639999999999997,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.42648496711627,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "sensor_dropout-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 0.8845070422535212,
+    "final_truth_speed_mps": 0.03486183831021246
+  },
+  {
+    "case": "sensor_dropout",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.9729964266735567,
+    "path_length_m": 3.6614484695308542,
+    "goal_position_error_m": 0.010774587692546128,
+    "goal_yaw_error_rad": 0.0011372075084114665,
+    "localization_rmse_m": 0.007464037092355227,
+    "localization_p95_m": 0.013825716898627622,
+    "localization_yaw_rmse_rad": 0.0013294491837249197,
+    "localization_samples": 1000,
+    "truth_samples": 1086,
+    "sim_elapsed_s": 22.022,
+    "wall_elapsed_s": 22.25459051108919,
+    "localization_tf_failures": {
+      "ExtrapolationException": 86
+    },
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 11.801501182703484,
+        "peak_rss_mib": 43.09375
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.783540049900428,
+        "peak_rss_mib": 31.66015625
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 15.890210253876345,
+        "peak_rss_mib": 57.34375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.084492936182704,
+        "peak_rss_mib": 63.9609375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.108778271470996,
+        "peak_rss_mib": 30.8203125
+      }
+    },
+    "scan_dropout_stop_latency_s": 0.3699999999999992,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 51.16875725798309,
+    "guard_compute_p95_ms": 0.65098365,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 399,
+      "scan_or_tf_stale": 38
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "sensor_dropout-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 0.9208103130755064,
+    "final_truth_speed_mps": 0.0071839956911553355
+  },
+  {
+    "case": "thin_obstacles",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.12962469046878683,
+    "path_length_m": 3.5441095427800335,
+    "goal_position_error_m": 0.02742056734367739,
+    "goal_yaw_error_rad": 0.03017210437017181,
+    "localization_rmse_m": 0.020397699082169714,
+    "localization_p95_m": 0.04228711339438316,
+    "localization_yaw_rmse_rad": 0.00921509732371289,
+    "localization_samples": 549,
+    "truth_samples": 549,
+    "sim_elapsed_s": 11.286999999999999,
+    "wall_elapsed_s": 11.293442518915981,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 20.46065638349113,
+        "peak_rss_mib": 43.35546875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 29.977240747905615,
+        "peak_rss_mib": 50.6171875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 7.518101647887439,
+        "peak_rss_mib": 50.296875
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 34.606657829135656,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "thin_obstacles-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.017718716631184288
+  },
+  {
+    "case": "thin_obstacles",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 4,
+    "success": true,
+    "collision_events": 0,
+    "expected_outcome": "navigate",
+    "safety_stop_pass": null,
+    "min_clearance_m": 0.18046326057623818,
+    "path_length_m": 3.8520818635595826,
+    "goal_position_error_m": 0.0113327002223734,
+    "goal_yaw_error_rad": 0.0007763736530621588,
+    "localization_rmse_m": 0.00798289545687315,
+    "localization_p95_m": 0.010016561875537754,
+    "localization_yaw_rmse_rad": 0.0007529482993627069,
+    "localization_samples": 821,
+    "truth_samples": 821,
+    "sim_elapsed_s": 16.724999999999998,
+    "wall_elapsed_s": 16.83508885395713,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 13.020450327649167,
+        "peak_rss_mib": 43.66796875
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 6.903866685358164,
+        "peak_rss_mib": 31.30859375
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 17.441347415641676,
+        "peak_rss_mib": 55.5546875
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.538993005574568,
+        "peak_rss_mib": 66.33984375
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 7.630589494343234,
+        "peak_rss_mib": 30.7734375
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": true,
+    "command_period_p95_ms": 50.69115289952606,
+    "guard_compute_p95_ms": 0.8157490000000001,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 330
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "thin_obstacles-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.009076486394722232
+  },
+  {
+    "case": "unsafe_command",
+    "variant": "baseline",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "9b4a00bc9c2c82e5253c7a901e5a1c332be6dac534a40d2f4a81710bdfd2e0e2",
+    "evaluator_sha256": "22d7ae359a562a9398756da079c7fe35eea7ebe3e2053e0c4b3f65970e025b37",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "safe_stop",
+    "safety_stop_pass": false,
+    "min_clearance_m": 0.0008473197537555955,
+    "path_length_m": 1.1268457699764747,
+    "goal_position_error_m": 2.768054294134346,
+    "goal_yaw_error_rad": 5.04582149840607e-07,
+    "localization_rmse_m": 0.039634166288284776,
+    "localization_p95_m": 0.07911718749475449,
+    "localization_yaw_rmse_rad": 0.009505063025742588,
+    "localization_samples": 290,
+    "truth_samples": 290,
+    "sim_elapsed_s": 6.1,
+    "wall_elapsed_s": 6.302616979926825,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 13.437028238345183,
+        "peak_rss_mib": 42.8671875
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 6.355351193811909,
+        "peak_rss_mib": 44.7734375
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 5.6290253430905475,
+        "peak_rss_mib": 46.26953125
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": null,
+    "guard_reasons": {},
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "unsafe_command-baseline-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 1,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 0.07479039932845662
+  },
+  {
+    "case": "unsafe_command",
+    "variant": "upgraded",
+    "seed": 1,
+    "odom_scale": 1.03,
+    "odom_noise_mps": 0.003,
+    "gyro_bias_radps": 0.001,
+    "range_noise_stddev_m": 0.005,
+    "evaluation_translation_step_m": 0.004,
+    "configuration_sha256": "45f5ac618fe4291a65933e2dd41edde3bcc4d2123911bcbf692b50cafcfbb3ad",
+    "evaluator_sha256": "80f325ea8812f2a6eb235dc8770612e5e2712dad6fdfa8f95db7e3b239b2417e",
+    "algorithm_sha256": {
+      "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+      "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471",
+      "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792",
+      "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313",
+      "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131",
+      "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c",
+      "src/duojin01_navigation/src/velocity_guard.cpp": "f58c105f962890b2b28d6147ea0efa39cdc9ed4956428a7bdc1bfab2fff3ccf9",
+      "src/duojin01_navigation/src/precise_mppi.cpp": "7010726fa317b5fa35ad74d8eab2629db9785b6ecd80936e5b85a0f0f9d44c9b",
+      "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"
+    },
+    "verified_build": true,
+    "status": 0,
+    "success": false,
+    "collision_events": 0,
+    "expected_outcome": "safe_stop",
+    "safety_stop_pass": true,
+    "min_clearance_m": 0.032450698926025215,
+    "path_length_m": 0.8485346486971391,
+    "goal_position_error_m": 2.5529530810555516,
+    "goal_yaw_error_rad": 0.0001841118314788914,
+    "localization_rmse_m": 0.008525913102553581,
+    "localization_p95_m": 0.011126115987448842,
+    "localization_yaw_rmse_rad": 0.0007751045654743286,
+    "localization_samples": 299,
+    "truth_samples": 299,
+    "sim_elapsed_s": 6.292000000000001,
+    "wall_elapsed_s": 6.301884226035327,
+    "localization_tf_failures": {},
+    "node_resources": {
+      "amcl": {
+        "cpu_percent_one_core": 7.267819559937822,
+        "peak_rss_mib": 42.578125
+      },
+      "collision_monitor": {
+        "cpu_percent_one_core": 7.267819559937822,
+        "peak_rss_mib": 31.828125
+      },
+      "controller_server": {
+        "cpu_percent_one_core": 10.53833836190984,
+        "peak_rss_mib": 50.45703125
+      },
+      "planner_server": {
+        "cpu_percent_one_core": 8.176297004930051,
+        "peak_rss_mib": 59.76171875
+      },
+      "velocity_guard": {
+        "cpu_percent_one_core": 12.536988740892742,
+        "peak_rss_mib": 30.625
+      }
+    },
+    "scan_dropout_stop_latency_s": null,
+    "aperture_crossed": false,
+    "command_period_p95_ms": null,
+    "guard_compute_p95_ms": 0.650821,
+    "guard_reasons": {
+      "command_stale": 1,
+      "clear": 36,
+      "measured_braking_collision": 12,
+      "braking_slowdown": 40,
+      "swept_collision": 32
+    },
+    "controller_deadline_warnings": 0,
+    "artifact_directory": "unsafe_command-upgraded-1",
+    "near_contact_threshold_m": 0.002,
+    "near_contact_events": 0,
+    "localization_tf_coverage": 1.0,
+    "final_truth_speed_mps": 1.709691698603291e-07
+  }
+]

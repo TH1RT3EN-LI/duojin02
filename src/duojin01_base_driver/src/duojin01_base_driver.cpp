@@ -56,6 +56,9 @@ public:
         odom_z_scale_negative_ = this->declare_parameter<double>("odom_z_scale_negative", 1.0);
 
         loop_hz_ = this->declare_parameter<int>("loop_hz", 200);
+        command_timeout_s_ = this->declare_parameter<double>("command_timeout_s", 0.25);
+        if (!std::isfinite(command_timeout_s_) || command_timeout_s_ <= 0.0)
+            throw std::invalid_argument("command_timeout_s must be finite and positive");
         serial_cfg_ = drivers::serial_driver::SerialPortConfig(
             static_cast<uint32_t>(serial_baud_rate_), drivers::serial_driver::FlowControl::NONE,
             drivers::serial_driver::Parity::NONE, drivers::serial_driver::StopBits::ONE);
@@ -212,6 +215,8 @@ private:
      */
     void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
+        last_command_time_ = std::chrono::steady_clock::now();
+        command_active_ = true;
         auto &tx = tx_buf_;
         constexpr double k_mmps = 1000.0;
         const int16_t vx_mmps = saturate_i16_from_scaled(msg->linear.x, k_mmps);
@@ -327,6 +332,20 @@ private:
         {
             handle_serial_error("port closed unexpectedly (possible cable disconnect / EOF)");
             return;
+        }
+        // A stopped guard / monitor must not leave the last velocity latched.
+        // Use monotonic time, independent of ROS time and feedback arrival.
+        if (command_active_ && std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - last_command_time_).count() > command_timeout_s_)
+        {
+            try {
+                send_stop_command();
+                command_active_ = false;
+                RCLCPP_WARN(get_logger(), "Velocity stream expired; sent zero velocity to controller");
+            } catch (const std::exception &e) {
+                handle_serial_error(std::string("expired command stop failed: ") + e.what());
+                return;
+            }
         }
         duojin01::VelPosData vel;
         sensor_msgs::msg::Imu imu;
@@ -776,6 +795,9 @@ private:
     rclcpp::Time last_sample_time_, latest_frame_stamp_;
     bool sample_time_ready_{false};
     std::chrono::steady_clock::time_point last_frame_steady_time_;
+    std::chrono::steady_clock::time_point last_command_time_;
+    double command_timeout_s_{0.25};
+    bool command_active_{false};
 
     // -------- serial --------
     drivers::common::IoContext io_ctx_;

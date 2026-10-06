@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "scan_height_m": 0.14330766560137273,
+  "source_archive_sha256": "d93e6bb2a731cceba861199dc13b86d40e639ec015137fd93c8b11a8519c5d6b",
+  "pillars": [
+    {
+      "pillar": 1,
+      "predicted_blocked_bins": [
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185
+      ],
+      "matched_bins": 11,
+      "maximum_error_m": 0.005425227686692596,
+      "middle_bin": 180,
+      "middle_range_m": 0.12252809852361679,
+      "middle_expected_m": 0.12250818726500733,
+      "public_output_all_invalid": true
+    },
+    {
+      "pillar": 2,
+      "predicted_blocked_bins": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "matched_bins": 9,
+      "maximum_error_m": 0.006536031740453169,
+      "middle_bin": 75,
+      "middle_range_m": 0.16250813007354736,
+      "middle_expected_m": 0.16250741136331157,
+      "public_output_all_invalid": true
+    },
+    {
+      "pillar": 3,
+      "predicted_blocked_bins": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "matched_bins": 7,
+      "maximum_error_m": 0.005691347336520991,
+      "middle_bin": 30,
+      "middle_range_m": 0.2425163835287094,
+      "middle_expected_m": 0.2425038506563297,
+      "public_output_all_invalid": true
+    },
+    {
+      "pillar": 4,
+      "predicted_blocked_bins": [
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365
+      ],
+      "matched_bins": 11,
+      "maximum_error_m": 0.00567382610541628,
+      "middle_bin": 360,
+      "middle_range_m": 0.1225280910730362,
+      "middle_expected_m": 0.12249263618625235,
+      "public_output_all_invalid": true
+    },
+    {
+      "pillar": 5,
+      "predicted_blocked_bins": [
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469
+      ],
+      "matched_bins": 9,
+      "maximum_error_m": 0.006293035012263942,
+      "middle_bin": 465,
+      "middle_range_m": 0.16250818967819214,
+      "middle_expected_m": 0.1624936586862093,
+      "public_output_all_invalid": true
+    },
+    {
+      "pillar": 6,
+      "predicted_blocked_bins": [
+        507,
+        508,
+        509,
+        510,
+        511,
+        512,
+        513
+      ],
+      "matched_bins": 7,
+      "maximum_error_m": 0.005941000769154214,
+      "middle_bin": 510,
+      "middle_range_m": 0.24251636862754822,
+      "middle_expected_m": 0.24249771367478767,
+      "public_output_all_invalid": true
+    }
+  ],
+  "total_pillar_blocked_bins": 54,
+  "total_filtered_bins": 56
+}

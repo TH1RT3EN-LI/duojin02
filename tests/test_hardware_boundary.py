@@ -35,7 +35,7 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         packages[name] = tree
     assert set(packages) == {
         "duojin01_base_driver", "duojin01_bringup", "duojin01_description",
-        "duojin01_slam_tools", "duojin01_teleop", "lslidar_driver"}
+        "duojin01_slam_tools", "duojin01_teleop", "duojin01_navigation", "lslidar_driver"}
     for name, tree in packages.items():
         for element in tree:
             if element.tag.endswith("depend"):
@@ -70,7 +70,7 @@ def test_all_hardware_configuration_clocks_are_real():
 
 @pytest.mark.parametrize("name", [
     "base", "mapping", "navigation", "nav2", "slam",
-    "save_map", "joy_teleop",
+    "save_map", "joy_teleop", "online_navigation", "velocity_guard",
 ])
 def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
     from launch.actions import DeclareLaunchArgument
@@ -110,7 +110,7 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
         BRINGUP / "launch/nav2.launch.py").read_text()
 
 
-def test_command_sources_reach_base_through_plain_velocity_arbitration():
+def test_command_sources_reach_base_through_validated_velocity_arbitration():
     config = yaml.safe_load((BRINGUP / "config/twist_mux.yaml").read_text())
     parameters = config["twist_mux"]["ros__parameters"]
     assert {entry["topic"] for entry in parameters["topics"].values()} == {
@@ -125,7 +125,11 @@ def test_command_sources_reach_base_through_plain_velocity_arbitration():
             if "remappings" in fields:
                 nodes[package] = dict(ast.literal_eval(fields["remappings"]))
     output_topic = nodes["twist_mux"]["/cmd_vel_out"]
-    assert output_topic == nodes["duojin01_base_driver"]["/cmd_vel"]
+    assert output_topic == "/cmd_vel_requested"
+    guard = yaml.safe_load((BRINGUP / "config/velocity_guard.yaml").read_text())
+    monitor = guard["collision_monitor"]["ros__parameters"]
+    assert monitor["cmd_vel_in_topic"] == "/cmd_vel_guarded"
+    assert monitor["cmd_vel_out_topic"] == nodes["duojin01_base_driver"]["/cmd_vel"]
     assert output_topic not in {entry["topic"] for entry in parameters["topics"].values()}
 
 

@@ -17,6 +17,8 @@ setup(
 
         (os.path.join('share', package_name, 'config'),
             glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'config', 'lattice_primitives'),
+            glob('config/lattice_primitives/*.json') + glob('config/lattice_primitives/*.md')),
         
         (os.path.join('share', package_name, 'config', 'rviz'),
             glob('config/rviz/*.rviz')),

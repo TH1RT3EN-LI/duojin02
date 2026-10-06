@@ -12,6 +12,7 @@
 | `duojin01_bringup` | 启动、EKF、速度仲裁、建图、定位与 Nav2 |
 | `duojin01_slam_tools` | 地图快照、位姿图保存、录包离线建图和 TF 过滤 |
 | `duojin01_teleop` | 键盘遥控；手柄使用 bringup 的 Joy 配置 |
+| `duojin01_navigation` | 精确终点 Lattice 插件、填充足迹与制动扫掠保护 |
 
 相机、机械臂、AprilTag、任务包装和相关自定义消息包已移除。导航直接使用标准 Nav2 Action。外部 ROS 依赖由 rosdep 安装；SLAM Toolbox 从固定源码构建项目补丁覆盖层。
 
@@ -21,7 +22,9 @@
 | --- | --- | --- |
 | `/cmd_vel` | `geometry_msgs/msg/Twist` | 导航 / 键盘速度输入 |
 | `/cmd_vel_normal`、`/cmd_vel_slow` | `geometry_msgs/msg/Twist` | 手柄两档速度输入 |
-| `/cmd_vel_base` | `geometry_msgs/msg/Twist` | twist_mux 仲裁后交给底盘 |
+| `/cmd_vel_requested` | `geometry_msgs/msg/Twist` | twist_mux 仲裁后的待验证速度 |
+| `/cmd_vel_guarded` | `geometry_msgs/msg/Twist` | 制动扫掠验证后的速度 |
+| `/cmd_vel_base` | `geometry_msgs/msg/Twist` | Collision Monitor 输出到真实底盘 |
 | `/odom` | `nav_msgs/msg/Odometry` | 原始底盘里程计 |
 | `/imu` | `sensor_msgs/msg/Imu` | IMU 反馈 |
 | `/battery_voltage` | `std_msgs/msg/Float32` | 电池电压 |
@@ -32,6 +35,8 @@
 | `/navigate_to_pose` | `nav2_msgs/action/NavigateToPose` | map 坐标系导航目标及结果 |
 
 Nav2 启动后先通过 RViz 的 2D Pose Estimate 或 `/initialpose` 指定真实起始位置。真机入口使用系统时钟；只有独立录包回放使用 `/clock`。
+
+未知环境可启动 `ros2 launch duojin01_bringup online_navigation.launch.py`，由 SLAM Toolbox 在线输出地图和定位，并使用同一导航与速度保护。它接收指定目标，不包含自主探索。固定地图仍使用 `navigation.launch.py map:=...`。算法选择、测试指标与限制见 [导航升级报告](docs/navigation-upgrade-review.md)。底盘速度流超过 0.25 s 未更新会发送实际串口零速度帧；这不能替代下位机独立通信超时保护。
 
 ## 配置边界
 

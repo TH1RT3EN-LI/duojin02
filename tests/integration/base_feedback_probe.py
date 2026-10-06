@@ -109,6 +109,20 @@ def run():
                     checksum ^= byte
                 assert wire[9] == checksum, wire
 
+            # Stop the command publisher while feedback stays healthy: the driver
+            # must send an actual zero frame even if guard / monitor crashes.
+            read_pending();command=Twist();command.linear.x=0.3;commands.publish(command)
+            published=time.monotonic();wire=b'';expired_stop=None;saw_motion=False
+            while time.monotonic()-published<.6 and expired_stop is None:
+                os.write(master,frame(vx=0.0));rclpy.spin_once(node,timeout_sec=.01)
+                wire+=read_pending()
+                while len(wire)>=11:
+                    packet,wire=wire[:11],wire[11:]
+                    velocity=struct.unpack('>3h',packet[3:9])
+                    if velocity==(300,0,0):saw_motion=True
+                    if saw_motion and velocity==(0,0,0):expired_stop=time.monotonic()-published
+            assert expired_stop is not None and .23<=expired_stop<.4, expired_stop
+
             # Silence forces close/reopen; the first new frame must not integrate the gap.
             until = time.monotonic() + 0.85
             while time.monotonic() < until:
@@ -126,7 +140,8 @@ def run():
                               'elapsed_seconds': elapsed, 'distance_meters': distance,
                               'ratio': distance / elapsed, 'custom_baud': 57600,
                               'bad_checksum_ignored': True, 'calibration_parameters': 'passed',
-                              'command_encoding': 'passed', 'silent_reconnect': 'passed'}, indent=2))
+                              'command_encoding': 'passed', 'command_expiry_stop_s':expired_stop,
+                              'silent_reconnect': 'passed'}, indent=2))
         finally:
             os.killpg(process.pid, signal.SIGINT)
             try:
