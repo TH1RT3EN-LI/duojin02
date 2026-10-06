@@ -78,7 +78,8 @@ def test_lidar_mount_is_on_rotation_axis_and_scan_calibration_is_separate(robot,
     assert robot.find("link[@name='lidar_mount']/visual/geometry/mesh") is not None
 
 
-def test_navigation_envelope_contains_both_cad_projections(measurements):
+def test_navigation_envelope_uses_chassis_projection(measurements):
+    assert measurements["selected_navigation_projection"] == "chassis"
     config = yaml.safe_load((ROOT / "src/duojin01_bringup/config/nav2.yaml").read_text())
     polygon = measurements["projections"][measurements["selected_navigation_projection"]]["navigation_polygon_xy_m"]
     for costmap in ["local_costmap", "global_costmap"]:
@@ -90,11 +91,9 @@ def test_navigation_envelope_contains_both_cad_projections(measurements):
         inscribed = min(abs(a[0] * b[1] - a[1] * b[0]) / math.hypot(b[0] - a[0], b[1] - a[1])
                         for a, b in zip(padded, padded[1:] + padded[:1]))
         assert parameters["inflation_layer"]["inflation_radius"] > inscribed
-    scopes = ["chassis", measurements["selected_navigation_projection"]]
-    for scope in scopes:
-        for x, y in measurements["projections"][scope]["convex_hull_xy_m"]:
-            for a, b in zip(polygon, polygon[1:] + polygon[:1]):
-                assert (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]) >= -1e-7
+    for x, y in measurements["projections"]["chassis"]["convex_hull_xy_m"]:
+        for a, b in zip(polygon, polygon[1:] + polygon[:1]):
+            assert (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]) >= -1e-7
 
 
 def test_visual_asset_hashes_and_body_collision_envelope(measurements, robot):

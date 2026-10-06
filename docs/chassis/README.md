@@ -34,8 +34,6 @@
 | 滚子最大旋转包络直径 | 约 100.734 mm |
 | 底盘地面投影外包尺寸，含车轮 | 426.021 × 405.382 mm |
 | 底盘最高点，含电池，离 CAD 地面 | 217.308 mm |
-| 整机保存姿态投影外包尺寸，含夹爪 | 539.464 × 406.940 mm |
-| 整机保存姿态最高点 | 1040.308 mm |
 
 滚子最大包络半径约为 50.367 mm，用于轮子碰撞圆柱；它不是经实测标定的有效滚动半径。主机底盘驱动收发车体速度与里程计，由底层控制器处理轮速换算，没有可直接修改的轮径、轴距、轮距参数。本次不据 CAD 尺寸修改里程计比例。
 
@@ -62,19 +60,19 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
 
 ![轮轴、雷达与地面投影](projection.png)
 
-目前 Nav2 的局部、全局 costmap 均采用 **整机 CAD 保存姿态** 的保守八边形，包含机械臂与夹爪外伸。底盘单独的投影也保存在测量清单，供后续明确改变导航范围时使用。硬件 URDF 本次仅显示底盘与雷达，足迹仍考虑实体上部机构。
+目前 Nav2 的局部、全局 costmap 均采用 **底盘（含四轮）** 的保守八边形。导航范围按用户要求只考虑底盘投影，地面投影外包尺寸为 **426.021 × 405.382 mm**。测量清单的 `selected_navigation_projection` 为 `chassis`，整机保存姿态数据仅作为来源记录保留。
 
-计算方法为：将有效实例的全部原始顶点投影到 XY 平面，求凸包，按八个方向的支撑线向外取整到 1 mm，再求交得到有序八边形。未因剔除视觉小零件而缩小导航投影；测试验证八边形覆盖原生凸包。
+计算方法为：将有效底盘实例的全部原始顶点（含车轮）投影到 XY 平面，求凸包，按八个方向的支撑线向外取整到 1 mm，再求交得到有序八边形。未因剔除视觉小零件而缩小导航投影；测试验证八边形覆盖原生底盘凸包，并检查两个 costmap 都选用底盘范围。
 
 ```text
-[[0.326, 0.164732], [0.287732, 0.203], [-0.202879, 0.203],
- [-0.214, 0.191879], [-0.214, -0.190465], [-0.199465, -0.205],
- [0.291389, -0.205], [0.326, -0.170389]]
+[[0.213, 0.191465], [0.201465, 0.203], [-0.202879, 0.203],
+ [-0.214, 0.191879], [-0.214, -0.190465], [-0.201465, -0.203],
+ [0.202879, -0.203], [0.213, -0.192879]]
 ```
 
 图中与上述多边形尚未包含额外 padding。沿用原配置的局部 80 mm / 全局 40 mm padding；膨胀半径从 100 mm 调整为 350 mm，使其大于加 padding 后的内切半径，代价衰减系数仍为 3.0。导航的通道通过性需要实机验证。
 
-静态足迹只覆盖当前 CAD 保存姿态。机械臂展开、夹爪姿态变化或携带物品时，应重新计算或动态发布足迹；Nav2 的官方足迹说明也支持通过 `~/footprint` 更新机器人形状。[Nav2 足迹说明](https://docs.nav2.org/rolling/configuration_and_development/first_time_robot_setup_guide/footprint/setup_footprint/)，[膨胀层说明](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/)
+足迹范围与 Nav2 的配置关系见 [Nav2 足迹说明](https://docs.nav2.org/rolling/configuration_and_development/first_time_robot_setup_guide/footprint/setup_footprint/)，膨胀参数说明见 [膨胀层说明](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/)。
 
 ## 网格质量与碰撞几何
 
@@ -93,11 +91,12 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
 ```bash
 python scripts/update_chassis_model.py \
   --cad-analysis /path/to/analysis/conversion \
+  --footprint chassis \
   --lidar-zero-heading forward
 blender -b --factory-startup -t 4 --python scripts/render_chassis_preview.py
 ```
 
-可选 `--lidar-scan-height 0.XXX` 用于实测光学高度，`--footprint chassis` 用于明确选择仅底盘投影。重跑默认生成不会保留先前提供的光学高度，须同时再次传入实测值。
+默认 `--footprint chassis`，投影图随当前选定范围生成。可选 `--lidar-scan-height 0.XXX` 用于实测光学高度。重跑默认生成不会保留先前提供的光学高度，须同时再次传入实测值。
 
 在既有 ROS 2 Humble 硬件镜像内、断网且源目录只读的隔离容器中完成：
 
@@ -106,5 +105,7 @@ blender -b --factory-startup -t 4 --python scripts/render_chassis_preview.py
 - `check_urdf` 成功解析完整硬件模型。
 - 16 项既有硬件边界测试与 4 项新几何回归测试通过，共 **20 项**。
 - 独立 ROS 域内运行 `robot_state_publisher` 并发布四轮零角度，实时查询四轮与 `laser` 的 TF，结果与测量记录一致。
+
+导航范围修订为仅底盘后，重新运行 4 项几何回归测试并构建 bringup 包，安装后的两个 costmap 均验证为底盘八边形。
 
 验证未连接或驱动实物底盘。底层里程计参考点、有效轮径、光学扫描高度和 IMU 外参仍须实物确认。

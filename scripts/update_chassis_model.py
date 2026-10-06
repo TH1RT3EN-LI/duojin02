@@ -143,11 +143,11 @@ def draw_projection(path, data):
         value = float(value)
         draw.line([xy((value, -.35)), xy((value, .35))], fill="#e2e8f0", width=1)
         draw.line([xy((-.35, value)), xy((.46, value))], fill="#e2e8f0", width=1)
-    full = data["projections"]["whole_robot_saved_pose"]
+    selected = data["projections"][data["selected_navigation_projection"]]
     chassis = data["projections"]["chassis"]
-    draw.polygon([xy(p) for p in full["navigation_polygon_xy_m"]], fill="#dbeafe", outline="#2563eb", width=4)
+    draw.polygon([xy(p) for p in selected["navigation_polygon_xy_m"]], fill="#dbeafe", outline="#2563eb", width=4)
     draw.polygon([xy(p) for p in chassis["convex_hull_xy_m"]], fill="#e2e8f0", outline="#334155", width=3)
-    outline = [xy(p) for p in full["convex_hull_xy_m"]]
+    outline = [xy(p) for p in selected["convex_hull_xy_m"]]
     draw.line(outline + outline[:1], fill="#2563eb", width=2)
     labels = {"front_left": "左前", "rear_left": "左后", "front_right": "右前", "rear_right": "右后"}
     for name, wheel in data["wheels"].items():
@@ -171,12 +171,12 @@ def draw_projection(path, data):
     draw.text((x + 96, y + 8), "+X", font=small, fill="#166534")
     draw.text((x + 8, y - 105), "+Y", font=small, fill="#166534")
     chassis_size = np.diff(np.array(chassis["bounds_m"]), axis=0)[0]
-    full_size = np.diff(np.array(full["bounds_m"]), axis=0)[0]
+    scope_label = "底盘（含四轮）" if data["selected_navigation_projection"] == "chassis" else "整机 CAD 保存姿态"
     lines = [f"底盘投影外包：{chassis_size[0]*1000:.1f} × {chassis_size[1]*1000:.1f} mm",
-             f"整机保存姿态：{full_size[0]*1000:.1f} × {full_size[1]*1000:.1f} mm",
+             f"当前导航范围：{scope_label}",
              f"轴距：{data['wheelbase_m']*1000:.1f} mm；轮距：{data['track_width_m']*1000:.1f} mm；轮宽：50.0 mm",
-             "蓝色：整机投影与保守导航八边形；灰色：底盘；橙色：真实轮毂拟合轴心",
-             "投影不含 Nav2 padding；整机足迹只对应 CAD 保存姿态，机械臂展开后需另行计算。"]
+             "蓝色：当前导航八边形；灰色：底盘原生投影；橙色：真实轮毂拟合轴心",
+             "图中投影不含 Nav2 的额外 padding。"]
     for i, line in enumerate(lines):
         draw.text((55, 960 + i * 42), line, font=font, fill="#334155")
     image.save(path)
@@ -186,7 +186,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cad-analysis", type=Path, required=True)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--footprint", choices=["whole_robot_saved_pose", "chassis"], default="whole_robot_saved_pose")
+    parser.add_argument("--footprint", choices=["whole_robot_saved_pose", "chassis"], default="chassis")
     parser.add_argument("--lidar-zero-heading", choices=["unconfirmed", "forward", "backward", "left", "right"], default="unconfirmed")
     parser.add_argument("--lidar-scan-height", type=float, help="Measured optical centre height above the floor, in metres")
     args = parser.parse_args()

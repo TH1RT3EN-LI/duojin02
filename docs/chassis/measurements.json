@@ -870,7 +870,7 @@
       ]
     }
   },
-  "selected_navigation_projection": "whole_robot_saved_pose",
+  "selected_navigation_projection": "chassis",
   "assets": {
     "chassis_metal": {
       "triangles": 44146,
