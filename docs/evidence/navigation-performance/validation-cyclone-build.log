@@ -1,0 +1,16 @@
+Starting >>> duojin01_base_driver
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Starting >>> duojin01_slam_tools
+Starting >>> duojin01_teleop
+Starting >>> lslidar_driver
+Finished <<< duojin01_base_driver [0.24s]
+Finished <<< duojin01_navigation [0.26s]
+Finished <<< lslidar_driver [0.29s]
+Finished <<< duojin01_slam_tools [0.30s]
+Finished <<< duojin01_teleop [0.48s]
+Finished <<< duojin01_description [0.49s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.36s]
+
+Summary: 7 packages finished [0.94s]

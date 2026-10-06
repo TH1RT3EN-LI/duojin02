@@ -1,0 +1,28 @@
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Finished <<< duojin01_navigation [0.18s]
+Finished <<< duojin01_description [0.37s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.36s]
+Starting >>> duojin02_sim
+Finished <<< duojin02_sim [0.36s]
+
+Summary: 4 packages finished [1.17s]
+Saved compiled navigation manifest
+{"case": "corridor_0.56", "variant": "upgraded", "seed": 4, "odom_scale": 1.03, "odom_noise_mps": 0.003, "gyro_bias_radps": 0.001, "range_noise_stddev_m": 0.005, "evaluation_translation_step_m": 0.004, "slam_configuration_sha256": "c38b906b5e98d760454bd69c1260047ea6382cc8b2c7057f24c68b8ede4f7ce8", "configuration_sha256": "6cc1cb92608e98c15b8c05c15d6bf2e3ca167cfce86a09508ae71ea093079343", "evaluator_sha256": "bd75dc975f9bbd6484a06cc1b77a07d5105bfe42d1331df850d278dbab438049", "algorithm_sha256": {"src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce", "src/duojin01_navigation/package.xml": "12af47037b6c99ec68985ff4af02e89f0b45326b37f0035d0ddeb441bee8d471", "src/duojin01_navigation/controller_plugins.xml": "2ce33880d4e2a9b2b8942e32900bb6c7880fe301977c209014ec69db13a1f792", "src/duojin01_navigation/CMakeLists.txt": "adb3ffa752c7a721e929eccf4d25cbc07bb10bafa0f31dd3fa4d6f72c8e3e313", "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "f838bf75793a5281922a0e9e667153de0259727f6e40239b2152d3d4bfbaf131", "src/duojin01_navigation/src/precise_lattice.cpp": "93aabf5703ca0622c3d4ab25a0f12c60c3a54601d6bb6da8464f4830e833474c", "src/duojin01_navigation/src/velocity_guard.cpp": "3b78f1d042d0609e70c9e9efa2e99870f685acdece3abb9dc2876ed640662b44", "src/duojin01_navigation/src/precise_mppi.cpp": "f8737e5bb964931e495f4ccbeb6a2e87f41daefbcfe65acbc5fcb006184dd6b3", "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3"}, "verified_build": true, "status": 4, "success": true, "collision_events": 0, "arrival_acceptance_pass": true, "arrival_limits": {"position_m": 0.02, "yaw_rad": 0.035, "speed_mps": 0.02}, "final_speed_mps": 0.0, "speed_p95_mps": 0.49973370223352753, "moving_speed_median_mps": 0.4996694638055663, "average_progress_mps": 0.333397625584984, "max_abs_roll_rad": 0.0027128349112749755, "max_abs_pitch_rad": 0.006278399439023127, "expected_outcome": "navigate", "safety_stop_pass": null, "min_clearance_m": 0.07657123686538865, "path_length_m": 3.4049899500994414, "goal_position_error_m": 0.006324349882543276, "goal_yaw_error_rad": 0.00045615731907920214, "localization_rmse_m": 0.006043654132887208, "localization_p95_m": 0.007311741378546465, "localization_yaw_rmse_rad": 0.001060854485658296, "localization_samples": 496, "truth_samples": 496, "sim_elapsed_s": 10.213, "wall_elapsed_s": 10.224015831016004, "localization_tf_failures": {}, "node_resources": {"amcl": {"cpu_percent_one_core": 7.890683912705749, "peak_rss_mib": 44.58984375}, "collision_monitor": {"cpu_percent_one_core": 7.259429199689288, "peak_rss_mib": 31.2734375}, "controller_server": {"cpu_percent_one_core": 12.940721616837427, "peak_rss_mib": 53.18359375}, "planner_server": {"cpu_percent_one_core": 40.5055107518895, "peak_rss_mib": 101.7109375}, "velocity_guard": {"cpu_percent_one_core": 10.10007540826336, "peak_rss_mib": 33.734375}}, "scan_dropout_stop_latency_s": null, "aperture_crossed": true, "command_period_p95_ms": 50.33751766895875, "guard_compute_p95_ms": 3.0137354999999997, "guard_compute_max_ms": 3.43397, "guard_reasons": {"command_stale": 35, "clear": 163}, "controller_deadline_warnings": 0}
+Traceback (most recent call last):
+  File "/ws/simulation/nav_benchmark.py", line 391, in <module>
+    if __name__=='__main__':main()
+  File "/ws/simulation/nav_benchmark.py", line 388, in main
+    trial(args)
+  File "/ws/simulation/nav_benchmark.py", line 307, in trial
+    case=next(c for c in scenarios() if c['name']==args.case)
+StopIteration
+Traceback (most recent call last):
+  File "/ws/simulation/nav_benchmark_suite.py", line 31, in <module>
+    if __name__=='__main__':main()
+  File "/ws/simulation/nav_benchmark_suite.py", line 25, in main
+    subprocess.run([sys.executable,str(Path(__file__).with_name('nav_benchmark.py')),
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/ws/simulation/nav_benchmark.py', '--case', 'corridor_0.50_legacy3cm', '--variant', 'upgraded', '--seed', '4', '--output', '/evidence/release-checks/corridor_0.50_legacy3cm-upgraded-4', '--nav-config', '']' returned non-zero exit status 1.

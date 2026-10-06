@@ -1,0 +1,2 @@
+1791300187.036405 [94]    python3: selected interface "lo" is not multicast-capable: disabling multicast
+{"checks": 5, "rotation_rad": 0.73, "translation_m": [-1.2, 0.8], "records": [{"point": [1.0, 0.0], "resolution": 0.01, "reason": "clear"}, {"point": [0.1, 0.05], "resolution": 0.01, "reason": "measured_braking_collision"}, {"point": [-0.1, -0.05], "resolution": 0.03, "reason": "measured_braking_collision"}, {"point": [0.35, 0.0], "resolution": 0.01, "reason": "braking_slowdown"}, {"point": [2.51, 0.0], "resolution": 0.01, "reason": "clear"}]}

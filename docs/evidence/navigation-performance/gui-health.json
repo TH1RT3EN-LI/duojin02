@@ -1,0 +1,80 @@
+{
+  "rmw_implementation": "rmw_cyclonedds_cpp",
+  "controller_server": "active",
+  "planner_server": "active",
+  "bt_navigator": "active",
+  "collision_monitor": "active",
+  "velocity_smoother": "active",
+  "controller_server_parameters": {
+    "use_sim_time": true,
+    "FollowPath.vx_max": 0.5,
+    "FollowPath.vy_max": 0.3,
+    "general_goal_checker.plugin": "duojin01_navigation::StableStoppedGoalChecker",
+    "general_goal_checker.settle_time": 0.25
+  },
+  "velocity_smoother_parameters": {
+    "feedback": "OPEN_LOOP",
+    "max_velocity": [
+      0.5,
+      0.3,
+      0.65
+    ]
+  },
+  "slam_toolbox_parameters": {
+    "resolution": 0.01,
+    "minimum_travel_distance": 0.15,
+    "use_scan_barycenter": false
+  },
+  "map": {
+    "resolution": 0.009999999776482582,
+    "width": 603,
+    "height": 502
+  },
+  "guard": {
+    "reason": "command_stale",
+    "scale": 0,
+    "compute_ms": 0.014411,
+    "localization_margin_m": 0,
+    "remembered_points": 29
+  },
+  "scan": {
+    "frame": "laser",
+    "count": 540,
+    "range_min": 0.30000001192092896,
+    "stamp": 99.3
+  },
+  "nodes": [
+    "bt_navigator",
+    "bt_navigator_navigate_to_pose_rclcpp_node",
+    "bt_navigator_navigate_through_poses_rclcpp_node",
+    "slam_toolbox",
+    "transform_listener_impl_5bafb5ce8d60",
+    "behavior_server",
+    "transform_listener_impl_711dc800c1d0",
+    "rviz2",
+    "transform_listener_impl_6087f6a78fb0",
+    "velocity_smoother",
+    "collision_monitor",
+    "transform_listener_impl_610b35b2b7a0",
+    "ekf_filter_node",
+    "transform_listener_impl_56a738492020",
+    "lifecycle_manager_navigation",
+    "planner_server",
+    "global_costmap",
+    "transform_listener_impl_5744a7250fe0",
+    "waypoint_follower",
+    "navigation_delivery_health",
+    "velocity_guard",
+    "transform_listener_impl_6320fe36b9f8",
+    "smoother_server",
+    "transform_listener_impl_7dac3c005960",
+    "sim_bridge",
+    "sim_devices",
+    "robot_state_publisher",
+    "controller_server",
+    "local_costmap",
+    "transform_listener_impl_58c53fd1fdc0",
+    "twist_mux",
+    "lifecycle_manager_guard"
+  ]
+}

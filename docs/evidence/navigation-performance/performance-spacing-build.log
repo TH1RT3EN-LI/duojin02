@@ -1,0 +1,10 @@
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Finished <<< duojin01_description [0.36s]
+Finished <<< duojin01_navigation [13.1s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.36s]
+Starting >>> duojin02_sim
+Finished <<< duojin02_sim [0.36s]
+
+Summary: 4 packages finished [13.9s]

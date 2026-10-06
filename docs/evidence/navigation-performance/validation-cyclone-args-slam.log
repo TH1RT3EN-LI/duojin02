@@ -1,0 +1,17 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'slam_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/slam_toolbox.yaml')
+
+    'pose_graph':
+        Saved graph prefix or .posegraph file
+        (default: '')
+
+    'map_start_pose':
+        Explicit continuation pose [x, y, yaw]
+        (default: '')
+
+    'start_at_dock':
+        Continue at the graph's first scan pose
+        (default: 'false')

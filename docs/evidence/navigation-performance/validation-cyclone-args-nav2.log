@@ -1,0 +1,25 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'autostart':
+        no description given
+        (default: 'true')
+
+    'log_level':
+        no description given
+        (default: 'info')
+
+    'use_rviz':
+        no description given
+        (default: 'true')
+
+    'params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/nav2.yaml')
+
+    'map':
+        no description given
+        (default: '')
+
+    'rviz_config':
+        no description given
+        (default: PathJoinSubstitution(''/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup', 'config', 'rviz', 'navigation.rviz''))

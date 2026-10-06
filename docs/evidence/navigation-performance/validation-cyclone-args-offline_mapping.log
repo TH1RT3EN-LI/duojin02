@@ -1,0 +1,17 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'odom_source':
+        recorded: keep bag odom TF; ekf: rerun EKF from /odom and /imu
+        (default: 'recorded')
+
+    'slam_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/slam_toolbox.yaml')
+
+    'scan_queue_size':
+        no description given
+        (default: '100')
+
+    'scan_start_time_ns':
+        First replay scan stamp to forward (set by offline_mapping)
+        (default: '0')

@@ -1,0 +1,77 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/nav2.yaml')
+
+    'use_foxglove':
+        no description given
+        (default: 'true')
+
+    'use_teleop':
+        no description given
+        (default: 'true')
+
+    'base_serial_port':
+        no description given
+        (default: '/dev/duojin01_controller')
+
+    'lidar_serial_port':
+        no description given
+        (default: '/dev/lslidar')
+
+    'use_lidar':
+        no description given
+        (default: 'true')
+
+    'base_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/base_driver.yaml')
+
+    'base_serial_baudrate':
+        no description given
+        (default: '115200')
+
+    'odom0':
+        no description given
+        (default: '/odom')
+
+    'imu0':
+        no description given
+        (default: '/imu')
+
+    'publish_robot_model':
+        no description given
+        (default: 'true')
+
+    'publish_joint_states':
+        no description given
+        (default: 'true')
+
+    'serial_port':
+        no description given
+        (default: '/dev/lslidar')
+
+    'frame_id':
+        no description given
+        (default: 'laser')
+
+    'scan_topic':
+        no description given
+        (default: '/scan')
+
+    'slam_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/slam_toolbox.yaml')
+
+    'pose_graph':
+        Saved graph prefix or .posegraph file
+        (default: '')
+
+    'map_start_pose':
+        Explicit continuation pose [x, y, yaw]
+        (default: '')
+
+    'start_at_dock':
+        Continue at the graph's first scan pose
+        (default: 'false')

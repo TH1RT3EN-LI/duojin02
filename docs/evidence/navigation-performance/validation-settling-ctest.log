@@ -1,0 +1,9 @@
+Test project /tmp/checkbuild/build/duojin01_navigation
+    Start 1: geometry_checks
+1/2 Test #1: geometry_checks ..................   Passed    0.00 sec
+    Start 2: goal_settling_checks
+2/2 Test #2: goal_settling_checks .............   Passed    0.80 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.80 sec

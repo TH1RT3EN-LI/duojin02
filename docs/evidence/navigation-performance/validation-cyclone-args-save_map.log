@@ -1,0 +1,21 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'map_name':
+        no description given
+        (default: 'auto')
+
+    'output_dir':
+        no description given
+        (default: 'maps')
+
+    'wait_timeout':
+        no description given
+        (default: '30')
+
+    'response_timeout':
+        no description given
+        (default: '30')
+
+    'serialize_graph':
+        no description given
+        (default: 'true')

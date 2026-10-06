@@ -1,0 +1,2 @@
+1791300179.757998 [92]    python3: selected interface "lo" is not multicast-capable: disabling multicast
+{"checks": 11, "filled_scan_interior": true, "filled_map_interior": true, "braking_slowdown": true, "core_validated_boundary_crawl": true, "live_observation_not_amcl_inflated": true, "blind_obstacle_memory": true, "positive_free_ray_clearing": true, "measured_speed_braking": true, "command_dropout": true, "scan_dropout": true, "map_dropout": true}

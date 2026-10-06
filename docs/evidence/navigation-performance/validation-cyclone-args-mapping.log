@@ -1,0 +1,85 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'slam_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/slam_toolbox.yaml')
+
+    'pose_graph':
+        no description given
+        (default: '')
+
+    'map_start_pose':
+        no description given
+        (default: '')
+
+    'start_at_dock':
+        no description given
+        (default: 'false')
+
+    'use_rviz':
+        no description given
+        (default: 'true')
+
+    'use_foxglove':
+        no description given
+        (default: 'true')
+
+    'use_teleop':
+        no description given
+        (default: 'true')
+
+    'base_params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup/config/base_driver.yaml')
+
+    'base_serial_port':
+        no description given
+        (default: '/dev/duojin01_controller')
+
+    'base_serial_baudrate':
+        no description given
+        (default: '115200')
+
+    'lidar_serial_port':
+        no description given
+        (default: '/dev/lslidar')
+
+    'odom0':
+        no description given
+        (default: '/odom')
+
+    'imu0':
+        no description given
+        (default: '/imu')
+
+    'rviz_config':
+        no description given
+        (default: PathJoinSubstitution(''/tmp/checkbuild/install/duojin01_bringup/share/duojin01_bringup', 'config', 'rviz', 'mapping.rviz''))
+
+    'use_lidar':
+        no description given
+        (default: 'true')
+
+    'publish_robot_model':
+        no description given
+        (default: 'true')
+
+    'publish_joint_states':
+        no description given
+        (default: 'true')
+
+    'params_file':
+        no description given
+        (default: '/tmp/checkbuild/install/lslidar_driver/share/lslidar_driver/config/duojin01_n10plus.yaml')
+
+    'serial_port':
+        no description given
+        (default: '/dev/lslidar')
+
+    'frame_id':
+        no description given
+        (default: 'laser')
+
+    'scan_topic':
+        no description given
+        (default: '/scan')

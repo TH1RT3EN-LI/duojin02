@@ -1,0 +1,6 @@
+1791301578.360080 [94] velocity_g: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1791301578.363955230] [velocity_guard]: Filled footprint braking sweep: margin 0.008 m, reaction 0.20 s; all commands are gated
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+[WARN] [1791301580.964085612] [velocity_guard]: Braking stop: local point (0.100, 0.050), radius 0.007, edge gap 0.106, velocity (0.000, 0.000, 0.000)
+[INFO] [1791301583.385074808] [rclcpp]: signal_handler(SIGINT/SIGTERM)

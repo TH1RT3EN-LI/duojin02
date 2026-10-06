@@ -1,0 +1,1031 @@
+1791301570.953034 [92] velocity_g: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1791301570.957244084] [velocity_guard]: Filled footprint braking sweep: margin 0.008 m, reaction 0.20 s; all commands are gated
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+[WARN] [1791301572.557364845] [velocity_guard]: Braking stop: local point (0.241, 0.000), radius 0.016, edge gap 0.012, velocity (0.000, 0.000, 0.000)
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+[WARN] [1791301577.007472186] [velocity_guard]: Braking stop: local point (0.105, 0.005), radius 0.007, edge gap 0.101, velocity (0.000, 0.000, 0.000)
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+Warning: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+         at line 95 in ./src/buffer_core.cpp
+[INFO] [1791301577.807766610] [rclcpp]: signal_handler(SIGINT/SIGTERM)

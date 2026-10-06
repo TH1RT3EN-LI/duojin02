@@ -1,0 +1,150 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.06kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/duojin01:humble-harmonic
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/duojin01:hardware-humble
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 158B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/8] FROM docker.io/library/duojin01:humble-harmonic@sha256:7be35551e7d9e2c155a875e2556c01694e68e6dfb528a952276a2572f255c9b7
+#5 resolve docker.io/library/duojin01:humble-harmonic@sha256:7be35551e7d9e2c155a875e2556c01694e68e6dfb528a952276a2572f255c9b7 0.1s done
+#5 DONE 0.1s
+
+#6 [hardware_backend 1/1] FROM docker.io/library/duojin01:hardware-humble@sha256:9f5aff9d9bcc6cc2098ab29ee23dda26e025d887c8db83b0e4dac6c0380460de
+#6 resolve docker.io/library/duojin01:hardware-humble@sha256:9f5aff9d9bcc6cc2098ab29ee23dda26e025d887c8db83b0e4dac6c0380460de 0.1s done
+#6 DONE 0.1s
+
+#7 [internal] load build context
+#7 transferring context: 81B done
+#7 DONE 0.0s
+
+#8 [stage-1 4/8] RUN dpkg-query -W libgz-sim8 ros-humble-ros-gzharmonic ros-humble-robot-localization &&     python3 -c 'import PIL, numpy, yaml, pytest'
+#8 CACHED
+
+#9 [stage-1 5/8] COPY --from=hardware_backend /opt/duojin01/slam_backend /opt/duojin01/slam_backend
+#9 CACHED
+
+#10 [stage-1 6/8] COPY simulation/container_entry.sh /usr/local/bin/duojin02-sim-entry
+#10 CACHED
+
+#11 [stage-1 2/8] RUN if ! command -v gz >/dev/null; then       apt-get update && apt-get install -y curl ca-certificates gnupg &&       curl -fsSL https://packages.osrfoundation.org/gazebo.gpg -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg &&       echo 'deb [signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable jammy main' > /etc/apt/sources.list.d/gazebo-stable.list &&       apt-get update && apt-get install -y gz-harmonic ros-humble-ros-gzharmonic         ros-humble-robot-localization ros-humble-twist-mux ros-humble-robot-state-publisher         ros-humble-rviz2 ros-humble-slam-toolbox         python3-colcon-common-extensions python3-pil python3-yaml python3-numpy python3-pytest &&       rm -rf /var/lib/apt/lists/*; fi
+#11 CACHED
+
+#12 [stage-1 3/8] RUN apt-get update && apt-get install -y --no-install-recommends ros-humble-navigation2 ros-humble-nav2-bringup python3-shapely python3-matplotlib && rm -rf /var/lib/apt/lists/*
+#12 CACHED
+
+#13 [stage-1 7/8] RUN chmod +x /usr/local/bin/duojin02-sim-entry
+#13 CACHED
+
+#14 [stage-1 8/8] RUN apt-get update && apt-get install -y --no-install-recommends ros-humble-rmw-cyclonedds-cpp && rm -rf /var/lib/apt/lists/*
+#14 0.363 Get:1 https://mirrors.ustc.edu.cn/ubuntu jammy InRelease [270 kB]
+#14 0.492 Get:2 https://mirrors.ustc.edu.cn/ubuntu jammy-updates InRelease [128 kB]
+#14 0.533 Get:3 https://mirrors.ustc.edu.cn/ubuntu jammy-backports InRelease [127 kB]
+#14 0.572 Get:4 https://mirrors.ustc.edu.cn/ubuntu jammy-security InRelease [129 kB]
+#14 0.636 Get:5 https://mirrors.ustc.edu.cn/ubuntu jammy/multiverse amd64 Packages [266 kB]
+#14 0.649 Get:6 http://packages.ros.org/ros2/ubuntu jammy InRelease [4682 B]
+#14 0.702 Get:7 https://mirrors.ustc.edu.cn/ubuntu jammy/restricted amd64 Packages [164 kB]
+#14 0.738 Get:8 https://mirrors.ustc.edu.cn/ubuntu jammy/universe amd64 Packages [17.5 MB]
+#14 0.881 Get:9 https://packages.osrfoundation.org/gazebo/ubuntu-stable jammy InRelease [4276 B]
+#14 0.920 Get:10 http://packages.ros.org/ros2/ubuntu jammy/main Sources [1879 kB]
+#14 1.081 Get:11 https://packages.osrfoundation.org/gazebo/ubuntu-stable jammy/main amd64 Packages [133 kB]
+#14 1.091 Get:12 https://mirrors.ustc.edu.cn/ubuntu jammy/main amd64 Packages [1792 kB]
+#14 1.159 Get:13 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/restricted amd64 Packages [8212 kB]
+#14 1.277 Get:14 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/main amd64 Packages [4757 kB]
+#14 1.415 Get:15 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/multiverse amd64 Packages [93.2 kB]
+#14 1.416 Get:16 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/universe amd64 Packages [1623 kB]
+#14 1.472 Get:17 https://mirrors.ustc.edu.cn/ubuntu jammy-backports/main amd64 Packages [82.9 kB]
+#14 1.499 Get:18 https://mirrors.ustc.edu.cn/ubuntu jammy-backports/universe amd64 Packages [35.6 kB]
+#14 1.501 Get:19 https://mirrors.ustc.edu.cn/ubuntu jammy-security/restricted amd64 Packages [7907 kB]
+#14 1.569 Get:20 https://mirrors.ustc.edu.cn/ubuntu jammy-security/multiverse amd64 Packages [84.6 kB]
+#14 1.569 Get:21 https://mirrors.ustc.edu.cn/ubuntu jammy-security/main amd64 Packages [4419 kB]
+#14 1.607 Get:22 https://mirrors.ustc.edu.cn/ubuntu jammy-security/universe amd64 Packages [1321 kB]
+#14 51.05 Get:23 http://packages.ros.org/ros2/ubuntu jammy/main amd64 Packages [1842 kB]
+#14 106.2 Fetched 52.7 MB in 1min 46s (497 kB/s)
+#14 106.2 Reading package lists...
+#14 106.8 Reading package lists...
+#14 107.4 Building dependency tree...
+#14 107.6 Reading state information...
+#14 107.7 The following additional packages will be installed:
+#14 107.7   acl libacl1-dev libattr1 libattr1-dev ros-humble-cyclonedds
+#14 107.7   ros-humble-iceoryx-binding-c ros-humble-iceoryx-hoofs
+#14 107.7   ros-humble-iceoryx-posh
+#14 107.7 The following NEW packages will be installed:
+#14 107.7   acl libacl1-dev libattr1-dev ros-humble-cyclonedds
+#14 107.7   ros-humble-iceoryx-binding-c ros-humble-iceoryx-hoofs
+#14 107.7   ros-humble-iceoryx-posh ros-humble-rmw-cyclonedds-cpp
+#14 107.7 The following packages will be upgraded:
+#14 107.7   libattr1
+#14 107.9 1 upgraded, 8 newly installed, 0 to remove and 448 not upgraded.
+#14 107.9 Need to get 2052 kB of archives.
+#14 107.9 After this operation, 8636 kB of additional disk space will be used.
+#14 107.9 Get:1 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/main amd64 libattr1 amd64 1:2.5.1-1ubuntu0.1 [13.0 kB]
+#14 107.9 Get:2 https://mirrors.ustc.edu.cn/ubuntu jammy/main amd64 acl amd64 2.3.1-1 [38.5 kB]
+#14 108.0 Get:3 https://mirrors.ustc.edu.cn/ubuntu jammy-updates/main amd64 libattr1-dev amd64 1:2.5.1-1ubuntu0.1 [23.5 kB]
+#14 108.0 Get:4 https://mirrors.ustc.edu.cn/ubuntu jammy/main amd64 libacl1-dev amd64 2.3.1-1 [78.0 kB]
+#14 108.4 Get:5 http://packages.ros.org/ros2/ubuntu jammy/main amd64 ros-humble-iceoryx-binding-c amd64 2.0.5-1jammy.20260226.012512 [64.8 kB]
+#14 110.8 Get:6 http://packages.ros.org/ros2/ubuntu jammy/main amd64 ros-humble-iceoryx-hoofs amd64 2.0.5-1jammy.20260226.011054 [212 kB]
+#14 118.3 Get:7 http://packages.ros.org/ros2/ubuntu jammy/main amd64 ros-humble-iceoryx-posh amd64 2.0.5-1jammy.20260226.011738 [401 kB]
+#14 122.9 Get:8 http://packages.ros.org/ros2/ubuntu jammy/main amd64 ros-humble-cyclonedds amd64 0.10.5-2jammy.20260226.013234 [1054 kB]
+#14 141.8 Get:9 http://packages.ros.org/ros2/ubuntu jammy/main amd64 ros-humble-rmw-cyclonedds-cpp amd64 1.3.5-1jammy.20260907.205235 [167 kB]
+#14 146.3 debconf: delaying package configuration, since apt-utils is not installed
+#14 146.3 Fetched 2052 kB in 38s (53.4 kB/s)
+#14 146.3 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 141369 files and directories currently installed.)
+#14 146.4 Preparing to unpack .../libattr1_1%3a2.5.1-1ubuntu0.1_amd64.deb ...
+#14 146.4 Unpacking libattr1:amd64 (1:2.5.1-1ubuntu0.1) over (1:2.5.1-1build1) ...
+#14 146.4 Setting up libattr1:amd64 (1:2.5.1-1ubuntu0.1) ...
+#14 146.5 Selecting previously unselected package acl.
+#14 146.5 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 141369 files and directories currently installed.)
+#14 146.5 Preparing to unpack .../0-acl_2.3.1-1_amd64.deb ...
+#14 146.5 Unpacking acl (2.3.1-1) ...
+#14 146.6 Selecting previously unselected package ros-humble-iceoryx-binding-c.
+#14 146.6 Preparing to unpack .../1-ros-humble-iceoryx-binding-c_2.0.5-1jammy.20260226.012512_amd64.deb ...
+#14 146.6 Unpacking ros-humble-iceoryx-binding-c (2.0.5-1jammy.20260226.012512) ...
+#14 146.6 Selecting previously unselected package libattr1-dev:amd64.
+#14 146.6 Preparing to unpack .../2-libattr1-dev_1%3a2.5.1-1ubuntu0.1_amd64.deb ...
+#14 146.6 Unpacking libattr1-dev:amd64 (1:2.5.1-1ubuntu0.1) ...
+#14 146.7 Selecting previously unselected package libacl1-dev:amd64.
+#14 146.7 Preparing to unpack .../3-libacl1-dev_2.3.1-1_amd64.deb ...
+#14 146.7 Unpacking libacl1-dev:amd64 (2.3.1-1) ...
+#14 146.7 Selecting previously unselected package ros-humble-iceoryx-hoofs.
+#14 146.7 Preparing to unpack .../4-ros-humble-iceoryx-hoofs_2.0.5-1jammy.20260226.011054_amd64.deb ...
+#14 146.7 Unpacking ros-humble-iceoryx-hoofs (2.0.5-1jammy.20260226.011054) ...
+#14 146.8 Selecting previously unselected package ros-humble-iceoryx-posh.
+#14 146.8 Preparing to unpack .../5-ros-humble-iceoryx-posh_2.0.5-1jammy.20260226.011738_amd64.deb ...
+#14 146.8 Unpacking ros-humble-iceoryx-posh (2.0.5-1jammy.20260226.011738) ...
+#14 146.8 Selecting previously unselected package ros-humble-cyclonedds.
+#14 146.8 Preparing to unpack .../6-ros-humble-cyclonedds_0.10.5-2jammy.20260226.013234_amd64.deb ...
+#14 146.8 Unpacking ros-humble-cyclonedds (0.10.5-2jammy.20260226.013234) ...
+#14 146.9 Selecting previously unselected package ros-humble-rmw-cyclonedds-cpp.
+#14 146.9 Preparing to unpack .../7-ros-humble-rmw-cyclonedds-cpp_1.3.5-1jammy.20260907.205235_amd64.deb ...
+#14 146.9 Unpacking ros-humble-rmw-cyclonedds-cpp (1.3.5-1jammy.20260907.205235) ...
+#14 147.0 Setting up libattr1-dev:amd64 (1:2.5.1-1ubuntu0.1) ...
+#14 147.0 Setting up ros-humble-iceoryx-binding-c (2.0.5-1jammy.20260226.012512) ...
+#14 147.0 Setting up acl (2.3.1-1) ...
+#14 147.0 Setting up libacl1-dev:amd64 (2.3.1-1) ...
+#14 147.0 Setting up ros-humble-iceoryx-hoofs (2.0.5-1jammy.20260226.011054) ...
+#14 147.0 Setting up ros-humble-iceoryx-posh (2.0.5-1jammy.20260226.011738) ...
+#14 147.0 Setting up ros-humble-cyclonedds (0.10.5-2jammy.20260226.013234) ...
+#14 147.1 Setting up ros-humble-rmw-cyclonedds-cpp (1.3.5-1jammy.20260907.205235) ...
+#14 147.1 Processing triggers for libc-bin (2.35-0ubuntu3.13) ...
+#14 DONE 147.2s
+
+#15 exporting to image
+#15 exporting layers
+#15 exporting layers 0.4s done
+#15 exporting manifest sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f 0.0s done
+#15 exporting config sha256:9ce106c9ddc5f8b9af60ff782bd6c1484e31be7eee6cf091f4d68fc1bb235517 0.0s done
+#15 exporting attestation manifest sha256:0002cb0ef02e8ccccdbf919110529d98ebfc7a4711935a4374898209a03551bb 0.0s done
+#15 exporting manifest list sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44
+#15 exporting manifest list sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44 0.0s done
+#15 naming to docker.io/library/duojin02:sim-humble-harmonic done
+#15 unpacking to docker.io/library/duojin02:sim-humble-harmonic 0.1s done
+#15 DONE 0.7s
