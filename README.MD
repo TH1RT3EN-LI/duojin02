@@ -11,6 +11,12 @@
 
 日常真机开发使用 `duojin02` 工作目录，模型与仿真开发使用独立的 `duojin02-sim` 工作目录。共用代码修复优先进入 `main`，再在 `sim` 中合并 `main`；仿真变更保留在 `sim`。
 
+## 仿真开发约定
+
+仿真任务只在 `sim` 中增加 Gazebo 模型、桥接、适配节点、独立启动和配置。以 `main` 的真机接口及业务逻辑为兼容目标，保持继承的真机驱动、算法、默认启动和配置行为；由仿真层适配话题、消息、坐标系、单位和时钟。真机代码的问题在独立的真机任务中处理，再同步到 `sim`。
+
+具体开发边界见 [AGENTS.md](AGENTS.md)，接口基准见 [README_DEVELOPMENT.md](README_DEVELOPMENT.md)。
+
 ## 真机工作区
 
 默认启动配置沿用 `main`，面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、N10Plus 雷达、建图、Nav2 导航和遥控。真机硬件配置统一，使用底盘、雷达和 IMU。
