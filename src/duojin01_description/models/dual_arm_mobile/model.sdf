@@ -1,0 +1,1716 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <model name="dual_arm_mobile">
+    <self_collide>false</self_collide>
+    <link name="base_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.0219271034 0 0.428233437 0 0 0</pose>
+        <mass>14.0</mass>
+        <inertia>
+          <ixx>0.9389181730031225</ixx>
+          <iyy>0.9821941577052047</iyy>
+          <izz>0.38020930957950333</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="shell">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/base_link_shell.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.22 0.24 0.27 1</ambient>
+          <diffuse>0.22 0.24 0.27 1</diffuse>
+        </material>
+      </visual>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/base_link_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="battery">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/base_link_battery.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.06 0.33 0.66 1</ambient>
+          <diffuse>0.06 0.33 0.66 1</diffuse>
+        </material>
+      </visual>
+      <collision name="base_link_collision">
+        <geometry>
+          <box>
+            <size>0.4 0.36 0.16</size>
+          </box>
+        </geometry>
+        <pose>0 0 0.11 0 0 0</pose>
+      </collision>
+    </link>
+    <link name="lift_carriage">
+      <pose>0.0238344788 2.25061269e-08 0.692307662 0 0 0</pose>
+      <inertial>
+        <pose>-0.00924534794 -2.25061269e-08 -0.144999992 0 0 0</pose>
+        <mass>1.8</mass>
+        <inertia>
+          <ixx>0.059689008134493626</ixx>
+          <iyy>0.04917950408785643</iyy>
+          <izz>0.0283713101475362</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/lift_carriage_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="chest">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/lift_carriage_chest.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.42 0.105 0.1 1</ambient>
+          <diffuse>0.42 0.105 0.1 1</diffuse>
+        </material>
+      </visual>
+      <visual name="shell">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/lift_carriage_shell.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.22 0.24 0.27 1</ambient>
+          <diffuse>0.22 0.24 0.27 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/lift_carriage_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <collision name="lift_carriage_collision">
+        <geometry>
+          <box>
+            <size>0.244006872 0.360003769 0.518000007</size>
+          </box>
+        </geometry>
+        <pose>-0.00924534794 -2.25061269e-08 -0.144999992 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="lift_carriage_joint" type="prismatic">
+      <parent>base_link</parent>
+      <child>lift_carriage</child>
+      <pose relative_to="lift_carriage">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.14</lower>
+          <upper>0.14</upper>
+          <effort>100</effort>
+          <velocity>0.1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_arm_link1">
+      <pose>0.0885856932 -0.15 0.738907666 0 0 0</pose>
+      <inertial>
+        <pose>0.0189822319 6.19888306e-07 0.000900804186 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>8.120512461285311e-05</ixx>
+          <iyy>0.00010997130880758016</iyy>
+          <izz>7.209913521099315e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link1_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link1_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_arm_link1_collision">
+        <geometry>
+          <box>
+            <size>0.0579842851 0.0380056798 0.0630019307</size>
+          </box>
+        </geometry>
+        <pose>0.0189822319 6.19888306e-07 0.000900804186 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_arm_link1_joint" type="revolute">
+      <parent>lift_carriage</parent>
+      <child>right_arm_link1</child>
+      <pose relative_to="right_arm_link1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_arm_link2">
+      <pose>0.121585693 -0.1596 0.788307666 0 0 0</pose>
+      <inertial>
+        <pose>-0.0728557296 0.00910000048 0.0344129214 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.00014604392054245351</ixx>
+          <iyy>0.0005302314186195056</iyy>
+          <izz>0.00043965776134869625</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link2_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link2_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_arm_link2_collision">
+        <geometry>
+          <box>
+            <size>0.165715143 0.043000102 0.0888102055</size>
+          </box>
+        </geometry>
+        <pose>-0.0728557296 0.00910000048 0.0344129214 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_arm_link2_joint" type="revolute">
+      <parent>right_arm_link1</parent>
+      <child>right_arm_link2</child>
+      <pose relative_to="right_arm_link2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_arm_link3">
+      <pose>-0.00517523188 -0.1601 0.876425019 0 0 0</pose>
+      <inertial>
+        <pose>0.0859441617 0.00910004417 0.0201093944 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>8.211781555899633e-05</ixx>
+          <iyy>0.0006065827590620367</iyy>
+          <izz>0.0005799353221100058</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link3_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link3_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link3_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_arm_link3_collision">
+        <geometry>
+          <box>
+            <size>0.191868033 0.0430001467 0.0602121949</size>
+          </box>
+        </geometry>
+        <pose>0.0859441617 0.00910004417 0.0201093944 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_arm_link3_joint" type="revolute">
+      <parent>right_arm_link2</parent>
+      <child>right_arm_link3</child>
+      <pose relative_to="right_arm_link3">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_arm_link4">
+      <pose>0.1649107 -0.1606 0.913123461 0 0 0</pose>
+      <inertial>
+        <pose>0.0184346474 0.0168501259 -0.0243534771 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.00012213568927863376</ixx>
+          <iyy>0.00011931209856173463</iyy>
+          <izz>9.984547608001687e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link4_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link4_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_arm_link4_collision">
+        <geometry>
+          <box>
+            <size>0.0568688214 0.0585004464 0.068702817</size>
+          </box>
+        </geometry>
+        <pose>0.0184346474 0.0168501259 -0.0243534771 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_arm_link4_joint" type="revolute">
+      <parent>right_arm_link3</parent>
+      <child>right_arm_link4</child>
+      <pose relative_to="right_arm_link4">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_arm_link5">
+      <pose>0.194887053 -0.1515 0.869901033 0 0 0</pose>
+      <inertial>
+        <pose>0.0532791285 2.17556953e-09 -0.0288947243 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.00023819696743387767</ixx>
+          <iyy>0.0002620138092620683</iyy>
+          <izz>0.00035736273872146476</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link5_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_arm_link5_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_arm_link5_collision">
+        <geometry>
+          <box>
+            <size>0.112720832 0.105442859 0.0690043569</size>
+          </box>
+        </geometry>
+        <pose>0.0532791285 2.17556953e-09 -0.0288947243 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_arm_link5_joint" type="revolute">
+      <parent>right_arm_link4</parent>
+      <child>right_arm_link5</child>
+      <pose relative_to="right_arm_link5">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0.56989263 0 -0.821719168</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_finger1">
+      <pose>0.247600684 -0.117361398 0.791273142 0 0 0</pose>
+      <inertial>
+        <pose>-0.00242123909 -0.0167484569 0.00616288639 0 0 0</pose>
+        <mass>0.045</mass>
+        <inertia>
+          <ixx>3.430325836660475e-05</ixx>
+          <iyy>3.518575802672341e-05</iyy>
+          <izz>2.4721172763800813e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_finger1_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_finger1_collision">
+        <geometry>
+          <box>
+            <size>0.0584279299 0.0563780963 0.0772596002</size>
+          </box>
+        </geometry>
+        <pose>-0.00242123909 -0.0167484569 0.00616288639 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_finger1_joint" type="prismatic">
+      <parent>right_arm_link5</parent>
+      <child>right_finger1</child>
+      <pose relative_to="right_finger1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0.00936935309 0.999936559 0.00625243781</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.02</upper>
+          <effort>10</effort>
+          <velocity>0.1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="right_finger2">
+      <pose>0.24696093 -0.185638605 0.790846216 0 0 0</pose>
+      <inertial>
+        <pose>-0.00427420364 0.0167484565 0.00349260611 0 0 0</pose>
+        <mass>0.045</mass>
+        <inertia>
+          <ixx>3.1205098512113726e-05</ixx>
+          <iyy>3.3876247136986615e-05</iyy>
+          <izz>2.6509821728555036e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_finger2_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_finger2_collision">
+        <geometry>
+          <box>
+            <size>0.0623762459 0.0563780963 0.0717138052</size>
+          </box>
+        </geometry>
+        <pose>-0.00427420364 0.0167484565 0.00349260611 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="right_finger2_joint" type="prismatic">
+      <parent>right_arm_link5</parent>
+      <child>right_finger2</child>
+      <pose relative_to="right_finger2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>-0.00936935309 -0.999936559 -0.00625243781</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.02</upper>
+          <effort>10</effort>
+          <velocity>0.1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_arm_link1">
+      <pose>0.0885856932 0.15 0.738907666 0 0 0</pose>
+      <inertial>
+        <pose>0.0189822319 6.31809235e-07 0.000900804186 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>8.120512461285311e-05</ixx>
+          <iyy>0.00010997130880758016</iyy>
+          <izz>7.209913521099315e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link1_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link1_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_arm_link1_collision">
+        <geometry>
+          <box>
+            <size>0.0579842851 0.0380056798 0.0630019307</size>
+          </box>
+        </geometry>
+        <pose>0.0189822319 6.31809235e-07 0.000900804186 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_arm_link1_joint" type="revolute">
+      <parent>lift_carriage</parent>
+      <child>left_arm_link1</child>
+      <pose relative_to="left_arm_link1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_arm_link2">
+      <pose>0.121585693 0.1404 0.788307666 0 0 0</pose>
+      <inertial>
+        <pose>-0.0728557296 0.0091000124 0.0344129214 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.00014604388209737973</ixx>
+          <iyy>0.0005302314186195056</iyy>
+          <izz>0.00043965772290362247</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link2_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link2_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_arm_link2_collision">
+        <geometry>
+          <box>
+            <size>0.165715143 0.0430000722 0.0888102055</size>
+          </box>
+        </geometry>
+        <pose>-0.0728557296 0.0091000124 0.0344129214 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_arm_link2_joint" type="revolute">
+      <parent>left_arm_link1</parent>
+      <child>left_arm_link2</child>
+      <pose relative_to="left_arm_link2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_arm_link3">
+      <pose>-0.00517523188 0.1399 0.876425019 0 0 0</pose>
+      <inertial>
+        <pose>0.0859441612 0.00910004864 0.0201093944 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>8.21178347815632e-05</ixx>
+          <iyy>0.0006065827644227676</iyy>
+          <izz>0.0005799353466933036</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link3_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link3_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link3_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_arm_link3_collision">
+        <geometry>
+          <box>
+            <size>0.191868034 0.0430001616 0.0602121949</size>
+          </box>
+        </geometry>
+        <pose>0.0859441612 0.00910004864 0.0201093944 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_arm_link3_joint" type="revolute">
+      <parent>left_arm_link2</parent>
+      <child>left_arm_link3</child>
+      <pose relative_to="left_arm_link3">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_arm_link4">
+      <pose>0.1649107 0.1394 0.913123461 0 0 0</pose>
+      <inertial>
+        <pose>0.0184346474 0.0168501416 -0.0243534771 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.0001221356500510351</ixx>
+          <iyy>0.00011931209856173463</iyy>
+          <izz>9.98454368524182e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link4_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="arm">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link4_arm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.92 0.68 0.13 1</ambient>
+          <diffuse>0.92 0.68 0.13 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_arm_link4_collision">
+        <geometry>
+          <box>
+            <size>0.0568688214 0.058500424 0.068702817</size>
+          </box>
+        </geometry>
+        <pose>0.0184346474 0.0168501416 -0.0243534771 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_arm_link4_joint" type="revolute">
+      <parent>left_arm_link3</parent>
+      <child>left_arm_link4</child>
+      <pose relative_to="left_arm_link4">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_arm_link5">
+      <pose>0.194887053 0.1485 0.869901033 0 0 0</pose>
+      <inertial>
+        <pose>0.0532791285 6.6459179e-09 -0.0288947243 0 0 0</pose>
+        <mass>0.18</mass>
+        <inertia>
+          <ixx>0.00023819696743387767</ixx>
+          <iyy>0.0002620138092620683</iyy>
+          <izz>0.00035736273872146476</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link5_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_arm_link5_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_arm_link5_collision">
+        <geometry>
+          <box>
+            <size>0.112720832 0.105442859 0.0690043569</size>
+          </box>
+        </geometry>
+        <pose>0.0532791285 6.6459179e-09 -0.0288947243 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_arm_link5_joint" type="revolute">
+      <parent>left_arm_link4</parent>
+      <child>left_arm_link5</child>
+      <pose relative_to="left_arm_link5">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0.56989263 0 -0.821719168</xyz>
+        <limit>
+          <lower>-1.4</lower>
+          <upper>1.4</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_finger1">
+      <pose>0.247600684 0.182638602 0.791273142 0 0 0</pose>
+      <inertial>
+        <pose>-0.00242123909 -0.0167484524 0.00616288639 0 0 0</pose>
+        <mass>0.045</mass>
+        <inertia>
+          <ixx>3.4303252065862324e-05</ixx>
+          <iyy>3.518575802672341e-05</iyy>
+          <izz>2.4721166463058384e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_finger1_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_finger1_collision">
+        <geometry>
+          <box>
+            <size>0.0584279299 0.0563780814 0.0772596002</size>
+          </box>
+        </geometry>
+        <pose>-0.00242123909 -0.0167484524 0.00616288639 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_finger1_joint" type="prismatic">
+      <parent>left_arm_link5</parent>
+      <child>left_finger1</child>
+      <pose relative_to="left_finger1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0.00936935309 0.999936559 0.00625243781</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.02</upper>
+          <effort>10</effort>
+          <velocity>0.1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="left_finger2">
+      <pose>0.24696093 0.114361395 0.790846216 0 0 0</pose>
+      <inertial>
+        <pose>-0.00427420364 0.0167484535 0.00349260611 0 0 0</pose>
+        <mass>0.045</mass>
+        <inertia>
+          <ixx>3.1205098512113726e-05</ixx>
+          <iyy>3.3876247136986615e-05</iyy>
+          <izz>2.6509821728555036e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_finger2_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_finger2_collision">
+        <geometry>
+          <box>
+            <size>0.0623762459 0.0563780963 0.0717138052</size>
+          </box>
+        </geometry>
+        <pose>-0.00427420364 0.0167484535 0.00349260611 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="left_finger2_joint" type="prismatic">
+      <parent>left_arm_link5</parent>
+      <child>left_finger2</child>
+      <pose relative_to="left_finger2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>-0.00936935309 -0.999936559 -0.00625243781</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.02</upper>
+          <effort>10</effort>
+          <velocity>0.1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.2</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="head_link">
+      <pose>0.0785856932 -5e-15 0.795307666 0 0 0</pose>
+      <inertial>
+        <pose>0.00800000549 -6.8545341e-07 0.122499973 0 0 0</pose>
+        <mass>0.42</mass>
+        <inertia>
+          <ixx>0.0034179874844039258</ixx>
+          <iyy>0.002324879264952832</iyy>
+          <izz>0.0015411084080402097</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="neck">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/head_link_neck.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.13 0.3 0.23 1</ambient>
+          <diffuse>0.13 0.3 0.23 1</diffuse>
+        </material>
+      </visual>
+      <visual name="metal">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/head_link_metal.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.55 0.59 0.63 1</ambient>
+          <diffuse>0.55 0.59 0.63 1</diffuse>
+        </material>
+      </visual>
+      <visual name="shell">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/head_link_shell.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.22 0.24 0.27 1</ambient>
+          <diffuse>0.22 0.24 0.27 1</diffuse>
+        </material>
+      </visual>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/head_link_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="head_link_collision">
+        <geometry>
+          <box>
+            <size>0.0800000168 0.19398883 0.245000243</size>
+          </box>
+        </geometry>
+        <pose>0.00800000549 -6.8545341e-07 0.122499973 0 0 0</pose>
+      </collision>
+    </link>
+    <joint name="head_link_joint" type="fixed">
+      <parent>lift_carriage</parent>
+      <child>head_link</child>
+      <pose relative_to="head_link">0 0 0 0 0 0</pose>
+    </joint>
+    <link name="lidar_link">
+      <pose>0.0618320881 3.32761556e-06 0.130232666 0 0 0</pose>
+      <inertial>
+        <pose>9.08752962e-10 0 3.59769911e-09 0 0 0</pose>
+        <mass>0.06</mass>
+        <inertia>
+          <ixx>2.001186864042175e-05</ixx>
+          <iyy>3.135094148344925e-05</iyy>
+          <izz>3.836678025910633e-05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/lidar_link_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="lidar_link_collision">
+        <geometry>
+          <box>
+            <size>0.070502378 0.0519881789 0.0360500067</size>
+          </box>
+        </geometry>
+        <pose>9.08752962e-10 0 3.59769911e-09 0 0 0</pose>
+      </collision>
+      <sensor name="lidar" type="gpu_lidar">
+        <topic>/dual_arm/scan</topic>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.141592653589793</min_angle>
+              <max_angle>3.141592653589793</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>20</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+        <gz_frame_id>lidar_link</gz_frame_id>
+      </sensor>
+    </link>
+    <joint name="lidar_link_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>lidar_link</child>
+      <pose relative_to="lidar_link">0 0 0 0 0 0</pose>
+    </joint>
+    <link name="head_camera_link">
+      <pose>0.115485693 -4.99947306e-15 0.995307666 0 0 0</pose>
+      <inertial>
+        <pose>1.33330003e-09 4.99947306e-15 -3.91578674e-06 0 0 0</pose>
+        <mass>0.06</mass>
+        <inertia>
+          <ixx>1.2935694550312294e-05</ixx>
+          <iyy>8.928163471706718e-06</iyy>
+          <izz>8.935929220800498e-06</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/head_camera_link_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="head_camera_link_collision">
+        <geometry>
+          <box>
+            <size>0.0221999958 0.0359770209 0.0359554291</size>
+          </box>
+        </geometry>
+        <pose>1.33330003e-09 4.99947306e-15 -3.91578674e-06 0 0 0</pose>
+      </collision>
+      <sensor name="head_camera_link_sensor" type="camera">
+        <topic>/dual_arm/head_camera_link/image</topic>
+        <pose>0.0120999998 -5.26942235e-19 0 0 0 0</pose>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <gz_frame_id>head_camera_optical_frame</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>15</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <joint name="head_camera_link_joint" type="fixed">
+      <parent>head_link</parent>
+      <child>head_camera_link</child>
+      <pose relative_to="head_camera_link">0 0 0 0 0 0</pose>
+    </joint>
+    <link name="right_camera_link">
+      <pose>0.285609782 -0.152475534 0.858147129 0 0 0</pose>
+      <inertial>
+        <pose>-7.16544601e-11 5.09734682e-09 1.50856814e-08 0 0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>4.058302418752842e-06</ixx>
+          <iyy>4.032670679758136e-06</iyy>
+          <izz>4.32678094314289e-06</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/right_camera_link_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_camera_link_collision">
+        <geometry>
+          <box>
+            <size>0.0321290493 0.0323199481 0.030056715</size>
+          </box>
+        </geometry>
+        <pose>-7.16544601e-11 5.09734682e-09 1.50856814e-08 0 0 0</pose>
+      </collision>
+      <sensor name="right_camera_link_sensor" type="camera">
+        <topic>/dual_arm/right_camera_link/image</topic>
+        <pose>-0.00391632097 0.000211423157 -0.0147653746 3.09813292 1.39156446 3.08765986</pose>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <gz_frame_id>right_camera_optical_frame</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>15</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <joint name="right_camera_link_joint" type="fixed">
+      <parent>right_arm_link5</parent>
+      <child>right_camera_link</child>
+      <pose relative_to="right_camera_link">0 0 0 0 0 0</pose>
+    </joint>
+    <link name="left_camera_link">
+      <pose>0.285609782 0.147524466 0.858147129 0 0 0</pose>
+      <inertial>
+        <pose>-7.16544601e-11 2.11711459e-09 1.50856814e-08 0 0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>4.058302418752842e-06</ixx>
+          <iyy>4.032670679758136e-06</iyy>
+          <izz>4.32678094314289e-06</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="sensor">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/left_camera_link_sensor.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.12 0.15 1</ambient>
+          <diffuse>0.1 0.12 0.15 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_camera_link_collision">
+        <geometry>
+          <box>
+            <size>0.0321290493 0.0323199481 0.030056715</size>
+          </box>
+        </geometry>
+        <pose>-7.16544601e-11 2.11711459e-09 1.50856814e-08 0 0 0</pose>
+      </collision>
+      <sensor name="left_camera_link_sensor" type="camera">
+        <topic>/dual_arm/left_camera_link/image</topic>
+        <pose>-0.00391632097 0.000211423157 -0.0147653746 3.09813292 1.39156446 3.08765986</pose>
+        <always_on>true</always_on>
+        <update_rate>15</update_rate>
+        <gz_frame_id>left_camera_optical_frame</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>15</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <joint name="left_camera_link_joint" type="fixed">
+      <parent>left_arm_link5</parent>
+      <child>left_camera_link</child>
+      <pose relative_to="left_camera_link">0 0 0 0 0 0</pose>
+    </joint>
+    <link name="rear_left_wheel">
+      <pose>-0.177814469 0.1774 0.0503129973 0 0 0</pose>
+      <inertial>
+        <pose>-5.63263893e-06 -2.30967999e-07 -4.70972009e-06 0 0 0</pose>
+        <mass>0.3</mass>
+        <inertia>
+          <ixx>0.0003154070394344425</ixx>
+          <iyy>0.0005060670902952561</iyy>
+          <izz>0.0003156623456501695</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/rear_left_wheel_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="rear_left_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.0503</radius>
+            <length>0.048</length>
+          </cylinder>
+        </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.05</mu>
+              <mu2>0.05</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="rear_left_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rear_left_wheel</child>
+      <pose relative_to="rear_left_wheel">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="front_right_wheel">
+      <pose>0.135058369 -0.177682035 0.0542215877 0 0 0</pose>
+      <inertial>
+        <pose>6.95511699e-06 -4.91738319e-07 9.63080674e-06 0 0 0</pose>
+        <mass>0.3</mass>
+        <inertia>
+          <ixx>0.00031541554651015044</ixx>
+          <iyy>0.0005058554876607279</iyy>
+          <izz>0.00031544484368067893</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/front_right_wheel_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="front_right_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.0503</radius>
+            <length>0.048</length>
+          </cylinder>
+        </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.05</mu>
+              <mu2>0.05</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="front_right_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>front_right_wheel</child>
+      <pose relative_to="front_right_wheel">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="rear_right_wheel">
+      <pose>-0.177738957 -0.177382044 0.0502942237 0 0 0</pose>
+      <inertial>
+        <pose>4.29153442e-06 -2.19792128e-06 3.01362365e-06 0 0 0</pose>
+        <mass>0.3</mass>
+        <inertia>
+          <ixx>0.0003154315731721195</ixx>
+          <iyy>0.0005058703274142865</iyy>
+          <izz>0.00031546071951862875</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/rear_right_wheel_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="rear_right_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.0503</radius>
+            <length>0.048</length>
+          </cylinder>
+        </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.05</mu>
+              <mu2>0.05</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="rear_right_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rear_right_wheel</child>
+      <pose relative_to="rear_right_wheel">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="front_left_wheel">
+      <pose>0.134954441 0.177700005 0.0513435919 0 0 0</pose>
+      <inertial>
+        <pose>-5.81890345e-06 -2.19792128e-06 -7.83178257e-06 0 0 0</pose>
+        <mass>0.3</mass>
+        <inertia>
+          <ixx>0.00031555207813736103</ixx>
+          <iyy>0.0005060284182227728</iyy>
+          <izz>0.0003154983053618734</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="carbon">
+        <geometry>
+          <mesh>
+            <uri>model://dual_arm_mobile/meshes/front_left_wheel_carbon.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.07 0.08 0.09 1</ambient>
+          <diffuse>0.07 0.08 0.09 1</diffuse>
+        </material>
+      </visual>
+      <collision name="front_left_wheel_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.0503</radius>
+            <length>0.048</length>
+          </cylinder>
+        </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.05</mu>
+              <mu2>0.05</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="front_left_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>front_left_wheel</child>
+      <pose relative_to="front_left_wheel">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>3</effort>
+          <velocity>1.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+      </axis>
+    </joint>
+    <plugin filename="gz-sim-velocity-control-system" name="gz::sim::systems::VelocityControl">
+      <topic>/dual_arm/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-mecanum-drive-system" name="gz::sim::systems::MecanumDrive">
+      <front_left_joint>front_left_wheel_joint</front_left_joint>
+      <front_right_joint>front_right_wheel_joint</front_right_joint>
+      <back_left_joint>rear_left_wheel_joint</back_left_joint>
+      <back_right_joint>rear_right_wheel_joint</back_right_joint>
+      <wheel_separation>0.355382040143013</wheel_separation>
+      <wheelbase>0.3127689100801945</wheelbase>
+      <wheel_radius>0.0503</wheel_radius>
+      <topic>/dual_arm/cmd_vel</topic>
+      <odom_topic>/dual_arm/wheel_odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <tf_topic>/dual_arm/tf</tf_topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/dual_arm/joint_states</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-trajectory-controller-system" name="gz::sim::systems::JointTrajectoryController">
+      <topic>/dual_arm/joint_trajectory</topic>
+      <joint_name>lift_carriage_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>800</position_p_gain>
+      <position_i_gain>30</position_i_gain>
+      <position_d_gain>40</position_d_gain>
+      <position_i_min>-100</position_i_min>
+      <position_i_max>100</position_i_max>
+      <position_cmd_min>-100</position_cmd_min>
+      <position_cmd_max>100</position_cmd_max>
+      <position_cmd_offset>42.238</position_cmd_offset>
+      <joint_name>right_arm_link1_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_arm_link2_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_arm_link3_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_arm_link4_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_arm_link5_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_finger1_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>200</position_p_gain>
+      <position_i_gain>3</position_i_gain>
+      <position_d_gain>0.15</position_d_gain>
+      <position_i_min>-10</position_i_min>
+      <position_i_max>10</position_i_max>
+      <position_cmd_min>-10</position_cmd_min>
+      <position_cmd_max>10</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>right_finger2_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>200</position_p_gain>
+      <position_i_gain>3</position_i_gain>
+      <position_d_gain>0.15</position_d_gain>
+      <position_i_min>-10</position_i_min>
+      <position_i_max>10</position_i_max>
+      <position_cmd_min>-10</position_cmd_min>
+      <position_cmd_max>10</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_arm_link1_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_arm_link2_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_arm_link3_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_arm_link4_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_arm_link5_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>20</position_p_gain>
+      <position_i_gain>10</position_i_gain>
+      <position_d_gain>0.03</position_d_gain>
+      <position_i_min>-3</position_i_min>
+      <position_i_max>3</position_i_max>
+      <position_cmd_min>-3</position_cmd_min>
+      <position_cmd_max>3</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_finger1_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>200</position_p_gain>
+      <position_i_gain>3</position_i_gain>
+      <position_d_gain>0.15</position_d_gain>
+      <position_i_min>-10</position_i_min>
+      <position_i_max>10</position_i_max>
+      <position_cmd_min>-10</position_cmd_min>
+      <position_cmd_max>10</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+      <joint_name>left_finger2_joint</joint_name>
+      <initial_position>0</initial_position>
+      <position_p_gain>200</position_p_gain>
+      <position_i_gain>3</position_i_gain>
+      <position_d_gain>0.15</position_d_gain>
+      <position_i_min>-10</position_i_min>
+      <position_i_max>10</position_i_max>
+      <position_cmd_min>-10</position_cmd_min>
+      <position_cmd_max>10</position_cmd_max>
+      <position_cmd_offset>0</position_cmd_offset>
+    </plugin>
+    <frame name="head_camera_optical_frame" attached_to="head_camera_link">
+      <pose relative_to="head_camera_link">0.0120999998 -5.26942235e-19 0 -1.57079633 0 -1.57079633</pose>
+    </frame>
+    <frame name="left_camera_optical_frame" attached_to="left_camera_link">
+      <pose relative_to="left_camera_link">-0.00391632097 0.000211423157 -0.0147653746 2.96252642 0.00774537143 -1.58196471</pose>
+    </frame>
+    <frame name="right_camera_optical_frame" attached_to="right_camera_link">
+      <pose relative_to="right_camera_link">-0.00391632097 0.000211423157 -0.0147653746 2.96252642 0.00774537143 -1.58196471</pose>
+    </frame>
+  </model>
+</sdf>

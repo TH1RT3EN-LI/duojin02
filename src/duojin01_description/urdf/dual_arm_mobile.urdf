@@ -1,0 +1,804 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="dual_arm_mobile">
+  <material name="shell">
+    <color rgba="0.22 0.24 0.27 1" />
+  </material>
+  <material name="metal">
+    <color rgba="0.55 0.59 0.63 1" />
+  </material>
+  <material name="arm">
+    <color rgba="0.92 0.68 0.13 1" />
+  </material>
+  <material name="carbon">
+    <color rgba="0.07 0.08 0.09 1" />
+  </material>
+  <material name="chest">
+    <color rgba="0.42 0.105 0.1 1" />
+  </material>
+  <material name="battery">
+    <color rgba="0.06 0.33 0.66 1" />
+  </material>
+  <material name="sensor">
+    <color rgba="0.1 0.12 0.15 1" />
+  </material>
+  <material name="neck">
+    <color rgba="0.13 0.3 0.23 1" />
+  </material>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.0219271034 0 0.428233437" rpy="0 0 0" />
+      <mass value="14.0" />
+      <inertia ixx="0.9389181730031225" iyy="0.9821941577052047" izz="0.38020930957950333" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/base_link_shell.dae" />
+      </geometry>
+      <material name="shell" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/base_link_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/base_link_battery.dae" />
+      </geometry>
+      <material name="battery" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.11" rpy="0 0 0" />
+      <geometry>
+        <box size="0.4 0.36 0.16" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="lift_carriage">
+    <inertial>
+      <origin xyz="-0.00924534794 -2.25061269e-08 -0.144999992" rpy="0 0 0" />
+      <mass value="1.8" />
+      <inertia ixx="0.059689008134493626" iyy="0.04917950408785643" izz="0.0283713101475362" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/lift_carriage_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/lift_carriage_chest.dae" />
+      </geometry>
+      <material name="chest" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/lift_carriage_shell.dae" />
+      </geometry>
+      <material name="shell" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/lift_carriage_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <collision>
+      <origin xyz="-0.00924534794 -2.25061269e-08 -0.144999992" rpy="0 0 0" />
+      <geometry>
+        <box size="0.244006872 0.360003769 0.518000007" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="lift_carriage_joint" type="prismatic">
+    <parent link="base_link" />
+    <child link="lift_carriage" />
+    <origin xyz="0.0238344788 2.25061269e-08 0.692307662" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.14" upper="0.14" effort="100" velocity="0.1" />
+  </joint>
+  <link name="right_arm_link1">
+    <inertial>
+      <origin xyz="0.0189822319 6.19888306e-07 0.000900804186" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="8.120512461285311e-05" iyy="0.00010997130880758016" izz="7.209913521099315e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link1_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link1_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <collision>
+      <origin xyz="0.0189822319 6.19888306e-07 0.000900804186" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0579842851 0.0380056798 0.0630019307" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_link1_joint" type="revolute">
+    <parent link="lift_carriage" />
+    <child link="right_arm_link1" />
+    <origin xyz="0.0647512143 -0.150000023 0.0466000034" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="right_arm_link2">
+    <inertial>
+      <origin xyz="-0.0728557296 0.00910000048 0.0344129214" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.00014604392054245351" iyy="0.0005302314186195056" izz="0.00043965776134869625" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link2_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link2_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="-0.0728557296 0.00910000048 0.0344129214" rpy="0 0 0" />
+      <geometry>
+        <box size="0.165715143 0.043000102 0.0888102055" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_link2_joint" type="revolute">
+    <parent link="right_arm_link1" />
+    <child link="right_arm_link2" />
+    <origin xyz="0.033 -0.0096 0.0494" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="right_arm_link3">
+    <inertial>
+      <origin xyz="0.0859441617 0.00910004417 0.0201093944" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="8.211781555899633e-05" iyy="0.0006065827590620367" izz="0.0005799353221100058" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link3_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link3_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link3_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0.0859441617 0.00910004417 0.0201093944" rpy="0 0 0" />
+      <geometry>
+        <box size="0.191868033 0.0430001467 0.0602121949" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_link3_joint" type="revolute">
+    <parent link="right_arm_link2" />
+    <child link="right_arm_link3" />
+    <origin xyz="-0.126760925 -0.0005 0.0881173529" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="right_arm_link4">
+    <inertial>
+      <origin xyz="0.0184346474 0.0168501259 -0.0243534771" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.00012213568927863376" iyy="0.00011931209856173463" izz="9.984547608001687e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link4_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link4_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <collision>
+      <origin xyz="0.0184346474 0.0168501259 -0.0243534771" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0568688214 0.0585004464 0.068702817" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_link4_joint" type="revolute">
+    <parent link="right_arm_link3" />
+    <child link="right_arm_link4" />
+    <origin xyz="0.170085932 -0.0005 0.0366984426" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="right_arm_link5">
+    <inertial>
+      <origin xyz="0.0532791285 2.17556953e-09 -0.0288947243" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.00023819696743387767" iyy="0.0002620138092620683" izz="0.00035736273872146476" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link5_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_arm_link5_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="0.0532791285 2.17556953e-09 -0.0288947243" rpy="0 0 0" />
+      <geometry>
+        <box size="0.112720832 0.105442859 0.0690043569" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_link5_joint" type="revolute">
+    <parent link="right_arm_link4" />
+    <child link="right_arm_link5" />
+    <origin xyz="0.0299763523 0.0091 -0.0432224282" rpy="0 0 0" />
+    <axis xyz="0.56989263 0 -0.821719168" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="right_finger1">
+    <inertial>
+      <origin xyz="-0.00242123909 -0.0167484569 0.00616288639" rpy="0 0 0" />
+      <mass value="0.045" />
+      <inertia ixx="3.430325836660475e-05" iyy="3.518575802672341e-05" izz="2.4721172763800813e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_finger1_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <collision>
+      <origin xyz="-0.00242123909 -0.0167484569 0.00616288639" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0584279299 0.0563780963 0.0772596002" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_finger1_joint" type="prismatic">
+    <parent link="right_arm_link5" />
+    <child link="right_finger1" />
+    <origin xyz="0.052713631 0.0341386022 -0.0786278908" rpy="0 0 0" />
+    <axis xyz="0.00936935309 0.999936559 0.00625243781" />
+    <limit lower="-0.01" upper="0.02" effort="10" velocity="0.1" />
+  </joint>
+  <link name="right_finger2">
+    <inertial>
+      <origin xyz="-0.00427420364 0.0167484565 0.00349260611" rpy="0 0 0" />
+      <mass value="0.045" />
+      <inertia ixx="3.1205098512113726e-05" iyy="3.3876247136986615e-05" izz="2.6509821728555036e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_finger2_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <collision>
+      <origin xyz="-0.00427420364 0.0167484565 0.00349260611" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0623762459 0.0563780963 0.0717138052" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_finger2_joint" type="prismatic">
+    <parent link="right_arm_link5" />
+    <child link="right_finger2" />
+    <origin xyz="0.0520738772 -0.0341386049 -0.0790548168" rpy="0 0 0" />
+    <axis xyz="-0.00936935309 -0.999936559 -0.00625243781" />
+    <limit lower="-0.01" upper="0.02" effort="10" velocity="0.1" />
+  </joint>
+  <link name="left_arm_link1">
+    <inertial>
+      <origin xyz="0.0189822319 6.31809235e-07 0.000900804186" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="8.120512461285311e-05" iyy="0.00010997130880758016" izz="7.209913521099315e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link1_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link1_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <collision>
+      <origin xyz="0.0189822319 6.31809235e-07 0.000900804186" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0579842851 0.0380056798 0.0630019307" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_link1_joint" type="revolute">
+    <parent link="lift_carriage" />
+    <child link="left_arm_link1" />
+    <origin xyz="0.0647512143 0.149999977 0.0466000034" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="left_arm_link2">
+    <inertial>
+      <origin xyz="-0.0728557296 0.0091000124 0.0344129214" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.00014604388209737973" iyy="0.0005302314186195056" izz="0.00043965772290362247" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link2_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link2_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="-0.0728557296 0.0091000124 0.0344129214" rpy="0 0 0" />
+      <geometry>
+        <box size="0.165715143 0.0430000722 0.0888102055" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_link2_joint" type="revolute">
+    <parent link="left_arm_link1" />
+    <child link="left_arm_link2" />
+    <origin xyz="0.033 -0.0096 0.0494" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="left_arm_link3">
+    <inertial>
+      <origin xyz="0.0859441612 0.00910004864 0.0201093944" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="8.21178347815632e-05" iyy="0.0006065827644227676" izz="0.0005799353466933036" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link3_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link3_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link3_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0.0859441612 0.00910004864 0.0201093944" rpy="0 0 0" />
+      <geometry>
+        <box size="0.191868034 0.0430001616 0.0602121949" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_link3_joint" type="revolute">
+    <parent link="left_arm_link2" />
+    <child link="left_arm_link3" />
+    <origin xyz="-0.126760925 -0.0005 0.0881173529" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="left_arm_link4">
+    <inertial>
+      <origin xyz="0.0184346474 0.0168501416 -0.0243534771" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.0001221356500510351" iyy="0.00011931209856173463" izz="9.98454368524182e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link4_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link4_arm.dae" />
+      </geometry>
+      <material name="arm" />
+    </visual>
+    <collision>
+      <origin xyz="0.0184346474 0.0168501416 -0.0243534771" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0568688214 0.058500424 0.068702817" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_link4_joint" type="revolute">
+    <parent link="left_arm_link3" />
+    <child link="left_arm_link4" />
+    <origin xyz="0.170085932 -0.0005 0.0366984426" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="left_arm_link5">
+    <inertial>
+      <origin xyz="0.0532791285 6.6459179e-09 -0.0288947243" rpy="0 0 0" />
+      <mass value="0.18" />
+      <inertia ixx="0.00023819696743387767" iyy="0.0002620138092620683" izz="0.00035736273872146476" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link5_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_arm_link5_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="0.0532791285 6.6459179e-09 -0.0288947243" rpy="0 0 0" />
+      <geometry>
+        <box size="0.112720832 0.105442859 0.0690043569" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_link5_joint" type="revolute">
+    <parent link="left_arm_link4" />
+    <child link="left_arm_link5" />
+    <origin xyz="0.0299763523 0.0091 -0.0432224282" rpy="0 0 0" />
+    <axis xyz="0.56989263 0 -0.821719168" />
+    <limit lower="-1.4" upper="1.4" effort="3" velocity="1.0" />
+  </joint>
+  <link name="left_finger1">
+    <inertial>
+      <origin xyz="-0.00242123909 -0.0167484524 0.00616288639" rpy="0 0 0" />
+      <mass value="0.045" />
+      <inertia ixx="3.4303252065862324e-05" iyy="3.518575802672341e-05" izz="2.4721166463058384e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_finger1_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <collision>
+      <origin xyz="-0.00242123909 -0.0167484524 0.00616288639" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0584279299 0.0563780814 0.0772596002" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_finger1_joint" type="prismatic">
+    <parent link="left_arm_link5" />
+    <child link="left_finger1" />
+    <origin xyz="0.052713631 0.0341386022 -0.0786278908" rpy="0 0 0" />
+    <axis xyz="0.00936935309 0.999936559 0.00625243781" />
+    <limit lower="-0.01" upper="0.02" effort="10" velocity="0.1" />
+  </joint>
+  <link name="left_finger2">
+    <inertial>
+      <origin xyz="-0.00427420364 0.0167484535 0.00349260611" rpy="0 0 0" />
+      <mass value="0.045" />
+      <inertia ixx="3.1205098512113726e-05" iyy="3.3876247136986615e-05" izz="2.6509821728555036e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_finger2_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <collision>
+      <origin xyz="-0.00427420364 0.0167484535 0.00349260611" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0623762459 0.0563780963 0.0717138052" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_finger2_joint" type="prismatic">
+    <parent link="left_arm_link5" />
+    <child link="left_finger2" />
+    <origin xyz="0.0520738772 -0.0341386049 -0.0790548168" rpy="0 0 0" />
+    <axis xyz="-0.00936935309 -0.999936559 -0.00625243781" />
+    <limit lower="-0.01" upper="0.02" effort="10" velocity="0.1" />
+  </joint>
+  <link name="head_link">
+    <inertial>
+      <origin xyz="0.00800000549 -6.8545341e-07 0.122499973" rpy="0 0 0" />
+      <mass value="0.42" />
+      <inertia ixx="0.0034179874844039258" iyy="0.002324879264952832" izz="0.0015411084080402097" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/head_link_neck.dae" />
+      </geometry>
+      <material name="neck" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/head_link_metal.dae" />
+      </geometry>
+      <material name="metal" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/head_link_shell.dae" />
+      </geometry>
+      <material name="shell" />
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/head_link_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="0.00800000549 -6.8545341e-07 0.122499973" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0800000168 0.19398883 0.245000243" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_link_joint" type="fixed">
+    <parent link="lift_carriage" />
+    <child link="head_link" />
+    <origin xyz="0.0547512143 -2.25061319e-08 0.103000003" rpy="0 0 0" />
+  </joint>
+  <link name="lidar_link">
+    <inertial>
+      <origin xyz="9.08752962e-10 0 3.59769911e-09" rpy="0 0 0" />
+      <mass value="0.06" />
+      <inertia ixx="2.001186864042175e-05" iyy="3.135094148344925e-05" izz="3.836678025910633e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/lidar_link_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="9.08752962e-10 0 3.59769911e-09" rpy="0 0 0" />
+      <geometry>
+        <box size="0.070502378 0.0519881789 0.0360500067" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="lidar_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="lidar_link" />
+    <origin xyz="0.0618320881 3.32761556e-06 0.130232666" rpy="0 0 0" />
+  </joint>
+  <link name="head_camera_link">
+    <inertial>
+      <origin xyz="1.33330003e-09 4.99947306e-15 -3.91578674e-06" rpy="0 0 0" />
+      <mass value="0.06" />
+      <inertia ixx="1.2935694550312294e-05" iyy="8.928163471706718e-06" izz="8.935929220800498e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/head_camera_link_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="1.33330003e-09 4.99947306e-15 -3.91578674e-06" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0221999958 0.0359770209 0.0359554291" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_camera_link_joint" type="fixed">
+    <parent link="head_link" />
+    <child link="head_camera_link" />
+    <origin xyz="0.0368999998 5.26942235e-19 0.2" rpy="0 0 0" />
+  </joint>
+  <link name="right_camera_link">
+    <inertial>
+      <origin xyz="-7.16544601e-11 5.09734682e-09 1.50856814e-08" rpy="0 0 0" />
+      <mass value="0.025" />
+      <inertia ixx="4.058302418752842e-06" iyy="4.032670679758136e-06" izz="4.32678094314289e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/right_camera_link_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="-7.16544601e-11 5.09734682e-09 1.50856814e-08" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0321290493 0.0323199481 0.030056715" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_camera_link_joint" type="fixed">
+    <parent link="right_arm_link5" />
+    <child link="right_camera_link" />
+    <origin xyz="0.0907227292 -0.000975533516 -0.0117539039" rpy="0 0 0" />
+  </joint>
+  <link name="left_camera_link">
+    <inertial>
+      <origin xyz="-7.16544601e-11 2.11711459e-09 1.50856814e-08" rpy="0 0 0" />
+      <mass value="0.025" />
+      <inertia ixx="4.058302418752842e-06" iyy="4.032670679758136e-06" izz="4.32678094314289e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/left_camera_link_sensor.dae" />
+      </geometry>
+      <material name="sensor" />
+    </visual>
+    <collision>
+      <origin xyz="-7.16544601e-11 2.11711459e-09 1.50856814e-08" rpy="0 0 0" />
+      <geometry>
+        <box size="0.0321290493 0.0323199481 0.030056715" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_camera_link_joint" type="fixed">
+    <parent link="left_arm_link5" />
+    <child link="left_camera_link" />
+    <origin xyz="0.0907227292 -0.000975533516 -0.0117539039" rpy="0 0 0" />
+  </joint>
+  <link name="rear_left_wheel">
+    <inertial>
+      <origin xyz="-5.63263893e-06 -2.30967999e-07 -4.70972009e-06" rpy="0 0 0" />
+      <mass value="0.3" />
+      <inertia ixx="0.0003154070394344425" iyy="0.0005060670902952561" izz="0.0003156623456501695" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/rear_left_wheel_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0" />
+      <geometry>
+        <cylinder radius="0.0503" length="0.048" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="base_link" />
+    <child link="rear_left_wheel" />
+    <origin xyz="-0.177814469 0.1774 0.0503129973" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1e+16" upper="1e+16" effort="3" velocity="1.0" />
+  </joint>
+  <link name="front_right_wheel">
+    <inertial>
+      <origin xyz="6.95511699e-06 -4.91738319e-07 9.63080674e-06" rpy="0 0 0" />
+      <mass value="0.3" />
+      <inertia ixx="0.00031541554651015044" iyy="0.0005058554876607279" izz="0.00031544484368067893" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/front_right_wheel_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0" />
+      <geometry>
+        <cylinder radius="0.0503" length="0.048" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="base_link" />
+    <child link="front_right_wheel" />
+    <origin xyz="0.135058369 -0.177682035 0.0542215877" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1e+16" upper="1e+16" effort="3" velocity="1.0" />
+  </joint>
+  <link name="rear_right_wheel">
+    <inertial>
+      <origin xyz="4.29153442e-06 -2.19792128e-06 3.01362365e-06" rpy="0 0 0" />
+      <mass value="0.3" />
+      <inertia ixx="0.0003154315731721195" iyy="0.0005058703274142865" izz="0.00031546071951862875" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/rear_right_wheel_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0" />
+      <geometry>
+        <cylinder radius="0.0503" length="0.048" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="base_link" />
+    <child link="rear_right_wheel" />
+    <origin xyz="-0.177738957 -0.177382044 0.0502942237" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1e+16" upper="1e+16" effort="3" velocity="1.0" />
+  </joint>
+  <link name="front_left_wheel">
+    <inertial>
+      <origin xyz="-5.81890345e-06 -2.19792128e-06 -7.83178257e-06" rpy="0 0 0" />
+      <mass value="0.3" />
+      <inertia ixx="0.00031555207813736103" iyy="0.0005060284182227728" izz="0.0003154983053618734" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://duojin01_description/models/dual_arm_mobile/meshes/front_left_wheel_carbon.dae" />
+      </geometry>
+      <material name="carbon" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0" />
+      <geometry>
+        <cylinder radius="0.0503" length="0.048" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="base_link" />
+    <child link="front_left_wheel" />
+    <origin xyz="0.134954441 0.177700005 0.0513435919" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1e+16" upper="1e+16" effort="3" velocity="1.0" />
+  </joint>
+  <link name="head_camera_optical_frame" />
+  <joint name="head_camera_optical_frame_joint" type="fixed">
+    <parent link="head_camera_link" />
+    <child link="head_camera_optical_frame" />
+    <origin xyz="0.0120999998 -5.26942235e-19 0" rpy="-1.57079633 0 -1.57079633" />
+  </joint>
+  <link name="left_camera_optical_frame" />
+  <joint name="left_camera_optical_frame_joint" type="fixed">
+    <parent link="left_camera_link" />
+    <child link="left_camera_optical_frame" />
+    <origin xyz="-0.00391632097 0.000211423157 -0.0147653746" rpy="2.96252642 0.00774537143 -1.58196471" />
+  </joint>
+  <link name="right_camera_optical_frame" />
+  <joint name="right_camera_optical_frame_joint" type="fixed">
+    <parent link="right_camera_link" />
+    <child link="right_camera_optical_frame" />
+    <origin xyz="-0.00391632097 0.000211423157 -0.0147653746" rpy="2.96252642 0.00774537143 -1.58196471" />
+  </joint>
+  <link name="base_footprint" />
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint" />
+    <child link="base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+</robot>

@@ -1,4 +1,4 @@
-"""Contracts keeping the hardware branch independent of simulation."""
+"""Keep hardware entry points independent of the standalone simulation asset."""
 
 import ast
 import importlib.util
@@ -45,10 +45,12 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
                     assert dependency in packages, (name, dependency)
 
 
-def test_no_scene_bridge_or_simulation_assets_remain():
+def test_only_the_standalone_model_adds_simulation_assets():
+    model_sdf = ROOT / "src/duojin01_description/models/dual_arm_mobile/model.sdf"
     for path in (ROOT / "src").rglob("*"):
         assert not path.name.startswith("sim_"), path
-        assert path.suffix != ".sdf", path
+        if path.suffix == ".sdf":
+            assert path == model_sdf, path
         assert not FORBIDDEN.search(path.name), path
     for path in (ROOT / "src/duojin01_description/urdf").rglob("*.xacro"):
         assert "<gazebo" not in path.read_text(), path

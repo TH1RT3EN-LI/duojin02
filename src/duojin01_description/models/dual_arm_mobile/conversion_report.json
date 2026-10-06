@@ -1,0 +1,3472 @@
+{
+  "source": "native SolidWorks DisplayLists triangles",
+  "quality_profile": "high",
+  "source_archive_sha256": "d93e6bb2a731cceba861199dc13b86d40e639ec015137fd93c8b11a8519c5d6b",
+  "ground_offset_m": 0.039307665824890134,
+  "source_unique_part_triangles": 1006598,
+  "source_expanded_triangles": 1918229,
+  "retained_before_decimation": 939467,
+  "visual_triangles": 516650,
+  "rigid_links": 25,
+  "bounds_m": [
+    [
+      -0.23493748903274536,
+      -0.2042214274406433,
+      6.0263159866735805e-06
+    ],
+    [
+      0.30452659726142883,
+      0.20270000398159027,
+      1.0403077602386475
+    ]
+  ],
+  "meshes": [
+    {
+      "link": "base_link",
+      "material": "shell",
+      "source_triangles": 68649,
+      "triangles": 37756,
+      "p95_surface_error_m": 4.081603657088636e-05,
+      "max_sample_error_m": 0.00012416838899676863
+    },
+    {
+      "link": "base_link",
+      "material": "metal",
+      "source_triangles": 127120,
+      "triangles": 69915,
+      "p95_surface_error_m": 5.84825386291591e-05,
+      "max_sample_error_m": 0.00023588961138061552
+    },
+    {
+      "link": "base_link",
+      "material": "battery",
+      "source_triangles": 28382,
+      "triangles": 15610,
+      "p95_surface_error_m": 5.251664535404657e-05,
+      "max_sample_error_m": 0.0002625024940434564
+    },
+    {
+      "link": "rear_left_wheel",
+      "material": "carbon",
+      "source_triangles": 44428,
+      "triangles": 24433,
+      "p95_surface_error_m": 9.625423845667291e-05,
+      "max_sample_error_m": 0.0002806435631080476
+    },
+    {
+      "link": "front_right_wheel",
+      "material": "carbon",
+      "source_triangles": 44274,
+      "triangles": 24347,
+      "p95_surface_error_m": 0.00010113078497555852,
+      "max_sample_error_m": 0.00029356282364793694
+    },
+    {
+      "link": "rear_right_wheel",
+      "material": "carbon",
+      "source_triangles": 43924,
+      "triangles": 24156,
+      "p95_surface_error_m": 9.987067216715953e-05,
+      "max_sample_error_m": 0.00030671365593219735
+    },
+    {
+      "link": "front_left_wheel",
+      "material": "carbon",
+      "source_triangles": 44368,
+      "triangles": 24401,
+      "p95_surface_error_m": 9.989374187093792e-05,
+      "max_sample_error_m": 0.00025315050084251156
+    },
+    {
+      "link": "lidar_link",
+      "material": "sensor",
+      "source_triangles": 54540,
+      "triangles": 29996,
+      "p95_surface_error_m": 2.1107620933001024e-05,
+      "max_sample_error_m": 0.00011608821767442833
+    },
+    {
+      "link": "lift_carriage",
+      "material": "metal",
+      "source_triangles": 30322,
+      "triangles": 16676,
+      "p95_surface_error_m": 3.984131746158088e-05,
+      "max_sample_error_m": 0.00018069449437954998
+    },
+    {
+      "link": "lift_carriage",
+      "material": "chest",
+      "source_triangles": 8628,
+      "triangles": 4744,
+      "p95_surface_error_m": 4.246993578833835e-05,
+      "max_sample_error_m": 0.00013663070783408645
+    },
+    {
+      "link": "lift_carriage",
+      "material": "shell",
+      "source_triangles": 25712,
+      "triangles": 14140,
+      "p95_surface_error_m": 8.368818633155158e-05,
+      "max_sample_error_m": 0.0002564917530709663
+    },
+    {
+      "link": "lift_carriage",
+      "material": "arm",
+      "source_triangles": 8844,
+      "triangles": 4864,
+      "p95_surface_error_m": 3.520000517699361e-05,
+      "max_sample_error_m": 0.00022094782246697816
+    },
+    {
+      "link": "right_arm_link1",
+      "material": "metal",
+      "source_triangles": 26268,
+      "triangles": 14446,
+      "p95_surface_error_m": 5.868914723571232e-05,
+      "max_sample_error_m": 0.00018969590566918684
+    },
+    {
+      "link": "right_arm_link1",
+      "material": "arm",
+      "source_triangles": 6158,
+      "triangles": 3386,
+      "p95_surface_error_m": 3.35998677441383e-05,
+      "max_sample_error_m": 0.00021845249914142456
+    },
+    {
+      "link": "right_arm_link3",
+      "material": "metal",
+      "source_triangles": 1650,
+      "triangles": 906,
+      "p95_surface_error_m": 3.17099118356512e-05,
+      "max_sample_error_m": 0.000500003118808709
+    },
+    {
+      "link": "right_arm_link3",
+      "material": "arm",
+      "source_triangles": 9176,
+      "triangles": 5046,
+      "p95_surface_error_m": 3.360373926820051e-05,
+      "max_sample_error_m": 0.00015157641310968538
+    },
+    {
+      "link": "right_arm_link3",
+      "material": "carbon",
+      "source_triangles": 11832,
+      "triangles": 6506,
+      "p95_surface_error_m": 1.4981243850127988e-05,
+      "max_sample_error_m": 0.00020040346324851362
+    },
+    {
+      "link": "right_arm_link4",
+      "material": "metal",
+      "source_triangles": 26268,
+      "triangles": 14446,
+      "p95_surface_error_m": 5.604944775027251e-05,
+      "max_sample_error_m": 0.0001175837170854571
+    },
+    {
+      "link": "right_arm_link4",
+      "material": "arm",
+      "source_triangles": 6316,
+      "triangles": 3472,
+      "p95_surface_error_m": 3.10317948784388e-05,
+      "max_sample_error_m": 0.00017332313964009606
+    },
+    {
+      "link": "right_arm_link5",
+      "material": "metal",
+      "source_triangles": 8730,
+      "triangles": 4800,
+      "p95_surface_error_m": 3.709182566912586e-05,
+      "max_sample_error_m": 0.0001638554336577601
+    },
+    {
+      "link": "right_arm_link5",
+      "material": "sensor",
+      "source_triangles": 3316,
+      "triangles": 1822,
+      "p95_surface_error_m": 2.3278837984015142e-05,
+      "max_sample_error_m": 0.00015618866941822927
+    },
+    {
+      "link": "right_finger1",
+      "material": "metal",
+      "source_triangles": 9086,
+      "triangles": 4996,
+      "p95_surface_error_m": 1.6648787355609988e-05,
+      "max_sample_error_m": 0.00013042781412050402
+    },
+    {
+      "link": "right_finger2",
+      "material": "metal",
+      "source_triangles": 9086,
+      "triangles": 4997,
+      "p95_surface_error_m": 1.6347565055255703e-05,
+      "max_sample_error_m": 0.00011497005320950641
+    },
+    {
+      "link": "right_camera_link",
+      "material": "sensor",
+      "source_triangles": 1822,
+      "triangles": 1002,
+      "p95_surface_error_m": 0.00013119082327935321,
+      "max_sample_error_m": 0.00038890669139348495
+    },
+    {
+      "link": "right_arm_link2",
+      "material": "arm",
+      "source_triangles": 9392,
+      "triangles": 5164,
+      "p95_surface_error_m": 3.358943598989069e-05,
+      "max_sample_error_m": 0.00012764137123202058
+    },
+    {
+      "link": "right_arm_link2",
+      "material": "carbon",
+      "source_triangles": 11832,
+      "triangles": 6506,
+      "p95_surface_error_m": 1.5505331874849984e-05,
+      "max_sample_error_m": 0.00020045895128919668
+    },
+    {
+      "link": "left_arm_link1",
+      "material": "metal",
+      "source_triangles": 26268,
+      "triangles": 14446,
+      "p95_surface_error_m": 5.8759195306856263e-05,
+      "max_sample_error_m": 0.00018968508713644783
+    },
+    {
+      "link": "left_arm_link1",
+      "material": "arm",
+      "source_triangles": 6158,
+      "triangles": 3386,
+      "p95_surface_error_m": 3.36010089555814e-05,
+      "max_sample_error_m": 0.00021844391698658808
+    },
+    {
+      "link": "left_arm_link3",
+      "material": "metal",
+      "source_triangles": 1650,
+      "triangles": 906,
+      "p95_surface_error_m": 3.1709912302849473e-05,
+      "max_sample_error_m": 0.0005000031188013016
+    },
+    {
+      "link": "left_arm_link3",
+      "material": "arm",
+      "source_triangles": 9176,
+      "triangles": 5046,
+      "p95_surface_error_m": 3.3628314211087423e-05,
+      "max_sample_error_m": 0.00015163282576292268
+    },
+    {
+      "link": "left_arm_link3",
+      "material": "carbon",
+      "source_triangles": 11832,
+      "triangles": 6506,
+      "p95_surface_error_m": 1.4733400837660625e-05,
+      "max_sample_error_m": 0.0002004056180858258
+    },
+    {
+      "link": "left_arm_link4",
+      "material": "metal",
+      "source_triangles": 26268,
+      "triangles": 14446,
+      "p95_surface_error_m": 5.5424374700536376e-05,
+      "max_sample_error_m": 0.00011757521211769849
+    },
+    {
+      "link": "left_arm_link4",
+      "material": "arm",
+      "source_triangles": 6316,
+      "triangles": 3472,
+      "p95_surface_error_m": 3.10296083862502e-05,
+      "max_sample_error_m": 0.00017334004712829185
+    },
+    {
+      "link": "left_arm_link5",
+      "material": "metal",
+      "source_triangles": 8730,
+      "triangles": 4800,
+      "p95_surface_error_m": 3.644085640134589e-05,
+      "max_sample_error_m": 0.00016385544026505122
+    },
+    {
+      "link": "left_arm_link5",
+      "material": "sensor",
+      "source_triangles": 3316,
+      "triangles": 1822,
+      "p95_surface_error_m": 2.352798141519913e-05,
+      "max_sample_error_m": 0.00015617346362358257
+    },
+    {
+      "link": "left_finger1",
+      "material": "metal",
+      "source_triangles": 9086,
+      "triangles": 4996,
+      "p95_surface_error_m": 1.6658368479968467e-05,
+      "max_sample_error_m": 0.00013042632677902225
+    },
+    {
+      "link": "left_finger2",
+      "material": "metal",
+      "source_triangles": 9086,
+      "triangles": 4997,
+      "p95_surface_error_m": 1.6362696688961245e-05,
+      "max_sample_error_m": 0.00011496999061170945
+    },
+    {
+      "link": "left_camera_link",
+      "material": "sensor",
+      "source_triangles": 1822,
+      "triangles": 1002,
+      "p95_surface_error_m": 0.0001313344268807315,
+      "max_sample_error_m": 0.0003889066415230627
+    },
+    {
+      "link": "left_arm_link2",
+      "material": "arm",
+      "source_triangles": 9392,
+      "triangles": 5164,
+      "p95_surface_error_m": 3.35938041781093e-05,
+      "max_sample_error_m": 0.0001276651200111558
+    },
+    {
+      "link": "left_arm_link2",
+      "material": "carbon",
+      "source_triangles": 11832,
+      "triangles": 6506,
+      "p95_surface_error_m": 1.5785885583907376e-05,
+      "max_sample_error_m": 0.00020045157695834165
+    },
+    {
+      "link": "head_link",
+      "material": "neck",
+      "source_triangles": 13690,
+      "triangles": 7528,
+      "p95_surface_error_m": 5.895946768679658e-05,
+      "max_sample_error_m": 0.00018401079481027898
+    },
+    {
+      "link": "head_link",
+      "material": "metal",
+      "source_triangles": 14284,
+      "triangles": 7856,
+      "p95_surface_error_m": 3.950328803427682e-05,
+      "max_sample_error_m": 6.94143296948858e-05
+    },
+    {
+      "link": "head_link",
+      "material": "shell",
+      "source_triangles": 98958,
+      "triangles": 54426,
+      "p95_surface_error_m": 8.505950702423662e-06,
+      "max_sample_error_m": 6.55290392883251e-05
+    },
+    {
+      "link": "head_link",
+      "material": "sensor",
+      "source_triangles": 1116,
+      "triangles": 612,
+      "p95_surface_error_m": 5.058895217421016e-05,
+      "max_sample_error_m": 6.384860632018174e-05
+    },
+    {
+      "link": "head_camera_link",
+      "material": "sensor",
+      "source_triangles": 364,
+      "triangles": 200,
+      "p95_surface_error_m": 4.57189379453517e-05,
+      "max_sample_error_m": 6.471102279165433e-05
+    }
+  ],
+  "rig": {
+    "base_link": {
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": null,
+      "mass": 14.0,
+      "type": null
+    },
+    "lift_carriage": {
+      "origin": [
+        0.023834478822703342,
+        2.2506126851062902e-08,
+        0.6923076624511717
+      ],
+      "parent": "base_link",
+      "type": "prismatic",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        -0.14,
+        0.14
+      ],
+      "mass": 1.8
+    },
+    "right_arm_link1": {
+      "origin": [
+        0.088585693155583,
+        -0.15,
+        0.7389076658248901
+      ],
+      "parent": "lift_carriage",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "right_arm_link2": {
+      "origin": [
+        0.12158569315558301,
+        -0.1596,
+        0.78830766582489
+      ],
+      "parent": "right_arm_link1",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "right_arm_link3": {
+      "origin": [
+        -0.005175231880516985,
+        -0.1601,
+        0.8764250187356097
+      ],
+      "parent": "right_arm_link2",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "right_arm_link4": {
+      "origin": [
+        0.1649107002620787,
+        -0.1606,
+        0.9131234613072488
+      ],
+      "parent": "right_arm_link3",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "right_arm_link5": {
+      "origin": [
+        0.19488705259719602,
+        -0.1515,
+        0.8699010330936541
+      ],
+      "parent": "right_arm_link4",
+      "type": "revolute",
+      "axis": [
+        0.569892629945377,
+        0.0,
+        -0.821719167559052
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "right_finger1": {
+      "origin": [
+        0.24760068363999638,
+        -0.11736139779870547,
+        0.7912731423325552
+      ],
+      "parent": "right_arm_link5",
+      "type": "prismatic",
+      "axis": [
+        0.00936935308631147,
+        0.999936559109707,
+        0.006252437811244205
+      ],
+      "limit": [
+        -0.01,
+        0.02
+      ],
+      "mass": 0.045
+    },
+    "right_finger2": {
+      "origin": [
+        0.2469609297924925,
+        -0.18563860488622852,
+        0.7908462162567447
+      ],
+      "parent": "right_arm_link5",
+      "type": "prismatic",
+      "axis": [
+        -0.00936935308631147,
+        -0.999936559109707,
+        -0.006252437811244205
+      ],
+      "limit": [
+        -0.01,
+        0.02
+      ],
+      "mass": 0.045
+    },
+    "left_arm_link1": {
+      "origin": [
+        0.088585693155583,
+        0.15,
+        0.7389076658248901
+      ],
+      "parent": "lift_carriage",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "left_arm_link2": {
+      "origin": [
+        0.12158569315558301,
+        0.1404,
+        0.78830766582489
+      ],
+      "parent": "left_arm_link1",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "left_arm_link3": {
+      "origin": [
+        -0.005175231880516985,
+        0.1399,
+        0.8764250187356097
+      ],
+      "parent": "left_arm_link2",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "left_arm_link4": {
+      "origin": [
+        0.1649107002620787,
+        0.1394,
+        0.9131234613072488
+      ],
+      "parent": "left_arm_link3",
+      "type": "revolute",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "left_arm_link5": {
+      "origin": [
+        0.19488705259719602,
+        0.1485,
+        0.8699010330936541
+      ],
+      "parent": "left_arm_link4",
+      "type": "revolute",
+      "axis": [
+        0.569892629945377,
+        0.0,
+        -0.821719167559052
+      ],
+      "limit": [
+        -1.4,
+        1.4
+      ],
+      "mass": 0.18
+    },
+    "left_finger1": {
+      "origin": [
+        0.24760068363999638,
+        0.18263860220129452,
+        0.7912731423325552
+      ],
+      "parent": "left_arm_link5",
+      "type": "prismatic",
+      "axis": [
+        0.00936935308631147,
+        0.999936559109707,
+        0.006252437811244205
+      ],
+      "limit": [
+        -0.01,
+        0.02
+      ],
+      "mass": 0.045
+    },
+    "left_finger2": {
+      "origin": [
+        0.2469609297924925,
+        0.11436139511377147,
+        0.7908462162567447
+      ],
+      "parent": "left_arm_link5",
+      "type": "prismatic",
+      "axis": [
+        -0.00936935308631147,
+        -0.999936559109707,
+        -0.006252437811244205
+      ],
+      "limit": [
+        -0.01,
+        0.02
+      ],
+      "mass": 0.045
+    },
+    "head_link": {
+      "origin": [
+        0.078585693155583,
+        -5e-15,
+        0.7953076658248901
+      ],
+      "parent": "lift_carriage",
+      "type": "fixed",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.42
+    },
+    "lidar_link": {
+      "origin": [
+        0.0618320880683455,
+        3.3276155591011047e-06,
+        0.13023266581539064
+      ],
+      "parent": "base_link",
+      "type": "fixed",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.06
+    },
+    "head_camera_link": {
+      "origin": [
+        0.11548569292610511,
+        -4.999473057765158e-15,
+        0.99530766582489
+      ],
+      "parent": "head_link",
+      "type": "fixed",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.06,
+      "sensor_pose": [
+        0.012099999770522119,
+        -5.26942234841948e-19,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "right_camera_link": {
+      "origin": [
+        0.2856097818137504,
+        -0.15247553351636461,
+        0.8581471292319456
+      ],
+      "parent": "right_arm_link5",
+      "type": "fixed",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.025,
+      "sensor_pose": [
+        -0.003916320974244103,
+        0.0002114231571898606,
+        -0.014765374621686145,
+        3.098132915781766,
+        1.3915644560522638,
+        3.0876598613790205
+      ]
+    },
+    "left_camera_link": {
+      "origin": [
+        0.2856097818137504,
+        0.14752446648363537,
+        0.8581471292319456
+      ],
+      "parent": "left_arm_link5",
+      "type": "fixed",
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.025,
+      "sensor_pose": [
+        -0.003916320974244103,
+        0.0002114231571898606,
+        -0.014765374621686145,
+        3.098132915781766,
+        1.3915644560522638,
+        3.0876598613790205
+      ]
+    },
+    "rear_left_wheel": {
+      "origin": [
+        -0.17781446874141693,
+        0.17740000039339066,
+        0.05031299730762839
+      ],
+      "parent": "base_link",
+      "type": "continuous",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.3
+    },
+    "front_right_wheel": {
+      "origin": [
+        0.13505836948752403,
+        -0.1776820346713066,
+        0.0542215877212584
+      ],
+      "parent": "base_link",
+      "type": "continuous",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.3
+    },
+    "rear_right_wheel": {
+      "origin": [
+        -0.1777389571070671,
+        -0.17738204449415207,
+        0.050294223707169294
+      ],
+      "parent": "base_link",
+      "type": "continuous",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.3
+    },
+    "front_left_wheel": {
+      "origin": [
+        0.13495444133877754,
+        0.1777000054717064,
+        0.05134359188377857
+      ],
+      "parent": "base_link",
+      "type": "continuous",
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limit": [
+        0,
+        0
+      ],
+      "mass": 0.3
+    }
+  },
+  "geometry": {
+    "base_link": [
+      {
+        "file": "base_link_shell.dae",
+        "color": "shell",
+        "bounds": [
+          [
+            -0.2339167296886444,
+            -0.1899999976158142,
+            0.02191244065761566
+          ],
+          [
+            0.19108328223228455,
+            0.1899999976158142,
+            0.3333090841770172
+          ]
+        ]
+      },
+      {
+        "file": "base_link_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.23493748903274536,
+            -0.1899999976158142,
+            0.029307657852768898
+          ],
+          [
+            0.19108328223228455,
+            0.1899999976158142,
+            0.8345544338226318
+          ]
+        ]
+      },
+      {
+        "file": "base_link_battery.dae",
+        "color": "battery",
+        "bounds": [
+          [
+            -0.1949167251586914,
+            -0.08870001137256622,
+            0.084907665848732
+          ],
+          [
+            0.03537008538842201,
+            0.08830000460147858,
+            0.2173076719045639
+          ]
+        ]
+      }
+    ],
+    "rear_left_wheel": [
+      {
+        "file": "rear_left_wheel_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.050320759415626526,
+            -0.02500046044588089,
+            -0.05029445937543642
+          ],
+          [
+            0.05030949413776398,
+            0.02499999850988388,
+            0.05028503993526101
+          ]
+        ]
+      }
+    ],
+    "front_right_wheel": [
+      {
+        "file": "front_right_wheel_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.0502864234149456,
+            -0.025000981986522675,
+            -0.05028083501383662
+          ],
+          [
+            0.05030033364892006,
+            0.02499999850988388,
+            0.05030009662732482
+          ]
+        ]
+      }
+    ],
+    "rear_right_wheel": [
+      {
+        "file": "rear_right_wheel_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.0502898171544075,
+            -0.025004394352436066,
+            -0.05028819739118262
+          ],
+          [
+            0.05029840022325516,
+            0.02499999850988388,
+            0.05029422463849187
+          ]
+        ]
+      }
+    ],
+    "front_left_wheel": [
+      {
+        "file": "front_left_wheel_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.050303664058446884,
+            -0.025004394352436066,
+            -0.050311022088862956
+          ],
+          [
+            0.05029202625155449,
+            0.02499999850988388,
+            0.05029535852372646
+          ]
+        ]
+      }
+    ],
+    "lidar_link": [
+      {
+        "file": "lidar_link_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            -0.03525118811450334,
+            -0.02599408943206072,
+            -0.018024999775923783
+          ],
+          [
+            0.035251189932009264,
+            0.02599408943206072,
+            0.018025006971322005
+          ]
+        ]
+      }
+    ],
+    "lift_carriage": [
+      {
+        "file": "lift_carriage_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.13124878403281687,
+            -0.17700006828249404,
+            -0.40399999567260725
+          ],
+          [
+            0.07975121143723013,
+            0.17699999346791795,
+            0.11400001100311297
+          ]
+        ]
+      },
+      {
+        "file": "lift_carriage_chest.dae",
+        "color": "chest",
+        "bounds": [
+          [
+            0.03075024786854269,
+            -0.07500002548635909,
+            -0.10600001760711653
+          ],
+          [
+            0.09075162115955832,
+            0.07499998047410539,
+            0.11400001100311297
+          ]
+        ]
+      },
+      {
+        "file": "lift_carriage_shell.dae",
+        "color": "shell",
+        "bounds": [
+          [
+            -0.0003487866047572896,
+            -0.18000190720499465,
+            -0.08099998184432966
+          ],
+          [
+            0.11275808814430716,
+            0.18000186219274095,
+            0.05600040010223406
+          ]
+        ]
+      },
+      {
+        "file": "lift_carriage_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            0.027750819208865185,
+            -0.1740000174993367,
+            0.0019997244239808865
+          ],
+          [
+            0.0697512135233927,
+            0.173999972487083,
+            0.05599998286972063
+          ]
+        ]
+      }
+    ],
+    "right_arm_link1": [
+      {
+        "file": "right_arm_link1_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.009974989806469534,
+            -0.009974038600921636,
+            -0.027400107002258256
+          ],
+          [
+            0.009971272433940317,
+            0.009974980354309076,
+            0.009200005912780806
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link1_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.010009910677727316,
+            -0.01900222003459931,
+            -0.030600161170959428
+          ],
+          [
+            0.04797437437886372,
+            0.019003459811210627,
+            0.03240176954269414
+          ]
+        ]
+      }
+    ],
+    "right_arm_link3": [
+      {
+        "file": "right_arm_link3_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            0.133527322596879,
+            0.0006999839305877609,
+            0.01758004146031311
+          ],
+          [
+            0.18187817830500125,
+            0.014600025510787956,
+            0.05021549182347229
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link3_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.009989854955105803,
+            -0.012400029206275948,
+            -0.00999670309611389
+          ],
+          [
+            0.15656424958166598,
+            0.03060011754035949,
+            0.04768575148991516
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link3_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            0.019654786138803938,
+            -0.009900106096267708,
+            -0.0050295500237567126
+          ],
+          [
+            0.13576857644972323,
+            0.028100105023384087,
+            0.038564333490647584
+          ]
+        ]
+      }
+    ],
+    "right_arm_link4": [
+      {
+        "file": "right_arm_link4_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.009973507464417886,
+            -0.009200028204917915,
+            -0.00997218757983176
+          ],
+          [
+            0.009971368968000938,
+            0.027400084710121148,
+            0.009973553119936307
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link4_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.009999763310441445,
+            -0.01240009727478028,
+            -0.05870488554354636
+          ],
+          [
+            0.04686905807208114,
+            0.04610034910440444,
+            0.009997931419649442
+          ]
+        ]
+      }
+    ],
+    "right_arm_link5": [
+      {
+        "file": "right_arm_link5_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.0030812875644277704,
+            -0.052721427440643315,
+            -0.06339690273018972
+          ],
+          [
+            0.10666974323829898,
+            0.052721431791782375,
+            -0.0017930585643877173
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link5_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            0.0709101154192377,
+            -0.019181446790695195,
+            -0.01882854287835256
+          ],
+          [
+            0.10963954466423281,
+            0.017280740976333614,
+            0.005607454130924783
+          ]
+        ]
+      }
+    ],
+    "right_finger1": [
+      {
+        "file": "right_finger1_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.03163520402764591,
+            -0.04493750507051908,
+            -0.03246691369485988
+          ],
+          [
+            0.02679272585058895,
+            0.011440591271567713,
+            0.044792686467646226
+          ]
+        ]
+      }
+    ],
+    "right_finger2": [
+      {
+        "file": "right_finger2_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.03546232656773818,
+            -0.011440591686075252,
+            -0.03236429649127226
+          ],
+          [
+            0.026913919288546917,
+            0.04493750465601154,
+            0.039349508707397174
+          ]
+        ]
+      }
+    ],
+    "right_camera_link": [
+      {
+        "file": "right_camera_link_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            -0.01606452472222819,
+            -0.0161599689412541,
+            -0.015028342420116969
+          ],
+          [
+            0.01606452457891927,
+            0.016159979135947744,
+            0.01502837259147971
+          ]
+        ]
+      }
+    ],
+    "right_arm_link2": [
+      {
+        "file": "right_arm_link2_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.15571330109721052,
+            -0.012400050544738778,
+            -0.009992181301116787
+          ],
+          [
+            0.010001841987315546,
+            0.030600051498413078,
+            0.07881802415847794
+          ]
+        ]
+      },
+      {
+        "file": "right_arm_link2_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.1283098370220326,
+            -0.00990009763240815,
+            0.0003308663368226661
+          ],
+          [
+            -0.01610529789811002,
+            0.02810009858608245,
+            0.06619185304641739
+          ]
+        ]
+      }
+    ],
+    "left_arm_link1": [
+      {
+        "file": "left_arm_link1_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.009974989806469534,
+            -0.009974041581153864,
+            -0.027400107002258256
+          ],
+          [
+            0.009971272433940317,
+            0.009974992275238043,
+            0.009200005912780806
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link1_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.010009910677727316,
+            -0.019002208113670344,
+            -0.030600161170959428
+          ],
+          [
+            0.04797437437886372,
+            0.019003471732139593,
+            0.03240176954269414
+          ]
+        ]
+      }
+    ],
+    "left_arm_link3": [
+      {
+        "file": "left_arm_link3_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            0.133527322596879,
+            0.000699995851516727,
+            0.01758004146031311
+          ],
+          [
+            0.18187817830500125,
+            0.014600037431716922,
+            0.05021549182347229
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link3_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.009989855886428377,
+            -0.012400032186508175,
+            -0.00999670309611389
+          ],
+          [
+            0.15656424958166598,
+            0.030600129461288456,
+            0.04768575148991516
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link3_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            0.019654786138803938,
+            -0.009900109076499936,
+            -0.0050295500237567126
+          ],
+          [
+            0.13576857644972323,
+            0.028100116944313053,
+            0.038564333490647584
+          ]
+        ]
+      }
+    ],
+    "left_arm_link4": [
+      {
+        "file": "left_arm_link4_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.009973507464417886,
+            -0.009200016283988949,
+            -0.00997218757983176
+          ],
+          [
+            0.009971368968000938,
+            0.02740008172988892,
+            0.009973553119936307
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link4_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.009999763310441445,
+            -0.01240007045269012,
+            -0.05870488554354636
+          ],
+          [
+            0.04686905807208114,
+            0.04610035357475281,
+            0.009997931419649442
+          ]
+        ]
+      }
+    ],
+    "left_arm_link5": [
+      {
+        "file": "left_arm_link5_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.0030812875644277704,
+            -0.052721422970294946,
+            -0.06339690273018972
+          ],
+          [
+            0.10666974323829898,
+            0.052721436262130744,
+            -0.0017930585643877173
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link5_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            0.0709101154192377,
+            -0.019181449770927422,
+            -0.01882854287835256
+          ],
+          [
+            0.10963954466423281,
+            0.017280737996101386,
+            0.005607454130924783
+          ]
+        ]
+      }
+    ],
+    "left_finger1": [
+      {
+        "file": "left_finger1_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.03163520402764591,
+            -0.04493749314959011,
+            -0.03246691369485988
+          ],
+          [
+            0.02679272585058895,
+            0.011440588291335485,
+            0.044792686467646226
+          ]
+        ]
+      }
+    ],
+    "left_finger2": [
+      {
+        "file": "left_finger2_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.03546232656773818,
+            -0.01144059466630748,
+            -0.03236429649127226
+          ],
+          [
+            0.026913919288546917,
+            0.04493750167577931,
+            0.039349508707397174
+          ]
+        ]
+      }
+    ],
+    "left_camera_link": [
+      {
+        "file": "left_camera_link_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            -0.01606452472222819,
+            -0.016159971921486327,
+            -0.015028342420116969
+          ],
+          [
+            0.01606452457891927,
+            0.016159976155715516,
+            0.01502837259147971
+          ]
+        ]
+      }
+    ],
+    "left_arm_link2": [
+      {
+        "file": "left_arm_link2_arm.dae",
+        "color": "arm",
+        "bounds": [
+          [
+            -0.15571330109721052,
+            -0.012400023722648618,
+            -0.009992181301116787
+          ],
+          [
+            0.010001841987315546,
+            0.03060004851818085,
+            0.07881802415847794
+          ]
+        ]
+      },
+      {
+        "file": "left_arm_link2_carbon.dae",
+        "color": "carbon",
+        "bounds": [
+          [
+            -0.1283098370220326,
+            -0.009900100612640378,
+            0.0003308663368226661
+          ],
+          [
+            -0.01610529789811002,
+            0.028100110507011417,
+            0.06619185304641739
+          ]
+        ]
+      }
+    ],
+    "head_link": [
+      {
+        "file": "head_link_neck.dae",
+        "color": "neck",
+        "bounds": [
+          [
+            -0.02400000161414967,
+            -0.02500000037252403,
+            -1.4877319332029515e-07
+          ],
+          [
+            0.02499999710435047,
+            0.02500000037253403,
+            0.14399996423721317
+          ]
+        ]
+      },
+      {
+        "file": "head_link_metal.dae",
+        "color": "metal",
+        "bounds": [
+          [
+            -0.022000001286324122,
+            -0.027500109747047193,
+            0.09800002002716068
+          ],
+          [
+            0.0219999984752573,
+            0.02750011160970234,
+            0.14199998998641972
+          ]
+        ]
+      },
+      {
+        "file": "head_link_shell.dae",
+        "color": "shell",
+        "bounds": [
+          [
+            -0.032000002925451854,
+            -0.09699510037898518,
+            0.09599998617172245
+          ],
+          [
+            0.048000013912860295,
+            0.09699372947216534,
+            0.24500009441375736
+          ]
+        ]
+      },
+      {
+        "file": "head_link_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            0.02279928931111469,
+            -0.028999999165529974,
+            0.1900281610488892
+          ],
+          [
+            0.025800480033103368,
+            0.028999999165539973,
+            0.22147199535369877
+          ]
+        ]
+      }
+    ],
+    "head_camera_link": [
+      {
+        "file": "head_camera_link_sensor.dae",
+        "color": "sensor",
+        "bounds": [
+          [
+            -0.011099996574576942,
+            -0.017988510429854162,
+            -0.0179816303253173
+          ],
+          [
+            0.011099999241176994,
+            0.01798851042986416,
+            0.017973798751831138
+          ]
+        ]
+      }
+    ]
+  },
+  "retained_parts": [
+    {
+      "name": "1001-01 二层面板 v1.1",
+      "model_id": "14",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-01 二层面板 v1.1^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#3"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#4"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#5"
+    },
+    {
+      "name": "1001-04 二层连接柱",
+      "model_id": "17",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-04 二层连接柱^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#6"
+    },
+    {
+      "name": "1001-05 下层装饰外壳",
+      "model_id": "79",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-05 下层装饰外壳^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1001-07 控制器安装架",
+      "model_id": "85",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-07 控制器安装架^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "WG-03 电池11200mAh 12V",
+      "model_id": "88",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/WG-03 电池11200mAh 12V^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1001-08 电池固定架 v1.1",
+      "model_id": "91",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1001 二层组件 v1.1^1000 小车组件_0000 双臂移动机器人.STEP#1/1001-08 电池固定架 v1.1^1001 二层组件 v1.1_1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1000-01 钣金外壳",
+      "model_id": "100",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1000-01 钣金外壳^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "P760S磷酸铁锂电池.stp",
+      "model_id": "103",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/P760S磷酸铁锂电池.stp^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#3"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#4"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#5"
+    },
+    {
+      "name": "TXCJ-H6-2020-L80-LC-Z6-A10",
+      "model_id": "97",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/TXCJ-H6-2020-L80-LC-Z6-A10^1000 小车组件_0000 双臂移动机器人.STEP#6"
+    },
+    {
+      "name": "WG-04 电源开关-无需采购",
+      "model_id": "111",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/WG-04 电源开关-无需采购^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "激光雷达_雷神N10P",
+      "model_id": "114",
+      "link": "lidar_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/激光雷达_雷神N10P^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "1000-02 电池支架",
+      "model_id": "117",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/1000-02 电池支架^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "24V-12V12A大铝-易稳稳压模块",
+      "model_id": "138",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/24V-12V12A大铝-易稳稳压模块^1000 小车组件_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "24V-12V12A大铝-易稳稳压模块",
+      "model_id": "138",
+      "link": "base_link",
+      "source_path": "1000 小车组件^0000 双臂移动机器人.STEP#1/24V-12V12A大铝-易稳稳压模块^1000 小车组件_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "FA80-D-S400-模组",
+      "model_id": "148",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/FA80-D-S400-模组-总成^2000 升降机构_0000 双臂移动机器人.STEP#1/FA80-D-S400-模组^FA80-D-S400-模组-总成_2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "FA80-D-S400-滑块",
+      "model_id": "151",
+      "link": "lift_carriage",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/FA80-D-S400-模组-总成^2000 升降机构_0000 双臂移动机器人.STEP#1/FA80-D-S400-滑块^FA80-D-S400-模组-总成_2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "160",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/BKLM-F37-R28-N20-BKTM^2000 升降机构_0000 双臂移动机器人.STEP#1/复件 (2) ^BKLM-F37-R28-N20-BKTM_2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (3) ",
+      "model_id": "163",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/BKLM-F37-R28-N20-BKTM^2000 升降机构_0000 双臂移动机器人.STEP#1/复件 (3) ^BKLM-F37-R28-N20-BKTM_2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (4) ",
+      "model_id": "166",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/BKLM-F37-R28-N20-BKTM^2000 升降机构_0000 双臂移动机器人.STEP#1/复件 (4) ^BKLM-F37-R28-N20-BKTM_2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (4) ",
+      "model_id": "166",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/BKLM-F37-R28-N20-BKTM^2000 升降机构_0000 双臂移动机器人.STEP#1/复件 (4) ^BKLM-F37-R28-N20-BKTM_2000 升降机构_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "2000-01 电机固定板",
+      "model_id": "170",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/2000-01 电机固定板^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "57CM13",
+      "model_id": "173",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/57CM13^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5M-18T-W16-AF-d10-x",
+      "model_id": "176",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/5M-18T-W16-AF-d10-x^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5M-18T-W16-BF-d6.35",
+      "model_id": "179",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/5M-18T-W16-BF-d6.35^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5M-18T-18T-80-50齿",
+      "model_id": "182",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/5M-18T-18T-80-50齿^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "2000-02 升降底座 v1.1",
+      "model_id": "185",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/2000-02 升降底座 v1.1^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "2000-03 头部线缆通道-02",
+      "model_id": "214",
+      "link": "lift_carriage",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/2000-03 头部线缆通道-02^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "2000-04 线缆外壳",
+      "model_id": "217",
+      "link": "base_link",
+      "source_path": "2000 升降机构^0000 双臂移动机器人.STEP#1/2000-04 线缆外壳^2000 升降机构_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "4000-01 肩部L板.STEP",
+      "model_id": "223",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-01 肩部L板.STEP#1"
+    },
+    {
+      "name": "TXCK-H7-J3060-L354-DA.STEP",
+      "model_id": "226",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/TXCK-H7-J3060-L354-DA.STEP#1"
+    },
+    {
+      "name": "4000-02 机械臂安装板.STEP",
+      "model_id": "229",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-02 机械臂安装板.STEP#1"
+    },
+    {
+      "name": "4000-02 机械臂安装板.STEP",
+      "model_id": "229",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-02 机械臂安装板.STEP#2"
+    },
+    {
+      "name": "4000-03 胸部外壳.STEP",
+      "model_id": "233",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-03 胸部外壳.STEP#1"
+    },
+    {
+      "name": "4000-04 胸部背板.STEP",
+      "model_id": "236",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-04 胸部背板.STEP#1"
+    },
+    {
+      "name": "4000-05 横梁外壳.STEP",
+      "model_id": "239",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-05 横梁外壳.STEP#1"
+    },
+    {
+      "name": "4000-05 横梁外壳.STEP",
+      "model_id": "239",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-05 横梁外壳.STEP#2"
+    },
+    {
+      "name": "4000-06 拖链移动架.STEP",
+      "model_id": "243",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/4000-06 拖链移动架.STEP#1"
+    },
+    {
+      "name": "5000-06 头部钣金增高.STEP",
+      "model_id": "246",
+      "link": "lift_carriage",
+      "source_path": "4000 肩部横梁组件.STEP#1/5000-06 头部钣金增高.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "277",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (7) ",
+      "model_id": "297",
+      "link": "right_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (7) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (8) ",
+      "model_id": "300",
+      "link": "right_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (8) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "277",
+      "link": "right_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (2) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (7) ",
+      "model_id": "297",
+      "link": "right_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (7) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (8) ",
+      "model_id": "300",
+      "link": "right_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (8) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "402",
+      "link": "right_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/MGN7C-2-R-100-Z0-C-M-E5^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^MGN7C-2-R-100-Z0-C-M-E5_8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "402",
+      "link": "right_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/MGN7C-2-R-100-Z0-C-M-E5^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^MGN7C-2-R-100-Z0-C-M-E5_8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "8000-01 夹爪支架",
+      "model_id": "430",
+      "link": "right_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-01 夹爪支架^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-02 连接座",
+      "model_id": "454",
+      "link": "right_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-02 连接座^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-03 滑块",
+      "model_id": "463",
+      "link": "right_finger1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-03 滑块^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-03 滑块",
+      "model_id": "463",
+      "link": "right_finger2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-03 滑块^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "8000-04 夹爪",
+      "model_id": "467",
+      "link": "right_finger1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-04 夹爪^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-04 夹爪",
+      "model_id": "467",
+      "link": "right_finger2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-04 夹爪^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "摄像头 720P+100无畸变",
+      "model_id": "471",
+      "link": "right_camera_link",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/摄像头 720P+100无畸变^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-05 手部相机外壳",
+      "model_id": "486",
+      "link": "right_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-05 手部相机外壳^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-01 J1座",
+      "model_id": "489",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-01 J1座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-02 J2座",
+      "model_id": "505",
+      "link": "right_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-02 J2座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-03 J2输出座",
+      "model_id": "508",
+      "link": "right_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-03 J2输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-04 J3座",
+      "model_id": "511",
+      "link": "right_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-04 J3座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-03 J2输出座",
+      "model_id": "508",
+      "link": "right_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-03 J2输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "3000-05 碳纤维管 16x12",
+      "model_id": "515",
+      "link": "right_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-05 碳纤维管 16x12^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-05 碳纤维管 16x12",
+      "model_id": "515",
+      "link": "right_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-05 碳纤维管 16x12^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "3000-06 J4座",
+      "model_id": "519",
+      "link": "right_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-06 J4座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-07 J5输出座",
+      "model_id": "522",
+      "link": "right_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-07 J5输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-08 控制板外壳",
+      "model_id": "525",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-08 控制板外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-09 J1外壳",
+      "model_id": "528",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-09 J1外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-10 碳纤维杆外壳",
+      "model_id": "564",
+      "link": "right_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-10 碳纤维杆外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-10 碳纤维杆外壳",
+      "model_id": "564",
+      "link": "right_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#1/3000-10 碳纤维杆外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "277",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (7) ",
+      "model_id": "297",
+      "link": "left_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (7) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (8) ",
+      "model_id": "300",
+      "link": "left_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (8) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "277",
+      "link": "left_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (2) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (7) ",
+      "model_id": "297",
+      "link": "left_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (7) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (8) ",
+      "model_id": "300",
+      "link": "left_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/ST3215-20200328-to-customer^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2/复件 (8) ^ST3215-20200328-to-customer_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "402",
+      "link": "left_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/MGN7C-2-R-100-Z0-C-M-E5^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^MGN7C-2-R-100-Z0-C-M-E5_8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "复件 (2) ",
+      "model_id": "402",
+      "link": "left_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/MGN7C-2-R-100-Z0-C-M-E5^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/复件 (2) ^MGN7C-2-R-100-Z0-C-M-E5_8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "8000-01 夹爪支架",
+      "model_id": "430",
+      "link": "left_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-01 夹爪支架^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-02 连接座",
+      "model_id": "454",
+      "link": "left_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-02 连接座^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-03 滑块",
+      "model_id": "463",
+      "link": "left_finger1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-03 滑块^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-03 滑块",
+      "model_id": "463",
+      "link": "left_finger2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-03 滑块^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "8000-04 夹爪",
+      "model_id": "467",
+      "link": "left_finger1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-04 夹爪^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-04 夹爪",
+      "model_id": "467",
+      "link": "left_finger2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-04 夹爪^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "摄像头 720P+100无畸变",
+      "model_id": "471",
+      "link": "left_camera_link",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/摄像头 720P+100无畸变^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "8000-05 手部相机外壳",
+      "model_id": "486",
+      "link": "left_arm_link5",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/8000 夹爪组件^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1/8000-05 手部相机外壳^8000 夹爪组件_3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-01 J1座",
+      "model_id": "489",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-01 J1座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-02 J2座",
+      "model_id": "505",
+      "link": "left_arm_link1",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-02 J2座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-03 J2输出座",
+      "model_id": "508",
+      "link": "left_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-03 J2输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-04 J3座",
+      "model_id": "511",
+      "link": "left_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-04 J3座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-03 J2输出座",
+      "model_id": "508",
+      "link": "left_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-03 J2输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "3000-05 碳纤维管 16x12",
+      "model_id": "515",
+      "link": "left_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-05 碳纤维管 16x12^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-05 碳纤维管 16x12",
+      "model_id": "515",
+      "link": "left_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-05 碳纤维管 16x12^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "3000-06 J4座",
+      "model_id": "519",
+      "link": "left_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-06 J4座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-07 J5输出座",
+      "model_id": "522",
+      "link": "left_arm_link4",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-07 J5输出座^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-08 控制板外壳",
+      "model_id": "525",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-08 控制板外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-09 J1外壳",
+      "model_id": "528",
+      "link": "lift_carriage",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-09 J1外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-10 碳纤维杆外壳",
+      "model_id": "564",
+      "link": "left_arm_link2",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-10 碳纤维杆外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "3000-10 碳纤维杆外壳",
+      "model_id": "564",
+      "link": "left_arm_link3",
+      "source_path": "3000 机械臂-舵机^0000 双臂移动机器人.STEP#2/3000-10 碳纤维杆外壳^3000 机械臂-舵机_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "5000-01 头部支座-03",
+      "model_id": "572",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-01 头部支座-03^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "WG-06 阻尼转轴",
+      "model_id": "575",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/WG-06 阻尼转轴^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "WG-06 阻尼转轴",
+      "model_id": "575",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/WG-06 阻尼转轴^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "5000-02 头部外壳",
+      "model_id": "579",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-02 头部外壳^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5000-03 头部转轴座",
+      "model_id": "582",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-03 头部转轴座^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5000-03 头部转轴座",
+      "model_id": "582",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-03 头部转轴座^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#2"
+    },
+    {
+      "name": "WG-05 头部相机",
+      "model_id": "586",
+      "link": "head_camera_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/WG-05 头部相机^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5000-04 相机盖板",
+      "model_id": "589",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-04 相机盖板^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    },
+    {
+      "name": "5000-05 头部盖板",
+      "model_id": "592",
+      "link": "head_link",
+      "source_path": "5000 头部组件 v1.1^0000 双臂移动机器人.STEP#1/5000-05 头部盖板^5000 头部组件 v1.1_0000 双臂移动机器人.STEP#1"
+    }
+  ],
+  "removed_instances": [
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M6x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M4x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M4x16",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M4x16",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M4x16",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M4x16",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x10",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M5x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x8.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x12.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x12.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x12.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M4x12.STEP",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (6) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (6) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "8000-06 圆柱齿轮40×0.6",
+      "reason": "small_gripper_transmission"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-01 舵机PCB",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 舵机线端子",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 舵机线端子",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (6) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (3) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (4) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (5) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "复件 (6) ",
+      "reason": "servo_internal"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "8000-06 圆柱齿轮40×0.6",
+      "reason": "small_gripper_transmission"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M2x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 六角铜螺柱M2x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-14 M2x10+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-13 M2x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-01 舵机PCB",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 舵机线端子",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-02 舵机线端子",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "WG-15 M2.5x5+3 六角螺柱_8+4",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角螺栓 M2.5x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "蘑菇头螺栓 M3x5",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "锥形内六角 M3x8",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    },
+    {
+      "name": "内六角 M3x6",
+      "reason": "fastener_or_electronics"
+    }
+  ],
+  "limits": "Joint limits, masses, inertia estimates and collision primitives need hardware calibration."
+}

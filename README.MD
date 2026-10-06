@@ -1,6 +1,19 @@
-# Duojin01 真机工作区
+# Duojin02 仿真开发分支
 
-`hardware-only` 分支面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、N10Plus 雷达、建图、Nav2 导航和遥控。硬件配置统一，不保留相机、机械臂或旧设备兼容入口。
+`sim` 从 `main` 的 `bf733e7` 创建。本阶段布置双臂移动机器人模型及 description 包的资产安装规则，供后续 Gazebo 测试使用。仿真启动、ROS 桥接和控制接入留待下一阶段。
+
+| 分支 | 用途 |
+| --- | --- |
+| `main` | 最终使用的 hardware-only 真机工作区 |
+| `sim` | 模型、仿真及测试开发；当前完成模型资产布置 |
+
+模型使用提高精度后的 **516,650 面**版本，包含 45 个带颜色的 DAE 网格、SDF、URDF 和预览文件。目录、质量与使用说明见 [双臂移动机器人模型](src/duojin01_description/models/dual_arm_mobile/README.md)。包名沿用 `duojin01_description`，以保持现有资产 URI 和真机入口兼容。
+
+日常真机开发使用 `duojin02` 工作目录，模型与仿真开发使用独立的 `duojin02-sim` 工作目录。共用代码修复优先进入 `main`，再在 `sim` 中合并 `main`；仿真变更保留在 `sim`。
+
+## 真机工作区
+
+默认启动配置沿用 `main`，面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、N10Plus 雷达、建图、Nav2 导航和遥控。真机硬件配置统一，使用底盘、雷达和 IMU。
 
 雷达基于官方 **V5.1.3_250822** 的 N10Plus 串口实现，固定上游提交 `ecd9a836`，仅保留当前 108 字节双回波协议；来源及项目补丁见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。
 
