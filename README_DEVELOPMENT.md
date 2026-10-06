@@ -35,7 +35,11 @@ Nav2 启动后先通过 RViz 的 2D Pose Estimate 或 `/initialpose` 指定真�
 
 ## 配置边界
 
-`base_serial_port`、`base_serial_baudrate`、`lidar_serial_port` 保留部署配置。底盘尺度、IMU 偏置和协方差由 `base_driver.yaml` 配置；SLAM、EKF、Nav2 参数分别由对应 YAML 配置。配置由项目维护，不再给错误参数增加多层修复或降级。
+底盘几何与雷达安装按最新 CAD 维护，基准为四轮轴中心的地面投影，详见 [底盘测算报告](docs/chassis/README.md)。安装尺寸集中在 `duojin01_description/urdf/chassis_geometry.xacro`，生成依据在 `docs/chassis/measurements.json`。四轮滚子、壳体和雷达使用真实 CAD 缓存网格；URDF 用于硬件显示与 TF，不包含未经测量的质量或惯量。
+
+雷达零度标记已确认朝车头；光学扫描高度暂用明确标记的壳体竖直中面代理，IMU 仍沿用原来的零外参，二者需要实物标定。整机足迹只覆盖 CAD 保存姿态，机械臂姿态或携带物变化时须更新投影。
+
+`base_serial_port`、`base_serial_baudrate`、`lidar_serial_port` 保留部署配置。里程计比例、IMU 偏置和协方差由 `base_driver.yaml` 配置；底盘几何由描述包维护，导航投影由 `nav2.yaml` 配置；SLAM、EKF、Nav2 的其他参数分别由对应 YAML 配置。底层控制器负责轮速换算，主机驱动没有轮径、轴距或轮距参数。配置由项目维护，不再给错误参数增加多层修复或降级。
 
 雷达固定使用当前 N10Plus 的 460800 波特率、108 字节双回波和 540 格输出，角度转换固定对应本机顺时针协议。仅保留串口路径、话题、坐标系和距离过滤参数。删除其他型号、UDP / PCAP、矩阵变换、多回波输出、高精度格数和设备时间模式。数据按角度格重排，`time_increment=0`，不能据此生成逐束时间戳。
 
