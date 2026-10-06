@@ -4,6 +4,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -40,6 +41,7 @@ def create_nodes(context):
 def generate_launch_description():
     share = get_package_share_directory("duojin01_bringup")
     return LaunchDescription([
+        middleware(),
         DeclareLaunchArgument("odom_source", default_value="recorded",
                               description="recorded: keep bag odom TF; ekf: rerun EKF from /odom and /imu"),
         DeclareLaunchArgument("slam_params_file", default_value=os.path.join(share, "config", "slam_toolbox.yaml")),

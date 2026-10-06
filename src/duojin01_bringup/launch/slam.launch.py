@@ -8,6 +8,7 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 from duojin01_slam_tools.snapshots import artifact_path, validate_map
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -55,6 +56,7 @@ def create_node(context):
 def generate_launch_description():
     share = get_package_share_directory("duojin01_bringup")
     return LaunchDescription([
+        middleware(),
         DeclareLaunchArgument("slam_params_file", default_value=os.path.join(share, "config", "slam_toolbox.yaml")),
         DeclareLaunchArgument("pose_graph", default_value="", description="Saved graph prefix or .posegraph file"),
         DeclareLaunchArgument("map_start_pose", default_value="", description="Explicit continuation pose [x, y, yaw]"),

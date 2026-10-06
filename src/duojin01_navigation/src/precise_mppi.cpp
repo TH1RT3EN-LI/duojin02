@@ -7,6 +7,16 @@
 namespace duojin01_navigation {
 class PreciseMPPI : public nav2_mppi_controller::MPPIController {
  public:
+  void configure(const rclcpp_lifecycle::LifecycleNode::WeakPtr &parent, std::string name,
+      const std::shared_ptr<tf2_ros::Buffer> tf,
+      const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
+    nav2_mppi_controller::MPPIController::configure(parent,name,tf,costmap);
+    auto node=parent.lock();
+    max_speed_=node->get_parameter(name+".vx_max").as_double();
+    reverse_speed_=-node->get_parameter(name+".vx_min").as_double();
+    lateral_speed_=node->get_parameter(name+".vy_max").as_double();
+    speed_limit_=max_speed_;
+  }
   void setPlan(const nav_msgs::msg::Path &path) override {
     nav2_mppi_controller::MPPIController::setPlan(path);
     path_=path;
@@ -14,7 +24,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   }
   void setSpeedLimit(const double &limit,const bool &percentage) override {
     nav2_mppi_controller::MPPIController::setSpeedLimit(limit,percentage);
-    approach_speed_=limit==0 ? .08 : percentage ? .08*std::clamp(limit/100.0,0.0,1.0) : std::clamp(limit,0.0,.08);
+    speed_limit_=limit==0 ? max_speed_ : percentage ? max_speed_*std::clamp(limit/100.0,0.0,1.0) : std::clamp(limit,0.0,max_speed_);
   }
   geometry_msgs::msg::TwistStamped computeVelocityCommands(
       const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,
@@ -27,43 +37,56 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     } catch(const tf2::TransformException &) {
       return nav2_mppi_controller::MPPIController::computeVelocityCommands(pose,speed,checker);
     }
-    const double dx=target.pose.position.x-pose.pose.position.x,dy=target.pose.position.y-pose.pose.position.y;
-    if(std::hypot(dx,dy)>.30 || !directApproachClear(pose,target)) {
-      // Sampling is inefficient in very narrow feasible tubes. Follow a short
-      // SE2 lattice segment deterministically at docking speed, but only after
-      // validating its entire filled footprint against the current costmap.
-      if(nearObstacle(pose) && pathTarget(pose,target) && directApproachClear(pose,target))
-        return converge(pose,target);
-      try {return nav2_mppi_controller::MPPIController::computeVelocityCommands(pose,speed,checker);}
-      catch(const std::runtime_error &error) {
-        if(std::string(error.what())!="Optimizer fail to compute path") throw;
-        if(pathTarget(pose,target) && directApproachClear(pose,target)) return converge(pose,target);
-        throw;
-      }
+    const double distance=std::hypot(target.pose.position.x-pose.pose.position.x,target.pose.position.y-pose.pose.position.y);
+    if(distance<=.45 && directApproachClear(pose,target)) return converge(pose,target,true);
+    // Follow a collision-checked short SE2 lattice chord directly. Sampling is
+    // reserved for blocked chords / dynamic detours, reducing CPU and jitter.
+    if(trackingTarget(pose,target,speed)) return converge(pose,target,false);
+    try {return nav2_mppi_controller::MPPIController::computeVelocityCommands(pose,speed,checker);}
+    catch(const std::runtime_error &error) {
+      if(std::string(error.what())!="Optimizer fail to compute path") throw;
+      if(trackingTarget(pose,target,speed)) return converge(pose,target,false);
+      throw;
     }
-    return converge(pose,target);
   }
+
  private:
-  geometry_msgs::msg::TwistStamped converge(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::PoseStamped &target) {
+  geometry_msgs::msg::TwistStamped converge(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::PoseStamped &target,bool docking) {
     const double dx=target.pose.position.x-pose.pose.position.x,dy=target.pose.position.y-pose.pose.position.y;
     const double yaw=tf2::getYaw(pose.pose.orientation),dyaw=std::remainder(tf2::getYaw(target.pose.orientation)-yaw,2*M_PI);
-    // Deterministic, low-speed SE2 convergence avoids stochastic circling under
-    // centimetre goal tolerances. The common braking guard still gates this.
-    const double vx=1.2*(std::cos(yaw)*dx+std::sin(yaw)*dy);
-    const double vy=1.2*(-std::sin(yaw)*dx+std::cos(yaw)*dy);
-    const double scale=std::min(1.0,approach_speed_/std::max(.001,std::hypot(vx,vy)));
+    // Speed depends on remaining distance, yaw tracking and obstacle proximity.
+    // The independent measured-velocity braking guard remains authoritative.
+    const double vx=2.0*(std::cos(yaw)*dx+std::sin(yaw)*dy);
+    const double vy=2.0*(-std::sin(yaw)*dx+std::cos(yaw)*dy);
+    double cap=std::min(speed_limit_,(nearObstacle(pose) || nearObstacle(target)) ? .10 : max_speed_);
+    if(docking) cap=std::min(cap,std::sqrt(.6*std::max(0.0,std::hypot(dx,dy)-.008)));
+    cap*=std::clamp(1.0-std::abs(dyaw),.2,1.0);
+    const double scale=std::min({1.0,cap/std::max(.001,std::hypot(vx,vy)),std::min(lateral_speed_,speed_limit_)/std::max(.001,std::abs(vy)),
+      (vx<0 ? reverse_speed_ : max_speed_)/std::max(.001,std::abs(vx))});
     geometry_msgs::msg::TwistStamped result;result.header=pose.header;
     result.twist.linear.x=vx*scale;result.twist.linear.y=vy*scale;
-    result.twist.angular.z=std::clamp(1.8*dyaw,-.25,.25);
+    result.twist.angular.z=std::clamp(1.8*dyaw,-.45,.45);
     return result;
   }
   bool nearObstacle(const geometry_msgs::msg::PoseStamped &pose) {
     auto map=costmap_ros_->getCostmap();
     std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
     unsigned int x=0,y=0;
-    return map->worldToMap(pose.pose.position.x,pose.pose.position.y,x,y) && map->getCost(x,y)>=180;
+    return map->worldToMap(pose.pose.position.x,pose.pose.position.y,x,y) && map->getCost(x,y)>=120;
   }
-  bool pathTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target) {
+  bool trackingTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target,const geometry_msgs::msg::Twist &speed) {
+    if(!pathTarget(pose,target,speed)) return false;
+    // Align with the lattice before entering an inflated narrow region. Holding
+    // a small initial yaw error there can consume the braking clearance.
+    if(nearObstacle(target)) return directApproachClear(pose,target);
+    // Omni translation does not require turning toward the travel direction.
+    // Keep heading stable when that filled-footprint chord is feasible; use
+    // the lattice heading when rotating is necessary to fit the passage.
+    auto fixed_heading=target;fixed_heading.pose.orientation=pose.pose.orientation;
+    if(directApproachClear(pose,fixed_heading)) {target=fixed_heading;return true;}
+    return directApproachClear(pose,target);
+  }
+  bool pathTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target,const geometry_msgs::msg::Twist &speed) {
     if(path_.poses.empty()) return false;
     try {
       nav_msgs::msg::Path local;
@@ -80,7 +103,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       }
       if(std::hypot(local.poses[nearest].pose.position.x-pose.pose.position.x,local.poses[nearest].pose.position.y-pose.pose.position.y)>.20) return false;
       size_t index=nearest;double arc=0;
-      while(index+1<local.poses.size() && arc<.12) {
+      while(index+1<local.poses.size() && arc<std::clamp(.18+.4*std::hypot(speed.linear.x,speed.linear.y),.18,.35)) {
         const auto &a=local.poses[index].pose.position,&b=local.poses[index+1].pose.position;
         arc+=std::hypot(b.x-a.x,b.y-a.y);++index;
       }
@@ -105,12 +128,12 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const int steps=std::max(1,static_cast<int>(std::ceil((std::hypot(dx,dy)+radius*std::abs(delta))/.004)));
     for(int i=0;i<=steps;++i) {
       const double f=static_cast<double>(i)/steps;
-      if(collision({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta},polygon,obstacles,.002)) return false;
+      if(collision({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta},polygon,obstacles,.010)) return false;
     }
     return true;
   }
   geometry_msgs::msg::PoseStamped goal_;nav_msgs::msg::Path path_;bool have_goal_{false};
-  double approach_speed_{.08};
+  double max_speed_{.5},reverse_speed_{.2},lateral_speed_{.3},speed_limit_{.5};
 };
 }
 PLUGINLIB_EXPORT_CLASS(duojin01_navigation::PreciseMPPI,nav2_core::Controller)

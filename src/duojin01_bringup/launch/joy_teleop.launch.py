@@ -2,6 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch_ros.actions import Node
 
 
@@ -61,6 +62,7 @@ def generate_launch_description():
     )
     return LaunchDescription(
         [
+            middleware(),
             joy,
             joy_axis_selector,
             joy_teleop_slow,

@@ -5,7 +5,9 @@ from duojin01_bringup.lattice import for_resolution
 from ament_index_python.packages import get_package_share_directory
 from duojin01_bringup.map_paths import resolve_map_yaml
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo, OpaqueFunction
+from duojin01_bringup.middleware import middleware
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo, OpaqueFunction, RegisterEventHandler, Shutdown, GroupAction
+from launch.event_handlers import OnProcessExit
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -17,8 +19,9 @@ PACKAGE_NAME = "duojin01_bringup"
 
 
 def _create_nav_actions(context, nav2_share: str):
-    params_file = LaunchConfiguration("params_file")
-    autostart = LaunchConfiguration("autostart")
+    params_file = LaunchConfiguration("params_file", default=os.path.join(
+        get_package_share_directory(PACKAGE_NAME), "config", "nav2.yaml"))
+    autostart = LaunchConfiguration("autostart", default="true")
     log_level = LaunchConfiguration("log_level")
     rviz_config = LaunchConfiguration("rviz_config")
     use_rviz = LaunchConfiguration("use_rviz")
@@ -32,19 +35,21 @@ def _create_nav_actions(context, nav2_share: str):
         resolution=yaml.safe_load(stream)['resolution']
     lattice_path=for_resolution(os.path.join(get_package_share_directory(PACKAGE_NAME),
         'config/lattice_primitives/duojin01_omni_2cm_rich_lattice.json'),resolution)
-    nav2_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(nav2_share, "launch", "bringup_launch.py")),
-        launch_arguments={
-            "slam": "False",
-            "map": map_yaml,
-            "use_sim_time": "false",
-            "params_file": RewrittenYaml(source_file=params_file,
-                param_rewrites={"lattice_filepath": lattice_path,
-                    "global_costmap.global_costmap.ros__parameters.resolution":str(resolution)}, convert_types=True),
-            "autostart": autostart,
-            "log_level": log_level,
-        }.items(),
-    )
+    rewritten=RewrittenYaml(source_file=params_file.perform(context),
+        param_rewrites={"lattice_filepath": lattice_path,
+            "global_costmap.global_costmap.ros__parameters.resolution":str(resolution)},convert_types=True)
+    arguments={"map":map_yaml,"use_sim_time":"false","params_file":rewritten,
+               "autostart":autostart,"log_level":log_level,"use_composition":"False"}
+    include=lambda name:GroupAction([IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(nav2_share,"launch",name)),launch_arguments=arguments.items())])
+    localization=include("localization_launch.py")
+    navigation=include("navigation_launch.py")
+    nav_actions=[localization]
+    if autostart.perform(context).lower()=='true':
+        ready=Node(package="duojin01_bringup",executable="localization_readiness",output="screen")
+        nav_actions += [RegisterEventHandler(OnProcessExit(target_action=ready,
+            on_exit=lambda event,context:[navigation] if event.returncode==0 else [Shutdown(reason="Localization readiness failed")])),ready]
+    else:nav_actions.append(navigation)
 
     rviz_launch = Node(
         package="rviz2",
@@ -58,7 +63,7 @@ def _create_nav_actions(context, nav2_share: str):
 
     return [
         LogInfo(msg=f"[nav2] using map: {map_yaml}"),
-        nav2_launch,
+        *nav_actions,
         rviz_launch,
     ]
 
@@ -70,6 +75,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            middleware(),
             DeclareLaunchArgument("autostart", default_value="true"),
             DeclareLaunchArgument("log_level", default_value="info"),
             DeclareLaunchArgument("use_rviz", default_value="true"),

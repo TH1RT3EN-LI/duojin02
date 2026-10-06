@@ -2,6 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -47,6 +48,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            middleware(),
             DeclareLaunchArgument("use_rviz", default_value="true"),
             DeclareLaunchArgument("autostart", default_value="true"),
             DeclareLaunchArgument("use_foxglove", default_value="true"),

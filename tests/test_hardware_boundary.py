@@ -91,7 +91,7 @@ def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
 def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatch):
     from ament_index_python.packages import get_package_share_directory
     from launch import LaunchContext
-    from launch.actions import IncludeLaunchDescription
+    from launch.actions import GroupAction, IncludeLaunchDescription
     from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
     monkeypatch.setenv("USE_SIM_TIME", "true")
     map_file = tmp_path / "0.yaml"
@@ -101,7 +101,9 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     context.launch_configurations["map"] = str(map_file)
     actions = load_launch("nav2")._create_nav_actions(
         context, get_package_share_directory("nav2_bringup"))
-    include = next(action for action in actions
+    grouped_actions = [entity for action in actions if isinstance(action, GroupAction)
+                       for entity in action.get_sub_entities()]
+    include = next(action for action in grouped_actions
                    if isinstance(action, IncludeLaunchDescription))
     assert perform_substitutions(
         context, normalize_to_list_of_substitutions(
@@ -211,3 +213,16 @@ def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, m
     monkeypatch.setenv("DUOJIN01_WORKSPACE_ROOT", "relative/path")
     with pytest.raises(RuntimeError, match="absolute"):
         map_paths.get_workspace_root()
+
+
+@pytest.mark.parametrize("selected,expected", [(None, "rmw_cyclonedds_cpp"), ("rmw_fastrtps_cpp", "rmw_fastrtps_cpp")])
+def test_middleware_default_preserves_explicit_deployment_choice(monkeypatch, selected, expected):
+    from launch import LaunchContext
+    from duojin01_bringup.middleware import middleware
+    if selected is None:
+        monkeypatch.delenv("RMW_IMPLEMENTATION", raising=False)
+    else:
+        monkeypatch.setenv("RMW_IMPLEMENTATION", selected)
+    context = LaunchContext()
+    middleware().execute(context)
+    assert context.environment["RMW_IMPLEMENTATION"] == expected

@@ -70,11 +70,13 @@ class VelocityGuard : public rclcpp::Node {
            !std::isfinite(m->info.resolution) || m->info.resolution<=0 ||
            m->data.size()!=static_cast<size_t>(m->info.width)*m->info.height) return;
         Pose origin{m->info.origin.position.x,m->info.origin.position.y,tf2::getYaw(m->info.origin.orientation)};
-        prior_points_.clear();
+        prior_points_.clear();prior_bins_.clear();
         for(size_t i=0;i<m->data.size();++i) if(m->data[i]>=65) {
           Point p{(i%m->info.width+.5)*m->info.resolution,(i/m->info.width+.5)*m->info.resolution,
                   std::sqrt(2.0)*m->info.resolution/2};
           prior_points_.push_back(transform(p,origin));
+          const auto &q=prior_points_.back();
+          prior_bins_[priorKey(static_cast<int>(std::floor(q.x/.5)),static_cast<int>(std::floor(q.y/.5)))].push_back(prior_points_.size()-1);
         }
         have_prior_=true;
       });
@@ -197,6 +199,9 @@ class VelocityGuard : public rclcpp::Node {
   bool blocked(Velocity v,const std::vector<Point> &points,double reserve=0) {
     return brakingSweep(pose_,v,polygon_,points,margin_+reserve,reaction_,decel_,angular_decel_);
   }
+  static uint64_t priorKey(int x,int y) {
+    return (static_cast<uint64_t>(static_cast<uint32_t>(x))<<32)|static_cast<uint32_t>(y);
+  }
   std::vector<Point> obstacles() {
     // Live scan obstacles are measured in odom: AMCL covariance is not an
     // additional independent error on those observations. A map prior needs
@@ -211,18 +216,28 @@ class VelocityGuard : public rclcpp::Node {
     const auto key=[](int x,int y){return static_cast<int64_t>(x)*10000000LL+y;};
     constexpr double bin=.05;
     for(const auto &p:scan_points_) observed.emplace(key(static_cast<int>(std::floor(p.x/bin)),static_cast<int>(std::floor(p.y/bin))),&p);
-    for(const auto &prior:prior_points_) {
-      auto p=transform(prior,map_pose);
-      if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) continue;
-      bool matched=false;
-      const double association=p.radius+std::min(.10,localization_margin_)+range_error_+.015;
-      const int x=static_cast<int>(std::floor(p.x/bin)),y=static_cast<int>(std::floor(p.y/bin));
-      const int extent=static_cast<int>(std::ceil(association/bin));
-      if(localization_margin_<.15) for(int dx=-extent;dx<=extent&&!matched;++dx) for(int dy=-extent;dy<=extent&&!matched;++dy) {
-        auto range=observed.equal_range(key(x+dx,y+dy));
-        for(auto it=range.first;it!=range.second;++it) if(std::hypot(p.x-it->second->x,p.y-it->second->y)<=association) {matched=true;break;}
+    // Index once per map update. Transform only nearby cells per control tick,
+    // so a large warehouse does not add a full-map scan to every brake check.
+    const double c=std::cos(map_pose.yaw),s=std::sin(map_pose.yaw);
+    const double mx=c*(pose_.x-map_pose.x)+s*(pose_.y-map_pose.y);
+    const double my=-s*(pose_.x-map_pose.x)+c*(pose_.y-map_pose.y);
+    const int lx=static_cast<int>(std::floor((mx-memory_radius_-1e-9)/.5)),ux=static_cast<int>(std::floor((mx+memory_radius_+1e-9)/.5));
+    const int ly=static_cast<int>(std::floor((my-memory_radius_-1e-9)/.5)),uy=static_cast<int>(std::floor((my+memory_radius_+1e-9)/.5));
+    for(int bx=lx;bx<=ux;++bx) for(int by=ly;by<=uy;++by) {
+      const auto bucket=prior_bins_.find(priorKey(bx,by));if(bucket==prior_bins_.end()) continue;
+      for(const auto index:bucket->second) {
+        auto p=transform(prior_points_[index],map_pose);
+        if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) continue;
+        bool matched=false;
+        const double association=p.radius+std::min(.10,localization_margin_)+range_error_+.015;
+        const int x=static_cast<int>(std::floor(p.x/bin)),y=static_cast<int>(std::floor(p.y/bin));
+        const int extent=static_cast<int>(std::ceil(association/bin));
+        if(localization_margin_<.15) for(int dx=-extent;dx<=extent&&!matched;++dx) for(int dy=-extent;dy<=extent&&!matched;++dy) {
+          auto range=observed.equal_range(key(x+dx,y+dy));
+          for(auto it=range.first;it!=range.second;++it) if(std::hypot(p.x-it->second->x,p.y-it->second->y)<=association) {matched=true;break;}
+        }
+        if(!matched) {p.radius+=localization_margin_;points.push_back(p);}
       }
-      if(!matched) {p.radius+=localization_margin_;points.push_back(p);}
     }
     return points;
   }
@@ -286,6 +301,7 @@ class VelocityGuard : public rclcpp::Node {
   }
   Polygon polygon_; Pose pose_,memory_anchor_; Velocity actual_;geometry_msgs::msg::Twist command_;
   std::vector<Point> scan_points_,map_points_,prior_points_;
+  std::unordered_map<uint64_t,std::vector<size_t>> prior_bins_;
   double margin_,range_error_,reaction_,decel_,angular_decel_,scan_timeout_,command_timeout_,memory_radius_,localization_margin_{0};
   Clock::time_point last_command_,last_scan_,last_odom_,last_map_;
   bool have_command_{false},have_scan_{false},have_odom_{false},have_map_{false},have_prior_{false},have_anchor_{false};

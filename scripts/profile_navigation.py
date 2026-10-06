@@ -6,10 +6,13 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
+import subprocess
 import statistics
 import time
 import rclpy
 from rclpy.node import Node
+from rclpy.utilities import get_rmw_implementation_identifier
 from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
@@ -49,7 +52,14 @@ def main():
                 rss=int(fields[21])*os.sysconf('SC_PAGE_SIZE')/2**20
                 resources.setdefault((name,directory.name),[]).append((wall,cpu,rss))
             except (FileNotFoundError,PermissionError,ProcessLookupError):pass
-    data=dict(architecture=platform.machine(),kernel=platform.release(),duration_s=time.monotonic()-start,
+    board_power=None
+    if shutil.which('nvpmodel'):
+        try:
+            power=subprocess.run(['nvpmodel','-q'],capture_output=True,text=True,timeout=3)
+            board_power=dict(returncode=power.returncode,output=(power.stdout+power.stderr).strip())
+        except subprocess.TimeoutExpired:board_power=dict(error='nvpmodel query timed out')
+    frequencies={str(p.parent.parent.name):int(p.read_text().strip()) for p in Path('/sys/devices/system/cpu').glob('cpu[0-9]*/cpufreq/scaling_cur_freq') if p.is_file()}
+    data=dict(rmw_implementation=get_rmw_implementation_identifier(),cpu_online=Path('/sys/devices/system/cpu/online').read_text().strip(),cpu_frequency_khz=frequencies,power_mode=board_power,architecture=platform.machine(),kernel=platform.release(),duration_s=time.monotonic()-start,
               memory_total_kib=int(Path('/proc/meminfo').read_text().splitlines()[0].split()[1]),
               l4t_release=Path('/etc/nv_tegra_release').read_text().strip() if Path('/etc/nv_tegra_release').exists() else None,
               guard_compute_p95_ms=percentile(compute,.95),guard_reasons=dict(reasons),topics={},nodes={})

@@ -122,9 +122,10 @@ controller_server:
       movement_time_allowance: 20.0
     general_goal_checker:
       stateful: false
-      plugin: nav2_controller::StoppedGoalChecker
-      xy_goal_tolerance: 0.015
-      yaw_goal_tolerance: 0.025
+      plugin: duojin01_navigation::StableStoppedGoalChecker
+      settle_time: 0.25
+      xy_goal_tolerance: 0.01
+      yaw_goal_tolerance: 0.02
       trans_stopped_velocity: 0.01
       rot_stopped_velocity: 0.02
     FollowPath:
@@ -135,9 +136,9 @@ controller_server:
       vx_std: 0.15
       vy_std: 0.12
       wz_std: 0.18
-      vx_max: 0.35
+      vx_max: 0.5
       vx_min: -0.2
-      vy_max: 0.2
+      vy_max: 0.3
       wz_max: 0.65
       iteration_count: 1
       prune_distance: 1.7
@@ -349,7 +350,7 @@ planner_server:
       reverse_penalty: 1.5
       change_penalty: 0.0
       non_straight_penalty: 1.1
-      cost_penalty: 2.0
+      cost_penalty: 3.0
       rotation_penalty: 5.0
       retrospective_penalty: 0.015
       lookup_table_size: 5.0
@@ -414,14 +415,16 @@ velocity_smoother:
     use_sim_time: false
     smoothing_frequency: 20.0
     scale_velocities: false
-    feedback: CLOSED_LOOP
+    # Command recursion avoids positive wheel-scale bias defeating deceleration.
+    # VelocityGuard still validates measured velocity independently.
+    feedback: OPEN_LOOP
     max_velocity:
-    - 0.35
-    - 0.2
+    - 0.5
+    - 0.3
     - 0.65
     min_velocity:
     - -0.2
-    - -0.2
+    - -0.3
     - -0.65
     max_accel:
     - 0.5

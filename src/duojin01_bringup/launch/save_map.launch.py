@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -31,6 +32,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            middleware(),
             DeclareLaunchArgument("map_name", default_value="auto"),
             DeclareLaunchArgument("output_dir", default_value="maps"),
             DeclareLaunchArgument("wait_timeout", default_value="30"),

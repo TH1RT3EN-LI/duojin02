@@ -1,5 +1,5 @@
 <library path="precise_mppi">
   <class name="duojin01_navigation::PreciseMPPI" type="duojin01_navigation::PreciseMPPI" base_class_type="nav2_core::Controller">
-    <description>MPPI Omni with checked low-speed exact SE2 convergence near the goal.</description>
+    <description>MPPI Omni with filled-footprint lattice tracking and precise SE2 docking.</description>
   </class>
 </library>

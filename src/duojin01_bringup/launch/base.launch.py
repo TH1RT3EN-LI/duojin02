@@ -2,6 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -124,6 +125,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            middleware(),
             DeclareLaunchArgument("use_foxglove", default_value="true"),
             DeclareLaunchArgument("use_lidar", default_value="true"),
             DeclareLaunchArgument("use_teleop", default_value="true"),

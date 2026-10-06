@@ -2,6 +2,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -57,6 +58,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            middleware(),
             DeclareLaunchArgument("slam_params_file", default_value=os.path.join(bringup_share, "config", "slam_toolbox.yaml")),
             DeclareLaunchArgument("pose_graph", default_value=""),
             DeclareLaunchArgument("map_start_pose", default_value=""),

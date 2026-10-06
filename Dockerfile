@@ -81,6 +81,7 @@ RUN chmod +x /usr/local/bin/duojin01-entrypoint && mkdir -p /ws/maps && \
       >> /root/.bashrc
 ENV DUOJIN01_WORKSPACE_ROOT=/ws
 ENV ROS_DOMAIN_ID=20
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 WORKDIR /ws
 ENTRYPOINT ["/usr/local/bin/duojin01-entrypoint"]
 CMD ["bash"]
