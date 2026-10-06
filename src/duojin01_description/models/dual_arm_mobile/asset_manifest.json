@@ -21,11 +21,11 @@
   "validation_scope": "Gazebo/ROS versions in provenance refer to the original conversion validation. This import validates assets and package installation only.",
   "sha256_path_base": "duojin01_description package root",
   "sha256": {
-    "models/dual_arm_mobile/model.sdf": "c42edf6abe63f743692c8d46118bdd21cb8d731b87f735e9abdba24cb6c41d25",
+    "models/dual_arm_mobile/model.sdf": "196608160eb1f8cf57dd813081e1cdfb438101000e31c7983eb7b5506efbb6f2",
     "models/dual_arm_mobile/model.config": "b5919b2f29f8f21dfe8391a3ecd10e427430786e1db31de307c07802ce2ea88c",
     "models/dual_arm_mobile/conversion_report.json": "68c2855646dcf40d39f4f714e40835b1820a68a22383b9259149f79a997a959c",
     "models/dual_arm_mobile/preview.png": "ec0bb48b9b66ab55d12cb7fe12a4414e609df88111d831f07222e379163b2f71",
-    "models/dual_arm_mobile/preview.glb": "27890ec787415f9d209941e10f8a13285c80da2c4750fdbf9a12d9d527a634f7",
+    "models/dual_arm_mobile/preview.glb": "7dde89e2aab5c1da07d41fdfd490862badbdb732d802c7a31268595ca3bd1d51",
     "models/dual_arm_mobile/meshes/base_link_battery.dae": "184b7e245cb44caa2b537270b0fbc40e37967f6f5d3353d4276c324145a3f9d2",
     "models/dual_arm_mobile/meshes/base_link_metal.dae": "36983726f724a8a76d76b6b3583620d88f09831167b8ffe200eb080b1bf8531a",
     "models/dual_arm_mobile/meshes/base_link_shell.dae": "0522c389797f37f7b107df50c212c9a8ff1b6335472ef77d4c79ef667600ba1f",
@@ -71,6 +71,11 @@
     "models/dual_arm_mobile/meshes/right_camera_link_sensor.dae": "fbfc3787ad6cd1388bbbb596fc076597af3deb25c298f6fe7a95c8f8159138a8",
     "models/dual_arm_mobile/meshes/right_finger1_metal.dae": "3ce615900ff209d96ea4c3d3b320d81893f316c3bb847c7175d7958cdf087749",
     "models/dual_arm_mobile/meshes/right_finger2_metal.dae": "39884eb29d16aed06b121a152a342803ae66250858dd24f58723391fc4bc654a",
-    "urdf/dual_arm_mobile.urdf": "59dd6387dd8d0cde7b9ef45a1567a45097f67d05de5349e96e5910a20cc73350"
+    "urdf/dual_arm_mobile.urdf": "ffadfe892f4070874fe05a4f9d6b95edb7cad469550701ad76a0c62cd97dcd57",
+    "models/dual_arm_mobile/hardware_alignment.json": "73252fb3595d9dec43bb270f26d944d00a2ea2675585168ddaa73a49a29d16fd"
+  },
+  "hardware_alignment": {
+    "main_commit": "fd3c05abf8334ee18c34f08761099984dc57ae62",
+    "record": "hardware_alignment.json"
   }
 }

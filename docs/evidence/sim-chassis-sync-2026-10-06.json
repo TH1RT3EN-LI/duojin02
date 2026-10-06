@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-06",
+  "main_commit": "fd3c05abf8334ee18c34f08761099984dc57ae62",
+  "merged_main_commit": "65a45d39c72166f645323096f7839eb1a6f43cb5",
+  "environment": {
+    "ros_image": "duojin01:hardware-humble",
+    "sdf_image": "duojin01:humble-harmonic",
+    "ros_distribution": "humble",
+    "source_mount": "read-only",
+    "network": "none"
+  },
+  "checks": {
+    "pytest": {
+      "passed": 24,
+      "failed": 0,
+      "suites": [
+        "tests/test_hardware_boundary.py",
+        "tests/test_chassis_geometry.py",
+        "tests/test_model_geometry_sync.py"
+      ]
+    },
+    "colcon_packages": [
+      "duojin01_description",
+      "duojin01_bringup"
+    ],
+    "check_urdf": "passed",
+    "gz_sdf_k": "Valid; existing gz_frame_id extension warnings retained",
+    "installed_manifest_hash_count": 52,
+    "installed_urdf_mesh_uris": "passed",
+    "installed_nav2_config": "matches source, chassis-only in both costmaps",
+    "display_meshes_unchanged": 45,
+    "visual_triangles": 516650,
+    "zero_pose_visual_positions_and_urdf_sdf_frames": "passed",
+    "repeat_synchronization": "byte-identical",
+    "inherited_main_files": "identical except existing simulation README, setup.py asset installation and standalone-asset boundary allowance"
+  },
+  "asset_manifest_sha256": "bb6c8cf65850b439274749840e3cb26c5bbd6b0f6ebb347518ea0b6b3afbb0d2",
+  "scope": "Model geometry, XML and asset installation. No new ROS bridge or controller integration, no physical contact validation and no hardware calibration."
+}

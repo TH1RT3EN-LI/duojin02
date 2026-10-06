@@ -29,6 +29,8 @@
 
 Nav2 足迹采用底盘（含四轮）的保守投影。详细尺寸、预览、坐标系、生成方法与尚待实测的雷达光学高度 / IMU 外参见 [底盘测算报告](docs/chassis/README.md)。
 
+独立 Gazebo 整机资产的底盘坐标基准、四轮轴心及碰撞尺寸、雷达 `laser` 坐标系也已同步。显示网格保持已确认的 516,650 面版本，复现方法及验证范围见 [模型同步说明](src/duojin01_description/models/dual_arm_mobile/README.md#与-main-的底盘同步)。
+
 ## Docker：构建和运行
 
 在仓库根目录执行：
