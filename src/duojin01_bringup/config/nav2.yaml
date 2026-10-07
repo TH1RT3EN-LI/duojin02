@@ -42,6 +42,8 @@ amcl:
 bt_navigator:
   ros__parameters:
     use_sim_time: false
+    default_nav_to_pose_bt_xml: "$(find-pkg-share duojin01_bringup)/behavior_trees/navigate_to_pose.xml"
+    default_nav_through_poses_bt_xml: "$(find-pkg-share duojin01_bringup)/behavior_trees/navigate_through_poses.xml"
     global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odometry/filtered

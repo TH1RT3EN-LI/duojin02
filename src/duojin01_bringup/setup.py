@@ -17,6 +17,8 @@ setup(
 
         (os.path.join('share', package_name, 'config'),
             glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'behavior_trees'),
+            glob('behavior_trees/*.xml')),
         (os.path.join('share', package_name, 'config', 'lattice_primitives'),
             glob('config/lattice_primitives/*.json') + glob('config/lattice_primitives/*.md')),
         

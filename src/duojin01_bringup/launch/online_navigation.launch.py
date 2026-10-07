@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import yaml
 from duojin01_bringup.lattice import for_resolution
+from duojin01_bringup.online_profile import OnlineParameters
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from duojin01_bringup.middleware import middleware
@@ -18,7 +19,7 @@ def generate_launch_description():
     own=get_package_share_directory('duojin01_bringup')
     resolution=yaml.safe_load(Path(own,'config/slam_toolbox.yaml').read_text())['slam_toolbox']['ros__parameters']['resolution']
     include=lambda path,args={}:IncludeLaunchDescription(PythonLaunchDescriptionSource(path),launch_arguments=args.items())
-    parameters=RewrittenYaml(source_file=LaunchConfiguration('params_file'),param_rewrites={
+    parameters=RewrittenYaml(source_file=OnlineParameters(LaunchConfiguration('params_file')),param_rewrites={
         'lattice_filepath':for_resolution(os.path.join(own,'config/lattice_primitives/duojin01_omni_2cm_rich_lattice.json'),resolution),
         'global_costmap.global_costmap.ros__parameters.resolution':str(resolution),
         # Global hypotheses may cross unobserved space; the local map and

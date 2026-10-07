@@ -12,8 +12,6 @@ class PreciseLattice : public nav2_smac_planner::SmacPlannerLattice {
  public:
   nav_msgs::msg::Path createPlan(const geometry_msgs::msg::PoseStamped &start,
                                const geometry_msgs::msg::PoseStamped &goal) override {
-    auto path=SmacPlannerLattice::createPlan(start,goal);
-    if (path.poses.empty()) return path;
     std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*_costmap->getMutex());
     Polygon footprint;
     for(const auto &p:_costmap_ros->getRobotFootprint()) footprint.push_back({p.x,p.y});
@@ -38,18 +36,48 @@ class PreciseLattice : public nav2_smac_planner::SmacPlannerLattice {
       }
       return !collision(pose,footprint,obstacles,.002);
     };
-    path.poses.push_back(goal);
-    for(size_t i=1;i<path.poses.size();++i) {
-      const auto &a=path.poses[i-1].pose,&b=path.poses[i].pose;
+    auto segment_valid=[&](const geometry_msgs::msg::Pose &a,const geometry_msgs::msg::Pose &b) {
       const double yaw=tf2::getYaw(a.orientation);
       const double dyaw=std::remainder(tf2::getYaw(b.orientation)-yaw,2*M_PI);
       const double dx=b.position.x-a.position.x,dy=b.position.y-a.position.y;
       const int steps=std::max(1,static_cast<int>(std::ceil((std::hypot(dx,dy)+radius*std::abs(dyaw))/.004)));
       for(int j=0;j<=steps;++j) {
         double f=static_cast<double>(j)/steps;
-        if(!valid({a.position.x+f*dx,a.position.y+f*dy,yaw+f*dyaw}))
-          throw nav2_core::PlannerException("Filled footprint / precise terminal pose intersects an obstacle or unknown cell");
+        if(!valid({a.position.x+f*dx,a.position.y+f*dy,yaw+f*dyaw})) return false;
       }
+      return true;
+    };
+    // An Omni base can translate along a checked SE2 chord. Avoid quantized
+    // grid starts and large A* searches when an exact direct connection is
+    // available. Bound this shortcut's work; longer / blocked routes use the
+    // complete original lattice and receive the same filled validation.
+    const double dx=goal.pose.position.x-start.pose.position.x,dy=goal.pose.position.y-start.pose.position.y;
+    const double yaw=tf2::getYaw(start.pose.orientation),dyaw=std::remainder(tf2::getYaw(goal.pose.orientation)-yaw,2*M_PI);
+    const double travel=std::hypot(dx,dy)+radius*std::abs(dyaw);
+    if(!std::isfinite(travel)) throw nav2_core::PlannerException("Invalid planar start or goal");
+    if(travel<=6.0 && segment_valid(start.pose,goal.pose)) {
+      nav_msgs::msg::Path direct;direct.header.frame_id=_global_frame;direct.header.stamp=_clock->now();
+      const int steps=std::max(1,static_cast<int>(std::ceil(travel/.01)));
+      for(int i=0;i<=steps;++i) {
+        const double f=static_cast<double>(i)/steps;
+        auto point=start;point.header=direct.header;
+        point.pose.position.x+=f*dx;point.pose.position.y+=f*dy;
+        point.pose.orientation.x=point.pose.orientation.y=0;
+        point.pose.orientation.z=std::sin((yaw+f*dyaw)/2);point.pose.orientation.w=std::cos((yaw+f*dyaw)/2);
+        direct.poses.push_back(point);
+      }
+      direct.poses.back()=goal;direct.poses.back().header=direct.header;
+      return direct;
+    }
+    lock.unlock();
+    auto path=SmacPlannerLattice::createPlan(start,goal);
+    if(path.poses.empty()) return path;
+    lock.lock();
+    path.poses.insert(path.poses.begin(),start);
+    path.poses.push_back(goal);
+    for(size_t i=1;i<path.poses.size();++i) {
+      if(!segment_valid(path.poses[i-1].pose,path.poses[i].pose))
+        throw nav2_core::PlannerException("Filled footprint / exact start or terminal pose intersects an obstacle or unknown cell");
     }
     path.poses.back().header=path.header;
     return path;

@@ -31,12 +31,16 @@ inline bool touches(const Point &p, const Polygon &polygon, double margin) {
 }
 inline bool collision(const Pose &pose,const Polygon &polygon,const std::vector<Point> &points,double margin) {
   const double c=std::cos(pose.yaw),s=std::sin(pose.yaw);
-  double extent=0;
-  for(const auto &vertex:polygon) extent=std::max(extent,std::hypot(vertex.x,vertex.y));
+  double min_x=1e100,min_y=1e100,max_x=-1e100,max_y=-1e100;
+  for(const auto &vertex:polygon) {
+    min_x=std::min(min_x,vertex.x);min_y=std::min(min_y,vertex.y);
+    max_x=std::max(max_x,vertex.x);max_y=std::max(max_y,vertex.y);
+  }
   for (const auto &p:points) {
     const double dx=p.x-pose.x,dy=p.y-pose.y;
     Point local{c*dx+s*dy,-s*dx+c*dy,p.radius};
-    if (std::abs(local.x)>extent+margin+p.radius || std::abs(local.y)>extent+margin+p.radius) continue;
+    const double padding=margin+p.radius;
+    if(local.x<min_x-padding || local.x>max_x+padding || local.y<min_y-padding || local.y>max_y+padding) continue;
     if (touches(local,polygon,margin)) return true;
   }
   return false;
