@@ -1,0 +1,56 @@
+{
+  "before": {
+    "/imu": {
+      "samples": 3600,
+      "max_abs_yaw_rate": 0.4500489698519372,
+      "impulses_over_2radps": 0
+    },
+    "/odom": {
+      "samples": 1800,
+      "max_abs_yaw_rate": 627.8003856814806,
+      "impulses_over_2radps": 1
+    },
+    "/odometry/filtered": {
+      "samples": 1801,
+      "max_abs_yaw_rate": 112.2617660643272,
+      "impulses_over_2radps": 3
+    },
+    "/sim/ground_truth/odom": {
+      "samples": 1801,
+      "max_abs_yaw_rate": 627.7993856814807,
+      "impulses_over_2radps": 1
+    },
+    "/sim/imu/raw": {
+      "samples": 3600,
+      "max_abs_yaw_rate": 0.4490489698519372,
+      "impulses_over_2radps": 0
+    }
+  },
+  "after": {
+    "/imu": {
+      "samples": 3600,
+      "max_abs_yaw_rate": 0.45011133421877203,
+      "impulses_over_2radps": 0
+    },
+    "/odom": {
+      "samples": 1800,
+      "max_abs_yaw_rate": 0.4501097612095677,
+      "impulses_over_2radps": 0
+    },
+    "/odometry/filtered": {
+      "samples": 1801,
+      "max_abs_yaw_rate": 0.45010386299993294,
+      "impulses_over_2radps": 0
+    },
+    "/sim/ground_truth/odom": {
+      "samples": 1801,
+      "max_abs_yaw_rate": 0.4491097612095677,
+      "impulses_over_2radps": 0
+    },
+    "/sim/imu/raw": {
+      "samples": 3600,
+      "max_abs_yaw_rate": 0.44911133421877203,
+      "impulses_over_2radps": 0
+    }
+  }
+}

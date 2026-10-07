@@ -1,0 +1,15 @@
+{
+  "upstream_version": "gz-sim8_8.12.0",
+  "fix": "Same quaternion hemisphere before differencing",
+  "source_url": "https://github.com/gazebosim/gz-sim/blob/gz-sim8/src/systems/odometry_publisher/OdometryPublisher.cc",
+  "compiled": {
+    "binary_sha256": "20701a47a752f24f510d2056bbc896f4576addb603b249a3dd9bf17e71cd5f58",
+    "source_sha256": {
+      "/ws/simulation/odometry_plugin/README.md": "0d6bd82f8407e591dc420d1e2e1921739870756ce156b08abed26fe1d8e0d758",
+      "/ws/simulation/odometry_plugin/OdometryPublisher.hh": "c11380727b5b8c5906999f6c7857c9e10c5d53b863f78e9f2175cd5b8a94460e",
+      "/ws/simulation/odometry_plugin/OdometryPublisher.cc": "891d50bc2d07cb5cf0e25c93eddf3bfc3711d862873b1809261c506b95c87d9f",
+      "/ws/simulation/odometry_plugin/CMakeLists.txt": "94463d7d42799a8e3c3d84800af2d03d634a0d5e3fc233b7d320d78caacb1114"
+    }
+  },
+  "hardware_algorithm_commit": "c621f9c"
+}
