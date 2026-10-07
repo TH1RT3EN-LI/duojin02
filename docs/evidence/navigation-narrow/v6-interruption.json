@@ -1,0 +1,6 @@
+{
+  "reason": "Code review: crop must bound simultaneous maximum vx/vy in native MPPI. Stop scheduling, finish active trials, preserve records and snapshots, then validate corrected candidate.",
+  "completed_at_pause": 25,
+  "completed_final": 29,
+  "inflight_completed_before_stop": true
+}

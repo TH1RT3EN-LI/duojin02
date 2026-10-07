@@ -1,0 +1,9 @@
+{
+  "binaries": {
+    "/tmp/duojin02_sim/install/duojin01_navigation/lib/libprecise_mppi.so": "6ef222f04d900c9da2601fcb0efe80b1f86d18c38a3ac8f276641686cce3ecde",
+    "/tmp/duojin02_sim/install/duojin01_navigation/lib/libprecise_lattice.so": "57ed8af68aefe121bd31578ea5d60c5b5fc5060411d75533fa25c7cd80fe7152",
+    "/tmp/duojin02_sim/install/duojin01_navigation/lib/libstable_goal_checker.so": "9cf8a29331080f1e614b079a5cf5f452e7ae1b91baf87e8efa554d4f9c32ec96",
+    "/tmp/duojin02_sim/install/duojin01_navigation/lib/duojin01_navigation/velocity_guard": "82334a01c3a191f7f3c1f359fb890b6fd2cae8e585cc742fe4c3b1eebc9651ac"
+  },
+  "packages": "ros-humble-navigation2\t1.1.20-1jammy.20260908.015443\nros-humble-rmw-cyclonedds-cpp\t1.3.5-1jammy.20260907.205235\n"
+}

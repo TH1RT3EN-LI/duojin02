@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-07",
+  "algorithm_commit": "9f179c79a785c0aba8d54027026cef508b61aad4",
+  "previous_commit": "7bc9e10ef93d114c1c54a6a35ef3e6f8a9f70434",
+  "primary_count": 78,
+  "formal_counts": {
+    "frozen-v7": 78,
+    "regression-v7": 6,
+    "startup-counterexamples-v7": 2,
+    "online-counterexample-v7": 2,
+    "waypoints-v7": 2,
+    "checks-v7": 9,
+    "paired-previous-final-v4": 10,
+    "paired-optimized-v7": 10,
+    "cpu-limited-v7": 5
+  },
+  "metric_logic_unchanged": true,
+  "primary_binaries": {
+    "/tmp/navbuild/install/duojin01_navigation/lib/libprecise_mppi.so": "95b7a1dbadbaa83d402a8bd7552227c5d1fd726aa38ee5b7474dc77c19adb187",
+    "/tmp/navbuild/install/duojin01_navigation/lib/libprecise_lattice.so": "679498e0ca4577338a738c2e4934fe4e384626eb4e55839b28ad851d45cf05a3",
+    "/tmp/navbuild/install/duojin01_navigation/lib/libstable_goal_checker.so": "d23cc51f8b60a2a8eb0d3a041ba74cced9fb358e6f4dd5c0242a30dc80ebc852",
+    "/tmp/navbuild/install/duojin01_navigation/lib/duojin01_navigation/velocity_guard": "849e045dd848b9bf05d4a44b6040d12604fa4b5479657d6922a44fcb58f3dd94"
+  },
+  "not_orin_native": true,
+  "architecture": "x86_64",
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  24\nOn-line CPU(s) list:                     0-23\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Core(TM) Ultra 7 270K Plus\nCPU family:                              6\nModel:                                   198\nThread(s) per core:                      1\nCore(s) per socket:                      24\nSocket(s):                               1\nStepping:                                2\nCPU(s) scaling MHz:                      100%\nCPU max MHz:                             5500.0000\nCPU min MHz:                             800.0000\nBogoMIPS:                                7372.80\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdt_a rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni lam wbnoinvd dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq rdpid bus_lock_detect movdiri movdir64b fsrm md_clear serialize arch_lbr ibt flush_l1d arch_capabilities\nVirtualization:                          VT-x\nL1d cache:                               768 KiB (20 instances)\nL1i cache:                               1.3 MiB (20 instances)\nL2 cache:                                40 MiB (12 instances)\nL3 cache:                                36 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-23\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS Not affected; BHI BHI_DIS_S\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+  "gpu": "NVIDIA GeForce RTX 5070, 12227 MiB, 580.178.04\n",
+  "concurrency": "four primary workers plus one auxiliary worker; final paired and quota batches run after primary completion. Earlier v5 had ten simultaneous graphs.",
+  "limits": "Kinematic chassis plus wheels; assumed 5mm lidar noise; 540 beams/10Hz. Seeds control adapter perturbations, not Gazebo laser RNG. No real Orin, slip, physical braking, reflective/transparent or out-of-plane obstacle evidence. Failed and interrupted batches retained."
+}

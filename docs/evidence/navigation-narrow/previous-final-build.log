@@ -1,0 +1,11 @@
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Finished <<< duojin01_navigation [0.20s]
+Finished <<< duojin01_description [0.40s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.39s]
+Starting >>> duojin02_sim
+Finished <<< duojin02_sim [0.40s]
+
+Summary: 4 packages finished [1.29s]
+Saved compiled navigation manifest

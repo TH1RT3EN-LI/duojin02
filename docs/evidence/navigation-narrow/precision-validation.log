@@ -1,0 +1,45 @@
+Starting >>> duojin01_base_driver
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Starting >>> duojin01_slam_tools
+Starting >>> duojin01_teleop
+Starting >>> lslidar_driver
+Finished <<< duojin01_base_driver [0.25s]
+Finished <<< lslidar_driver [0.29s]
+Finished <<< duojin01_slam_tools [0.31s]
+Finished <<< duojin01_description [0.48s]
+Finished <<< duojin01_teleop [0.48s]
+Finished <<< duojin01_navigation [5.76s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.37s]
+
+Summary: 7 packages finished [6.22s]
+............................................                             [100%]
+=============================== warnings summary ===============================
+../../opt/ros/humble/local/lib/python3.10/dist-packages/xacro/__init__.py:115
+  Warning: private variables, such as '_ConstructUnits__ConstructUnitsValue', will be normal attributes in 3.11
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+44 passed, 1 warning in 0.63s
+Test project /tmp/validation/build/duojin01_navigation
+    Start 1: geometry_checks
+1/3 Test #1: geometry_checks ..................   Passed    0.00 sec
+    Start 2: tracking_checks
+2/3 Test #2: tracking_checks ..................   Passed    0.00 sec
+    Start 3: goal_settling_checks
+3/3 Test #3: goal_settling_checks .............   Passed    0.80 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   0.80 sec
+Starting >>> duojin01_description
+Starting >>> duojin01_navigation
+Finished <<< duojin01_description [0.37s]
+Finished <<< duojin01_navigation [5.79s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.38s]
+Starting >>> duojin02_sim
+Finished <<< duojin02_sim [0.36s]
+
+Summary: 4 packages finished [6.62s]
+Saved compiled navigation manifest

@@ -1,0 +1,29 @@
+..........................................                               [100%]
+=============================== warnings summary ===============================
+../opt/ros/humble/local/lib/python3.10/dist-packages/xacro/__init__.py:115
+  Warning: private variables, such as '_ConstructUnits__ConstructUnitsValue', will be normal attributes in 3.11
+
+../usr/lib/python3/dist-packages/_pytest/cacheprovider.py:428
+  Warning: could not create cache path /hardware/tests/.pytest_cache/v/cache/nodeids
+
+../usr/lib/python3/dist-packages/_pytest/stepwise.py:49
+  Warning: could not create cache path /hardware/tests/.pytest_cache/v/cache/stepwise
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+42 passed, 3 warnings in 0.54s
+Internal ctest changing into directory: /tmp/validation/build/duojin01_navigation
+Test project /tmp/validation/build/duojin01_navigation
+    Start 1: geometry_checks
+1/3 Test #1: geometry_checks ..................   Passed    0.00 sec
+    Start 2: tracking_checks
+2/3 Test #2: tracking_checks ..................   Passed    0.00 sec
+    Start 3: goal_settling_checks
+3/3 Test #3: goal_settling_checks .............   Passed    0.79 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   0.80 sec
+1791342232.787366 [92]    python3: selected interface "lo" is not multicast-capable: disabling multicast
+{"checks": 11, "filled_scan_interior": true, "filled_map_interior": true, "braking_slowdown": true, "core_validated_boundary_crawl": true, "live_observation_not_amcl_inflated": true, "blind_obstacle_memory": true, "positive_free_ray_clearing": true, "measured_speed_braking": true, "command_dropout": true, "scan_dropout": true, "map_dropout": true}
+1791342240.092019 [94]    python3: selected interface "lo" is not multicast-capable: disabling multicast
+{"checks": 5, "rotation_rad": 0.73, "translation_m": [-1.2, 0.8], "records": [{"point": [1.0, 0.0], "resolution": 0.01, "reason": "clear"}, {"point": [0.1, 0.05], "resolution": 0.01, "reason": "measured_braking_collision"}, {"point": [-0.1, -0.05], "resolution": 0.03, "reason": "measured_braking_collision"}, {"point": [0.35, 0.0], "resolution": 0.01, "reason": "braking_slowdown"}, {"point": [2.51, 0.0], "resolution": 0.01, "reason": "clear"}]}

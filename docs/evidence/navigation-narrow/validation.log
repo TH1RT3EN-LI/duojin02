@@ -1,0 +1,55 @@
+Starting >>> duojin01_base_driver
+Starting >>> duojin01_description
+Finished <<< duojin01_description [0.41s]
+Starting >>> duojin01_navigation
+Finished <<< duojin01_base_driver [8.50s]
+Starting >>> duojin01_slam_tools
+Finished <<< duojin01_slam_tools [0.65s]
+Starting >>> duojin01_teleop
+Finished <<< duojin01_teleop [0.41s]
+Starting >>> lslidar_driver
+Finished <<< duojin01_navigation [16.5s]
+Finished <<< lslidar_driver [16.7s]
+Starting >>> duojin01_bringup
+Finished <<< duojin01_bringup [0.38s]
+
+Summary: 7 packages finished [26.8s]
+
+==================================== ERRORS ====================================
+__________________ ERROR collecting test_chassis_geometry.py ___________________
+ImportError while importing test module '/hardware/tests/test_chassis_geometry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.10/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+/hardware/tests/test_chassis_geometry.py:9: in <module>
+    import xacro
+E   ModuleNotFoundError: No module named 'xacro'
+___________________ ERROR collecting test_slam_workflows.py ____________________
+ImportError while importing test module '/hardware/tests/test_slam_workflows.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.10/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+/hardware/tests/test_slam_workflows.py:9: in <module>
+    from geometry_msgs.msg import TransformStamped
+E   ModuleNotFoundError: No module named 'geometry_msgs'
+=============================== warnings summary ===============================
+../../usr/lib/python3/dist-packages/_pytest/cacheprovider.py:428
+  /usr/lib/python3/dist-packages/_pytest/cacheprovider.py:428: PytestCacheWarning: could not create cache path /hardware/tests/.pytest_cache/v/cache/nodeids
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+../../usr/lib/python3/dist-packages/_pytest/cacheprovider.py:382
+  /usr/lib/python3/dist-packages/_pytest/cacheprovider.py:382: PytestCacheWarning: could not create cache path /hardware/tests/.pytest_cache/v/cache/lastfailed
+    config.cache.set("cache/lastfailed", self.lastfailed)
+
+../../usr/lib/python3/dist-packages/_pytest/stepwise.py:49
+  /usr/lib/python3/dist-packages/_pytest/stepwise.py:49: PytestCacheWarning: could not create cache path /hardware/tests/.pytest_cache/v/cache/stepwise
+    session.config.cache.set(STEPWISE_CACHE_DIR, [])
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+=========================== short test summary info ============================
+ERROR ../../hardware/tests/test_chassis_geometry.py
+ERROR ../../hardware/tests/test_slam_workflows.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+3 warnings, 2 errors in 0.06s

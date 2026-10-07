@@ -1,0 +1,91 @@
+{
+  "rmw_implementation": "rmw_cyclonedds_cpp",
+  "controller_server": "active",
+  "planner_server": "active",
+  "bt_navigator": "active",
+  "collision_monitor": "active",
+  "velocity_smoother": "active",
+  "controller_server_parameters": {
+    "use_sim_time": true,
+    "FollowPath.vx_max": 0.5,
+    "FollowPath.vy_max": 0.3,
+    "general_goal_checker.plugin": "duojin01_navigation::StableStoppedGoalChecker",
+    "general_goal_checker.settle_time": 0.25,
+    "general_goal_checker.xy_goal_tolerance": 0.004
+  },
+  "velocity_smoother_parameters": {
+    "feedback": "OPEN_LOOP",
+    "max_velocity": [
+      0.5,
+      0.3,
+      0.65
+    ]
+  },
+  "slam_toolbox_parameters": {
+    "resolution": 0.01,
+    "minimum_travel_distance": 0.15,
+    "use_scan_barycenter": false
+  },
+  "local_costmap/local_costmap_parameters": {
+    "plugins": [
+      "obstacle_layer",
+      "inflation_layer"
+    ]
+  },
+  "bt_navigator_parameters": {
+    "default_nav_to_pose_bt_xml": "/tmp/duojin02_sim/install/duojin01_bringup/share/duojin01_bringup/behavior_trees/navigate_to_pose.xml",
+    "default_nav_through_poses_bt_xml": "/tmp/duojin02_sim/install/duojin01_bringup/share/duojin01_bringup/behavior_trees/navigate_through_poses.xml"
+  },
+  "scan": {
+    "frame": "laser",
+    "count": 540,
+    "range_min": 0.30000001192092896,
+    "stamp": 121.0
+  },
+  "map": {
+    "resolution": 0.009999999776482582,
+    "width": 602,
+    "height": 503
+  },
+  "guard": {
+    "reason": "command_stale",
+    "scale": 0,
+    "compute_ms": 0.025682,
+    "localization_margin_m": 0,
+    "remembered_points": 30
+  },
+  "nodes": [
+    "sim_devices",
+    "smoother_server",
+    "transform_listener_impl_70757c003590",
+    "ekf_filter_node",
+    "transform_listener_impl_639af9ebf8c0",
+    "navigation_delivery_health",
+    "velocity_smoother",
+    "behavior_server",
+    "transform_listener_impl_73443c022410",
+    "sim_bridge",
+    "controller_server",
+    "local_costmap",
+    "transform_listener_impl_61c507289310",
+    "rviz2",
+    "transform_listener_impl_582cca1cf690",
+    "lifecycle_manager_navigation",
+    "bt_navigator",
+    "bt_navigator_navigate_to_pose_rclcpp_node",
+    "bt_navigator_navigate_through_poses_rclcpp_node",
+    "robot_state_publisher",
+    "planner_server",
+    "global_costmap",
+    "transform_listener_impl_73b468014320",
+    "waypoint_follower",
+    "collision_monitor",
+    "transform_listener_impl_7822b4005090",
+    "slam_toolbox",
+    "transform_listener_impl_569493a7f660",
+    "twist_mux",
+    "lifecycle_manager_guard",
+    "velocity_guard",
+    "transform_listener_impl_55fcf4df39f8"
+  ]
+}

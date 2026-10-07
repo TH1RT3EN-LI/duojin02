@@ -1,0 +1,5 @@
+{
+  "reason": "Scheduling stopped after in-flight trials completed: online door seed24 exceeded the unchanged 20mm truth criterion. Preserve all 10 completed records. Evaluate tighter docking on fresh seeds.",
+  "planned": 72,
+  "completed": 10
+}

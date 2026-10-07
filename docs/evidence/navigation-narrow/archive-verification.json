@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-07T04:11:31.403876+00:00",
+  "verified_artifacts": 110,
+  "formal_records": 124,
+  "primary_records": 78,
+  "all_records": 329,
+  "record_roles": {
+    "exploratory_or_diagnostic": 88,
+    "interrupted_after_velocity_bound_review": 29,
+    "final_auxiliary": 46,
+    "superseded_frozen_ten_graph_batch": 72,
+    "primary_frozen": 78,
+    "superseded_regression": 6,
+    "interrupted_scheduling_completed_trials": 10
+  },
+  "trial_archives_match_index": true,
+  "report_local_links_resolve": true,
+  "source_sync_files": 61,
+  "preserved_cad_files": 86,
+  "runtime_archives": 8,
+  "runtime_files": 2765
+}

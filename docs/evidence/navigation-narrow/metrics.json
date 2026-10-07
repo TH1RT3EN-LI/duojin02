@@ -1,0 +1,11 @@
+{
+  "primary": "78/78",
+  "collisions": 0,
+  "startup_errors": 0,
+  "online": "24/24",
+  "known_door": "6/6",
+  "unknown_door": "6/6",
+  "regression": "6/6",
+  "limited": "5/5",
+  "max_goal_error_mm": 12.560752573840666
+}

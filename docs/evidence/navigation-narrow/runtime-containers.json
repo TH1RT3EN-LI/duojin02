@@ -1,0 +1,2741 @@
+[
+    {
+        "Id": "b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e",
+        "Created": "2026-10-07T03:16:34.595506813Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3395970,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.122679183Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e/hostname",
+        "HostsPath": "/var/lib/docker/containers/b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e/hosts",
+        "LogPath": "/var/lib/docker/containers/b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e/b2905ab8ea60ad32844ab8a03d028788464bb787f986048aee7349753b67706e-json.log",
+        "Name": "/duojin02-narrow-20",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "3aac6a454793a2e16396ee97cb025afce2f0cd7d1e4f8b202fa7342056531515"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "b2905ab8ea60",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=102",
+                "GZ_PARTITION=duojin02-narrow-20",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "fcd76ed1ba5ba9139a19196fff4744c8e09330e01cf8d7de38cfe51442ca9f8b",
+            "SandboxKey": "/var/run/docker/netns/fcd76ed1ba5b",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "282980948c7fb73db781c1a20981b1bf2b24d16c0a50273f4c9c5c2d166acb19",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.5",
+                    "MacAddress": "46:1a:5f:44:7e:88",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419",
+        "Created": "2026-10-07T03:16:34.595202134Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3395928,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.10666126Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419/hostname",
+        "HostsPath": "/var/lib/docker/containers/cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419/hosts",
+        "LogPath": "/var/lib/docker/containers/cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419/cebf6c5ab36a181773042041019d456befa3b0d8b6529f8244475d332af3e419-json.log",
+        "Name": "/duojin02-narrow-21",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "8f0d446474ddc7de7a711df90c225ca69c8f7a1ffd7ba147db2bea3d34192c2f"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "cebf6c5ab36a",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=103",
+                "GZ_PARTITION=duojin02-narrow-21",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "e999ebbe2357f8de267621430108869523060451bbeb47f8d8491650f6285af4",
+            "SandboxKey": "/var/run/docker/netns/e999ebbe2357",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "d9e832f71bb53ce120aad80c1f7aa42aea27482f81dc4e82982244e228f7dba6",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.6",
+                    "MacAddress": "a2:08:20:ed:97:b7",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378",
+        "Created": "2026-10-07T03:16:34.59620767Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396265,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.145716443Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378/hostname",
+        "HostsPath": "/var/lib/docker/containers/38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378/hosts",
+        "LogPath": "/var/lib/docker/containers/38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378/38cba67fa81ed7c3c00274d509774d17cb05c61b38a18b292bc1f80bdc787378-json.log",
+        "Name": "/duojin02-narrow-22",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "7e9d7251f2d84c182bc5626c3ef1d581668ce77f5f2e43b0419236a6650e0771"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence",
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "38cba67fa81e",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=104",
+                "GZ_PARTITION=duojin02-narrow-22",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "00b6363b08fdf01303863ca3599f9ffb5ae2564107a89aa400a41e6015d363f7",
+            "SandboxKey": "/var/run/docker/netns/00b6363b08fd",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "1f51dcc809e977abd8a3dd3510bc067e9777cad2d0a08b4027ed63db71751aa3",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.10",
+                    "MacAddress": "be:7a:05:0d:a9:e3",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b",
+        "Created": "2026-10-07T03:16:34.595565709Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3395943,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.114689772Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b/hostname",
+        "HostsPath": "/var/lib/docker/containers/74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b/hosts",
+        "LogPath": "/var/lib/docker/containers/74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b/74b26bbb6c1f7af6ca227e7cece9340d45d9074d3687835a35bd1d003b23861b-json.log",
+        "Name": "/duojin02-narrow-23",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "b056ffe297211fba321ccb7dbb69c850d29c7af97bfca4c21974f7d811a25ec6"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "74b26bbb6c1f",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "ROS_DOMAIN_ID=105",
+                "GZ_PARTITION=duojin02-narrow-23",
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "c90fff85ff818c304935e94709541ffcbf27068f6d640e641dd2def9b0b36bf1",
+            "SandboxKey": "/var/run/docker/netns/c90fff85ff81",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "d78db5c75a3a5f2132e03b06f883cef86752df8290ad4d3d5e53925c1aef2071",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.8",
+                    "MacAddress": "8a:7b:2f:27:ec:b1",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0",
+        "Created": "2026-10-07T03:16:34.595541133Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396071,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.130785844Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0/hostname",
+        "HostsPath": "/var/lib/docker/containers/9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0/hosts",
+        "LogPath": "/var/lib/docker/containers/9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0/9d86cd17589ec0349787fe0b0f2a0c8d3e5634f94bc066d300e0b457180724f0-json.log",
+        "Name": "/duojin02-narrow-24",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "614e2d2028dbbd171ddf2ab0e5afbddb6e7532c81f9a4b909742497c7b13935a"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "9d86cd17589e",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=106",
+                "GZ_PARTITION=duojin02-narrow-24",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "3e193cad7554a9366a14c82f8e3e8d869677f0e17b0c2c019f46d1d3d7a914a2",
+            "SandboxKey": "/var/run/docker/netns/3e193cad7554",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "38877974344c67e3b5201ac5a9a700f49beda7cb3f4bd6742efd2a62bf698f31",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.7",
+                    "MacAddress": "9a:b8:f7:f2:0b:ad",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6",
+        "Created": "2026-10-07T03:16:34.596986427Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396329,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.153747146Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6/hostname",
+        "HostsPath": "/var/lib/docker/containers/a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6/hosts",
+        "LogPath": "/var/lib/docker/containers/a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6/a6c25b55033d780e03461e23fe3a8ef732b42862dac04b841affd6e6944f0bf6-json.log",
+        "Name": "/duojin02-narrow-25",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "90311d6aa333a01edb0bf3e451d6d9e6e3b91ceec621e7b7d5c53537850174c8"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence",
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "a6c25b55033d",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=107",
+                "GZ_PARTITION=duojin02-narrow-25",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "031184b9e1d16ce55e462cb1eb0f3b04aaff14b356b930fe98b9dd8f50542138",
+            "SandboxKey": "/var/run/docker/netns/031184b9e1d1",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "bd7501e26eb5c64e4287c4d58ba322c58786d889ca2da1f132798f95d09ef769",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.13",
+                    "MacAddress": "22:7c:d9:61:93:4a",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd",
+        "Created": "2026-10-07T03:16:34.59635391Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396309,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.149713315Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd/hostname",
+        "HostsPath": "/var/lib/docker/containers/cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd/hosts",
+        "LogPath": "/var/lib/docker/containers/cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd/cc15bc716394ee590913b7b68d69397f364a01c421e6c98ddeefc89e666329cd-json.log",
+        "Name": "/duojin02-narrow-aux",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "e8130c81ebeefc79ac41952e2f429f57e87ba122cab240c892edf4ba79d727aa"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "cc15bc716394",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "ROS_DOMAIN_ID=108",
+                "GZ_PARTITION=duojin02-narrow-aux",
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "d950c5407215d949588a836758624bed271cfc00136e49b03f8b98cfe172306e",
+            "SandboxKey": "/var/run/docker/netns/d950c5407215",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "9c69eced0efafb1a5e20376dd19f026c7b30a0dbdc75457dfd50dfdb44a4b8c9",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.11",
+                    "MacAddress": "c2:1c:13:11:64:3d",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302",
+        "Created": "2026-10-07T03:16:34.595242302Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3395914,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.098701397Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302/hostname",
+        "HostsPath": "/var/lib/docker/containers/cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302/hosts",
+        "LogPath": "/var/lib/docker/containers/cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302/cd92e0842e9ad6511e941a2cefec25ae867fa20f2c90c08f52361b986c4a7302-json.log",
+        "Name": "/duojin02-narrow-boundary",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "2d9bc5dfa49afe850351d4ef951afb8413741c43a7c06e35141decc442c854f9"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "cd92e0842e9a",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=109",
+                "GZ_PARTITION=duojin02-narrow-boundary",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "18c3d5a9e3e3e5671be28bc32a58951ec6b9f8cc0c55bf88ff2e6f8ac12667bf",
+            "SandboxKey": "/var/run/docker/netns/18c3d5a9e3e3",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "487bfa964a9cb2b54afcbd21313643f0b68dd3f23dd07222348dea2f25e0cb64",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.4",
+                    "MacAddress": "66:45:db:13:1b:e8",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131",
+        "Created": "2026-10-07T03:16:34.595625284Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396188,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.13871638Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131/hostname",
+        "HostsPath": "/var/lib/docker/containers/3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131/hosts",
+        "LogPath": "/var/lib/docker/containers/3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131/3a4402d8c9b26caec2c591a86127bbef46abf24a992dd3455870065557790131-json.log",
+        "Name": "/duojin02-narrow-paired",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "8e0ee4d7a9a0956a2b69342cb7925f89eeaf5bc9c724a0cf28f70449de5c01ee"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "3a4402d8c9b2",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "ROS_DOMAIN_ID=111",
+                "GZ_PARTITION=duojin02-narrow-paired",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "11152e78e00a57500d1948dfa4e7abc659885df8fca0b3931166a7a92901cc65",
+            "SandboxKey": "/var/run/docker/netns/11152e78e00a",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "c097aac44b975b6cf123c60bc779f312c01282c5b587e0adbc0bd12db176ee3b",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.9",
+                    "MacAddress": "5a:bf:71:61:20:f7",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    },
+    {
+        "Id": "c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55",
+        "Created": "2026-10-07T03:16:34.595822601Z",
+        "Path": "bash",
+        "Args": [
+            "-c",
+            "exec tail -f /dev/null"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 3396228,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-07T03:16:35.142674216Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+        "ResolvConfPath": "/var/lib/docker/containers/c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55/hostname",
+        "HostsPath": "/var/lib/docker/containers/c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55/hosts",
+        "LogPath": "/var/lib/docker/containers/c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55/c96d915690772c6b62a7fd488a01e4be227da68e2269e41192e3b5d065f70f55-json.log",
+        "Name": "/duojin02-narrow-previous",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": [
+            "6a01a092151dc16ef72b2ecb1c2697596e8cb7aed505efff4845458175204d7c"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow/previous-hardware:/hardware:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim:/ws:ro",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow:/evidence",
+                "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow/previous-simulation-src:/ws/simulation/src:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 1073741824,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle",
+                "/sys/devices/system/cpu/cpu16/thermal_throttle",
+                "/sys/devices/system/cpu/cpu17/thermal_throttle",
+                "/sys/devices/system/cpu/cpu18/thermal_throttle",
+                "/sys/devices/system/cpu/cpu19/thermal_throttle",
+                "/sys/devices/system/cpu/cpu20/thermal_throttle",
+                "/sys/devices/system/cpu/cpu21/thermal_throttle",
+                "/sys/devices/system/cpu/cpu22/thermal_throttle",
+                "/sys/devices/system/cpu/cpu23/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ],
+            "Init": true
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow/previous-hardware",
+                "Destination": "/hardware",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim",
+                "Destination": "/ws",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow",
+                "Destination": "/evidence",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/th1rt3en/dev/forge/duojin02-sim/.cache/navigation-narrow/previous-simulation-src",
+                "Destination": "/ws/simulation/src",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "c96d91569077",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "ROS_DOMAIN_ID=110",
+                "GZ_PARTITION=duojin02-narrow-previous",
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,display,utility,compute",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ROSDISTRO_INDEX_URL=https://mirrors.ustc.edu.cn/rosdistro/index-v4.yaml",
+                "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+            ],
+            "Cmd": [
+                "-c",
+                "exec tail -f /dev/null"
+            ],
+            "Image": "duojin02:sim-humble-harmonic",
+            "Volumes": null,
+            "WorkingDir": "/ws",
+            "Entrypoint": [
+                "bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "65f94b947fa620b4d1eed04ab0b2b2635b51db3483366b9718f095a5ebfb1150",
+            "SandboxKey": "/var/run/docker/netns/65f94b947fa6",
+            "Ports": {},
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "b0ca7498ce6b5e9f5eabd3c132a44fc82ef4e2718d3ceee69984106e9d980bbf",
+                    "EndpointID": "29d396c3f0730900e3b2224014d84ac148b791f69da9152b47391bee2c1775b3",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.12",
+                    "MacAddress": "a2:5c:b9:a3:83:47",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:066a7b1fc5c5c1bfca3a4d8ef89f48dfc39c495179ed4785395beaca6b11568f",
+            "size": 5439,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]
