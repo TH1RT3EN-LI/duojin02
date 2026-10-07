@@ -15,6 +15,9 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     max_speed_=node->get_parameter(name+".vx_max").as_double();
     reverse_speed_=-node->get_parameter(name+".vx_min").as_double();
     lateral_speed_=node->get_parameter(name+".vy_max").as_double();
+    if(!node->has_parameter(name+".narrow_speed_max"))
+      node->declare_parameter(name+".narrow_speed_max",max_speed_);
+    narrow_speed_=std::clamp(node->get_parameter(name+".narrow_speed_max").as_double(),0.0,max_speed_);
     speed_limit_=max_speed_;
   }
   void setPlan(const nav_msgs::msg::Path &path) override {
@@ -62,7 +65,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const bool align_first=!docking && narrow && std::abs(dyaw)>.03 && directApproachClear(pose,rotation);
     const double vx=align_first ? 0 : 2.0*(std::cos(yaw)*dx+std::sin(yaw)*dy);
     const double vy=align_first ? 0 : 2.0*(-std::sin(yaw)*dx+std::cos(yaw)*dy);
-    double cap=std::min(speed_limit_,narrow ? .10 : max_speed_);
+    double cap=std::min(speed_limit_,narrow ? narrow_speed_ : max_speed_);
     if(docking) cap=std::min(cap,std::sqrt(.6*std::max(0.0,std::hypot(dx,dy)-.001)));
     cap*=std::clamp(1.0-std::abs(dyaw),.2,1.0);
     // Preserve small lateral corrections instead of dividing them by a long
@@ -88,7 +91,15 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     if(!pathTarget(pose,target,speed)) return false;
     // Align with the lattice before entering an inflated narrow region. Holding
     // a small initial yaw error there can consume the braking clearance.
-    if(nearObstacle(pose) || nearObstacle(target)) return centeredTarget(pose,target);
+    if(nearObstacle(pose) || nearObstacle(target)) {
+      // A holonomic bend need not rotate the chassis inside the preceding
+      // straight. Retain small lattice alignment corrections, but try a
+      // collision-checked fixed heading before a large upcoming turn.
+      auto fixed_heading=target;fixed_heading.pose.orientation=pose.pose.orientation;
+      const double delta=std::remainder(tf2::getYaw(target.pose.orientation)-tf2::getYaw(pose.pose.orientation),2*M_PI);
+      if(std::abs(delta)>.08 && centeredTarget(pose,fixed_heading)) {target=fixed_heading;return true;}
+      return centeredTarget(pose,target);
+    }
     // Omni translation does not require turning toward the travel direction.
     // Keep heading stable when that filled-footprint chord is feasible; use
     // the lattice heading when rotating is necessary to fit the passage.
@@ -216,7 +227,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   }
   Polygon polygon_;std::vector<Point> obstacles_;
   geometry_msgs::msg::PoseStamped goal_;nav_msgs::msg::Path path_;bool have_goal_{false};
-  double max_speed_{.5},reverse_speed_{.2},lateral_speed_{.3},speed_limit_{.5};
+  double max_speed_{.5},reverse_speed_{.2},lateral_speed_{.3},speed_limit_{.5},narrow_speed_{.5};
 };
 }
 PLUGINLIB_EXPORT_CLASS(duojin01_navigation::PreciseMPPI,nav2_core::Controller)

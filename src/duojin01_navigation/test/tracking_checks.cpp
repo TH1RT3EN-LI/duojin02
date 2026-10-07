@@ -1,9 +1,18 @@
 #include "duojin01_navigation/tracking.hpp"
+#include "duojin01_navigation/path_cleanup.hpp"
 #include <cassert>
 #include <iostream>
 #include <random>
 using namespace duojin01_navigation;
 int main() {
+  // Native Omni primitives may overlap six centimetres of a straight. The
+  // tracker must not be sent backward through an already traversed SE2 loop.
+  std::vector<Pose> repeated{{0,0,0},{.06,0,0},{.12,0,0},{.06,0,0},{.12,0,0},{.18,0,0}};
+  assert((loopFreeIndices(repeated)==std::vector<size_t>{0,3,4,5}));
+  std::vector<Pose> turns{{0,0,0},{0,0,M_PI/2},{.1,0,M_PI/2},{.1,0,0}};
+  assert((loopFreeIndices(turns)==std::vector<size_t>{0,1,2,3}));
+  std::vector<Pose> nested{{0,0,0},{.1,0,0},{.2,0,0},{.1,0,0},{0,0,0},{.3,0,0}};
+  assert((loopFreeIndices(nested)==std::vector<size_t>{4,5}));
   Polygon p{{.221,.199465},{.209465,.211},{-.210879,.211},{-.222,.199879},
             {-.222,-.198465},{-.209465,-.211},{.210879,-.211},{.221,-.200879}};
   std::mt19937 rng(0xD021);std::uniform_real_distribution<double> location(-.6,.6),rotation(-3.14,3.14),radius(0,.10);
