@@ -126,7 +126,7 @@ controller_server:
       stateful: false
       plugin: duojin01_navigation::StableStoppedGoalChecker
       settle_time: 0.25
-      xy_goal_tolerance: 0.01
+      xy_goal_tolerance: 0.004
       yaw_goal_tolerance: 0.02
       trans_stopped_velocity: 0.01
       rot_stopped_velocity: 0.02

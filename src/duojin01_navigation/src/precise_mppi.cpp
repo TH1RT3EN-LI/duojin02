@@ -63,7 +63,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const double vx=align_first ? 0 : 2.0*(std::cos(yaw)*dx+std::sin(yaw)*dy);
     const double vy=align_first ? 0 : 2.0*(-std::sin(yaw)*dx+std::cos(yaw)*dy);
     double cap=std::min(speed_limit_,narrow ? .10 : max_speed_);
-    if(docking) cap=std::min(cap,std::sqrt(.6*std::max(0.0,std::hypot(dx,dy)-.008)));
+    if(docking) cap=std::min(cap,std::sqrt(.6*std::max(0.0,std::hypot(dx,dy)-.001)));
     cap*=std::clamp(1.0-std::abs(dyaw),.2,1.0);
     // Preserve small lateral corrections instead of dividing them by a long
     // forward lookahead; they otherwise fall into the smoother's deadband.
@@ -145,7 +145,9 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     geometry_msgs::msg::TwistStamped result;result.header=pose.header;return result;
   }
   bool snapshot(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed) {
-    if(!std::isfinite(speed.linear.x+speed.linear.y+speed.angular.z+pose.pose.position.x+pose.pose.position.y+tf2::getYaw(pose.pose.orientation))) return false;
+    if(!std::isfinite(speed.linear.x+speed.linear.y+speed.angular.z+pose.pose.position.x+pose.pose.position.y+tf2::getYaw(pose.pose.orientation))) {
+      RCLCPP_WARN_THROTTLE(costmap_ros_->get_logger(),*costmap_ros_->get_clock(),2000,"Local motion stopped: non-finite pose or measured velocity");return false;
+    }
     auto map=costmap_ros_->getCostmap();
     std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
     polygon_.clear();for(const auto &p:costmap_ros_->getRobotFootprint()) polygon_.push_back({p.x,p.y});
@@ -155,7 +157,11 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const double x=pose.pose.position.x,y=pose.pose.position.y;
     if(pose.header.frame_id!=costmap_ros_->getGlobalFrameID() || !std::isfinite(extent) ||
        x-extent<map->getOriginX() || y-extent<map->getOriginY() ||
-       x+extent>map->getOriginX()+map->getSizeInMetersX() || y+extent>map->getOriginY()+map->getSizeInMetersY()) return false;
+       x+extent>map->getOriginX()+map->getSizeInMetersX() || y+extent>map->getOriginY()+map->getSizeInMetersY()) {
+      RCLCPP_WARN_THROTTLE(costmap_ros_->get_logger(),*costmap_ros_->get_clock(),2000,
+        "Local snapshot rejected: frame %s expected %s, pose %.3f %.3f, extent %.3f, origin %.3f %.3f, size %.3f %.3f",
+        pose.header.frame_id.c_str(),costmap_ros_->getGlobalFrameID().c_str(),x,y,extent,map->getOriginX(),map->getOriginY(),map->getSizeInMetersX(),map->getSizeInMetersY());return false;
+    }
     int lx=0,ly=0,ux=0,uy=0;
     map->worldToMapEnforceBounds(x-extent,y-extent,lx,ly);
     map->worldToMapEnforceBounds(x+extent,y+extent,ux,uy);
@@ -187,9 +193,14 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     return false;
   }
   geometry_msgs::msg::TwistStamped checked(geometry_msgs::msg::TwistStamped result,const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed) {
+    if(!std::isfinite(result.twist.linear.x+result.twist.linear.y+result.twist.angular.z)) return stopped(pose);
     const Pose start{pose.pose.position.x,pose.pose.position.y,tf2::getYaw(pose.pose.orientation)};
     const Velocity measured{speed.linear.x,speed.linear.y,speed.angular.z};
-    if(brakingSweep(start,measured,polygon_,obstacles_,.010,.2,.4,.8)) return stopped(pose);
+    if(brakingSweep(start,measured,polygon_,obstacles_,.010,.2,.4,.8)) {
+      RCLCPP_WARN_THROTTLE(costmap_ros_->get_logger(),*costmap_ros_->get_clock(),2000,
+        "Local measured braking rejected: %zu cells, clearance %.3f, velocity %.3f %.3f %.3f",
+        obstacles_.size(),footprintClearance(start,polygon_,obstacles_),measured.x,measured.y,measured.yaw);return stopped(pose);
+    }
     for(double scale:{1.,.8,.6,.4,.25,.15,.08,.04}) {
       const Velocity requested{result.twist.linear.x*scale,result.twist.linear.y*scale,result.twist.angular.z*scale};
       bool clear=!brakingSweep(start,requested,polygon_,obstacles_,.010,.2,.4,.8);
