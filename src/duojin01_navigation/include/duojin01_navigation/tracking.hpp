@@ -2,6 +2,17 @@
 #include "duojin01_navigation/sweep.hpp"
 
 namespace duojin01_navigation {
+// Cover simultaneous native MPPI vx/vy limits, measured speed and every
+// interpolated transition. Crop before checking may only remove unreachable
+// cells; a forward-only cap does not bound a holonomic braking trajectory.
+inline double localSnapshotExtent(const Polygon &polygon,double forward,double reverse,
+                                  double lateral,const Velocity &measured,double resolution) {
+  double radius=0;for(const auto &p:polygon) radius=std::max(radius,std::hypot(p.x,p.y));
+  const double configured=std::hypot(std::max(forward,reverse),lateral);
+  const double v=std::max(configured,std::hypot(measured.x,measured.y));
+  return radius+std::max(.45,.2*v+v*v/(2*.4))+.014+resolution*std::sqrt(2.0)/2;
+}
+
 // Signed clearance from the filled footprint to occupied cell extents. Values
 // above cap are equivalent for local centering; obstacle radii are never lost.
 inline double footprintClearance(const Pose &pose,const Polygon &polygon,

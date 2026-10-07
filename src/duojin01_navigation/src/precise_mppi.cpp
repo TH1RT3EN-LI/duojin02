@@ -151,9 +151,8 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     auto map=costmap_ros_->getCostmap();
     std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
     polygon_.clear();for(const auto &p:costmap_ros_->getRobotFootprint()) polygon_.push_back({p.x,p.y});
-    double radius=0;for(const auto &p:polygon_) radius=std::max(radius,std::hypot(p.x,p.y));
-    const double v=std::max(max_speed_,std::hypot(speed.linear.x,speed.linear.y));
-    const double extent=radius+std::max(.45,.2*v+v*v/(2*.4))+.014+map->getResolution()*std::sqrt(2.0)/2;
+    const double extent=localSnapshotExtent(polygon_,max_speed_,reverse_speed_,lateral_speed_,
+      {speed.linear.x,speed.linear.y,speed.angular.z},map->getResolution());
     const double x=pose.pose.position.x,y=pose.pose.position.y;
     if(pose.header.frame_id!=costmap_ros_->getGlobalFrameID() || !std::isfinite(extent) ||
        x-extent<map->getOriginX() || y-extent<map->getOriginY() ||
