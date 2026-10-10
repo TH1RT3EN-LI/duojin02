@@ -19,7 +19,7 @@ export QT_QPA_PLATFORM=offscreen
 test -f /tmp/navbuild/navigation-build.json
 extra=()
 if [ "$fixture" != - ];then extra+=(--scenario-file "$fixture");fi
-exec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --variant upgraded \
+exec timeout --signal=INT --kill-after=15s 180s python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --variant upgraded \
  --case "$case_name" --seed "$seed" --nav-config "$config" --output "$output" "${extra[@]}"
 '''
 

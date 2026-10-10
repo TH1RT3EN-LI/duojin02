@@ -12,7 +12,7 @@ spec.loader.exec_module(gpu_profile)
 SOURCE = ROOT/'src/duojin01_bringup/config/nav2.yaml'
 
 
-@pytest.mark.parametrize('preset', ['baseline', 'coverage', 'balanced', 'explore'])
+@pytest.mark.parametrize('preset', ['baseline', 'coverage', 'explore-lite', 'explore'])
 def test_native_fallback_and_hardware_are_preserved(preset):
     original = yaml.safe_load(SOURCE.read_text())
     candidate = gpu_profile.make_profile(SOURCE, preset=preset)
@@ -31,7 +31,7 @@ def test_native_fallback_and_hardware_are_preserved(preset):
 ])
 def test_invalid_or_unobserved_search_is_rejected(overrides):
     with pytest.raises(ValueError):
-        gpu_profile.make_profile(SOURCE, preset='balanced', overrides=overrides)
+        gpu_profile.make_profile(SOURCE, preset='explore-lite', overrides=overrides)
 
 
 def test_support_cannot_exceed_horizon():

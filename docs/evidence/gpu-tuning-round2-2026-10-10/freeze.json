@@ -1,0 +1,28 @@
+{
+  "candidate_commit": "15a1ffee242a8fb863ca5fe93726d8fb17ed9b9d",
+  "baseline_commit": "cbc56fed1d15e54efd8347bd043053973f2473f2",
+  "profiles": {
+    "coverage.yaml": "69d316830833b5b1fe6691b256f5272d9576f2182a54582164125c35e723a286",
+    "baseline.yaml": "a3f409dfb65e723028427301d32f5ba2d096037b1cd3c7a62573b8b60c4ff503",
+    "explore.yaml": "d547f23328d71eca5cbc96352b4e560b4cb628c11b1fd6a779be1d46d18318a7",
+    "balanced.yaml": "a3524cd5e54c767b1fe3d2cd1ea64f678e5e0e762b4c1c2575f560d95aa17c10"
+  },
+  "binaries": {
+    "/home/th1rt3en/dev/forge/duojin02-gpu/.cache/tuned-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark": "fc87b94da55a68ca243c23b681243f7502b6aea986f5fbd95a2a9229afea0938",
+    "/home/th1rt3en/dev/forge/duojin02-gpu/.cache/tuned-gpu/build/duojin01_navigation/controller_gpu_benchmark": "d626f0315eab083deed8016d4ee3b783ca22e8ab1ab79dc83391024ba426c139",
+    "/home/th1rt3en/dev/forge/duojin02-gpu/.cache/original-api-build/controller_gpu_benchmark": "b40c243aea2023e340c5ff362ada127a7843c24689c3bb29072625be191c2e93"
+  },
+  "manifests": {
+    "tuned-gpu": "5aace43ff4fb05b23ef0aaa45883a69e766fb27aa379cc6450484ca5420fca78",
+    "round1-manifest": "ece941802a6c3c2d325ff5b98c0f2afea291d874159c2f1b3b928b7939dbde4c"
+  },
+  "final_profile_generator_sha256": "a4a3dd0b7a2c474c7a0bf5678951e62b4c2f3f80161ccc57cbdcd3000674c205",
+  "public_presets": [
+    "baseline",
+    "coverage",
+    "explore",
+    "explore-lite"
+  ],
+  "post_result_ablation_profile_sha256": "0a39610d04ef7e8fab46f8724fa5ee7b3251d4da78aad28bd7fc148660722e56",
+  "final_cpp_sources_match_original_freeze": true
+}

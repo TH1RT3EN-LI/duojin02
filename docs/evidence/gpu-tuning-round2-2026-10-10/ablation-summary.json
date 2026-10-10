@@ -1,0 +1,1048 @@
+{
+  "classification": "Post-result ablation, not part of the 24-trial frozen primary comparison",
+  "navigation": [
+    {
+      "arm": "tuned",
+      "profile": "explore-lite",
+      "case": "offplan_obstacle",
+      "seed": 21,
+      "started_unix": 1791643955.4448514,
+      "returncode": 0,
+      "result": "offplan_obstacle-21/result.json",
+      "command": [
+        "docker",
+        "exec",
+        "-w",
+        "/candidate",
+        "duojin02-gpu-dev-20261010",
+        "bash",
+        "-lc",
+        "set -eo pipefail\nroot=\"$1\";build=\"$2\";manifest=\"$3\";config=\"$4\";case_name=\"$5\";seed=\"$6\";output=\"$7\";fixture=\"$8\"\nln -sfn \"$root\" /hardware\nln -sfn \"$manifest\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash\nsource /candidate/.cache/slam-install/setup.bash\nsource \"$build/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_tuning_${case_name}_${seed}_$$\"\nexport QT_QPA_PLATFORM=offscreen\ntest -f /tmp/navbuild/navigation-build.json\nextra=()\nif [ \"$fixture\" != - ];then extra+=(--scenario-file \"$fixture\");fi\nexec timeout --signal=INT --kill-after=15s 180s python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --variant upgraded \\\n --case \"$case_name\" --seed \"$seed\" --nav-config \"$config\" --output \"$output\" \"${extra[@]}\"\n",
+        "tuning",
+        "/candidate",
+        "/candidate/.cache/tuned-gpu",
+        "/candidate/.cache/tuned-gpu",
+        "/evidence/tuning-round2/profiles/explore-lite.yaml",
+        "offplan_obstacle",
+        "21",
+        "/evidence/tuning-round2/ablation/explore-lite/offplan_obstacle-21",
+        "/evidence/tuning-round2/ablation/explore-lite/offplan_obstacle-21/fixture.json"
+      ],
+      "metrics": {
+        "case": "offplan_obstacle",
+        "variant": "upgraded",
+        "seed": 21,
+        "odom_scale": 1.03,
+        "odom_noise_mps": 0.003,
+        "gyro_bias_radps": 0.001,
+        "range_noise_stddev_m": 0.005,
+        "evaluation_translation_step_m": 0.004,
+        "slam_configuration_sha256": "c38b906b5e98d760454bd69c1260047ea6382cc8b2c7057f24c68b8ede4f7ce8",
+        "configuration_sha256": "0a39610d04ef7e8fab46f8724fa5ee7b3251d4da78aad28bd7fc148660722e56",
+        "evaluator_sha256": "524c872b04fea172adf4b0e0b3ba448ec350f2d6a089913a1c44b40543442a36",
+        "slam_graph_sha256": null,
+        "algorithm_sha256": {
+          "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+          "src/duojin01_navigation/goal_checker_plugins.xml": "a72b67c155b9621f279b17b293841b2ee551b9c65359474cc501176373908977",
+          "src/duojin01_navigation/package.xml": "f2c8c9d155e8463073b9935773ea716edd16636afb79d2ea6d1645e191f0231a",
+          "src/duojin01_navigation/controller_plugins.xml": "e808f5496b8962c48206cc6a6339f22ad42061b7092ce55288466a3a5bc287e8",
+          "src/duojin01_navigation/CMakeLists.txt": "6065a02c087cf0eda7d7a48a1fff7891abc288231b6c26e7b0e12eb2eba80d71",
+          "src/duojin01_navigation/include/duojin01_navigation/planner_checks.hpp": "90f95883c817727bae703741542cb1c48acf0b3164769c1f086add25e125bcbf",
+          "src/duojin01_navigation/include/duojin01_navigation/scan_validity.hpp": "cb399faf599103769b98b5a5ade1dd5d8ea488285cd4feb9da61015f283766e4",
+          "src/duojin01_navigation/include/duojin01_navigation/prior_association_cache.hpp": "25f3d68b359bd0e087adac1151ea3678f729b1a4ce790063a943c604e4f7585b",
+          "src/duojin01_navigation/include/duojin01_navigation/gpu_backend.hpp": "e80e8dcbee13cd04133fcf079a6e599c374cdaac9b8dc4cdc70039ec2f29970a",
+          "src/duojin01_navigation/include/duojin01_navigation/guard_query.hpp": "82e68f1328b95dbccddd6177108db07de21c2942b7a98ba0e15541d269a0db97",
+          "src/duojin01_navigation/include/duojin01_navigation/gpu_sampling.hpp": "e2576ed0bc55d2ab05b7318c20a4d3abb9a4e3509a23d9d3b63cb9249fb64d8b",
+          "src/duojin01_navigation/include/duojin01_navigation/tracking.hpp": "66f058b54ecdfb5f597096e53c1342ec0096a9a68b10aa82072000f1de16825a",
+          "src/duojin01_navigation/include/duojin01_navigation/stable_goal_checker.hpp": "d949e4b8df964faba51a1a12647fb71c919f96c1016aebbf2cb79312fbe192e2",
+          "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "e43c682c7184f2e7468d0953ade592e23bcef62bab3a36d73280bec467f98fec",
+          "src/duojin01_navigation/include/duojin01_navigation/local_grid_snapshot.hpp": "e4fda6803a0cd7bc5554382342db75d6458b3e8e452de30d2705bc3d9cb07352",
+          "src/duojin01_navigation/include/duojin01_navigation/path_target.hpp": "2a3533a59127297c3bb26d7cb9db89885c555d1938ae145b75310374d47ba94f",
+          "src/duojin01_navigation/include/duojin01_navigation/velocity_limits.hpp": "b52a1b0210214d46ae796b17d878184dc0ec4e0c7e2b19bbad19fffed3d86b98",
+          "src/duojin01_navigation/include/duojin01_navigation/path_cleanup.hpp": "b7c2af19685c87cc9f4b947ed65027cccf5cc0b5a0890d6f752fdc4da536844e",
+          "src/duojin01_navigation/include/duojin01_navigation/finite_heading.hpp": "afaf68829cc813242fc5ead815f609b0a7103dff27fe7d96d75f95bf903753d7",
+          "src/duojin01_navigation/src/precise_lattice.cpp": "35e847b404fa48b0bb00781cccbf1ccdd41875fa967038e0e16e3b0f9833e9b9",
+          "src/duojin01_navigation/src/velocity_guard.cpp": "3fde12a72a9f7d7e1cfc989ffe6521729945fa55a2aec1c29f546391dc7cb448",
+          "src/duojin01_navigation/src/stable_goal_checker.cpp": "727e465bda6d5d65e46ca57d765b7c3e3701ae512f1b04e5f394f468eb512290",
+          "src/duojin01_navigation/src/precise_mppi.cpp": "1008bbc3e5b452bc354ff153e069da8ecc280462dd01af275efdea79bad614b3",
+          "src/duojin01_navigation/test/tracking_checks.cpp": "5e823bba17f46edfaa590e426bcf77ede49d4fc99cbe96d4e940be5b982acb28",
+          "src/duojin01_navigation/test/goal_settling_checks.cpp": "eb08cbf1e1d691f13824bd206fa18a2ce4933613c14b23592a8609d4ef53bc3c",
+          "src/duojin01_navigation/test/path_target_reference.hpp": "2f46af2db6447fdc30abadbe2d53d9d44bdfb6172c9d673de4b298e0f8b5bec7",
+          "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3",
+          "src/duojin01_navigation/test/precise_mppi_limit_checks.cpp": "bbe7cecf1ef281940ac695b7c56f91308a408fc31c3afab1fb1d4eb12201d5aa",
+          "src/duojin01_navigation/test/spatial_index_checks.cpp": "24d7f149300633d33772af4066dd50a8af7a65f43248e104ab07e9045034f02e",
+          "src/duojin01_navigation/test/planner_checks.cpp": "dfc08f9e2f491fedcccf2f58ec3eb871477bd87347c62ab7aba6ec3cd402a210",
+          "src/duojin01_navigation/test/guard_query_checks.cpp": "9e71d191708c23929506a368c9a14df5381c4b7c7fa1b9a1026717f50937b95e",
+          "src/duojin01_navigation/test/prior_association_checks.cpp": "19e274d0f59c1142755fd67659c0f7f4e36d3b61b8597788109f85f3e649591b",
+          "src/duojin01_navigation/test/path_target_checks.cpp": "b4545274fe67d48285f80776fa904d5b692a6808942ca23bd257dc270c159491",
+          "src/duojin01_navigation/test/spatial_index_reference.hpp": "f21803fffbf226f5fdde30bf4a1fd77df3005c287dd70e883148773977bdea97",
+          "src/duojin01_navigation/test/velocity_limit_checks.cpp": "738eeed30e572fbe5e02dba8a302221d4eeb39a1896d4e121268104dc27f85d0",
+          "src/duojin01_navigation/test/precise_lattice_checks.cpp": "26fc4964edba761d05d1b36237e754950e36f89d167ec36ef37f4485f3b093ff",
+          "src/duojin01_navigation/test/scan_validity_checks.cpp": "09294de0f2031160ea1dfd0ca86b265ff96fd857240cbfdbdc67ea89a528a7ce",
+          "src/duojin01_navigation/gpu/compute_internal.hpp": "acaf8453ac458fcd05ef0240c9927593526cd95561755520190846c3ba7e980a",
+          "src/duojin01_navigation/gpu/geometry_checks.cpp": "f3b434eba2ded8889765a479f4d534dab6da91d1ef1d393f5605fde8d390d568",
+          "src/duojin01_navigation/gpu/sampling_math.hpp": "ac569164138ead93b5db46ff8735e6ad4017cb60a820aea5a9909a80c4c9d58e",
+          "src/duojin01_navigation/gpu/gpu_backend.cu": "219f1a72091f8b047d0e95152f77b437bda98946836bf7174ab3f459f966f926",
+          "src/duojin01_navigation/gpu/gpu_sampling.cpp": "d08caa88b80746243a0ace3935378840a83ee88f28c82a5c9704605682aae977",
+          "src/duojin01_navigation/gpu/CMakeLists.txt": "b2db1711e5e91d07fbe5f47919f241df9037c1e8a401c87ca520f1c492350b0d",
+          "src/duojin01_navigation/gpu/gpu_backend.cpp": "037cc5d7cf3ccfc606e977d7225e4834e63c139387d34a15c3211109f8efd12d",
+          "src/duojin01_navigation/gpu/sampling_checks.cpp": "a67a242d0e7ec0e084c82d0ac00ea5814609f89ca78bcc68dbb9dba0120e1d3f"
+        },
+        "verified_build": true,
+        "rmw_implementation": "rmw_cyclonedds_cpp",
+        "status": 4,
+        "success": true,
+        "collision_events": 0,
+        "navigation_goal_count": 1,
+        "arrival_acceptance_pass": true,
+        "stopped_dwell_s": 1.0,
+        "arrival_limits": {
+          "position_m": 0.02,
+          "yaw_rad": 0.035,
+          "speed_mps": 0.02,
+          "dwell_s": 0.25
+        },
+        "final_speed_mps": 0.0,
+        "speed_p95_mps": 0.4996680949857061,
+        "moving_speed_median_mps": 0.19000426517086394,
+        "average_progress_mps": 0.2134026173516881,
+        "max_abs_roll_rad": 0.008275748526827248,
+        "max_abs_pitch_rad": 0.012594473083024586,
+        "navigation_action": "FollowPath",
+        "expected_outcome": "navigate",
+        "safety_stop_pass": null,
+        "min_clearance_m": 0.04935030285465372,
+        "path_length_m": 4.257809021400881,
+        "goal_position_error_m": 0.005960758156740061,
+        "goal_yaw_error_rad": 0.004078970873693095,
+        "localization_rmse_m": 0.007029380121632707,
+        "localization_p95_m": 0.00923413231130634,
+        "localization_yaw_rmse_rad": 0.001187718479230785,
+        "localization_samples": 997,
+        "truth_samples": 998,
+        "sim_elapsed_s": 19.951999999999998,
+        "wall_elapsed_s": 19.95457689400064,
+        "localization_tf_failures": {
+          "ExtrapolationException": 1
+        },
+        "node_resources": {
+          "amcl": {
+            "cpu_percent_one_core": 10.146347788455827,
+            "peak_rss_mib": 30.984375
+          },
+          "behavior_server": {
+            "cpu_percent_one_core": 4.714464628979475,
+            "peak_rss_mib": 25.3828125
+          },
+          "bt_navigator": {
+            "cpu_percent_one_core": 6.149301689973228,
+            "peak_rss_mib": 23.8125
+          },
+          "controller_server": {
+            "cpu_percent_one_core": 10.146347788455826,
+            "peak_rss_mib": 139.4140625
+          },
+          "ekf_node": {
+            "cpu_percent_one_core": 5.380638978726575,
+            "peak_rss_mib": 18.7109375
+          },
+          "localization_manager": {
+            "cpu_percent_one_core": 35.40972889809584,
+            "peak_rss_mib": 54.19921875
+          },
+          "planner_server": {
+            "cpu_percent_one_core": 6.610499316721221,
+            "peak_rss_mib": 45.1640625
+          },
+          "velocity_guard": {
+            "cpu_percent_one_core": 3.587092652484383,
+            "peak_rss_mib": 19.99609375
+          },
+          "velocity_smoother": {
+            "cpu_percent_one_core": 3.279627567985721,
+            "peak_rss_mib": 16.015625
+          }
+        },
+        "scan_dropout_stop_latency_s": null,
+        "aperture_crossed": true,
+        "command_period_p95_ms": 50.989661549101584,
+        "guard_compute_p95_ms": 0.09439609999999997,
+        "guard_compute_max_ms": 0.167043,
+        "guard_reasons": {
+          "command_stale": 1,
+          "clear": 381,
+          "measured_braking_collision": 10,
+          "braking_slowdown": 7
+        },
+        "launch_returncode": 0,
+        "forced_cleanup": false,
+        "complete_flow": true,
+        "controller_deadline_warnings": 0,
+        "gpu_control_summaries": [
+          {
+            "native_samples": 0,
+            "cuda_samples": 215,
+            "best_sequence": 18,
+            "gpu_failures": 0,
+            "deadline_misses": 0
+          }
+        ],
+        "gpu_geometry_summaries": [
+          "GPU_GEOMETRY_SUMMARY cuda_batches=0 cpu_batches=0 boundary_rechecks=0"
+        ],
+        "child_failure_lines": [],
+        "audited_complete_flow": true,
+        "sampling_stats": [
+          "[controller_server-14] [INFO] [1791643988.425799186] [MPPIController]: GPU_SAMPLING_SUMMARY calls=215 valid=215 feasible_min=67 feasible_mean=2099.512 wall_mean_ms=6.763 wall_max_ms=9.541"
+        ]
+      }
+    },
+    {
+      "arm": "tuned",
+      "profile": "explore-lite",
+      "case": "offplan_obstacle",
+      "seed": 22,
+      "started_unix": 1791643990.6425943,
+      "returncode": 0,
+      "result": "offplan_obstacle-22/result.json",
+      "command": [
+        "docker",
+        "exec",
+        "-w",
+        "/candidate",
+        "duojin02-gpu-dev-20261010",
+        "bash",
+        "-lc",
+        "set -eo pipefail\nroot=\"$1\";build=\"$2\";manifest=\"$3\";config=\"$4\";case_name=\"$5\";seed=\"$6\";output=\"$7\";fixture=\"$8\"\nln -sfn \"$root\" /hardware\nln -sfn \"$manifest\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash\nsource /candidate/.cache/slam-install/setup.bash\nsource \"$build/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_tuning_${case_name}_${seed}_$$\"\nexport QT_QPA_PLATFORM=offscreen\ntest -f /tmp/navbuild/navigation-build.json\nextra=()\nif [ \"$fixture\" != - ];then extra+=(--scenario-file \"$fixture\");fi\nexec timeout --signal=INT --kill-after=15s 180s python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --variant upgraded \\\n --case \"$case_name\" --seed \"$seed\" --nav-config \"$config\" --output \"$output\" \"${extra[@]}\"\n",
+        "tuning",
+        "/candidate",
+        "/candidate/.cache/tuned-gpu",
+        "/candidate/.cache/tuned-gpu",
+        "/evidence/tuning-round2/profiles/explore-lite.yaml",
+        "offplan_obstacle",
+        "22",
+        "/evidence/tuning-round2/ablation/explore-lite/offplan_obstacle-22",
+        "/evidence/tuning-round2/ablation/explore-lite/offplan_obstacle-22/fixture.json"
+      ],
+      "metrics": {
+        "case": "offplan_obstacle",
+        "variant": "upgraded",
+        "seed": 22,
+        "odom_scale": 1.03,
+        "odom_noise_mps": 0.003,
+        "gyro_bias_radps": 0.001,
+        "range_noise_stddev_m": 0.005,
+        "evaluation_translation_step_m": 0.004,
+        "slam_configuration_sha256": "c38b906b5e98d760454bd69c1260047ea6382cc8b2c7057f24c68b8ede4f7ce8",
+        "configuration_sha256": "0a39610d04ef7e8fab46f8724fa5ee7b3251d4da78aad28bd7fc148660722e56",
+        "evaluator_sha256": "524c872b04fea172adf4b0e0b3ba448ec350f2d6a089913a1c44b40543442a36",
+        "slam_graph_sha256": null,
+        "algorithm_sha256": {
+          "src/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+          "src/duojin01_navigation/goal_checker_plugins.xml": "a72b67c155b9621f279b17b293841b2ee551b9c65359474cc501176373908977",
+          "src/duojin01_navigation/package.xml": "f2c8c9d155e8463073b9935773ea716edd16636afb79d2ea6d1645e191f0231a",
+          "src/duojin01_navigation/controller_plugins.xml": "e808f5496b8962c48206cc6a6339f22ad42061b7092ce55288466a3a5bc287e8",
+          "src/duojin01_navigation/CMakeLists.txt": "6065a02c087cf0eda7d7a48a1fff7891abc288231b6c26e7b0e12eb2eba80d71",
+          "src/duojin01_navigation/include/duojin01_navigation/planner_checks.hpp": "90f95883c817727bae703741542cb1c48acf0b3164769c1f086add25e125bcbf",
+          "src/duojin01_navigation/include/duojin01_navigation/scan_validity.hpp": "cb399faf599103769b98b5a5ade1dd5d8ea488285cd4feb9da61015f283766e4",
+          "src/duojin01_navigation/include/duojin01_navigation/prior_association_cache.hpp": "25f3d68b359bd0e087adac1151ea3678f729b1a4ce790063a943c604e4f7585b",
+          "src/duojin01_navigation/include/duojin01_navigation/gpu_backend.hpp": "e80e8dcbee13cd04133fcf079a6e599c374cdaac9b8dc4cdc70039ec2f29970a",
+          "src/duojin01_navigation/include/duojin01_navigation/guard_query.hpp": "82e68f1328b95dbccddd6177108db07de21c2942b7a98ba0e15541d269a0db97",
+          "src/duojin01_navigation/include/duojin01_navigation/gpu_sampling.hpp": "e2576ed0bc55d2ab05b7318c20a4d3abb9a4e3509a23d9d3b63cb9249fb64d8b",
+          "src/duojin01_navigation/include/duojin01_navigation/tracking.hpp": "66f058b54ecdfb5f597096e53c1342ec0096a9a68b10aa82072000f1de16825a",
+          "src/duojin01_navigation/include/duojin01_navigation/stable_goal_checker.hpp": "d949e4b8df964faba51a1a12647fb71c919f96c1016aebbf2cb79312fbe192e2",
+          "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "e43c682c7184f2e7468d0953ade592e23bcef62bab3a36d73280bec467f98fec",
+          "src/duojin01_navigation/include/duojin01_navigation/local_grid_snapshot.hpp": "e4fda6803a0cd7bc5554382342db75d6458b3e8e452de30d2705bc3d9cb07352",
+          "src/duojin01_navigation/include/duojin01_navigation/path_target.hpp": "2a3533a59127297c3bb26d7cb9db89885c555d1938ae145b75310374d47ba94f",
+          "src/duojin01_navigation/include/duojin01_navigation/velocity_limits.hpp": "b52a1b0210214d46ae796b17d878184dc0ec4e0c7e2b19bbad19fffed3d86b98",
+          "src/duojin01_navigation/include/duojin01_navigation/path_cleanup.hpp": "b7c2af19685c87cc9f4b947ed65027cccf5cc0b5a0890d6f752fdc4da536844e",
+          "src/duojin01_navigation/include/duojin01_navigation/finite_heading.hpp": "afaf68829cc813242fc5ead815f609b0a7103dff27fe7d96d75f95bf903753d7",
+          "src/duojin01_navigation/src/precise_lattice.cpp": "35e847b404fa48b0bb00781cccbf1ccdd41875fa967038e0e16e3b0f9833e9b9",
+          "src/duojin01_navigation/src/velocity_guard.cpp": "3fde12a72a9f7d7e1cfc989ffe6521729945fa55a2aec1c29f546391dc7cb448",
+          "src/duojin01_navigation/src/stable_goal_checker.cpp": "727e465bda6d5d65e46ca57d765b7c3e3701ae512f1b04e5f394f468eb512290",
+          "src/duojin01_navigation/src/precise_mppi.cpp": "1008bbc3e5b452bc354ff153e069da8ecc280462dd01af275efdea79bad614b3",
+          "src/duojin01_navigation/test/tracking_checks.cpp": "5e823bba17f46edfaa590e426bcf77ede49d4fc99cbe96d4e940be5b982acb28",
+          "src/duojin01_navigation/test/goal_settling_checks.cpp": "eb08cbf1e1d691f13824bd206fa18a2ce4933613c14b23592a8609d4ef53bc3c",
+          "src/duojin01_navigation/test/path_target_reference.hpp": "2f46af2db6447fdc30abadbe2d53d9d44bdfb6172c9d673de4b298e0f8b5bec7",
+          "src/duojin01_navigation/test/geometry_checks.cpp": "376d4ecedf0d706439d5b2b2afb0a11ed74847630d86a883af953d1a09f4ede3",
+          "src/duojin01_navigation/test/precise_mppi_limit_checks.cpp": "bbe7cecf1ef281940ac695b7c56f91308a408fc31c3afab1fb1d4eb12201d5aa",
+          "src/duojin01_navigation/test/spatial_index_checks.cpp": "24d7f149300633d33772af4066dd50a8af7a65f43248e104ab07e9045034f02e",
+          "src/duojin01_navigation/test/planner_checks.cpp": "dfc08f9e2f491fedcccf2f58ec3eb871477bd87347c62ab7aba6ec3cd402a210",
+          "src/duojin01_navigation/test/guard_query_checks.cpp": "9e71d191708c23929506a368c9a14df5381c4b7c7fa1b9a1026717f50937b95e",
+          "src/duojin01_navigation/test/prior_association_checks.cpp": "19e274d0f59c1142755fd67659c0f7f4e36d3b61b8597788109f85f3e649591b",
+          "src/duojin01_navigation/test/path_target_checks.cpp": "b4545274fe67d48285f80776fa904d5b692a6808942ca23bd257dc270c159491",
+          "src/duojin01_navigation/test/spatial_index_reference.hpp": "f21803fffbf226f5fdde30bf4a1fd77df3005c287dd70e883148773977bdea97",
+          "src/duojin01_navigation/test/velocity_limit_checks.cpp": "738eeed30e572fbe5e02dba8a302221d4eeb39a1896d4e121268104dc27f85d0",
+          "src/duojin01_navigation/test/precise_lattice_checks.cpp": "26fc4964edba761d05d1b36237e754950e36f89d167ec36ef37f4485f3b093ff",
+          "src/duojin01_navigation/test/scan_validity_checks.cpp": "09294de0f2031160ea1dfd0ca86b265ff96fd857240cbfdbdc67ea89a528a7ce",
+          "src/duojin01_navigation/gpu/compute_internal.hpp": "acaf8453ac458fcd05ef0240c9927593526cd95561755520190846c3ba7e980a",
+          "src/duojin01_navigation/gpu/geometry_checks.cpp": "f3b434eba2ded8889765a479f4d534dab6da91d1ef1d393f5605fde8d390d568",
+          "src/duojin01_navigation/gpu/sampling_math.hpp": "ac569164138ead93b5db46ff8735e6ad4017cb60a820aea5a9909a80c4c9d58e",
+          "src/duojin01_navigation/gpu/gpu_backend.cu": "219f1a72091f8b047d0e95152f77b437bda98946836bf7174ab3f459f966f926",
+          "src/duojin01_navigation/gpu/gpu_sampling.cpp": "d08caa88b80746243a0ace3935378840a83ee88f28c82a5c9704605682aae977",
+          "src/duojin01_navigation/gpu/CMakeLists.txt": "b2db1711e5e91d07fbe5f47919f241df9037c1e8a401c87ca520f1c492350b0d",
+          "src/duojin01_navigation/gpu/gpu_backend.cpp": "037cc5d7cf3ccfc606e977d7225e4834e63c139387d34a15c3211109f8efd12d",
+          "src/duojin01_navigation/gpu/sampling_checks.cpp": "a67a242d0e7ec0e084c82d0ac00ea5814609f89ca78bcc68dbb9dba0120e1d3f"
+        },
+        "verified_build": true,
+        "rmw_implementation": "rmw_cyclonedds_cpp",
+        "status": 4,
+        "success": true,
+        "collision_events": 0,
+        "navigation_goal_count": 1,
+        "arrival_acceptance_pass": true,
+        "stopped_dwell_s": 0.9800000000000004,
+        "arrival_limits": {
+          "position_m": 0.02,
+          "yaw_rad": 0.035,
+          "speed_mps": 0.02,
+          "dwell_s": 0.25
+        },
+        "final_speed_mps": 1.7455693865620464e-07,
+        "speed_p95_mps": 0.49984327256977057,
+        "moving_speed_median_mps": 0.26129676912282507,
+        "average_progress_mps": 0.2622326770027461,
+        "max_abs_roll_rad": 0.007517401448501834,
+        "max_abs_pitch_rad": 0.01173354490205758,
+        "navigation_action": "FollowPath",
+        "expected_outcome": "navigate",
+        "safety_stop_pass": null,
+        "min_clearance_m": 0.05178447835840535,
+        "path_length_m": 4.091354226596845,
+        "goal_position_error_m": 0.006052608813848614,
+        "goal_yaw_error_rad": 0.004928948874246617,
+        "localization_rmse_m": 0.006894847398902293,
+        "localization_p95_m": 0.009379980684753673,
+        "localization_yaw_rmse_rad": 0.0006569207926112735,
+        "localization_samples": 779,
+        "truth_samples": 780,
+        "sim_elapsed_s": 15.602,
+        "wall_elapsed_s": 15.602293392992578,
+        "localization_tf_failures": {
+          "ExtrapolationException": 1
+        },
+        "node_resources": {
+          "amcl": {
+            "cpu_percent_one_core": 9.72849208739739,
+            "peak_rss_mib": 29.90625
+          },
+          "behavior_server": {
+            "cpu_percent_one_core": 4.7309790288028415,
+            "peak_rss_mib": 24.60546875
+          },
+          "bt_navigator": {
+            "cpu_percent_one_core": 5.863748655417605,
+            "peak_rss_mib": 23.40625
+          },
+          "controller_server": {
+            "cpu_percent_one_core": 9.861759102293245,
+            "peak_rss_mib": 139.2109375
+          },
+          "ekf_node": {
+            "cpu_percent_one_core": 5.397314103282113,
+            "peak_rss_mib": 19.14453125
+          },
+          "localization_manager": {
+            "cpu_percent_one_core": 35.38239245484941,
+            "peak_rss_mib": 54.01171875
+          },
+          "planner_server": {
+            "cpu_percent_one_core": 6.596717237344806,
+            "peak_rss_mib": 45.515625
+          },
+          "velocity_guard": {
+            "cpu_percent_one_core": 3.464942387292221,
+            "peak_rss_mib": 20.34375
+          },
+          "velocity_smoother": {
+            "cpu_percent_one_core": 3.2650418649484396,
+            "peak_rss_mib": 15.83203125
+          }
+        },
+        "scan_dropout_stop_latency_s": null,
+        "aperture_crossed": true,
+        "command_period_p95_ms": 50.725693891581614,
+        "guard_compute_p95_ms": 0.09445235,
+        "guard_compute_max_ms": 0.142345,
+        "guard_reasons": {
+          "clear": 297,
+          "measured_braking_collision": 11,
+          "braking_slowdown": 3,
+          "command_stale": 1
+        },
+        "launch_returncode": 0,
+        "forced_cleanup": false,
+        "complete_flow": true,
+        "controller_deadline_warnings": 0,
+        "gpu_control_summaries": [
+          {
+            "native_samples": 0,
+            "cuda_samples": 158,
+            "best_sequence": 8,
+            "gpu_failures": 0,
+            "deadline_misses": 0
+          }
+        ],
+        "gpu_geometry_summaries": [
+          "GPU_GEOMETRY_SUMMARY cuda_batches=0 cpu_batches=0 boundary_rechecks=0"
+        ],
+        "child_failure_lines": [],
+        "audited_complete_flow": true,
+        "sampling_stats": [
+          "[controller_server-14] [INFO] [1791644019.194251424] [MPPIController]: GPU_SAMPLING_SUMMARY calls=158 valid=158 feasible_min=139 feasible_mean=2309.361 wall_mean_ms=6.180 wall_max_ms=8.791"
+        ]
+      }
+    }
+  ],
+  "components": [
+    {
+      "workload": "open",
+      "backend": "cpu",
+      "samples": 40,
+      "wall_mean_ms": 102.126073525,
+      "wall_p99_ms": 109.033833,
+      "wall_max_ms": 110.545688,
+      "collision_free_min": 3200
+    },
+    {
+      "workload": "open",
+      "backend": "cuda",
+      "samples": 40,
+      "wall_mean_ms": 3.507625,
+      "wall_p99_ms": 3.554842,
+      "wall_max_ms": 3.570457,
+      "collision_free_min": 3200
+    },
+    {
+      "workload": "corridor",
+      "backend": "cpu",
+      "samples": 40,
+      "wall_mean_ms": 42.772052075,
+      "wall_p99_ms": 44.837638,
+      "wall_max_ms": 45.466039,
+      "collision_free_min": 1
+    },
+    {
+      "workload": "corridor",
+      "backend": "cuda",
+      "samples": 40,
+      "wall_mean_ms": 7.4824530000000005,
+      "wall_p99_ms": 7.596517,
+      "wall_max_ms": 9.351096,
+      "collision_free_min": 1
+    },
+    {
+      "workload": "detour",
+      "backend": "cpu",
+      "samples": 40,
+      "wall_mean_ms": 83.915054775,
+      "wall_p99_ms": 86.175159,
+      "wall_max_ms": 87.140128,
+      "collision_free_min": 566
+    },
+    {
+      "workload": "detour",
+      "backend": "cuda",
+      "samples": 40,
+      "wall_mean_ms": 5.484144125,
+      "wall_p99_ms": 5.557964,
+      "wall_max_ms": 5.572279,
+      "collision_free_min": 566
+    },
+    {
+      "workload": "blocked",
+      "backend": "cpu",
+      "samples": 40,
+      "wall_mean_ms": 74.349189275,
+      "wall_p99_ms": 77.242946,
+      "wall_max_ms": 78.507159,
+      "collision_free_min": 0
+    },
+    {
+      "workload": "blocked",
+      "backend": "cuda",
+      "samples": 40,
+      "wall_mean_ms": 4.238726625,
+      "wall_p99_ms": 4.30945,
+      "wall_max_ms": 4.34262,
+      "collision_free_min": 0
+    }
+  ],
+  "api": {
+    "backend": "cuda",
+    "iterations": 80,
+    "native_calls": 0,
+    "cold_ms": 3.876993,
+    "zero_calls": 0,
+    "wall_mean_ms": 3.43831625,
+    "wall_p95_ms": 3.483918,
+    "wall_max_ms": 3.533392,
+    "cpu_mean_ms": 0.4866046875,
+    "wall_samples_ms": [
+      3.377146,
+      3.394423,
+      3.463706,
+      3.439085,
+      3.486121,
+      3.437635,
+      3.385947,
+      3.483918,
+      3.45232,
+      3.455741,
+      3.388021,
+      3.371765,
+      3.453633,
+      3.469968,
+      3.470804,
+      3.472609,
+      3.469852,
+      3.418463,
+      3.494304,
+      3.448926,
+      3.465883,
+      3.371373,
+      3.386654,
+      3.454549,
+      3.407559,
+      3.463236,
+      3.454663,
+      3.453605,
+      3.479204,
+      3.460751,
+      3.430931,
+      3.395057,
+      3.479346,
+      3.456499,
+      3.378219,
+      3.533392,
+      3.451821,
+      3.384455,
+      3.40751,
+      3.364325,
+      3.46864,
+      3.474618,
+      3.467887,
+      3.373389,
+      3.467881,
+      3.440929,
+      3.48253,
+      3.45227,
+      3.385752,
+      3.471144,
+      3.391998,
+      3.439907,
+      3.381082,
+      3.392021,
+      3.393274,
+      3.449082,
+      3.387917,
+      3.462034,
+      3.466992,
+      3.470859,
+      3.458864,
+      3.469691,
+      3.457316,
+      3.429941,
+      3.410343,
+      3.453952,
+      3.464061,
+      3.430811,
+      3.490187,
+      3.451953,
+      3.475844,
+      3.470743,
+      3.438103,
+      3.401036,
+      3.363897,
+      3.475011,
+      3.392262,
+      3.465061,
+      3.418115,
+      3.414484
+    ],
+    "cpu_samples_ms": [
+      0.476723,
+      0.495165,
+      0.491643,
+      0.467005,
+      0.501779,
+      0.491582,
+      0.478386,
+      0.503316,
+      0.476447,
+      0.47816,
+      0.485398,
+      0.472601,
+      0.468071,
+      0.470451,
+      0.482563,
+      0.48797,
+      0.492193,
+      0.472371,
+      0.492897,
+      0.492665,
+      0.490475,
+      0.469393,
+      0.470695,
+      0.46854,
+      0.483349,
+      0.489979,
+      0.50068,
+      0.477715,
+      0.495974,
+      0.514914,
+      0.484684,
+      0.479247,
+      0.503091,
+      0.480324,
+      0.481517,
+      0.51219,
+      0.505323,
+      0.463095,
+      0.489936,
+      0.465835,
+      0.481394,
+      0.496555,
+      0.492386,
+      0.472923,
+      0.491547,
+      0.468736,
+      0.499828,
+      0.475217,
+      0.485574,
+      0.49165,
+      0.492159,
+      0.492974,
+      0.480854,
+      0.482653,
+      0.489359,
+      0.472883,
+      0.496989,
+      0.486466,
+      0.491923,
+      0.495119,
+      0.482551,
+      0.494214,
+      0.483947,
+      0.48378,
+      0.49106,
+      0.508144,
+      0.489853,
+      0.469754,
+      0.495587,
+      0.474417,
+      0.501525,
+      0.494459,
+      0.492104,
+      0.496071,
+      0.493133,
+      0.488879,
+      0.491885,
+      0.49303,
+      0.471903,
+      0.490548
+    ],
+    "commands": [
+      [
+        0.0177587069247,
+        0.000655143270164,
+        -0.0136830148225
+      ],
+      [
+        0.0179518023697,
+        -0.00172501386219,
+        -0.013125234881
+      ],
+      [
+        0.0172120987196,
+        -0.000364729918107,
+        -0.0020267548743
+      ],
+      [
+        0.017746727048,
+        -0.00100300829928,
+        2.51087798504e-05
+      ],
+      [
+        0.0174909673946,
+        -0.00110233445647,
+        0.0015335007811
+      ],
+      [
+        0.0176749055302,
+        0.000485084682672,
+        0.00678616073676
+      ],
+      [
+        0.01738570586,
+        -0.000777462494849,
+        0.00707083028131
+      ],
+      [
+        0.0181254798435,
+        0.000138646091408,
+        0.00897341881709
+      ],
+      [
+        0.0176565854277,
+        -0.00141343516157,
+        0.00531740928901
+      ],
+      [
+        0.0179023100886,
+        0.000753243134763,
+        -0.00151823192055
+      ],
+      [
+        0.0176966270196,
+        -0.000351468801684,
+        0.000805926856565
+      ],
+      [
+        0.0182729583104,
+        -8.67865425072e-05,
+        -0.000305760070585
+      ],
+      [
+        0.0175227346461,
+        0.000509869020682,
+        0.00167474606704
+      ],
+      [
+        0.0181139891175,
+        0.000477332904307,
+        0.00572272125855
+      ],
+      [
+        0.0177128549416,
+        0.000518511819505,
+        -0.00192081226592
+      ],
+      [
+        0.0174602049354,
+        -0.000401950440117,
+        -0.00271221798267
+      ],
+      [
+        0.0178979716308,
+        -0.00110987355997,
+        0.00943265723694
+      ],
+      [
+        0.0174561654034,
+        -0.00162763152057,
+        0.00354630480704
+      ],
+      [
+        0.0178440892066,
+        -0.000953807503565,
+        -0.00667748756679
+      ],
+      [
+        0.0176188208286,
+        -0.00052312815828,
+        -0.0054571231397
+      ],
+      [
+        0.0178961512703,
+        0.000574288862846,
+        -0.0108265269226
+      ],
+      [
+        0.0179362890219,
+        0.000256193547117,
+        -0.00506137385832
+      ],
+      [
+        0.0178036491163,
+        0.000940972542929,
+        0.00933130953218
+      ],
+      [
+        0.017695724256,
+        0.000707553332828,
+        -0.00528870064287
+      ],
+      [
+        0.0182764049381,
+        0.000442197373837,
+        -0.0113928766078
+      ],
+      [
+        0.0172474843788,
+        0.00157969647031,
+        -0.0119992557716
+      ],
+      [
+        0.0172712990323,
+        -0.00101408151935,
+        -0.00413305427155
+      ],
+      [
+        0.0178710626218,
+        -0.000103430469336,
+        -0.00347852031971
+      ],
+      [
+        0.0179050937587,
+        0.000197564053507,
+        0.00752115839268
+      ],
+      [
+        0.0178897424349,
+        0.00155092261127,
+        0.000731227674692
+      ],
+      [
+        0.0181350444755,
+        -0.00072507435258,
+        -0.000391439390032
+      ],
+      [
+        0.0175424315626,
+        -0.000367493362336,
+        -0.00926326087619
+      ],
+      [
+        0.0176497025225,
+        0.000247119647094,
+        -0.00115035058293
+      ],
+      [
+        0.0171513634157,
+        -0.00109250180408,
+        -0.0098919995948
+      ],
+      [
+        0.018134053057,
+        0.000508366252887,
+        -0.00683788332396
+      ],
+      [
+        0.0173192785331,
+        0.00084566929606,
+        -0.0128028702498
+      ],
+      [
+        0.0182825576775,
+        -0.000271492532397,
+        0.00997473516868
+      ],
+      [
+        0.017830914575,
+        0.000946720679093,
+        -0.000368044016039
+      ],
+      [
+        0.0177773268703,
+        3.01901336244e-05,
+        -0.0130830198013
+      ],
+      [
+        0.0169368348013,
+        -0.00234727030159,
+        -0.0117623963052
+      ],
+      [
+        0.0178469015494,
+        -0.00170730187046,
+        -0.00257529923597
+      ],
+      [
+        0.0174602224892,
+        0.00152588630346,
+        -0.00305324785049
+      ],
+      [
+        0.0175183774274,
+        0.00103292720148,
+        -0.0088861026449
+      ],
+      [
+        0.017267702532,
+        -0.00229808262949,
+        -0.00162423049817
+      ],
+      [
+        0.0172226729914,
+        -0.00104919358673,
+        0.00460241076754
+      ],
+      [
+        0.0173877788408,
+        -6.17197079485e-05,
+        0.00334248549358
+      ],
+      [
+        0.017819272725,
+        0.00136860958674,
+        0.00390560918358
+      ],
+      [
+        0.0181321243638,
+        -0.000127330688949,
+        0.00413155489983
+      ],
+      [
+        0.0180416111229,
+        -0.000489095506166,
+        0.0057847613427
+      ],
+      [
+        0.017549294953,
+        0.00181497208344,
+        -0.00154524246582
+      ],
+      [
+        0.0177151241417,
+        1.45001522004e-05,
+        0.00310917582267
+      ],
+      [
+        0.0177265241763,
+        0.000893531001351,
+        0.00848248277136
+      ],
+      [
+        0.0175985160452,
+        0.000167676987199,
+        0.00781086208013
+      ],
+      [
+        0.0180675363342,
+        -0.000452256675036,
+        -0.00362365740107
+      ],
+      [
+        0.016990191045,
+        0.000117954785345,
+        0.0130363719354
+      ],
+      [
+        0.0180659352533,
+        -0.000395931884419,
+        0.00325302913575
+      ],
+      [
+        0.0176548817714,
+        -0.000101260557084,
+        0.00417919121166
+      ],
+      [
+        0.017618609718,
+        -0.00037716077438,
+        0.0104416029586
+      ],
+      [
+        0.0171806592191,
+        2.18571812606e-05,
+        -0.00232809401387
+      ],
+      [
+        0.0176294428554,
+        -0.00136627209703,
+        -0.00182339679879
+      ],
+      [
+        0.0180513401972,
+        -0.00191830802997,
+        -0.00263242263105
+      ],
+      [
+        0.0173292304989,
+        -5.41293298376e-05,
+        -0.00511826569499
+      ],
+      [
+        0.0178345709311,
+        -0.000743586322797,
+        -0.00223178980216
+      ],
+      [
+        0.0170061293049,
+        0.000847355026125,
+        -0.00218649060622
+      ],
+      [
+        0.0173282362745,
+        5.59081689279e-05,
+        0.000231295900062
+      ],
+      [
+        0.0181447454936,
+        -0.0018896936216,
+        0.00279562374482
+      ],
+      [
+        0.0177364987356,
+        0.00144924370351,
+        0.013042805299
+      ],
+      [
+        0.017075294024,
+        0.000466056741849,
+        -0.00268171972561
+      ],
+      [
+        0.0178413840952,
+        -0.000669383707403,
+        -0.0101759784428
+      ],
+      [
+        0.0175044233986,
+        0.00153037320109,
+        -0.0181017320402
+      ],
+      [
+        0.01723770722,
+        0.000728856807493,
+        -0.0174095572752
+      ],
+      [
+        0.0179080324767,
+        -0.000591790744096,
+        -0.00216429539198
+      ],
+      [
+        0.0173639564535,
+        -0.000121998348296,
+        0.00328241432114
+      ],
+      [
+        0.0178956608749,
+        0.00104147467381,
+        0.0105061531807
+      ],
+      [
+        0.0172879724192,
+        -0.000666287083598,
+        -0.00204205568247
+      ],
+      [
+        0.0172470241815,
+        0.000168939826549,
+        -0.00307523273358
+      ],
+      [
+        0.0180749128435,
+        -0.00091731089921,
+        0.00485595040579
+      ],
+      [
+        0.0178611268172,
+        -0.00157622899992,
+        0.00773452254352
+      ],
+      [
+        0.0174948932069,
+        -0.00110962932431,
+        0.00885705337897
+      ],
+      [
+        0.0181216952849,
+        -0.00108026684885,
+        0.00802482962107
+      ]
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "original_files_checked": 492,
+  "original_changed_files": [],
+  "original_head_preserved": true,
+  "original_status_preserved": true,
+  "compiled_manifest_mismatches": [],
+  "unchanged_cuda_runtime_sources": [
+    "src/duojin01_navigation/gpu/gpu_backend.cpp",
+    "src/duojin01_navigation/gpu/gpu_backend.cu",
+    "src/duojin01_navigation/gpu/gpu_sampling.cpp",
+    "src/duojin01_navigation/gpu/sampling_math.hpp",
+    "src/duojin01_navigation/gpu/compute_internal.hpp",
+    "src/duojin01_navigation/include/duojin01_navigation/gpu_sampling.hpp",
+    "src/duojin01_navigation/include/duojin01_navigation/gpu_backend.hpp"
+  ],
+  "profiles_match_final_generator": {
+    "baseline": true,
+    "coverage": true,
+    "explore": true,
+    "explore-lite": true
+  }
+}

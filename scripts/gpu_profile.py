@@ -6,16 +6,16 @@ import math
 from pathlib import Path
 import yaml
 
+EXPLORATION = dict(gpu_batch_size=6400, gpu_support_points=4,
+                   gpu_vx_std=.35, gpu_vy_std=.35, gpu_wz_std=.12,
+                   gpu_path_weight=1.5, gpu_goal_weight=24.)
+
 # GPU-only overrides keep native MPPI's CPU fallback and hardware limits intact.
 PRESETS = {
     'baseline': {},
     'coverage': {'gpu_batch_size': 6400},
-    'balanced': dict(gpu_batch_size=3200, gpu_support_points=4,
-                     gpu_vx_std=.30, gpu_vy_std=.30, gpu_wz_std=.12,
-                     gpu_path_weight=3., gpu_goal_weight=16.),
-    'explore': dict(gpu_batch_size=6400, gpu_support_points=4,
-                    gpu_vx_std=.35, gpu_vy_std=.35, gpu_wz_std=.12,
-                    gpu_path_weight=1.5, gpu_goal_weight=24.),
+    'explore': EXPLORATION,
+    'explore-lite': {**EXPLORATION, 'gpu_batch_size': 3200},
 }
 
 

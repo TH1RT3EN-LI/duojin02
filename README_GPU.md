@@ -44,6 +44,10 @@ python3 scripts/gpu_profile.py --compute-backend auto --sampling-backend origina
 # 同时启用实验性 GPU 采样器：
 python3 scripts/gpu_profile.py --compute-backend auto --sampling-backend auto \
   --output .cache/gpu/nav2-sampling.yaml
+# 本机第二轮验证的更强探索配置（6400 条）：
+# python3 scripts/gpu_profile.py --preset explore --output .cache/gpu/nav2-explore.yaml
+# 更低开销的补充候选（3200 条；验证范围较小）：
+# python3 scripts/gpu_profile.py --preset explore-lite --output .cache/gpu/nav2-explore-lite.yaml
 ros2 launch duojin01_bringup navigation.launch.py \
   params_file:="$PWD/.cache/gpu/nav2-sampling.yaml"
 # 在线建图导航同样支持：
@@ -59,10 +63,17 @@ ros2 launch duojin01_bringup navigation.launch.py \
 | `FollowPath.gpu_min_work` | `262144` | 几何批处理的姿态数 × 障碍点数阈值 |
 | `FollowPath.gpu_deadline_ms` | `40` | GPU 计算及整次控制调用的软时间预算，需小于控制周期 |
 | `FollowPath.gpu_support_points` | `8` | 新采样器的时间扰动支撑点数，不减少预测状态数量 |
+| `FollowPath.gpu_batch_size` / `gpu_time_steps` | 继承原 MPPI | GPU 独立搜索规模；不增加无设备时的原 CPU 搜索量 |
+| `FollowPath.gpu_vx_std` / `gpu_vy_std` / `gpu_wz_std` | 继承原 MPPI | GPU 独立速度扰动标准差，不改变最大速度 |
+| `FollowPath.gpu_temperature` | 继承原 MPPI | 新优化器的候选选择温度 |
+| `FollowPath.gpu_path_weight` / `gpu_goal_weight` | `12` / `8` | 逐步路径代价 / 末端目标代价，不是原生 critic 权重 |
+| `FollowPath.gpu_yaw_weight` / `gpu_cost_weight` | `1` / `2` | 末端 yaw / 栅格软代价权重 |
 
 这些选项在 configure 时读取，更换后端需要重新启动或重新配置生命周期。`auto` 在设备不可用时使用原 CPU 控制器；`cuda` 在设备不可用时拒绝配置。设备计算出错或超时会返回零指令；已经超时的 CUDA 实例不重用仍在执行的缓冲区，需要重新配置。软预算无法中断驱动内的阻塞调用，不构成硬实时保证。CUDA 运行库静态链接，仍需要兼容 NVIDIA 驱动。
 
 清理生命周期时日志中的 `GPU_CONTROL_SUMMARY` 给出真实原 MPPI / CUDA 采样调用次数、最佳候选回退次数、故障和超时；几何后端另给出 CPU / CUDA 批次数；这里只统计后端批处理调用，小任务直接走原 CPU helper 的调用不包含在 `cpu_batches` 中。请先确认目标任务实际进入加速分支，再解释任务性能。
+
+`GPU_SAMPLING_CONFIG` 输出实际采用的搜索规模、噪声和代价权重；`GPU_SAMPLING_SUMMARY` 输出可行候选数量与整次采样耗时。生成器提供 `baseline`、`explore`、`explore-lite` 和仅增加数量的对照档 `coverage`。两个探索档扩大横向搜索并强化目标推进，速度、制动、足迹和默认配置保持当前值；显式增加预测步数还会检查完整全向足迹是否超出局部地图范围。
 
 ## 检查与复现
 
@@ -81,4 +92,4 @@ cmake --build .cache/gpu-components --target gpu_geometry_benchmark gpu_sampling
 
 `tests/performance/benchmark_gpu_components.py` 执行连续 ABBA 对比并保留逐调用 CPU / 墙钟时间、输入哈希、指令和退出码。`controller_gpu_benchmark` 可通过 `DUOJIN_ORIGINAL_SOURCE_DIR` 编译同一观察器对原始源码；链接器计数确认真实 Nav2 MPPI 调用。新增算法的 CPU 数学参考与原版 Nav2 MPPI 属于两种不同对比，报告中分别列出。
 
-完整测试方法、数值、失败记录和适用范围见 [性能报告](docs/gpu-performance-report-2026-10-10.md)。组件查询提速明显，整段导航尚无稳定提速；GPU 控制器增加约 100 MiB RSS。原版及新采样器均未通过固定穿障路径用例，新采样器保持实验选项。
+首轮方法与完整失败记录见 [首轮性能报告](docs/gpu-performance-report-2026-10-10.md)。第二轮调参、实际绕障轨迹和计算预算见 [调参报告](docs/gpu-tuning-round2-2026-10-10.md)。首轮固定穿障用例失败；第二轮 `explore` 的 12 个任务全部到达，`explore-lite` 的两个补充穿障任务到达。仍有公共仿真收尾异常，探索档在狭窄输入中的采样覆盖仍有限，均保持实验选项。整体导航尚无一致提速；GPU 控制器增加约 100 MiB RSS，Orin 原生预算尚未复测。
