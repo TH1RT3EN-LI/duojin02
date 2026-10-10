@@ -6,6 +6,9 @@ using namespace duojin01_navigation;
 int main(int argc,char **argv) {
   const bool required=argc>1 && std::string(argv[1])=="--require-cuda";
   SamplingSettings settings;settings.batch_size=64;settings.time_steps=16;settings.support_points=4;
+  size_t compared=0;double max_delta=0;
+  for(int configuration=0;configuration<2;++configuration) {
+  if(configuration) {settings.noise={.30,.30,.12};settings.path_weight=3.;settings.goal_weight=16.;}
   SamplingCompute cpu(settings,{ComputeBackend::Cpu,0,2000});
   SamplingCompute gpu(settings,{ComputeBackend::Auto,0,2000});
   if(required && !gpu.available()){std::cout<<"CUDA device unavailable\n";return 77;}
@@ -13,7 +16,6 @@ int main(int argc,char **argv) {
   LocalGridSnapshot map;map.width=map.height=400;map.resolution=.01;map.origin_x=map.origin_y=-2;map.data.resize(160000);
   std::vector<Pose> path;for(int i=0;i<=50;++i)path.push_back({-.6+.02*i,.02,.013});
   const Pose start{-.6,.02,.013};const Velocity measured{.12,.02,.04};const OmniVelocityBounds bounds{.5,-.2,.3,.65};
-  size_t compared=0;double max_delta=0;
   for(int scenario=0;scenario<5;++scenario) {
     std::fill(map.data.begin(),map.data.end(),0);
     if(scenario==1)for(unsigned int x=0;x<400;++x){map.data[245*400+x]=254;map.data[155*400+x]=254;}
@@ -61,4 +63,5 @@ int main(int argc,char **argv) {
   assert(rasterCollision(view,{0,0,0},.01));assert(rasterCollision(view,{1.95,0,0},.01));
   map.data.clear();bool rejected=false;try{gpu.optimize(map,polygon,path,start,measured,bounds);}catch(const std::invalid_argument &){rejected=true;}assert(rejected);
   std::cout<<"SAMPLING_CHECKS compared_costs="<<compared<<" max_cost_delta="<<max_delta<<" device="<<gpu.deviceName()<<" passed\n";
+  }
 }

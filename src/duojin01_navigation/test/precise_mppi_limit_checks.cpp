@@ -74,6 +74,13 @@ int main(int argc,char **argv) {
     if(gpu) {
       o.append_parameter_override("FollowPath.compute_backend",std::string("auto"));
       o.append_parameter_override("FollowPath.sampling_backend",std::string("cuda"));
+      o.append_parameter_override("FollowPath.gpu_batch_size",3200);
+      o.append_parameter_override("FollowPath.gpu_support_points",4);
+      o.append_parameter_override("FollowPath.gpu_vx_std",.30);
+      o.append_parameter_override("FollowPath.gpu_vy_std",.30);
+      o.append_parameter_override("FollowPath.gpu_wz_std",.12);
+      o.append_parameter_override("FollowPath.gpu_path_weight",3.);
+      o.append_parameter_override("FollowPath.gpu_goal_weight",16.);
     }
     return o;
   };

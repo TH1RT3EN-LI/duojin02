@@ -6,6 +6,7 @@
 #include "duojin01_navigation/gpu_sampling.hpp"
 #include <chrono>
 #include <cstring>
+#include <limits>
 #include <nav2_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
@@ -22,6 +23,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     nav2_mppi_controller::MPPIController::configure(parent,name,tf,costmap);
     statistics_reported_=false;
     native_samples_=cuda_samples_=best_sequences_=gpu_failures_=gpu_deadline_misses_=0;
+    valid_samples_=0;feasible_sum_=sample_wall_sum_=sample_wall_max_=0;feasible_min_=std::numeric_limits<size_t>::max();
     auto node=parent.lock();
     limits_.configure({node->get_parameter(name+".vx_max").as_double(),
       node->get_parameter(name+".vx_min").as_double(),
@@ -56,16 +58,37 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       if(node->get_parameter(name+".motion_model").as_string()!="Omni")
         throw std::invalid_argument("Optional CUDA sampling supports the Omni model");
       SamplingSettings settings;
-      const auto batch=node->get_parameter(name+".batch_size").as_int(),steps=node->get_parameter(name+".time_steps").as_int();
+      auto dimension=[&](const std::string &key,int64_t value) {
+        if(!node->has_parameter(name+"."+key))node->declare_parameter(name+"."+key,value);
+        return node->get_parameter(name+"."+key).as_int();
+      };
+      const auto batch=dimension("gpu_batch_size",node->get_parameter(name+".batch_size").as_int());
+      const auto steps=dimension("gpu_time_steps",node->get_parameter(name+".time_steps").as_int());
       const auto support=node->get_parameter(name+".gpu_support_points").as_int();
-      if(batch<2 || steps<1 || support<1)throw std::invalid_argument("Invalid GPU sampling dimensions");
-      settings.batch_size=batch;settings.time_steps=steps;settings.support_points=std::min(support,steps);
+      if(batch<2 || steps<1 || support<1 || support>steps)throw std::invalid_argument("Invalid GPU sampling dimensions");
+      settings.batch_size=batch;settings.time_steps=steps;settings.support_points=support;
       settings.dt=node->get_parameter(name+".model_dt").as_double();
-      settings.temperature=node->get_parameter(name+".temperature").as_double();
       settings.gamma=node->get_parameter(name+".gamma").as_double();
-      settings.noise={node->get_parameter(name+".vx_std").as_double(),node->get_parameter(name+".vy_std").as_double(),node->get_parameter(name+".wz_std").as_double()};
+      // These are the replacement sampler's weights, not Humble critic weights.
+      // Preserve the round-one defaults unless an explicit GPU profile opts in.
+      auto weight=[&](const std::string &key,double value) {
+        if(!node->has_parameter(name+"."+key))node->declare_parameter(name+"."+key,value);
+        return node->get_parameter(name+"."+key).as_double();
+      };
+      // Larger GPU searches must not silently increase the native CPU fallback.
+      settings.temperature=weight("gpu_temperature",node->get_parameter(name+".temperature").as_double());
+      settings.noise={weight("gpu_vx_std",node->get_parameter(name+".vx_std").as_double()),
+        weight("gpu_vy_std",node->get_parameter(name+".vy_std").as_double()),
+        weight("gpu_wz_std",node->get_parameter(name+".wz_std").as_double())};
+      settings.path_weight=weight("gpu_path_weight",settings.path_weight);
+      settings.goal_weight=weight("gpu_goal_weight",settings.goal_weight);
+      settings.yaw_weight=weight("gpu_yaw_weight",settings.yaw_weight);
+      settings.cost_weight=weight("gpu_cost_weight",settings.cost_weight);
       sampling_=std::make_unique<SamplingCompute>(settings,ComputeOptions{parseComputeBackend(sampling),0,gpu_deadline_ms_});
       RCLCPP_INFO(logger_,"Navigation sampling backend: %s (%s); time-interpolated sampling, filled sweeps and validated sequence selection",sampling.c_str(),sampling_->deviceName().c_str());
+      RCLCPP_INFO(logger_,"GPU_SAMPLING_CONFIG batch=%zu steps=%zu support=%zu noise=%.3f,%.3f,%.3f path_weight=%.3f goal_weight=%.3f yaw_weight=%.3f cost_weight=%.3f",
+        settings.batch_size,settings.time_steps,settings.support_points,settings.noise.x,settings.noise.y,settings.noise.yaw,
+        settings.path_weight,settings.goal_weight,settings.yaw_weight,settings.cost_weight);
     }
   }
   void cleanup() override {
@@ -78,6 +101,8 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     statistics_reported_=true;
     RCLCPP_INFO(logger_,"GPU_CONTROL_SUMMARY native_samples=%lu cuda_samples=%lu best_sequence=%lu gpu_failures=%lu deadline_misses=%lu",
       native_samples_,cuda_samples_,best_sequences_,gpu_failures_,gpu_deadline_misses_);
+    if(cuda_samples_)RCLCPP_INFO(logger_,"GPU_SAMPLING_SUMMARY calls=%lu valid=%lu feasible_min=%zu feasible_mean=%.3f wall_mean_ms=%.3f wall_max_ms=%.3f",
+      cuda_samples_,valid_samples_,feasible_min_,feasible_sum_/cuda_samples_,sample_wall_sum_/cuda_samples_,sample_wall_max_);
     if(geometry_) {
       const auto &s=geometry_->statistics();
       RCLCPP_INFO(logger_,"GPU_GEOMETRY_SUMMARY cuda_batches=%lu cpu_batches=%lu boundary_rechecks=%lu",s.cuda_batches,s.cpu_batches,s.boundary_rechecks);
@@ -374,6 +399,9 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
         {pose.pose.position.x,pose.pose.position.y,tf2::getYaw(pose.pose.orientation)},
         {speed.linear.x,speed.linear.y,speed.angular.z},limits_.effective());
       ++cuda_samples_;best_sequences_+=sample.used_best_trajectory;
+      valid_samples_+=sample.valid;feasible_min_=std::min(feasible_min_,sample.collision_free);
+      feasible_sum_+=sample.collision_free;sample_wall_sum_+=sample.wall_ms;
+      sample_wall_max_=std::max(sample_wall_max_,sample.wall_ms);
       if(!sample.valid)return stopped(pose);
       geometry_msgs::msg::TwistStamped result;result.header=pose.header;
       result.twist.linear.x=sample.command.x;result.twist.linear.y=sample.command.y;result.twist.angular.z=sample.command.yaw;
@@ -422,6 +450,8 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   std::unique_ptr<SamplingCompute> sampling_;nav_msgs::msg::Path sample_path_;
   double gpu_deadline_ms_{40};
   uint64_t native_samples_{0},cuda_samples_{0},best_sequences_{0},gpu_failures_{0},gpu_deadline_misses_{0};
+  uint64_t valid_samples_{0};size_t feasible_min_{std::numeric_limits<size_t>::max()};
+  double feasible_sum_{0},sample_wall_sum_{0},sample_wall_max_{0};
   bool statistics_reported_{false};
   double narrow_speed_{.5},requested_limit_{0};bool requested_percentage_{false};
 };
