@@ -1,0 +1,10 @@
+{
+  "other_configuration_preserved": true,
+  "additional_parameters": {
+    "compute_backend": "auto",
+    "sampling_backend": "auto",
+    "gpu_deadline_ms": 40.0,
+    "gpu_min_work": 262144,
+    "gpu_support_points": 8
+  }
+}

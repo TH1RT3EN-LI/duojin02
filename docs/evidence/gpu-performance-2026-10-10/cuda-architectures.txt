@@ -1,0 +1,2 @@
+ELF file    1: libduojin_gpu_backend.1.sm_87.cubin
+ELF file    2: libduojin_gpu_backend.2.sm_120.cubin

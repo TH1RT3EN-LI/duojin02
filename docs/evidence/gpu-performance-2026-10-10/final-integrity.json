@@ -1,0 +1,12 @@
+{
+  "original_files_checked": 492,
+  "original_changed_files": [],
+  "original_head_preserved": true,
+  "original_status_preserved": true,
+  "frozen_candidate_changed_files": [],
+  "status_command": [
+    "git",
+    "status",
+    "--short"
+  ]
+}

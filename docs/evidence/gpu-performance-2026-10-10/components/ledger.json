@@ -1,0 +1,1042 @@
+[
+  {
+    "index": 0,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "tiny-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-reuse.bin"
+    ],
+    "started_unix": 1791637235.7757392,
+    "returncode": 0,
+    "log": "000-geometry-tiny-reuse-original.log",
+    "result": "000-geometry-tiny-reuse-original.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 1,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "tiny-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-reuse.bin"
+    ],
+    "started_unix": 1791637235.7789202,
+    "returncode": 0,
+    "log": "001-geometry-tiny-reuse-cuda.log",
+    "result": "001-geometry-tiny-reuse-cuda.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 2,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "tiny-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-reuse.bin"
+    ],
+    "started_unix": 1791637235.9507146,
+    "returncode": 0,
+    "log": "002-geometry-tiny-reuse-cuda.log",
+    "result": "002-geometry-tiny-reuse-cuda.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 3,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "tiny-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-reuse.bin"
+    ],
+    "started_unix": 1791637236.1083317,
+    "returncode": 0,
+    "log": "003-geometry-tiny-reuse-original.log",
+    "result": "003-geometry-tiny-reuse-original.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 4,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "tiny-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "tiny",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-tiny-rebuild.bin"
+    ],
+    "started_unix": 1791637236.1121342,
+    "returncode": 0,
+    "log": "004-geometry-tiny-rebuild-original.log",
+    "result": "004-geometry-tiny-rebuild-original.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 5,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "tiny-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "tiny",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-tiny-rebuild.bin"
+    ],
+    "started_unix": 1791637236.1152985,
+    "returncode": 0,
+    "log": "005-geometry-tiny-rebuild-cuda.log",
+    "result": "005-geometry-tiny-rebuild-cuda.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 6,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "tiny-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "tiny",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-tiny-rebuild.bin"
+    ],
+    "started_unix": 1791637236.2705085,
+    "returncode": 0,
+    "log": "006-geometry-tiny-rebuild-cuda.log",
+    "result": "006-geometry-tiny-rebuild-cuda.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 7,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "tiny-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "tiny",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-tiny-rebuild.bin"
+    ],
+    "started_unix": 1791637236.4209785,
+    "returncode": 0,
+    "log": "007-geometry-tiny-rebuild-original.log",
+    "result": "007-geometry-tiny-rebuild-original.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 8,
+    "kind": "geometry",
+    "backend": "auto",
+    "workload": "tiny",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "auto",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-auto.bin"
+    ],
+    "started_unix": 1791637236.424342,
+    "returncode": 0,
+    "log": "008-geometry-tiny-auto.log",
+    "result": "008-geometry-tiny-auto.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 9,
+    "kind": "geometry",
+    "backend": "auto",
+    "workload": "tiny",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "auto",
+      "tiny",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-auto.bin"
+    ],
+    "started_unix": 1791637236.563021,
+    "returncode": 0,
+    "log": "009-geometry-tiny-auto.log",
+    "result": "009-geometry-tiny-auto.json",
+    "fixture_sha256": "3ec3ed31979772f7d9c785553729e5447a0460896658b922de40488e6171c2f3"
+  },
+  {
+    "index": 10,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "medium-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "medium",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-medium-reuse.bin"
+    ],
+    "started_unix": 1791637236.7026036,
+    "returncode": 0,
+    "log": "010-geometry-medium-reuse-original.log",
+    "result": "010-geometry-medium-reuse-original.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 11,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "medium-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "medium",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-medium-reuse.bin"
+    ],
+    "started_unix": 1791637237.0918953,
+    "returncode": 0,
+    "log": "011-geometry-medium-reuse-cuda.log",
+    "result": "011-geometry-medium-reuse-cuda.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 12,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "medium-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "medium",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-medium-reuse.bin"
+    ],
+    "started_unix": 1791637237.442795,
+    "returncode": 0,
+    "log": "012-geometry-medium-reuse-cuda.log",
+    "result": "012-geometry-medium-reuse-cuda.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 13,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "medium-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "medium",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-medium-reuse.bin"
+    ],
+    "started_unix": 1791637237.7906559,
+    "returncode": 0,
+    "log": "013-geometry-medium-reuse-original.log",
+    "result": "013-geometry-medium-reuse-original.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 14,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "medium-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "medium",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-medium-rebuild.bin"
+    ],
+    "started_unix": 1791637238.1781554,
+    "returncode": 0,
+    "log": "014-geometry-medium-rebuild-original.log",
+    "result": "014-geometry-medium-rebuild-original.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 15,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "medium-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "medium",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-medium-rebuild.bin"
+    ],
+    "started_unix": 1791637238.5635958,
+    "returncode": 0,
+    "log": "015-geometry-medium-rebuild-cuda.log",
+    "result": "015-geometry-medium-rebuild-cuda.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 16,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "medium-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "medium",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-medium-rebuild.bin"
+    ],
+    "started_unix": 1791637238.921172,
+    "returncode": 0,
+    "log": "016-geometry-medium-rebuild-cuda.log",
+    "result": "016-geometry-medium-rebuild-cuda.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 17,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "medium-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "medium",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-medium-rebuild.bin"
+    ],
+    "started_unix": 1791637239.27105,
+    "returncode": 0,
+    "log": "017-geometry-medium-rebuild-original.log",
+    "result": "017-geometry-medium-rebuild-original.json",
+    "fixture_sha256": "7b3637566ca51ee79c64f236f177ec2ea56a74926a4e2da4e606b340deec4f1f"
+  },
+  {
+    "index": 18,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "dense-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "dense",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-dense-reuse.bin"
+    ],
+    "started_unix": 1791637239.6537652,
+    "returncode": 0,
+    "log": "018-geometry-dense-reuse-original.log",
+    "result": "018-geometry-dense-reuse-original.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 19,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "dense-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "dense",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-dense-reuse.bin"
+    ],
+    "started_unix": 1791637241.6470144,
+    "returncode": 0,
+    "log": "019-geometry-dense-reuse-cuda.log",
+    "result": "019-geometry-dense-reuse-cuda.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 20,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "dense-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "dense",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-dense-reuse.bin"
+    ],
+    "started_unix": 1791637242.8386633,
+    "returncode": 0,
+    "log": "020-geometry-dense-reuse-cuda.log",
+    "result": "020-geometry-dense-reuse-cuda.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 21,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "dense-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "dense",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-dense-reuse.bin"
+    ],
+    "started_unix": 1791637244.0327523,
+    "returncode": 0,
+    "log": "021-geometry-dense-reuse-original.log",
+    "result": "021-geometry-dense-reuse-original.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 22,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "dense-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "dense",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-dense-rebuild.bin"
+    ],
+    "started_unix": 1791637245.998966,
+    "returncode": 0,
+    "log": "022-geometry-dense-rebuild-original.log",
+    "result": "022-geometry-dense-rebuild-original.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 23,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "dense-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "dense",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-dense-rebuild.bin"
+    ],
+    "started_unix": 1791637247.9623,
+    "returncode": 0,
+    "log": "023-geometry-dense-rebuild-cuda.log",
+    "result": "023-geometry-dense-rebuild-cuda.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 24,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "dense-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "dense",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-dense-rebuild.bin"
+    ],
+    "started_unix": 1791637249.1750891,
+    "returncode": 0,
+    "log": "024-geometry-dense-rebuild-cuda.log",
+    "result": "024-geometry-dense-rebuild-cuda.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 25,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "dense-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "dense",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-dense-rebuild.bin"
+    ],
+    "started_unix": 1791637250.378517,
+    "returncode": 0,
+    "log": "025-geometry-dense-rebuild-original.log",
+    "result": "025-geometry-dense-rebuild-original.json",
+    "fixture_sha256": "ed8ad4673d56479a7098394f5e3764a25c096f33054cb5f05bb422a9657064cf"
+  },
+  {
+    "index": 26,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "blocked-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-blocked-reuse.bin"
+    ],
+    "started_unix": 1791637252.337507,
+    "returncode": 0,
+    "log": "026-geometry-blocked-reuse-original.log",
+    "result": "026-geometry-blocked-reuse-original.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 27,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "blocked-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-blocked-reuse.bin"
+    ],
+    "started_unix": 1791637252.3427722,
+    "returncode": 0,
+    "log": "027-geometry-blocked-reuse-cuda.log",
+    "result": "027-geometry-blocked-reuse-cuda.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 28,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "blocked-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-blocked-reuse.bin"
+    ],
+    "started_unix": 1791637252.7066028,
+    "returncode": 0,
+    "log": "028-geometry-blocked-reuse-cuda.log",
+    "result": "028-geometry-blocked-reuse-cuda.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 29,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "blocked-reuse",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-blocked-reuse.bin"
+    ],
+    "started_unix": 1791637253.0606234,
+    "returncode": 0,
+    "log": "029-geometry-blocked-reuse-original.log",
+    "result": "029-geometry-blocked-reuse-original.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 30,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "blocked-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "blocked",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-blocked-rebuild.bin"
+    ],
+    "started_unix": 1791637253.0660882,
+    "returncode": 0,
+    "log": "030-geometry-blocked-rebuild-original.log",
+    "result": "030-geometry-blocked-rebuild-original.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 31,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "blocked-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "blocked",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-blocked-rebuild.bin"
+    ],
+    "started_unix": 1791637253.071211,
+    "returncode": 0,
+    "log": "031-geometry-blocked-rebuild-cuda.log",
+    "result": "031-geometry-blocked-rebuild-cuda.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 32,
+    "kind": "geometry",
+    "backend": "cuda",
+    "workload": "blocked-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "cuda",
+      "blocked",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-blocked-rebuild.bin"
+    ],
+    "started_unix": 1791637253.4385211,
+    "returncode": 0,
+    "log": "032-geometry-blocked-rebuild-cuda.log",
+    "result": "032-geometry-blocked-rebuild-cuda.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 33,
+    "kind": "geometry",
+    "backend": "original",
+    "workload": "blocked-rebuild",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "original",
+      "blocked",
+      "rebuild",
+      "100",
+      "/evidence/components/geometry-blocked-rebuild.bin"
+    ],
+    "started_unix": 1791637253.8037307,
+    "returncode": 0,
+    "log": "033-geometry-blocked-rebuild-original.log",
+    "result": "033-geometry-blocked-rebuild-original.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 34,
+    "kind": "geometry",
+    "backend": "auto",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "auto",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-auto.bin"
+    ],
+    "started_unix": 1791637253.8098133,
+    "returncode": 0,
+    "log": "034-geometry-blocked-auto.log",
+    "result": "034-geometry-blocked-auto.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 35,
+    "kind": "geometry",
+    "backend": "auto",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_geometry_benchmark",
+      "auto",
+      "blocked",
+      "reuse",
+      "100",
+      "/evidence/components/geometry-tiny-auto.bin"
+    ],
+    "started_unix": 1791637253.9413395,
+    "returncode": 0,
+    "log": "035-geometry-blocked-auto.log",
+    "result": "035-geometry-blocked-auto.json",
+    "fixture_sha256": "b453a8ceb679e437cdf1f3064c15441d4fcddc3435995ec02c39689ea9507ac1"
+  },
+  {
+    "index": 36,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "open",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "open",
+      "40",
+      "/evidence/components/sampling-open.bin"
+    ],
+    "started_unix": 1791637254.073419,
+    "returncode": 0,
+    "log": "036-sampling-open-cpu.log",
+    "result": "036-sampling-open-cpu.json",
+    "fixture_sha256": "7cb703b2600140ebdc388f9a94bc9bc4f5329fa3ac8a46466c9ecad57eaa4210"
+  },
+  {
+    "index": 37,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "open",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "open",
+      "40",
+      "/evidence/components/sampling-open.bin"
+    ],
+    "started_unix": 1791637256.457999,
+    "returncode": 0,
+    "log": "037-sampling-open-cuda.log",
+    "result": "037-sampling-open-cuda.json",
+    "fixture_sha256": "7cb703b2600140ebdc388f9a94bc9bc4f5329fa3ac8a46466c9ecad57eaa4210"
+  },
+  {
+    "index": 38,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "open",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "open",
+      "40",
+      "/evidence/components/sampling-open.bin"
+    ],
+    "started_unix": 1791637256.6934607,
+    "returncode": 0,
+    "log": "038-sampling-open-cuda.log",
+    "result": "038-sampling-open-cuda.json",
+    "fixture_sha256": "7cb703b2600140ebdc388f9a94bc9bc4f5329fa3ac8a46466c9ecad57eaa4210"
+  },
+  {
+    "index": 39,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "open",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "open",
+      "40",
+      "/evidence/components/sampling-open.bin"
+    ],
+    "started_unix": 1791637256.925745,
+    "returncode": 0,
+    "log": "039-sampling-open-cpu.log",
+    "result": "039-sampling-open-cpu.json",
+    "fixture_sha256": "7cb703b2600140ebdc388f9a94bc9bc4f5329fa3ac8a46466c9ecad57eaa4210"
+  },
+  {
+    "index": 40,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "corridor",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "corridor",
+      "40",
+      "/evidence/components/sampling-corridor.bin"
+    ],
+    "started_unix": 1791637259.2906263,
+    "returncode": 0,
+    "log": "040-sampling-corridor-cpu.log",
+    "result": "040-sampling-corridor-cpu.json",
+    "fixture_sha256": "0b318805fb09ddbc2ebac2cf54c42ac3feec1d13a1bfdfc1561f035bbf4c31ee"
+  },
+  {
+    "index": 41,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "corridor",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "corridor",
+      "40",
+      "/evidence/components/sampling-corridor.bin"
+    ],
+    "started_unix": 1791637260.5865726,
+    "returncode": 0,
+    "log": "041-sampling-corridor-cuda.log",
+    "result": "041-sampling-corridor-cuda.json",
+    "fixture_sha256": "0b318805fb09ddbc2ebac2cf54c42ac3feec1d13a1bfdfc1561f035bbf4c31ee"
+  },
+  {
+    "index": 42,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "corridor",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "corridor",
+      "40",
+      "/evidence/components/sampling-corridor.bin"
+    ],
+    "started_unix": 1791637260.9470618,
+    "returncode": 0,
+    "log": "042-sampling-corridor-cuda.log",
+    "result": "042-sampling-corridor-cuda.json",
+    "fixture_sha256": "0b318805fb09ddbc2ebac2cf54c42ac3feec1d13a1bfdfc1561f035bbf4c31ee"
+  },
+  {
+    "index": 43,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "corridor",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "corridor",
+      "40",
+      "/evidence/components/sampling-corridor.bin"
+    ],
+    "started_unix": 1791637261.3044636,
+    "returncode": 0,
+    "log": "043-sampling-corridor-cpu.log",
+    "result": "043-sampling-corridor-cpu.json",
+    "fixture_sha256": "0b318805fb09ddbc2ebac2cf54c42ac3feec1d13a1bfdfc1561f035bbf4c31ee"
+  },
+  {
+    "index": 44,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "detour",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "detour",
+      "40",
+      "/evidence/components/sampling-detour.bin"
+    ],
+    "started_unix": 1791637262.5742009,
+    "returncode": 0,
+    "log": "044-sampling-detour-cpu.log",
+    "result": "044-sampling-detour-cpu.json",
+    "fixture_sha256": "5bb8661ea67dff10d530c01195433875fb053c8d4db11398b43df595c2aa97d2"
+  },
+  {
+    "index": 45,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "detour",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "detour",
+      "40",
+      "/evidence/components/sampling-detour.bin"
+    ],
+    "started_unix": 1791637264.2635205,
+    "returncode": 0,
+    "log": "045-sampling-detour-cuda.log",
+    "result": "045-sampling-detour-cuda.json",
+    "fixture_sha256": "5bb8661ea67dff10d530c01195433875fb053c8d4db11398b43df595c2aa97d2"
+  },
+  {
+    "index": 46,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "detour",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "detour",
+      "40",
+      "/evidence/components/sampling-detour.bin"
+    ],
+    "started_unix": 1791637264.555211,
+    "returncode": 0,
+    "log": "046-sampling-detour-cuda.log",
+    "result": "046-sampling-detour-cuda.json",
+    "fixture_sha256": "5bb8661ea67dff10d530c01195433875fb053c8d4db11398b43df595c2aa97d2"
+  },
+  {
+    "index": 47,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "detour",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "detour",
+      "40",
+      "/evidence/components/sampling-detour.bin"
+    ],
+    "started_unix": 1791637264.8415344,
+    "returncode": 0,
+    "log": "047-sampling-detour-cpu.log",
+    "result": "047-sampling-detour-cpu.json",
+    "fixture_sha256": "5bb8661ea67dff10d530c01195433875fb053c8d4db11398b43df595c2aa97d2"
+  },
+  {
+    "index": 48,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "blocked",
+      "40",
+      "/evidence/components/sampling-blocked.bin"
+    ],
+    "started_unix": 1791637266.5217848,
+    "returncode": 0,
+    "log": "048-sampling-blocked-cpu.log",
+    "result": "048-sampling-blocked-cpu.json",
+    "fixture_sha256": "7bba4601fdb752ee31bce5ee8ab65e06968d74c4b8381cc101054b25f81a1a7f"
+  },
+  {
+    "index": 49,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "blocked",
+      "40",
+      "/evidence/components/sampling-blocked.bin"
+    ],
+    "started_unix": 1791637268.3864157,
+    "returncode": 0,
+    "log": "049-sampling-blocked-cuda.log",
+    "result": "049-sampling-blocked-cuda.json",
+    "fixture_sha256": "7bba4601fdb752ee31bce5ee8ab65e06968d74c4b8381cc101054b25f81a1a7f"
+  },
+  {
+    "index": 50,
+    "kind": "sampling",
+    "backend": "cuda",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cuda",
+      "blocked",
+      "40",
+      "/evidence/components/sampling-blocked.bin"
+    ],
+    "started_unix": 1791637268.6349494,
+    "returncode": 0,
+    "log": "050-sampling-blocked-cuda.log",
+    "result": "050-sampling-blocked-cuda.json",
+    "fixture_sha256": "7bba4601fdb752ee31bce5ee8ab65e06968d74c4b8381cc101054b25f81a1a7f"
+  },
+  {
+    "index": 51,
+    "kind": "sampling",
+    "backend": "cpu",
+    "workload": "blocked",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/gpu/gpu_sampling_benchmark",
+      "cpu",
+      "blocked",
+      "40",
+      "/evidence/components/sampling-blocked.bin"
+    ],
+    "started_unix": 1791637268.8806434,
+    "returncode": 0,
+    "log": "051-sampling-blocked-cpu.log",
+    "result": "051-sampling-blocked-cpu.json",
+    "fixture_sha256": "7bba4601fdb752ee31bce5ee8ab65e06968d74c4b8381cc101054b25f81a1a7f"
+  },
+  {
+    "index": 52,
+    "kind": "controller",
+    "backend": "original",
+    "workload": "off-plan-free",
+    "command": [
+      "/candidate/.cache/original-api-build/controller_gpu_benchmark",
+      "original",
+      "100",
+      "/original/src/duojin01_bringup/config/nav2.yaml",
+      "/evidence/components/052-controller-off-plan-free-original.json"
+    ],
+    "started_unix": 1791637270.7568426,
+    "returncode": 0,
+    "log": "052-controller-off-plan-free-original.log",
+    "result": "052-controller-off-plan-free-original.json"
+  },
+  {
+    "index": 53,
+    "kind": "controller",
+    "backend": "cuda",
+    "workload": "off-plan-free",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/controller_gpu_benchmark",
+      "cuda",
+      "100",
+      "/original/src/duojin01_bringup/config/nav2.yaml",
+      "/evidence/components/053-controller-off-plan-free-cuda.json"
+    ],
+    "started_unix": 1791637271.0832694,
+    "returncode": 0,
+    "log": "053-controller-off-plan-free-cuda.log",
+    "result": "053-controller-off-plan-free-cuda.json"
+  },
+  {
+    "index": 54,
+    "kind": "controller",
+    "backend": "cuda",
+    "workload": "off-plan-free",
+    "command": [
+      "/candidate/.cache/full-gpu/build/duojin01_navigation/controller_gpu_benchmark",
+      "cuda",
+      "100",
+      "/original/src/duojin01_bringup/config/nav2.yaml",
+      "/evidence/components/054-controller-off-plan-free-cuda.json"
+    ],
+    "started_unix": 1791637271.488444,
+    "returncode": 0,
+    "log": "054-controller-off-plan-free-cuda.log",
+    "result": "054-controller-off-plan-free-cuda.json"
+  },
+  {
+    "index": 55,
+    "kind": "controller",
+    "backend": "original",
+    "workload": "off-plan-free",
+    "command": [
+      "/candidate/.cache/original-api-build/controller_gpu_benchmark",
+      "original",
+      "100",
+      "/original/src/duojin01_bringup/config/nav2.yaml",
+      "/evidence/components/055-controller-off-plan-free-original.json"
+    ],
+    "started_unix": 1791637271.8979664,
+    "returncode": 0,
+    "log": "055-controller-off-plan-free-original.log",
+    "result": "055-controller-off-plan-free-original.json"
+  }
+]

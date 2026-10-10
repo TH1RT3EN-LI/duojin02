@@ -1,0 +1,33 @@
+{
+  "trials": 36,
+  "unexpected_child_failure_lines": [
+    {
+      "case": "corridor_0.50",
+      "arm": "cpu",
+      "seed": 22,
+      "lines": [
+        "[ERROR] [parameter_bridge-2]: process has died [pid 15058, exit code -6, cmd '/opt/ros/humble/lib/ros_gz_bridge/parameter_bridge --ros-args -r __node:=sim_bridge --params-file /tmp/launch_params_gg38_xt0']."
+      ]
+    },
+    {
+      "case": "dynamic_crossing",
+      "arm": "gpu",
+      "seed": 22,
+      "lines": [
+        "[ERROR] [parameter_bridge-2]: process has died [pid 19392, exit code -6, cmd '/opt/ros/humble/lib/ros_gz_bridge/parameter_bridge --ros-args -r __node:=sim_bridge --params-file /tmp/launch_params_0fuucagt']."
+      ]
+    }
+  ],
+  "forced_cleanup_trials": [
+    {
+      "case": "open",
+      "arm": "cpu",
+      "seed": 21
+    },
+    {
+      "case": "corridor_0.50",
+      "arm": "cpu",
+      "seed": 21
+    }
+  ]
+}

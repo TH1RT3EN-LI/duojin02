@@ -62,7 +62,7 @@ ros2 launch duojin01_bringup navigation.launch.py \
 
 这些选项在 configure 时读取，更换后端需要重新启动或重新配置生命周期。`auto` 在设备不可用时使用原 CPU 控制器；`cuda` 在设备不可用时拒绝配置。设备计算出错或超时会返回零指令；已经超时的 CUDA 实例不重用仍在执行的缓冲区，需要重新配置。软预算无法中断驱动内的阻塞调用，不构成硬实时保证。CUDA 运行库静态链接，仍需要兼容 NVIDIA 驱动。
 
-清理生命周期时日志中的 `GPU_CONTROL_SUMMARY` 给出真实原 MPPI / CUDA 采样调用次数、最佳候选回退次数、故障和超时；几何后端另给出 CPU / CUDA 批次数。请先确认目标任务实际进入加速分支，再解释任务性能。
+清理生命周期时日志中的 `GPU_CONTROL_SUMMARY` 给出真实原 MPPI / CUDA 采样调用次数、最佳候选回退次数、故障和超时；几何后端另给出 CPU / CUDA 批次数；这里只统计后端批处理调用，小任务直接走原 CPU helper 的调用不包含在 `cpu_batches` 中。请先确认目标任务实际进入加速分支，再解释任务性能。
 
 ## 检查与复现
 
@@ -81,4 +81,4 @@ cmake --build .cache/gpu-components --target gpu_geometry_benchmark gpu_sampling
 
 `tests/performance/benchmark_gpu_components.py` 执行连续 ABBA 对比并保留逐调用 CPU / 墙钟时间、输入哈希、指令和退出码。`controller_gpu_benchmark` 可通过 `DUOJIN_ORIGINAL_SOURCE_DIR` 编译同一观察器对原始源码；链接器计数确认真实 Nav2 MPPI 调用。新增算法的 CPU 数学参考与原版 Nav2 MPPI 属于两种不同对比，报告中分别列出。
 
-完整测试方法、数值、失败记录和适用范围见本次性能报告。
+完整测试方法、数值、失败记录和适用范围见 [性能报告](docs/gpu-performance-report-2026-10-10.md)。组件查询提速明显，整段导航尚无稳定提速；GPU 控制器增加约 100 MiB RSS。原版及新采样器均未通过固定穿障路径用例，新采样器保持实验选项。

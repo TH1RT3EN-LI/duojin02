@@ -1,0 +1,134 @@
+[
+  {
+    "arm": "original",
+    "case": "offplan_obstacle",
+    "seed": 21,
+    "started_unix": 1791638144.8256435,
+    "returncode": 0,
+    "result": "offplan_obstacle-21-original/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "original",
+      "21",
+      "/evidence/navigation-obstacle/offplan_obstacle-21-original"
+    ]
+  },
+  {
+    "arm": "cpu",
+    "case": "offplan_obstacle",
+    "seed": 21,
+    "started_unix": 1791638215.542044,
+    "returncode": 0,
+    "result": "offplan_obstacle-21-cpu/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "cpu",
+      "21",
+      "/evidence/navigation-obstacle/offplan_obstacle-21-cpu"
+    ]
+  },
+  {
+    "arm": "gpu",
+    "case": "offplan_obstacle",
+    "seed": 21,
+    "started_unix": 1791638286.2863793,
+    "returncode": 0,
+    "result": "offplan_obstacle-21-gpu/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "gpu",
+      "21",
+      "/evidence/navigation-obstacle/offplan_obstacle-21-gpu"
+    ]
+  },
+  {
+    "arm": "gpu",
+    "case": "offplan_obstacle",
+    "seed": 22,
+    "started_unix": 1791638325.9686508,
+    "returncode": 0,
+    "result": "offplan_obstacle-22-gpu/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "gpu",
+      "22",
+      "/evidence/navigation-obstacle/offplan_obstacle-22-gpu"
+    ]
+  },
+  {
+    "arm": "cpu",
+    "case": "offplan_obstacle",
+    "seed": 22,
+    "started_unix": 1791638396.7372289,
+    "returncode": 0,
+    "result": "offplan_obstacle-22-cpu/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "cpu",
+      "22",
+      "/evidence/navigation-obstacle/offplan_obstacle-22-cpu"
+    ]
+  },
+  {
+    "arm": "original",
+    "case": "offplan_obstacle",
+    "seed": 22,
+    "started_unix": 1791638467.4395523,
+    "returncode": 0,
+    "result": "offplan_obstacle-22-original/result.json",
+    "command": [
+      "docker",
+      "exec",
+      "-w",
+      "/candidate",
+      "duojin02-gpu-dev-20261010",
+      "bash",
+      "-lc",
+      "set -eo pipefail\narm=\"$1\";seed=\"$2\";output=\"$3\"\nroot=/candidate;config=/candidate/src/duojin01_bringup/config/nav2.yaml\nif [ \"$arm\" = original ];then root=/original;config=/original/src/duojin01_bringup/config/nav2.yaml;fi\nif [ \"$arm\" = gpu ];then config=/candidate/.cache/profiles/gpu.yaml;fi\nln -sfn \"$root\" /hardware;ln -sfn \"/candidate/.cache/full-$arm\" /tmp/navbuild\nsource /opt/ros/humble/setup.bash;source /candidate/.cache/slam-install/setup.bash;source \"/candidate/.cache/full-$arm/install/local_setup.bash\"\nexport GZ_SIM_SYSTEM_PLUGIN_PATH=/tmp/duojin02_odometry_plugin\nexport GZ_PARTITION=\"duojin_gpu_obstacle_${arm}_${seed}_$$\";export QT_QPA_PLATFORM=offscreen\npython3 /candidate/tests/performance/navigation_harness/record_build.py\nexec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --case offplan_obstacle --variant upgraded --seed \"$seed\" --nav-config \"$config\" --scenario-file /evidence/navigation-obstacle/fixture.json --output \"$output\"\n",
+      "obstacle-quality",
+      "original",
+      "22",
+      "/evidence/navigation-obstacle/offplan_obstacle-22-original"
+    ]
+  }
+]

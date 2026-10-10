@@ -1,0 +1,46 @@
+Internal ctest changing into directory: /candidate/.cache/full-gpu/build/duojin01_navigation
+Test project /candidate/.cache/full-gpu/build/duojin01_navigation
+      Start  1: spatial_index_checks
+ 1/20 Test  #1: spatial_index_checks .............   Passed    0.07 sec
+      Start  2: path_target_checks
+ 2/20 Test  #2: path_target_checks ...............   Passed    0.15 sec
+      Start  3: prior_association_checks
+ 3/20 Test  #3: prior_association_checks .........   Passed    0.01 sec
+      Start  4: guard_association_probe
+ 4/20 Test  #4: guard_association_probe ..........   Passed    2.78 sec
+      Start  5: guard_query_checks
+ 5/20 Test  #5: guard_query_checks ...............   Passed    0.02 sec
+      Start  6: geometry_checks
+ 6/20 Test  #6: geometry_checks ..................   Passed    0.00 sec
+      Start  7: tracking_checks
+ 7/20 Test  #7: tracking_checks ..................   Passed    0.01 sec
+      Start  8: scan_validity_checks
+ 8/20 Test  #8: scan_validity_checks .............   Passed    0.00 sec
+      Start  9: velocity_limit_checks
+ 9/20 Test  #9: velocity_limit_checks ............   Passed    0.00 sec
+      Start 10: planner_checks
+10/20 Test #10: planner_checks ...................   Passed    0.00 sec
+      Start 11: precise_lattice_checks
+11/20 Test #11: precise_lattice_checks ...........   Passed    0.95 sec
+      Start 12: precise_mppi_limit_checks
+12/20 Test #12: precise_mppi_limit_checks ........   Passed    0.09 sec
+      Start 13: precise_mppi_gpu_limit_checks
+13/20 Test #13: precise_mppi_gpu_limit_checks ....   Passed    0.25 sec
+      Start 14: goal_settling_checks
+14/20 Test #14: goal_settling_checks .............   Passed    0.80 sec
+      Start 15: gpu_sampling_checks
+15/20 Test #15: gpu_sampling_checks ..............   Passed    0.15 sec
+      Start 16: gpu_geometry_checks
+16/20 Test #16: gpu_geometry_checks ..............   Passed    0.16 sec
+      Start 17: gpu_sampling_cuda_checks
+17/20 Test #17: gpu_sampling_cuda_checks .........   Passed    0.15 sec
+      Start 18: gpu_sampling_no_device_checks
+18/20 Test #18: gpu_sampling_no_device_checks ....   Passed    0.03 sec
+      Start 19: gpu_geometry_cuda_checks
+19/20 Test #19: gpu_geometry_cuda_checks .........   Passed    0.16 sec
+      Start 20: gpu_geometry_no_device_checks
+20/20 Test #20: gpu_geometry_no_device_checks ....   Passed    0.05 sec
+
+100% tests passed, 0 tests failed out of 20
+
+Total Test time (real) =   5.83 sec

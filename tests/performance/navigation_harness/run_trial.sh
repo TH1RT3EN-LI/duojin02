@@ -17,7 +17,12 @@ source "/candidate/.cache/full-$arm/install/local_setup.bash"
 export GZ_SIM_SYSTEM_PLUGIN_PATH="/tmp/duojin02_odometry_plugin:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
 export GZ_PARTITION="duojin_gpu_${arm}_${case_name}_${seed}_$$"
 export QT_QPA_PLATFORM=offscreen
-python3 /candidate/tests/performance/navigation_harness/record_build.py
+# The manifest is frozen after compilation; never re-stamp edited source
+# against old binaries at trial startup.
+if [ ! -f /tmp/navbuild/navigation-build.json ];then
+  printf '%s\n' 'Missing frozen build manifest; rebuild and run record_build.py immediately after compilation.' >&2
+  exit 3
+fi
 extra=()
 if [ "$case_name" = offplan_followpath ];then
  extra+=(--scenario-file /candidate/tests/performance/navigation_harness/offplan-followpath.json)
