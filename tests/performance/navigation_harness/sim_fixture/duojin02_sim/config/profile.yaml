@@ -1,0 +1,37 @@
+# Hardware filters are preserved; optical range is a separate simulation setting.
+lidar:
+  # CAD slot: shell top 132.308 mm, upper plate bottom 154.308 mm.
+  # Simulation midpoint; actual N10Plus optical plane remains uncalibrated.
+  scan_height_m: 0.14330766582
+  samples: 540
+  rate_hz: 10.0
+  range_min_m: 0.30
+  optical_range_min_m: 0.02  # render near obstacles before applying driver range filter
+  optical_range_max_m: 10.0
+  published_range_max_m: 100.0
+  noise_stddev_m: 0.005  # assumed test noise, not a measured N10Plus calibration
+  self_filter: true  # remove chassis hits, retain occluded directions as +inf
+camera:
+  rate_hz: 15.0
+  width: 640
+  height: 480
+observer:
+  rate_hz: 15.0
+  width: 1280
+  height: 720
+base:
+  mode: kinematic
+  command_timeout_s: 0.25
+  wheelbase_m: 0.312755710719
+  track_m: 0.355082035065
+  wheel_radius_m: 0.0503669839553  # CAD envelope used for animation only
+materials:
+  metal: {metalness: 0.80, roughness: 0.32}
+  shell: {metalness: 0.05, roughness: 0.48}
+  arm: {metalness: 0.18, roughness: 0.35}
+  carbon: {metalness: 0.0, roughness: 0.82}
+  wheel_sideplate: {metalness: 0.20, roughness: 0.32}
+  sensor: {metalness: 0.05, roughness: 0.40}
+  battery: {metalness: 0.0, roughness: 0.65}
+  chest: {metalness: 0.05, roughness: 0.48}
+  neck: {metalness: 0.05, roughness: 0.48}

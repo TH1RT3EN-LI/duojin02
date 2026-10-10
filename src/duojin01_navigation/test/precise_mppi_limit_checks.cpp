@@ -26,6 +26,8 @@ void bounded(const geometry_msgs::msg::Twist &v,const OmniVelocityBounds &b,bool
   if(stop)assert(v.linear.x==0 && v.linear.y==0 && v.angular.z==0);
 }
 int main(int argc,char **argv) {
+  bool gpu=false;for(int i=1;i<argc;++i)if(std::string(argv[i])=="--gpu")gpu=true;
+  if(gpu){GeometryCompute probe({ComputeBackend::Auto,0,2000});if(!probe.available())return 77;}
   NativeOracle oracle;OmniVelocityLimits reference;reference.configure({.5,-.2,.3,.65});
   for(const auto request:std::vector<std::pair<double,bool>>{{20,true},{60,true},{.1,false},{0,false},{0,true}}) {
     oracle.setSpeedLimit(request.first,request.second);reference.update(request.first,request.second);
@@ -50,7 +52,7 @@ int main(int argc,char **argv) {
   // of map files, launch lifecycle, and future production YAML additions.
   // Critic selection here only makes the free-map native branch executable;
   // this is a bounds test, not a trajectory quality or collision benchmark.
-  auto make_options=[]() {
+  auto make_options=[&]() {
     rclcpp::NodeOptions o;
     o.parameter_overrides({
       rclcpp::Parameter("controller_frequency",20.),
@@ -69,6 +71,10 @@ int main(int argc,char **argv) {
       rclcpp::Parameter("FollowPath.reset_period",1.),
       rclcpp::Parameter("FollowPath.critics",std::vector<std::string>{
         "ConstraintCritic","GoalCritic","GoalAngleCritic","PathFollowCritic"})});
+    if(gpu) {
+      o.append_parameter_override("FollowPath.compute_backend",std::string("auto"));
+      o.append_parameter_override("FollowPath.sampling_backend",std::string("cuda"));
+    }
     return o;
   };
   auto options=make_options();options.append_parameter_override("FollowPath.wz_max",.1);
@@ -113,6 +119,17 @@ int main(int argc,char **argv) {
     std::cout<<"NATIVE_PUBLIC_LIMIT vx="<<out.linear.x<<" vy="<<out.linear.y<<" wz="<<out.angular.z<<"\n";
   }
   controller.deactivate();controller.cleanup();
+  if(gpu) {
+    auto fault_options=make_options();
+    fault_options.append_parameter_override("FollowPath.gpu_deadline_ms",.000001);
+    auto fault_node=std::make_shared<rclcpp_lifecycle::LifecycleNode>("controller_server",fault_options);
+    TestController fault;fault.configure(fault_node,"FollowPath",tf,map);fault.activate();
+    fault.setPlan(path);start.header.stamp=fault_node->now();
+    const auto stopped_command=fault.computeVelocityCommands(start,speed,&checker).twist;
+    assert(stopped_command.linear.x==0 && stopped_command.linear.y==0 && stopped_command.angular.z==0);
+    fault.deactivate();fault.cleanup();
+    std::cout<<"GPU_DEADLINE_FAULT zero command passed\n";
+  }
   for(const auto &bad:std::vector<std::pair<std::string,double>>{{"vx_max",0},{"vx_min",.2},{"vy_max",-.1},{"wz_max",-.1},{"wz_max",std::numeric_limits<double>::infinity()}}) {
     auto o=make_options();o.append_parameter_override("FollowPath."+bad.first,bad.second);auto invalid_node=std::make_shared<rclcpp_lifecycle::LifecycleNode>("controller_server",o);
     TestController invalid;bool rejected=false;

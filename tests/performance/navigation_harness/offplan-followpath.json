@@ -1,0 +1,1 @@
+{"name":"offplan_followpath","start":[-1.7,0,0],"goal":[1.7,0,0],"timeout":55,"obstacles":[],"controller_component":true}

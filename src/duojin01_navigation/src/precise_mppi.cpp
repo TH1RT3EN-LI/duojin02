@@ -2,6 +2,9 @@
 #include "duojin01_navigation/velocity_limits.hpp"
 #include "duojin01_navigation/local_grid_snapshot.hpp"
 #include "duojin01_navigation/path_target.hpp"
+#include "duojin01_navigation/gpu_backend.hpp"
+#include "duojin01_navigation/gpu_sampling.hpp"
+#include <chrono>
 #include <cstring>
 #include <nav2_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
@@ -12,10 +15,13 @@
 namespace duojin01_navigation {
 class PreciseMPPI : public nav2_mppi_controller::MPPIController {
  public:
+  ~PreciseMPPI() override {if(!statistics_reported_)reportStatistics();}
   void configure(const rclcpp_lifecycle::LifecycleNode::WeakPtr &parent, std::string name,
       const std::shared_ptr<tf2_ros::Buffer> tf,
       const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
     nav2_mppi_controller::MPPIController::configure(parent,name,tf,costmap);
+    statistics_reported_=false;
+    native_samples_=cuda_samples_=best_sequences_=gpu_failures_=gpu_deadline_misses_=0;
     auto node=parent.lock();
     limits_.configure({node->get_parameter(name+".vx_max").as_double(),
       node->get_parameter(name+".vx_min").as_double(),
@@ -28,11 +34,60 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     if(!std::isfinite(narrow_speed) || narrow_speed<0)
       throw std::invalid_argument("PreciseMPPI narrow_speed_max must be finite and nonnegative");
     narrow_speed_=std::min(narrow_speed,max_speed);
+    if(!node->has_parameter(name+".compute_backend"))node->declare_parameter(name+".compute_backend",std::string("cpu"));
+    if(!node->has_parameter(name+".gpu_min_work"))node->declare_parameter(name+".gpu_min_work",int64_t(262144));
+    if(!node->has_parameter(name+".gpu_deadline_ms"))node->declare_parameter(name+".gpu_deadline_ms",40.);
+    gpu_deadline_ms_=node->get_parameter(name+".gpu_deadline_ms").as_double();
+    if(!std::isfinite(gpu_deadline_ms_) || gpu_deadline_ms_<=0 || gpu_deadline_ms_>50)
+      throw std::invalid_argument("gpu_deadline_ms must be in (0, 50]");
+    const auto backend=parseComputeBackend(node->get_parameter(name+".compute_backend").as_string());
+    const auto work=node->get_parameter(name+".gpu_min_work").as_int();
+    if(work<0)throw std::invalid_argument("gpu_min_work must be nonnegative");
+    if(backend!=ComputeBackend::Cpu) {
+      geometry_=std::make_unique<GeometryCompute>(ComputeOptions{backend,static_cast<uint64_t>(work),node->get_parameter(name+".gpu_deadline_ms").as_double()});
+      RCLCPP_INFO(logger_,"Navigation compute backend: %s (%s)",node->get_parameter(name+".compute_backend").as_string().c_str(),geometry_->deviceName().c_str());
+    }
+    if(!node->has_parameter(name+".sampling_backend"))node->declare_parameter(name+".sampling_backend",std::string("original"));
+    if(!node->has_parameter(name+".gpu_support_points"))node->declare_parameter(name+".gpu_support_points",int64_t(8));
+    const auto sampling=node->get_parameter(name+".sampling_backend").as_string();
+    if(sampling!="original" && sampling!="cuda" && sampling!="auto")
+      throw std::invalid_argument("sampling_backend must be original, cuda or auto");
+    if(sampling!="original") {
+      if(node->get_parameter(name+".motion_model").as_string()!="Omni")
+        throw std::invalid_argument("Optional CUDA sampling supports the Omni model");
+      SamplingSettings settings;
+      const auto batch=node->get_parameter(name+".batch_size").as_int(),steps=node->get_parameter(name+".time_steps").as_int();
+      const auto support=node->get_parameter(name+".gpu_support_points").as_int();
+      if(batch<2 || steps<1 || support<1)throw std::invalid_argument("Invalid GPU sampling dimensions");
+      settings.batch_size=batch;settings.time_steps=steps;settings.support_points=std::min(support,steps);
+      settings.dt=node->get_parameter(name+".model_dt").as_double();
+      settings.temperature=node->get_parameter(name+".temperature").as_double();
+      settings.gamma=node->get_parameter(name+".gamma").as_double();
+      settings.noise={node->get_parameter(name+".vx_std").as_double(),node->get_parameter(name+".vy_std").as_double(),node->get_parameter(name+".wz_std").as_double()};
+      sampling_=std::make_unique<SamplingCompute>(settings,ComputeOptions{parseComputeBackend(sampling),0,gpu_deadline_ms_});
+      RCLCPP_INFO(logger_,"Navigation sampling backend: %s (%s); time-interpolated sampling, filled sweeps and validated sequence selection",sampling.c_str(),sampling_->deviceName().c_str());
+    }
+  }
+  void cleanup() override {
+    reportStatistics();
+    sampling_.reset();sample_path_=nav_msgs::msg::Path();geometry_.reset();
+    nav2_mppi_controller::MPPIController::cleanup();
+  }
+  void reportStatistics() {
+    if(statistics_reported_)return;
+    statistics_reported_=true;
+    RCLCPP_INFO(logger_,"GPU_CONTROL_SUMMARY native_samples=%lu cuda_samples=%lu best_sequence=%lu gpu_failures=%lu deadline_misses=%lu",
+      native_samples_,cuda_samples_,best_sequences_,gpu_failures_,gpu_deadline_misses_);
+    if(geometry_) {
+      const auto &s=geometry_->statistics();
+      RCLCPP_INFO(logger_,"GPU_GEOMETRY_SUMMARY cuda_batches=%lu cpu_batches=%lu boundary_rechecks=%lu",s.cuda_batches,s.cpu_batches,s.boundary_rechecks);
+    }
   }
   void setPlan(const nav_msgs::msg::Path &path) override {
     std::lock_guard<std::mutex> lock(limits_mutex_);
     nav2_mppi_controller::MPPIController::setPlan(path);
     target_path_.setPath(path);
+    if(sampling_) {sample_path_=path;sampling_->reset();}
     have_goal_=!path.poses.empty();if(have_goal_) goal_=path.poses.back();
   }
   void setSpeedLimit(const double &limit,const bool &percentage) override {
@@ -46,6 +101,28 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,
       nav2_core::GoalChecker *checker) override {
     std::lock_guard<std::mutex> lock(limits_mutex_);
+    const auto begin=std::chrono::steady_clock::now();
+    try {
+      auto result=computeCommand(pose,speed,checker);
+      if((geometry_ && geometry_->available()) || (sampling_ && sampling_->available())) {
+        const double elapsed=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+        if(elapsed>gpu_deadline_ms_) {
+          ++gpu_deadline_misses_;
+          RCLCPP_WARN_THROTTLE(logger_,*clock_,2000,"GPU control whole-call deadline exceeded: %.3f ms",elapsed);
+          return stopped(pose);
+        }
+      }
+      return result;
+    } catch(const ComputeFailure &error) {
+      ++gpu_failures_;
+      RCLCPP_ERROR_THROTTLE(logger_,*clock_,2000,"GPU computation stopped motion: %s",error.what());
+      return stopped(pose);
+    }
+  }
+
+ private:
+  geometry_msgs::msg::TwistStamped computeCommand(const geometry_msgs::msg::PoseStamped &pose,
+      const geometry_msgs::msg::Twist &speed,nav2_core::GoalChecker *checker) {
     if(!refreshLimits()) return stopped(pose);
     if(limits_.stopped()) return stopped(pose);
     if(!snapshot(pose,speed)) return stopped(pose);
@@ -69,8 +146,6 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       throw;
     }
   }
-
- private:
   geometry_msgs::msg::TwistStamped converge(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::PoseStamped &target,bool docking) {
     const double dx=target.pose.position.x-pose.pose.position.x,dy=target.pose.position.y-pose.pose.position.y;
     const double yaw=tf2::getYaw(pose.pose.orientation),dyaw=std::remainder(tf2::getYaw(target.pose.orientation)-yaw,2*M_PI);
@@ -136,6 +211,13 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const double dx=b.pose.position.x-a.pose.position.x,dy=b.pose.position.y-a.pose.position.y;
     double radius=0;for(const auto &p:polygon_) radius=std::max(radius,std::hypot(p.x,p.y));
     const int steps=std::max(1,static_cast<int>(std::ceil((std::hypot(dx,dy)+radius*std::abs(delta))/.004)));
+    if(geometry_ && geometry_->willUseCuda(steps+1)) {
+      if(collision({a.pose.position.x,a.pose.position.y,yaw},polygon_,obstacles_,.010))return false;
+      std::vector<Pose> poses;poses.reserve(steps+1);
+      for(int i=0;i<=steps;++i) {const double f=static_cast<double>(i)/steps;poses.push_back({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta});}
+      const auto results=geometry_->evaluate(poses,.010);
+      return std::none_of(results.collisions.begin(),results.collisions.end(),[](uint8_t hit){return hit!=0;});
+    }
     for(int i=0;i<=steps;++i) {
       const double f=static_cast<double>(i)/steps;
       if(collision({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta},polygon_,obstacles_,.010)) return false;
@@ -191,6 +273,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       const double wy=grid_.origin_y+(cy+grid_.crop_y+.5)*grid_.resolution;
       obstacles_.push_back({wx,wy,grid_.resolution*std::sqrt(2.0)/2});
     }
+    if(geometry_ && !polygon_.empty())geometry_->setScene(polygon_,obstacles_);
     return !polygon_.empty();
   }
   bool centeredTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target) {
@@ -208,6 +291,28 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
         candidates.emplace_back(clearance-.05*std::abs(offset),candidate);
       }
       std::stable_sort(candidates.begin(),candidates.end(),[](const auto &a,const auto &b){return a.first>b.first;});
+      if(geometry_ && geometry_->available()) {
+        if(collision({pose.pose.position.x,pose.pose.position.y,tf2::getYaw(pose.pose.orientation)},polygon_,obstacles_,.010))return false;
+        std::vector<Pose> poses;std::vector<size_t> ends;
+        const double yaw=tf2::getYaw(pose.pose.orientation);double radius=0;
+        for(const auto &p:polygon_)radius=std::max(radius,std::hypot(p.x,p.y));
+        for(const auto &candidate:candidates) {
+          const auto &b=candidate.second;
+          const double dx=b.pose.position.x-pose.pose.position.x,dy=b.pose.position.y-pose.pose.position.y;
+          const double delta=std::remainder(tf2::getYaw(b.pose.orientation)-yaw,2*M_PI);
+          const int steps=std::max(1,static_cast<int>(std::ceil((std::hypot(dx,dy)+radius*std::abs(delta))/.004)));
+          for(int i=0;i<=steps;++i) {const double f=static_cast<double>(i)/steps;poses.push_back({pose.pose.position.x+f*dx,pose.pose.position.y+f*dy,yaw+f*delta});}
+          ends.push_back(poses.size());
+        }
+        if(geometry_->willUseCuda(poses.size())) {
+          const auto results=geometry_->evaluate(poses,.010);size_t begin=0;
+          for(size_t i=0;i<ends.size();++i) {
+            const bool hit=std::any_of(results.collisions.begin()+begin,results.collisions.begin()+ends[i],[](uint8_t value){return value!=0;});
+            if(!hit){target=candidates[i].second;return true;}begin=ends[i];
+          }
+          continue;
+        }
+      }
       for(const auto &candidate:candidates) if(directApproachClear(pose,candidate.second)) {target=candidate.second;return true;}
     }
     return false;
@@ -235,11 +340,53 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     return stopped(pose);
   }
   geometry_msgs::msg::TwistStamped sampledCommand(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,nav2_core::GoalChecker *checker) {
+    if(sampling_ && sampling_->available()) {
+      try {
+      auto tf=freshTransform(pose.header.frame_id,sample_path_.header.frame_id,pose.header.stamp);
+      std::vector<Pose> transformed;transformed.reserve(sample_path_.poses.size());
+      size_t nearest=0;double minimum=1e100;
+      for(const auto &source:sample_path_.poses) {
+        auto input=source;input.header.frame_id=sample_path_.header.frame_id;input.header.stamp=pose.header.stamp;
+        geometry_msgs::msg::PoseStamped output;tf2::doTransform(input,output,tf);
+        const Pose p{output.pose.position.x,output.pose.position.y,tf2::getYaw(output.pose.orientation)};
+        const double d=std::hypot(p.x-pose.pose.position.x,p.y-pose.pose.position.y);
+        if(d<minimum){minimum=d;nearest=transformed.size();}transformed.push_back(p);
+      }
+      if(transformed.empty())return stopped(pose);
+      const size_t first=nearest ? nearest-1:0;size_t last=nearest;double distance=0;
+      while(last+1<transformed.size() && distance<1.8){distance+=std::hypot(transformed[last+1].x-transformed[last].x,transformed[last+1].y-transformed[last].y);++last;}
+      const size_t stride=std::max<size_t>(1,(last-first+63)/64);
+      std::vector<Pose> path;for(size_t i=first;i<=last;i+=stride)path.push_back(transformed[i]);
+      if((last-first)%stride)path.push_back(transformed[last]);
+      LocalGridSnapshot full;
+      auto map=costmap_ros_->getCostmap();
+      {
+        std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
+        const auto footprint=costmap_ros_->getRobotFootprint();
+        if(footprint.size()!=polygon_.size())return stopped(pose);
+        for(size_t i=0;i<footprint.size();++i)if(footprint[i].x!=polygon_[i].x || footprint[i].y!=polygon_[i].y)return stopped(pose);
+        full.width=map->getSizeInCellsX();full.height=map->getSizeInCellsY();full.resolution=map->getResolution();
+        full.origin_x=map->getOriginX();full.origin_y=map->getOriginY();
+        if(static_cast<size_t>(full.width)*full.height>16000000)throw ComputeFailure("GPU sampling local map exceeds admitted cell count");
+        full.data.assign(map->getCharMap(),map->getCharMap()+static_cast<size_t>(full.width)*full.height);
+      }
+      const auto sample=sampling_->optimize(full,polygon_,path,
+        {pose.pose.position.x,pose.pose.position.y,tf2::getYaw(pose.pose.orientation)},
+        {speed.linear.x,speed.linear.y,speed.angular.z},limits_.effective());
+      ++cuda_samples_;best_sequences_+=sample.used_best_trajectory;
+      if(!sample.valid)return stopped(pose);
+      geometry_msgs::msg::TwistStamped result;result.header=pose.header;
+      result.twist.linear.x=sample.command.x;result.twist.linear.y=sample.command.y;result.twist.angular.z=sample.command.yaw;
+      return checked(result,pose,speed);
+      } catch(const ComputeFailure &) {throw;}
+      catch(const std::exception &e) {throw ComputeFailure(std::string("CUDA sampling input/result rejected: ")+e.what());}
+    }
     // Humble's periodic reset restores base constraints. Reset before reapplying
     // the current request; checked() also bounds a native fallback retry that
     // performs its own internal reset or filtering.
     applyNativeLimit(true);
     last_time_called_=clock_->now();
+    ++native_samples_;
     return checked(nav2_mppi_controller::MPPIController::computeVelocityCommands(pose,speed,checker),pose,speed);
   }
   void applyNativeLimit(bool periodic_reset=false) {
@@ -271,6 +418,11 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   LocalGridSnapshot grid_;
   geometry_msgs::msg::PoseStamped goal_;PathTarget target_path_;bool have_goal_{false};
   OmniVelocityLimits limits_;std::mutex limits_mutex_;
+  std::unique_ptr<GeometryCompute> geometry_;
+  std::unique_ptr<SamplingCompute> sampling_;nav_msgs::msg::Path sample_path_;
+  double gpu_deadline_ms_{40};
+  uint64_t native_samples_{0},cuda_samples_{0},best_sequences_{0},gpu_failures_{0},gpu_deadline_misses_{0};
+  bool statistics_reported_{false};
   double narrow_speed_{.5},requested_limit_{0};bool requested_percentage_{false};
 };
 }
