@@ -27,8 +27,8 @@ def generate_launch_description():
         'global_costmap.global_costmap.ros__parameters.track_unknown_space':'false',
         'allow_unknown':'true'},convert_types=True)
     ready=Node(package='duojin01_bringup',executable='localization_readiness',output='screen')
-    navigation=GroupAction([include(os.path.join(get_package_share_directory('nav2_bringup'),'launch/navigation_launch.py'),{
-        'use_sim_time':'false','params_file':parameters,'autostart':'true','use_composition':'False'})])
+    navigation=GroupAction([include(os.path.join(own,'launch/navigation_stack.launch.py'),{
+        'params_file':parameters,'autostart':'true'})])
     return LaunchDescription([
         middleware(),
         DeclareLaunchArgument('params_file',default_value=os.path.join(own,'config/nav2.yaml')),

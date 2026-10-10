@@ -1,4 +1,8 @@
 #include "duojin01_navigation/sweep.hpp"
+#include "duojin01_navigation/scan_validity.hpp"
+#include "duojin01_navigation/guard_query.hpp"
+#include "duojin01_navigation/prior_association_cache.hpp"
+#include <deque>
 #include <chrono>
 #include <unordered_map>
 #include <memory>
@@ -17,12 +21,14 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/message_filter.h>
+#include <tf2_ros/create_timer_ros.h>
 
 using namespace duojin01_navigation;
 using Clock = std::chrono::steady_clock;
 class VelocityGuard : public rclcpp::Node {
  public:
-  VelocityGuard():Node("velocity_guard"),buffer_(get_clock()),listener_(buffer_) {
+  VelocityGuard():Node("velocity_guard"),buffer_(get_clock()),listener_(buffer_,this,false) {
     auto flat=declare_parameter<std::vector<double>>("footprint",std::vector<double>{});
     if (flat.size()<6 || flat.size()%2) throw std::runtime_error("A measured convex CCW footprint is required");
     for (size_t i=0;i<flat.size();i+=2) polygon_.push_back({flat[i],flat[i+1]});
@@ -44,7 +50,7 @@ class VelocityGuard : public rclcpp::Node {
         margin_<0 || range_error_<0 || decel_<=0 || angular_decel_<=0 || reaction_<0 ||
         scan_timeout_<=0 || command_timeout_<=0 || memory_radius_<=0) throw std::runtime_error("Invalid guard limits");
     auto qos=rclcpp::QoS(1);
-    output_=create_publisher<geometry_msgs::msg::Twist>("/cmd_vel_guarded",qos);
+    output_=create_publisher<geometry_msgs::msg::Twist>("/cmd_vel_base",qos);
     status_=create_publisher<std_msgs::msg::String>("/navigation/guard_status",qos);
     memory_output_=create_publisher<sensor_msgs::msg::PointCloud2>("/navigation/obstacle_memory",rclcpp::SensorDataQoS());
     command_sub_=create_subscription<geometry_msgs::msg::Twist>("/cmd_vel_requested",qos,
@@ -60,8 +66,15 @@ class VelocityGuard : public rclcpp::Node {
         if(!std::isfinite(pose_.yaw)) {have_odom_=false;return;}
         last_odom_=Clock::now();have_odom_=true;
       });
+    // TF readiness is event driven. Listener and filter callbacks share this
+    // node's single executor, so they cannot race the safety state or timer.
+    buffer_.setCreateTimerInterface(std::make_shared<tf2_ros::CreateTimerROS>(
+      get_node_base_interface(),get_node_timers_interface()));
+    scan_filter_=std::make_unique<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>>(
+      buffer_,"odom",2,get_node_logging_interface(),get_node_clock_interface(),std::chrono::milliseconds(20));
+    scan_filter_->registerCallback([this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){++tf_ready_scans_;scan(m);});
     scan_sub_=create_subscription<sensor_msgs::msg::LaserScan>("/scan",rclcpp::SensorDataQoS(),
-      [this](sensor_msgs::msg::LaserScan::SharedPtr m){scan(m);});
+      [this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){receiveScan(m);});
     costmap_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/local_costmap/costmap",rclcpp::QoS(1).transient_local(),
       [this](nav_msgs::msg::OccupancyGrid::SharedPtr m){costmap(m);});
     prior_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(1).transient_local(),
@@ -70,14 +83,14 @@ class VelocityGuard : public rclcpp::Node {
            !std::isfinite(m->info.resolution) || m->info.resolution<=0 ||
            m->data.size()!=static_cast<size_t>(m->info.width)*m->info.height) return;
         Pose origin{m->info.origin.position.x,m->info.origin.position.y,tf2::getYaw(m->info.origin.orientation)};
-        prior_points_.clear();prior_bins_.clear();
+        prior_points_.clear();
         for(size_t i=0;i<m->data.size();++i) if(m->data[i]>=65) {
           Point p{(i%m->info.width+.5)*m->info.resolution,(i/m->info.width+.5)*m->info.resolution,
                   std::sqrt(2.0)*m->info.resolution/2};
           prior_points_.push_back(transform(p,origin));
-          const auto &q=prior_points_.back();
-          prior_bins_[priorKey(static_cast<int>(std::floor(q.x/.5)),static_cast<int>(std::floor(q.y/.5)))].push_back(prior_points_.size()-1);
         }
+        prior_index_.rebuild(prior_points_);
+        ++prior_epoch_;
         have_prior_=true;
       });
     localization_sub_=create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose",rclcpp::QoS(1).transient_local(),
@@ -98,19 +111,52 @@ class VelocityGuard : public rclcpp::Node {
   static double age(Clock::time_point t){return std::chrono::duration<double>(Clock::now()-t).count();}
   Pose framePose(const std::string &frame,const builtin_interfaces::msg::Time &stamp) {
     if (frame=="odom") return {};
-    auto tf=buffer_.lookupTransform("odom",frame,rclcpp::Time(stamp),rclcpp::Duration::from_seconds(.02));
-    return {tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
+    // Humble Buffer's timeout overload requires a dedicated listener even
+    // for a zero duration. BufferCore queries the already populated cache
+    // immediately, as required by this single-executor MessageFilter owner.
+    auto tf=static_cast<const tf2::BufferCore &>(buffer_).lookupTransform(
+      "odom",frame,tf2_ros::fromRclcpp(rclcpp::Time(stamp)));
+    Pose pose{tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
+    if(!std::isfinite(pose.x)||!std::isfinite(pose.y)||!std::isfinite(pose.yaw))
+      throw tf2::TransformException("Non-finite planar sensor transform");
+    return pose;
   }
-  void scan(const sensor_msgs::msg::LaserScan::SharedPtr &m) {
+  void invalidScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m) {
+    scan_order_.fault(validScanStamp(m->header.stamp) ? scanStampNanoseconds(m->header.stamp) : -1);
+    have_scan_=false;scan_invalid_=true;
+    publish({},"scan_invalid",0,Clock::now());
+  }
+  void receiveScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m) {
+    // Malformed input stops immediately, even if its sensor TF is missing.
+    if(!validScanStamp(m->header.stamp)) {invalidScan(m);return;}
+    if(std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>scan_timeout_) return;
+    if(scanValidity(*m)!=ScanValidity::Valid) {invalidScan(m);return;}
+    const auto stamp=scanStampNanoseconds(m->header.stamp);
+    if(!scan_order_.canAccept(stamp)) return;
+    for(const auto &receipt:scan_receipts_) if(receipt.first==stamp) return;
+    scan_receipts_.emplace_back(stamp,Clock::now());
+    while(scan_receipts_.size()>2) scan_receipts_.pop_front();
+    scan_filter_->add(m);
+  }
+  void scan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m) {
+    const auto stamp=scanStampNanoseconds(m->header.stamp);
+    auto receipt=std::find_if(scan_receipts_.begin(),scan_receipts_.end(),
+      [stamp](const auto &entry){return entry.first==stamp;});
+    if(receipt==scan_receipts_.end()) return;
+    const auto received=receipt->second;scan_receipts_.erase(receipt);
+    if(!validScanStamp(m->header.stamp)) {invalidScan(m);return;}
     try {
       if (std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>scan_timeout_) return;
+      if(scanValidity(*m)!=ScanValidity::Valid) {invalidScan(m);return;}
+      if(age(received)>scan_timeout_) return;
+      if(!scan_order_.canAccept(scanStampNanoseconds(m->header.stamp))) return;
       auto transform_pose=framePose(m->header.frame_id,m->header.stamp);
-      if(m->ranges.empty() || !std::isfinite(m->angle_increment) || m->angle_increment==0) return;
       // Correct remembered surfaces when localization compensates odometry
       // drift. Fresh observations remain in sensor-time odom coordinates.
       // Without this anchoring, an old wall can drift into the footprint.
       try {
-        if(!buffer_.canTransform("odom","map",rclcpp::Time(m->header.stamp),rclcpp::Duration::from_seconds(0))) {
+        if(!static_cast<const tf2::BufferCore &>(buffer_).canTransform(
+            "odom","map",tf2_ros::fromRclcpp(rclcpp::Time(m->header.stamp)),nullptr)) {
           if(have_anchor_) return;
           throw tf2::TransformException("No global localization yet");
         }
@@ -167,6 +213,8 @@ class VelocityGuard : public rclcpp::Node {
       }
       scan_points_.clear();scan_points_.reserve(memory.size());
       for(const auto &entry:memory) scan_points_.push_back(entry.second);
+      observed_index_.rebuild(scan_points_);
+      ++observation_epoch_;
       sensor_msgs::msg::PointCloud2 cloud;cloud.header=m->header;
       sensor_msgs::PointCloud2Modifier modifier(cloud);modifier.setPointCloud2FieldsByString(1,"xyz");modifier.resize(scan_points_.size());
       sensor_msgs::PointCloud2Iterator<float> cx(cloud,"x"),cy(cloud,"y"),cz(cloud,"z");
@@ -176,7 +224,8 @@ class VelocityGuard : public rclcpp::Node {
         ++cx;++cy;++cz;
       }
       memory_output_->publish(cloud);
-      last_scan_=Clock::now();have_scan_=true;
+      scan_order_.accepted(scanStampNanoseconds(m->header.stamp));
+      last_scan_=received;have_scan_=true;scan_invalid_=false;
     } catch (const tf2::TransformException &) { /* Fail closed until fresh sensor TF is available. */ }
   }
   void costmap(const nav_msgs::msg::OccupancyGrid::SharedPtr &m) {
@@ -199,10 +248,7 @@ class VelocityGuard : public rclcpp::Node {
   bool blocked(Velocity v,const std::vector<Point> &points,double reserve=0) {
     return brakingSweep(pose_,v,polygon_,points,margin_+reserve,reaction_,decel_,angular_decel_);
   }
-  static uint64_t priorKey(int x,int y) {
-    return (static_cast<uint64_t>(static_cast<uint32_t>(x))<<32)|static_cast<uint32_t>(y);
-  }
-  std::vector<Point> obstacles() {
+  std::vector<Point> obstacles(const Velocity &requested) {
     // Live scan obstacles are measured in odom: AMCL covariance is not an
     // additional independent error on those observations. A map prior needs
     // that margin only where its surface has not been directly observed.
@@ -212,33 +258,26 @@ class VelocityGuard : public rclcpp::Node {
     if(std::abs((now()-rclcpp::Time(tf.header.stamp)).seconds())>.50)
       throw tf2::TransformException("Stale localization transform");
     Pose map_pose{tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
-    std::unordered_multimap<int64_t,const Point *> observed;
-    const auto key=[](int x,int y){return static_cast<int64_t>(x)*10000000LL+y;};
-    constexpr double bin=.05;
-    for(const auto &p:scan_points_) observed.emplace(key(static_cast<int>(std::floor(p.x/bin)),static_cast<int>(std::floor(p.y/bin))),&p);
     // Index once per map update. Transform only nearby cells per control tick,
     // so a large warehouse does not add a full-map scan to every brake check.
     const double c=std::cos(map_pose.yaw),s=std::sin(map_pose.yaw);
     const double mx=c*(pose_.x-map_pose.x)+s*(pose_.y-map_pose.y);
     const double my=-s*(pose_.x-map_pose.x)+c*(pose_.y-map_pose.y);
-    const int lx=static_cast<int>(std::floor((mx-memory_radius_-1e-9)/.5)),ux=static_cast<int>(std::floor((mx+memory_radius_+1e-9)/.5));
-    const int ly=static_cast<int>(std::floor((my-memory_radius_-1e-9)/.5)),uy=static_cast<int>(std::floor((my+memory_radius_+1e-9)/.5));
-    for(int bx=lx;bx<=ux;++bx) for(int by=ly;by<=uy;++by) {
-      const auto bucket=prior_bins_.find(priorKey(bx,by));if(bucket==prior_bins_.end()) continue;
-      for(const auto index:bucket->second) {
-        auto p=transform(prior_points_[index],map_pose);
-        if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) continue;
+    query_radius_=guardQueryRadius(polygon_,actual_,requested,margin_,reaction_,decel_,
+      prior_index_.maxRadius(),localization_margin_,memory_radius_);
+    association_cache_.begin(prior_points_.size(),
+      {prior_epoch_,observation_epoch_,map_pose,localization_margin_,range_error_});
+    prior_examined_=prior_index_.forEachNearIndexed(prior_points_,mx,my,query_radius_,[&](const Point &q,size_t index) {
+        Point p{map_pose.x+c*q.x-s*q.y,map_pose.y+s*q.x+c*q.y,q.radius};
+        if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) return;
         bool matched=false;
         const double association=p.radius+std::min(.10,localization_margin_)+range_error_+.015;
-        const int x=static_cast<int>(std::floor(p.x/bin)),y=static_cast<int>(std::floor(p.y/bin));
-        const int extent=static_cast<int>(std::ceil(association/bin));
-        if(localization_margin_<.15) for(int dx=-extent;dx<=extent&&!matched;++dx) for(int dy=-extent;dy<=extent&&!matched;++dy) {
-          auto range=observed.equal_range(key(x+dx,y+dy));
-          for(auto it=range.first;it!=range.second;++it) if(std::hypot(p.x-it->second->x,p.y-it->second->y)<=association) {matched=true;break;}
-        }
+        if(localization_margin_<.15) matched=association_cache_.match(index,[&](){
+          return observed_index_.hasWithin(scan_points_,p,association);
+        });
         if(!matched) {p.radius+=localization_margin_;points.push_back(p);}
-      }
-    }
+    });
+    candidate_points_=points.size();
     return points;
   }
   void tick() {
@@ -247,16 +286,19 @@ class VelocityGuard : public rclcpp::Node {
     std::string reason="clear";
     double scale=0;
     if (!have_command_ || age(last_command_)>command_timeout_) reason="command_stale";
+    else if (scan_invalid_) reason="scan_invalid";
     else if (!have_scan_ || age(last_scan_)>scan_timeout_) reason="scan_or_tf_stale";
     else if (!have_odom_ || age(last_odom_)>.20) reason="odometry_stale";
     else if (have_map_ && age(last_map_)>.60) reason="costmap_stale";
     else {
-      std::vector<Point> points;
-      try {points=obstacles();}
-      catch(const tf2::TransformException &) {reason="localization_tf_stale";publish(result,reason,scale,start);return;}
       Velocity requested{command_.linear.x,command_.linear.y,command_.angular.z};
-      if (!std::isfinite(requested.x)||!std::isfinite(requested.y)||!std::isfinite(requested.yaw)) reason="invalid_command";
-      else if (blocked(actual_,points)) {
+      if (!std::isfinite(requested.x)||!std::isfinite(requested.y)||!std::isfinite(requested.yaw)) {
+        publish(result,"invalid_command",scale,start);return;
+      }
+      std::vector<Point> points;
+      try {points=obstacles(requested);}
+      catch(const tf2::TransformException &) {reason="localization_tf_stale";publish(result,reason,scale,start);return;}
+      if (blocked(actual_,points)) {
         reason="measured_braking_collision";
         const double c=std::cos(pose_.yaw),s=std::sin(pose_.yaw);
         double closest=1e10;Point near{};
@@ -296,16 +338,26 @@ class VelocityGuard : public rclcpp::Node {
     const double milliseconds=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
     std::ostringstream stream;
     stream << "{\"reason\":\"" << reason << "\",\"scale\":" << scale << ",\"compute_ms\":" << milliseconds
-           << ",\"localization_margin_m\":" << localization_margin_ << ",\"remembered_points\":" << scan_points_.size() << "}";
+           << ",\"localization_margin_m\":" << localization_margin_ << ",\"remembered_points\":" << scan_points_.size()
+           << ",\"prior_examined\":" << prior_examined_ << ",\"candidate_points\":" << candidate_points_
+           << ",\"prior_association_hits\":" << association_cache_.hits()
+           << ",\"prior_association_misses\":" << association_cache_.misses()
+           << ",\"query_radius_m\":" << query_radius_ << ",\"tf_ready_scans\":" << tf_ready_scans_ << "}";
     std_msgs::msg::String status;status.data=stream.str();status_->publish(status);
   }
   Polygon polygon_; Pose pose_,memory_anchor_; Velocity actual_;geometry_msgs::msg::Twist command_;
   std::vector<Point> scan_points_,map_points_,prior_points_;
-  std::unordered_map<uint64_t,std::vector<size_t>> prior_bins_;
+  SpatialPointIndex prior_index_{.10},observed_index_{.05};
+  PriorAssociationCache association_cache_;
+  uint64_t prior_epoch_{0},observation_epoch_{0};
+  size_t prior_examined_{0},candidate_points_{0},tf_ready_scans_{0};double query_radius_{0};
+  std::deque<std::pair<int64_t,Clock::time_point>> scan_receipts_;
   double margin_,range_error_,reaction_,decel_,angular_decel_,scan_timeout_,command_timeout_,memory_radius_,localization_margin_{0};
   Clock::time_point last_command_,last_scan_,last_odom_,last_map_;
-  bool have_command_{false},have_scan_{false},have_odom_{false},have_map_{false},have_prior_{false},have_anchor_{false};
+  ScanRecoveryOrder scan_order_;
+  bool have_command_{false},have_scan_{false},have_odom_{false},have_map_{false},have_prior_{false},have_anchor_{false},scan_invalid_{false};
   tf2_ros::Buffer buffer_;tf2_ros::TransformListener listener_;
+  std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>> scan_filter_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr output_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr memory_output_;

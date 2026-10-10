@@ -6,6 +6,8 @@ import signal
 import struct
 import subprocess
 import time
+from pathlib import Path
+from ament_index_python.packages import get_package_prefix
 
 import rclpy
 from rclpy.node import Node
@@ -39,7 +41,7 @@ def run():
     logfile = '/tmp/base-feedback-probe.log'
     with open(logfile, 'w') as log:
         process = subprocess.Popen([
-            'ros2', 'run', 'duojin01_base_driver', 'duojin01_base_driver_node', '--ros-args',
+            str(Path(get_package_prefix('duojin01_base_driver'))/'lib/duojin01_base_driver/duojin01_base_driver_node'), '--ros-args',
             '-p', f'usart_port_name:={path}', '-p', 'serial_baud_rate:=57600',
             '-p', 'loop_hz:=200', '-p', 'imu_yaw_rate_bias:=0.01',
             '-p', 'imu_yaw_rate_variance:=0.02',
@@ -110,7 +112,7 @@ def run():
                 assert wire[9] == checksum, wire
 
             # Stop the command publisher while feedback stays healthy: the driver
-            # must send an actual zero frame even if guard / monitor crashes.
+            # must send an actual zero frame if the upstream command source stops.
             read_pending();command=Twist();command.linear.x=0.3;commands.publish(command)
             published=time.monotonic();wire=b'';expired_stop=None;saw_motion=False
             while time.monotonic()-published<.6 and expired_stop is None:
@@ -144,11 +146,9 @@ def run():
                               'silent_reconnect': 'passed'}, indent=2))
         finally:
             os.killpg(process.pid, signal.SIGINT)
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
-                process.wait()
+            returncode = process.wait(timeout=10)
+            assert returncode == 0, returncode
+            print(json.dumps({'cleanup':{'returncode':returncode,'forced':False}}))
             node.destroy_node()
             rclpy.shutdown()
             os.close(master)

@@ -104,7 +104,10 @@ class SaveMapClient(Node):
                     response = self.call(self.graph_client, graph_request, "/slam_toolbox/serialize_map")
                     if response.result != SerializePoseGraph.Response.RESULT_SUCCESS:
                         raise RuntimeError(f"Pose graph save failed with result {response.result}")
-                saved = commit_snapshot(pending, final, self.provenance(), self.serialize_graph)
+                # Validate the selected saved raster. dynamic_map is only a
+                # readiness check: ongoing mapping may update before SaveMap.
+                saved = commit_snapshot(pending, final, self.provenance(),
+                                        self.serialize_graph, validate_raster=True)
                 self.get_logger().info(f"Saved complete map snapshot: {saved}")
                 return 0
         except Exception as error:

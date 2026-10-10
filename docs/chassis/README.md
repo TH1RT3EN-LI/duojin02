@@ -1,4 +1,4 @@
-# 最新底盘几何与导航投影
+# 底盘 CAD 几何与导航投影（2026-10-06）
 
 2026-10-06 更新，来源为 `PackAndGo 0000 双臂移动机器人-2026-09-21.zip` 的有效装配实例及原生缓存三角网格。本次替换旧底盘、通用轮子、假轮轴和旧雷达安装位置；`main` 继续用于真机，未引入仿真插件或运行依赖。
 
@@ -70,9 +70,9 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
  [0.202879, -0.203], [0.213, -0.192879]]
 ```
 
-图中与上述多边形尚未包含额外 padding。沿用原配置的局部 80 mm / 全局 40 mm padding；膨胀半径从 100 mm 调整为 350 mm，使其大于加 padding 后的内切半径，代价衰减系数仍为 3.0。导航的通道通过性需要实机验证。
+图中与上述多边形尚未包含额外 padding。**2026-10-06 建模阶段**沿用局部 80 mm / 全局 40 mm padding，并将膨胀半径从 100 mm 调至 350 mm，代价衰减系数为 3.0；这些是历史配置记录，不是当前导航推荐值。当前局部 / 全局足迹、padding 与膨胀参数以 [nav2.yaml](../../src/duojin01_bringup/config/nav2.yaml) 为维护位置。原始投影经外向取整后约为 427 × 406 mm，不能把 CAD 尺寸、导航多边形和额外 padding 混为一个尺寸。通道通过性仍需实机验证。
 
-足迹范围与 Nav2 的配置关系见 [Nav2 足迹说明](https://docs.nav2.org/rolling/configuration_and_development/first_time_robot_setup_guide/footprint/setup_footprint/)，膨胀参数说明见 [膨胀层说明](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/)。
+足迹范围与 Nav2 的配置关系见 [Nav2 足迹说明](https://docs.nav2.org/rolling/configuration_and_development/first_time_robot_setup_guide/footprint/setup_footprint/)，膨胀参数说明见 [膨胀层说明](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/)。 这两处链接分别面向 Rolling / Jazzy，只作概念参考，当前 Humble 配置不由外链版本决定。
 
 ## 网格质量与碰撞几何
 
@@ -83,6 +83,8 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
 旧底盘和旧通用轮子的六个 STL 已移除，避免安装包中出现两套相互矛盾的模型。原模型仍可从 Git 历史恢复。
 
 ## 本地生成与验证
+
+生成脚本属于模型维护工具，不是日常部署步骤；它会写描述资产与导航足迹相关配置。重新生成后应检查差异，保留经过验证的导航参数与实测光学高度，不把建模阶段的默认值重新覆盖到调参后的工作树。以下验证结果仅属于本次 CAD 更新。
 
 尺寸集中在 `src/duojin01_description/urdf/chassis_geometry.xacro`，由 `scripts/update_chassis_model.py` 生成。原始 CAD 分析目录与 Python 环境不打包到运行包内。离线生成环境需要 numpy、scipy、trimesh、Pillow 和 CJK 字体；预览使用本地 Blender 5.0.1。
 

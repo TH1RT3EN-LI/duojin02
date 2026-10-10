@@ -1,5 +1,7 @@
 # hardware-only 减法记录
 
+历史记录：2026-10-06 的 10→6 包精简阶段。后续增加 `duojin01_navigation`，当前共 7 包；本页的分支名和包数不描述当前工作树。操作见 [主 README](../README.MD)，接口见 [开发接口](../README_DEVELOPMENT.md)。
+
 日期：2026-10-06。基于 `b3f68de`，本轮改动仅在 `hardware-only` 工作树。
 
 ## 当前范围

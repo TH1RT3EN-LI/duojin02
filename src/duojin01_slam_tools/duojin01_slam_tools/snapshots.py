@@ -14,6 +14,8 @@ from pathlib import Path
 
 import yaml
 
+from .raster import validate_trinary_raster
+
 
 def digest(path):
     checksum = hashlib.sha256()
@@ -84,12 +86,13 @@ def reserve_snapshot(directory, name, timeout=30.0):
             yield Path(temporary) / name, directory / name
 
 
-def commit_snapshot(staged_prefix, final_prefix, provenance, include_graph=True):
+def commit_snapshot(staged_prefix, final_prefix, provenance, include_graph=True, validate_raster=False):
     staged_prefix, final_prefix = Path(staged_prefix), Path(final_prefix)
     staged_yaml = artifact_path(staged_prefix, ".yaml")
     metadata, image = validate_map(staged_yaml, verify_snapshot=False)
     if image.parent != staged_prefix.parent.resolve():
         raise ValueError("Map saver wrote the image outside the pending snapshot")
+    raster_validation = validate_trinary_raster(metadata, image) if validate_raster else None
     metadata["image"] = image.name
     staged_yaml.write_text(yaml.safe_dump(metadata, sort_keys=False))
     files = {"image": image, "yaml": staged_yaml}
@@ -106,6 +109,8 @@ def commit_snapshot(staged_prefix, final_prefix, provenance, include_graph=True)
         "files": {key: {"name": value.name, "bytes": value.stat().st_size,
                         "sha256": digest(value)} for key, value in files.items()},
     }
+    if raster_validation is not None:
+        manifest["raster_validation"] = raster_validation
     manifest_path = artifact_path(staged_prefix, ".snapshot.json")
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     # Consumers discover *.yaml. Publish it last, after every referenced file is durable.

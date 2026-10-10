@@ -1,0 +1,40 @@
+{
+  "protocol": "serial ABBA, two fresh processes per arm per case; all runs same container and executable; no rebuilding within comparison",
+  "cases": [
+    [
+      100,
+      "reuse"
+    ],
+    [
+      1000,
+      "reuse"
+    ],
+    [
+      10000,
+      "reuse"
+    ],
+    [
+      1000,
+      "replace-every-cycle"
+    ]
+  ],
+  "timing": "thread CPU and steady wall around selection only, plus repeated own-input preparation in replace mode; TF lookup, native base setPlan, grid snapshots, safety checks, ROS transport and navigation excluded",
+  "workload": "cycles=max(2000,20000000/point_count), 100 warmup; deterministic trace in frozen benchmark source; no historical timing pooled",
+  "sources": {
+    "src/duojin01_navigation/include/duojin01_navigation/path_target.hpp": "2a3533a59127297c3bb26d7cb9db89885c555d1938ae145b75310374d47ba94f",
+    "src/duojin01_navigation/test/path_target_reference.hpp": "2f46af2db6447fdc30abadbe2d53d9d44bdfb6172c9d673de4b298e0f8b5bec7",
+    "src/duojin01_navigation/test/path_target_checks.cpp": "b4545274fe67d48285f80776fa904d5b692a6808942ca23bd257dc270c159491",
+    "tests/performance/path_target_benchmark.cpp": "f9cbfc55bf00e7dd3f66595a4f6802a90469bf12fc222c44add2510751add4df",
+    "src/duojin01_navigation/src/precise_mppi.cpp": "dfd54a82594abc045b7353e9aca54c4c3d2c17850acef4ce3addb19b07c883e3",
+    "src/duojin01_navigation/CMakeLists.txt": "ba2bd8ceb9c2adfe9e890b7609f516539a94e0784da376c6bc8c453c80d7580b"
+  },
+  "baseline_cpp_sha256": "0a8a7cf749d236ad854c515d908336ce759e303414545971cf3bce6e0319176c",
+  "image_id": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+  "resource_limits": {
+    "network": "none",
+    "cpus": 2,
+    "memory": "2g",
+    "pids": 128
+  },
+  "architecture": "native x86_64, not Jetson"
+}

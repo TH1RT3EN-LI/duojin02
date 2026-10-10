@@ -1,0 +1,86 @@
+[
+  {
+    "group": "index",
+    "mode": "compact_queries",
+    "cpu_mean_ms": {
+      "baseline": 0.16696710272499998,
+      "candidate": 0.114336099125
+    },
+    "delta_percent": -31.52178048312001,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "group": "index",
+    "mode": "compact_rebuild_query",
+    "cpu_mean_ms": {
+      "baseline": 0.1931855226,
+      "candidate": 0.1235549819
+    },
+    "delta_percent": -36.04335343708618,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "group": "index",
+    "mode": "sparse_rebuild_query",
+    "cpu_mean_ms": {
+      "baseline": 0.0980795186,
+      "candidate": 0.0993232921
+    },
+    "delta_percent": 1.2681276557570786,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "group": "association",
+    "mode": "scan10_guard20",
+    "cpu_mean_ms": {
+      "baseline": 0.08755389795,
+      "candidate": 0.0608714966
+    },
+    "delta_percent": -30.47540083850716,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "group": "association",
+    "mode": "transform_each_cycle",
+    "cpu_mean_ms": {
+      "baseline": 0.1563118145,
+      "candidate": 0.09585692145
+    },
+    "delta_percent": -38.67583089824602,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "group": "association",
+    "mode": "scan20_guard20",
+    "cpu_mean_ms": {
+      "baseline": 0.14857566249999998,
+      "candidate": 0.09179958260000001
+    },
+    "delta_percent": -38.2135801682863,
+    "ordered_output_identity": true,
+    "corpus_identity": true,
+    "work_counts_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  }
+]

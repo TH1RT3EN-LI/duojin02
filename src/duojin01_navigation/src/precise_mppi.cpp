@@ -1,8 +1,13 @@
 #include "duojin01_navigation/tracking.hpp"
+#include "duojin01_navigation/velocity_limits.hpp"
+#include "duojin01_navigation/local_grid_snapshot.hpp"
+#include "duojin01_navigation/path_target.hpp"
+#include <cstring>
 #include <nav2_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2/utils.h>
+#include <mutex>
 
 namespace duojin01_navigation {
 class PreciseMPPI : public nav2_mppi_controller::MPPIController {
@@ -12,26 +17,37 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
     nav2_mppi_controller::MPPIController::configure(parent,name,tf,costmap);
     auto node=parent.lock();
-    max_speed_=node->get_parameter(name+".vx_max").as_double();
-    reverse_speed_=-node->get_parameter(name+".vx_min").as_double();
-    lateral_speed_=node->get_parameter(name+".vy_max").as_double();
+    limits_.configure({node->get_parameter(name+".vx_max").as_double(),
+      node->get_parameter(name+".vx_min").as_double(),
+      node->get_parameter(name+".vy_max").as_double(),
+      node->get_parameter(name+".wz_max").as_double()});
+    const double max_speed=limits_.configured().vx_max;
     if(!node->has_parameter(name+".narrow_speed_max"))
-      node->declare_parameter(name+".narrow_speed_max",max_speed_);
-    narrow_speed_=std::clamp(node->get_parameter(name+".narrow_speed_max").as_double(),0.0,max_speed_);
-    speed_limit_=max_speed_;
+      node->declare_parameter(name+".narrow_speed_max",max_speed);
+    const double narrow_speed=node->get_parameter(name+".narrow_speed_max").as_double();
+    if(!std::isfinite(narrow_speed) || narrow_speed<0)
+      throw std::invalid_argument("PreciseMPPI narrow_speed_max must be finite and nonnegative");
+    narrow_speed_=std::min(narrow_speed,max_speed);
   }
   void setPlan(const nav_msgs::msg::Path &path) override {
+    std::lock_guard<std::mutex> lock(limits_mutex_);
     nav2_mppi_controller::MPPIController::setPlan(path);
-    path_=path;
+    target_path_.setPath(path);
     have_goal_=!path.poses.empty();if(have_goal_) goal_=path.poses.back();
   }
   void setSpeedLimit(const double &limit,const bool &percentage) override {
-    nav2_mppi_controller::MPPIController::setSpeedLimit(limit,percentage);
-    speed_limit_=limit==0 ? max_speed_ : percentage ? max_speed_*std::clamp(limit/100.0,0.0,1.0) : std::clamp(limit,0.0,max_speed_);
+    std::lock_guard<std::mutex> lock(limits_mutex_);
+    requested_limit_=limit;requested_percentage_=percentage;
+    if(!limits_.update(limit,percentage))
+      RCLCPP_WARN(logger_,"Invalid speed limit: all motion is stopped until a valid limit or reset is received");
+    applyNativeLimit();
   }
   geometry_msgs::msg::TwistStamped computeVelocityCommands(
       const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,
       nav2_core::GoalChecker *checker) override {
+    std::lock_guard<std::mutex> lock(limits_mutex_);
+    if(!refreshLimits()) return stopped(pose);
+    if(limits_.stopped()) return stopped(pose);
     if(!snapshot(pose,speed)) return stopped(pose);
     geometry_msgs::msg::PoseStamped target;
     try {
@@ -65,27 +81,28 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const bool align_first=!docking && narrow && std::abs(dyaw)>.03 && directApproachClear(pose,rotation);
     const double vx=align_first ? 0 : 2.0*(std::cos(yaw)*dx+std::sin(yaw)*dy);
     const double vy=align_first ? 0 : 2.0*(-std::sin(yaw)*dx+std::cos(yaw)*dy);
-    double cap=std::min(speed_limit_,narrow ? narrow_speed_ : max_speed_);
+    const auto &bounds=limits_.effective();
+    const double reverse_speed=-bounds.vx_min;
+    double cap=std::min(bounds.vx_max,narrow ? narrow_speed_ : limits_.configured().vx_max);
     if(docking) cap=std::min(cap,std::sqrt(.6*std::max(0.0,std::hypot(dx,dy)-.001)));
     cap*=std::clamp(1.0-std::abs(dyaw),.2,1.0);
     // Preserve small lateral corrections instead of dividing them by a long
     // forward lookahead; they otherwise fall into the smoother's deadband.
-    const double cx=narrow ? std::clamp(vx,-std::min(reverse_speed_,cap),cap) : vx;
-    const double cy=narrow ? std::clamp(vy,-std::min(lateral_speed_,cap),std::min(lateral_speed_,cap)) : vy;
-    const double scale=std::min({1.0,cap/std::max(.001,std::hypot(cx,cy)),std::min(lateral_speed_,speed_limit_)/std::max(.001,std::abs(cy)),
-      (cx<0 ? reverse_speed_ : max_speed_)/std::max(.001,std::abs(cx))});
+    const double cx=narrow ? std::clamp(vx,-std::min(reverse_speed,cap),cap) : vx;
+    const double cy=narrow ? std::clamp(vy,-std::min(bounds.vy_max,cap),std::min(bounds.vy_max,cap)) : vy;
+    const double lateral_scale=std::abs(cy)<1e-12 ? 1.0 : std::min(bounds.vy_max,bounds.vx_max)/std::max(.001,std::abs(cy));
+    const double scale=std::min({1.0,cap/std::max(.001,std::hypot(cx,cy)),lateral_scale,
+      (cx<0 ? reverse_speed : bounds.vx_max)/std::max(.001,std::abs(cx))});
     geometry_msgs::msg::TwistStamped result;result.header=pose.header;
     result.twist.linear.x=cx*scale;result.twist.linear.y=cy*scale;
     const double temporal_scale=narrow && !align_first && !docking ?
       std::min(1.0,std::hypot(result.twist.linear.x,result.twist.linear.y)/std::max(.001,2*std::hypot(dx,dy))) : 1.0;
-    result.twist.angular.z=std::clamp(1.8*dyaw*temporal_scale,narrow ? -.15 : -.45,narrow ? .15 : .45);
+    const double yaw_cap=std::min(bounds.wz_max,narrow ? .15 : .45);
+    result.twist.angular.z=std::clamp(1.8*dyaw*temporal_scale,-yaw_cap,yaw_cap);
     return result;
   }
   bool nearObstacle(const geometry_msgs::msg::PoseStamped &pose) {
-    auto map=costmap_ros_->getCostmap();
-    std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
-    unsigned int x=0,y=0;
-    return map->worldToMap(pose.pose.position.x,pose.pose.position.y,x,y) && map->getCost(x,y)>=120;
+    return grid_.nearObstacle(pose.pose.position.x,pose.pose.position.y);
   }
   bool trackingTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target,const geometry_msgs::msg::Twist &speed) {
     if(!pathTarget(pose,target,speed)) return false;
@@ -108,27 +125,10 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     return directApproachClear(pose,target);
   }
   bool pathTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target,const geometry_msgs::msg::Twist &speed) {
-    if(path_.poses.empty()) return false;
+    if(target_path_.empty()) return false;
     try {
-      nav_msgs::msg::Path local;
-      const auto tf=freshTransform(pose.header.frame_id,path_.header.frame_id,pose.header.stamp);
-      for(auto p:path_.poses) {p.header.stamp=pose.header.stamp;geometry_msgs::msg::PoseStamped q;
-        tf2::doTransform(p,q,tf);local.poses.push_back(q);}
-      size_t nearest=0;double minimum=1e100;
-      for(size_t i=0;i<local.poses.size();++i) {
-        const auto &p=local.poses[i].pose;
-        const double d=std::hypot(p.position.x-pose.pose.position.x,p.position.y-pose.pose.position.y);
-        const double dyaw=std::remainder(tf2::getYaw(p.orientation)-tf2::getYaw(pose.pose.orientation),2*M_PI);
-        const double score=d*d+.02*dyaw*dyaw;
-        if(score<minimum) {minimum=score;nearest=i;}
-      }
-      if(std::hypot(local.poses[nearest].pose.position.x-pose.pose.position.x,local.poses[nearest].pose.position.y-pose.pose.position.y)>.20) return false;
-      size_t index=nearest;double arc=0;
-      while(index+1<local.poses.size() && arc<std::clamp(.18+.4*std::hypot(speed.linear.x,speed.linear.y),.18,.35)) {
-        const auto &a=local.poses[index].pose.position,&b=local.poses[index+1].pose.position;
-        arc+=std::hypot(b.x-a.x,b.y-a.y);++index;
-      }
-      target=local.poses[index];return true;
+      const auto tf=freshTransform(pose.header.frame_id,target_path_.frameId(),pose.header.stamp);
+      return target_path_.select(pose,tf,speed,target);
     } catch(const tf2::TransformException &) {return false;}
   }
   bool directApproachClear(const geometry_msgs::msg::PoseStamped &a,const geometry_msgs::msg::PoseStamped &b) {
@@ -162,7 +162,8 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     auto map=costmap_ros_->getCostmap();
     std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*map->getMutex());
     polygon_.clear();for(const auto &p:costmap_ros_->getRobotFootprint()) polygon_.push_back({p.x,p.y});
-    const double extent=localSnapshotExtent(polygon_,max_speed_,reverse_speed_,lateral_speed_,
+    const auto &configured=limits_.configured();
+    const double extent=localSnapshotExtent(polygon_,configured.vx_max,-configured.vx_min,configured.vy_max,
       {speed.linear.x,speed.linear.y,speed.angular.z},map->getResolution());
     const double x=pose.pose.position.x,y=pose.pose.position.y;
     if(pose.header.frame_id!=costmap_ros_->getGlobalFrameID() || !std::isfinite(extent) ||
@@ -175,11 +176,20 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     int lx=0,ly=0,ux=0,uy=0;
     map->worldToMapEnforceBounds(x-extent,y-extent,lx,ly);
     map->worldToMapEnforceBounds(x+extent,y+extent,ux,uy);
+    grid_.width=ux-lx+1;grid_.height=uy-ly+1;grid_.resolution=map->getResolution();
+    grid_.origin_x=map->getOriginX();grid_.origin_y=map->getOriginY();
+    grid_.crop_x=lx;grid_.crop_y=ly;
+    grid_.data.resize(static_cast<size_t>(grid_.width)*grid_.height);
+    for(unsigned int row=0;row<grid_.height;++row)
+      std::memcpy(grid_.data.data()+row*grid_.width,
+        map->getCharMap()+(ly+row)*map->getSizeInCellsX()+lx,grid_.width);
+    lock.unlock();
     obstacles_.clear();
-    for(int cy=ly;cy<=uy;++cy) for(int cx=lx;cx<=ux;++cx) {
-      if(map->getCost(cx,cy)<nav2_costmap_2d::LETHAL_OBSTACLE) continue;
-      double wx=0,wy=0;map->mapToWorld(cx,cy,wx,wy);
-      obstacles_.push_back({wx,wy,map->getResolution()*std::sqrt(2.0)/2});
+    for(unsigned int cy=0;cy<grid_.height;++cy) for(unsigned int cx=0;cx<grid_.width;++cx) {
+      if(grid_.data[cy*grid_.width+cx]<nav2_costmap_2d::LETHAL_OBSTACLE) continue;
+      const double wx=grid_.origin_x+(cx+grid_.crop_x+.5)*grid_.resolution;
+      const double wy=grid_.origin_y+(cy+grid_.crop_y+.5)*grid_.resolution;
+      obstacles_.push_back({wx,wy,grid_.resolution*std::sqrt(2.0)/2});
     }
     return !polygon_.empty();
   }
@@ -204,6 +214,8 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   }
   geometry_msgs::msg::TwistStamped checked(geometry_msgs::msg::TwistStamped result,const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed) {
     if(!std::isfinite(result.twist.linear.x+result.twist.linear.y+result.twist.angular.z)) return stopped(pose);
+    const auto bounded=limits_.clamp({result.twist.linear.x,result.twist.linear.y,result.twist.angular.z});
+    result.twist.linear.x=bounded.x;result.twist.linear.y=bounded.y;result.twist.angular.z=bounded.yaw;
     const Pose start{pose.pose.position.x,pose.pose.position.y,tf2::getYaw(pose.pose.orientation)};
     const Velocity measured{speed.linear.x,speed.linear.y,speed.angular.z};
     if(brakingSweep(start,measured,polygon_,obstacles_,.010,.2,.4,.8)) {
@@ -223,11 +235,43 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     return stopped(pose);
   }
   geometry_msgs::msg::TwistStamped sampledCommand(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,nav2_core::GoalChecker *checker) {
+    // Humble's periodic reset restores base constraints. Reset before reapplying
+    // the current request; checked() also bounds a native fallback retry that
+    // performs its own internal reset or filtering.
+    applyNativeLimit(true);
+    last_time_called_=clock_->now();
     return checked(nav2_mppi_controller::MPPIController::computeVelocityCommands(pose,speed,checker),pose,speed);
   }
+  void applyNativeLimit(bool periodic_reset=false) {
+    std::lock_guard<std::mutex> lock(*parameters_handler_->getLock());
+    if(periodic_reset && clock_->now()-last_time_called_>rclcpp::Duration::from_seconds(reset_period_))
+      nav2_mppi_controller::MPPIController::reset();
+    nav2_mppi_controller::MPPIController::setSpeedLimit(limits_.nativePercentage(),true);
+  }
+  bool refreshLimits() {
+    auto node=parent_.lock();if(!node) return false;
+    try {
+      OmniVelocityLimits current;
+      const auto parameters=node->get_parameters({name_+".vx_max",name_+".vx_min",
+        name_+".vy_max",name_+".wz_max",name_+".narrow_speed_max"});
+      current.configure({parameters[0].as_double(),parameters[1].as_double(),
+        parameters[2].as_double(),parameters[3].as_double()});
+      const double narrow=parameters[4].as_double();
+      if(!std::isfinite(narrow) || narrow<0)
+        throw std::invalid_argument("PreciseMPPI narrow_speed_max must be finite and nonnegative");
+      current.update(requested_limit_,requested_percentage_);
+      limits_=current;narrow_speed_=std::min(narrow,current.configured().vx_max);
+      return true;
+    } catch(const std::exception &error) {
+      RCLCPP_WARN_THROTTLE(logger_,*clock_,2000,"Invalid speed configuration: motion stopped: %s",error.what());
+      return false;
+    }
+  }
   Polygon polygon_;std::vector<Point> obstacles_;
-  geometry_msgs::msg::PoseStamped goal_;nav_msgs::msg::Path path_;bool have_goal_{false};
-  double max_speed_{.5},reverse_speed_{.2},lateral_speed_{.3},speed_limit_{.5},narrow_speed_{.5};
+  LocalGridSnapshot grid_;
+  geometry_msgs::msg::PoseStamped goal_;PathTarget target_path_;bool have_goal_{false};
+  OmniVelocityLimits limits_;std::mutex limits_mutex_;
+  double narrow_speed_{.5},requested_limit_{0};bool requested_percentage_{false};
 };
 }
 PLUGINLIB_EXPORT_CLASS(duojin01_navigation::PreciseMPPI,nav2_core::Controller)

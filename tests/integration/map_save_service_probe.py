@@ -33,8 +33,10 @@ def run():
             return response
         prefix = Path(request.name.data)
         if prefix.parent.exists():
-            artifact_path(prefix, '.yaml').write_text(f'image: {prefix.name}.pgm\nresolution: 0.03\norigin: [0, 0, 0]\n')
-            artifact_path(prefix, '.pgm').write_bytes(b'P5\n1 1\n255\n\xff')
+            artifact_path(prefix, '.yaml').write_text(
+                f'image: {prefix.name}.pgm\nmode: trinary\nresolution: 0.03\n'
+                'origin: [0, 0, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n')
+            artifact_path(prefix, '.pgm').write_bytes(b'P5\n1 1\n255\n\xfe')
         response.result = SaveMap.Response.RESULT_SUCCESS
         return response
     def graph(request, response):
