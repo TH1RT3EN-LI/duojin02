@@ -252,7 +252,13 @@ class Probe(Node):
             # global planner and is reported separately from NavigateToPose.
             goal.path=NavPath();goal.path.header.frame_id='map';goal.path.header.stamp=self.get_clock().now().to_msg()
             sx,sy,sa=self.case['start'];gx,gy,ga=self.case['goal'];sx+=.35
-            goal.path.poses=[target([sx+(gx-sx)*i/100,sy+(gy-sy)*i/100,sa+(ga-sa)*i/100]) for i in range(101)]
+            points=self.case.get('controller_path')
+            if points is not None:
+                if len(points)<2 or any(len(p)!=3 or not all(math.isfinite(v) for v in p) for p in points):
+                    raise ValueError('Invalid declared controller fixture path')
+                goal.path.poses=[target(p) for p in points]
+            else:
+                goal.path.poses=[target([sx+(gx-sx)*i/100,sy+(gy-sy)*i/100,sa+(ga-sa)*i/100]) for i in range(101)]
             goal.controller_id='FollowPath';goal.goal_checker_id='general_goal_checker'
         elif self.case.get('waypoints'):goal.poses=[target(values) for values in self.case['waypoints']]
         else:goal.pose=target(self.case['goal'])

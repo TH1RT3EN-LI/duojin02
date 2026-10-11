@@ -48,4 +48,8 @@ if(BUILD_TESTING)
   add_executable(gpu_sampling_benchmark EXCLUDE_FROM_ALL
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../tests/performance/gpu_sampling_benchmark.cpp")
   target_link_libraries(gpu_sampling_benchmark duojin_gpu_backend)
+  add_executable(gpu_structured_benchmark EXCLUDE_FROM_ALL
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../tests/performance/structured_sampling_benchmark.cpp")
+  target_compile_definitions(gpu_structured_benchmark PRIVATE DUOJIN_STRUCTURED_API=1)
+  target_link_libraries(gpu_structured_benchmark duojin_gpu_backend)
 endif()

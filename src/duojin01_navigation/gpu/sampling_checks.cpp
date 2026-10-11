@@ -7,8 +7,9 @@ int main(int argc,char **argv) {
   const bool required=argc>1 && std::string(argv[1])=="--require-cuda";
   SamplingSettings settings;settings.batch_size=64;settings.time_steps=16;settings.support_points=4;
   size_t compared=0;double max_delta=0;
-  for(int configuration=0;configuration<2;++configuration) {
+  for(int configuration=0;configuration<3;++configuration) {
   if(configuration) {settings.noise={.30,.30,.12};settings.path_weight=3.;settings.goal_weight=16.;}
+  settings.path_primitives=configuration==2;
   SamplingCompute cpu(settings,{ComputeBackend::Cpu,0,2000});
   SamplingCompute gpu(settings,{ComputeBackend::Auto,0,2000});
   if(required && !gpu.available()){std::cout<<"CUDA device unavailable\n";return 77;}
@@ -16,16 +17,27 @@ int main(int argc,char **argv) {
   LocalGridSnapshot map;map.width=map.height=400;map.resolution=.01;map.origin_x=map.origin_y=-2;map.data.resize(160000);
   std::vector<Pose> path;for(int i=0;i<=50;++i)path.push_back({-.6+.02*i,.02,.013});
   const Pose start{-.6,.02,.013};const Velocity measured{.12,.02,.04};const OmniVelocityBounds bounds{.5,-.2,.3,.65};
-  for(int scenario=0;scenario<5;++scenario) {
+  for(int scenario=0;scenario<6;++scenario) {
     std::fill(map.data.begin(),map.data.end(),0);
     if(scenario==1)for(unsigned int x=0;x<400;++x){map.data[245*400+x]=254;map.data[155*400+x]=254;}
     if(scenario==2)map.data[202*400+140]=254; // isolated interior obstacle at start
     if(scenario==3)map.data[202*400+140]=255; // unknown is not free
     if(scenario==4)for(unsigned int y=180;y<225;++y)map.data[y*400+225]=254;
+    if(scenario==5) {
+      path.clear();for(int i=0;i<=60;++i)path.push_back({-.6+.01*i,.02,0});
+      for(int i=1;i<=80;++i)path.push_back({0,.02+.01*i,0});
+      for(unsigned int y=0;y<400;++y)for(unsigned int x=0;x<400;++x) {
+        const double wx=-2+(x+.5)*.01,wy=-2+(y+.5)*.01;
+        if(!((wx>=-1.5 && wx<=.25 && std::abs(wy)<=.25) || (std::abs(wx)<=.25 && wy>=-.25 && wy<=1.5)))map.data[y*400+x]=254;
+      }
+    }
     cpu.reset();gpu.reset();
     for(int cycle=0;cycle<3;++cycle) {
       const auto a=cpu.optimize(map,polygon,path,start,measured,bounds),b=gpu.optimize(map,polygon,path,start,measured,bounds);
       assert(a.valid==b.valid && a.collision_free==b.collision_free);
+      assert(a.primitive_samples==b.primitive_samples && a.primitive_collision_free==b.primitive_collision_free);
+      if(settings.path_primitives)assert(b.primitive_samples==16);
+      if(settings.path_primitives && scenario==5)assert(b.valid && b.primitive_collision_free>0);
       assert(a.used_best_trajectory==b.used_best_trajectory);
       if(required)assert(b.used_cuda);
       assert(a.costs.size()==settings.batch_size && b.costs.size()==settings.batch_size);

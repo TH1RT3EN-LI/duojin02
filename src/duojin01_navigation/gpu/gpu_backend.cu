@@ -80,9 +80,9 @@ __global__ void rolloutKernel(SamplingView view,const Velocity *nominal,const Ve
     Pose *states,Velocity *controls) {
   const size_t k=static_cast<size_t>(blockIdx.x)*blockDim.x+threadIdx.x;
   if(k>=view.settings.batch_size)return;
-  Pose pose=view.start;Velocity u=view.measured;
+  Pose pose=view.start;Velocity u=view.measured;size_t waypoint=0;
   for(size_t t=0;t<view.settings.time_steps;++t) {
-    u=sampleControl(view,nominal,noise,k,t,u);pose=sampleAdvance(pose,u,view.settings.dt);
+    u=candidateControl(view,nominal,noise,k,t,pose,u,waypoint);pose=sampleAdvance(pose,u,view.settings.dt);
     const size_t index=k*view.settings.time_steps+t;states[index]=pose;controls[index]=u;
   }
 }
@@ -98,8 +98,20 @@ __global__ void totalCostKernel(const double *costs,size_t batch,size_t steps,do
   if(k>=batch)return;double total=0;
   for(size_t t=0;t<steps;++t)total+=costs[k*steps+t];totals[k]=total;
 }
+__global__ void weightsKernel(const double *totals,double *weights,size_t batch,double temperature,double *summary) {
+  __shared__ double values[256];double minimum=DBL_MAX;
+  for(size_t k=threadIdx.x;k<batch;k+=blockDim.x)minimum=fmin(minimum,totals[k]);
+  values[threadIdx.x]=minimum;__syncthreads();
+  for(unsigned int stride=128;stride;stride>>=1){if(threadIdx.x<stride)values[threadIdx.x]=fmin(values[threadIdx.x],values[threadIdx.x+stride]);__syncthreads();}
+  minimum=values[0];double sum=0;__syncthreads();
+  for(size_t k=threadIdx.x;k<batch;k+=blockDim.x){const double w=totals[k]<1e9 ? exp(-(totals[k]-minimum)/temperature):0.;weights[k]=w;sum+=w;}
+  values[threadIdx.x]=sum;__syncthreads();
+  for(unsigned int stride=128;stride;stride>>=1){if(threadIdx.x<stride)values[threadIdx.x]+=values[threadIdx.x+stride];__syncthreads();}
+  if(threadIdx.x==0)summary[0]=values[0];
+}
 __global__ void sequenceKernel(const Velocity *controls,const double *weights,
-    size_t batch,size_t steps,double weight_sum,Velocity *sequence) {
+    size_t batch,size_t steps,const double *summary,Velocity *sequence) {
+  const double weight_sum=summary[0];
   const size_t t=blockIdx.x;Velocity total{};
   if(weight_sum>0)for(size_t k=threadIdx.x;k<batch;k+=blockDim.x) {
     const auto u=controls[k*steps+t];const double w=weights[k]/weight_sum;
@@ -116,9 +128,9 @@ class Executor final:public CudaExecutor {
   Buffer<Point> polygon_,points_;Buffer<PoseFrame> poses_;
   Buffer<DeviceGeometryResult> results_;
   Buffer<unsigned char> cells_;Buffer<unsigned int> rows_,columns_;
-  Buffer<Point> sample_polygon_;Buffer<Pose> path_,states_;
+  Buffer<Point> sample_polygon_;Buffer<Pose> path_,guidance_,states_;
   Buffer<Velocity> nominal_,noise_,controls_,sequence_;
-  Buffer<double> costs_,totals_,weights_;
+  Buffer<double> costs_,totals_,weights_,summary_;
   uint64_t epoch_{0};std::string name_;bool timed_out_{false};
   void waitUntil(std::chrono::steady_clock::time_point end) {
     check(cudaGetLastError(),"CUDA kernel launch");check(cudaEventRecord(done_,stream_),"completion event");
@@ -169,24 +181,23 @@ class Executor final:public CudaExecutor {
   }
   std::pair<std::vector<double>,std::vector<Velocity>> sampling(const SamplingView &input,
       const std::vector<unsigned char> &cells,const std::vector<unsigned int> &rows,const std::vector<unsigned int> &columns,
-      const Polygon &polygon,const std::vector<Pose> &path,const std::vector<Velocity> &nominal,const std::vector<Velocity> &noise,double deadline_ms) override {
+      const Polygon &polygon,const std::vector<Pose> &path,const std::vector<Velocity> &nominal,const std::vector<Velocity> &noise,const std::vector<Pose> &guidance,double deadline_ms) override {
     if(timed_out_)throw std::runtime_error("CUDA backend latched after deadline miss; reconfigure required");
     const auto end=std::chrono::steady_clock::now()+std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double,std::milli>(deadline_ms));
     upload(cells_,cells);upload(rows_,rows);upload(columns_,columns);upload(sample_polygon_,polygon);upload(path_,path);upload(nominal_,nominal);upload(noise_,noise);
+    upload(guidance_,guidance);
     SamplingView view=input;view.cells=cells_.data;view.rows=rows_.data;view.columns=columns_.data;
     view.polygon=sample_polygon_.data;view.path=path_.data;
+    view.guidance=guidance_.data;
     const size_t batch=view.settings.batch_size,steps=view.settings.time_steps,n=batch*steps;
-    states_.reserve(n);controls_.reserve(n);costs_.reserve(n);totals_.reserve(batch);weights_.reserve(batch);sequence_.reserve(steps);
+    states_.reserve(n);controls_.reserve(n);costs_.reserve(n);totals_.reserve(batch);weights_.reserve(batch);sequence_.reserve(steps);summary_.reserve(1);
     rolloutKernel<<<static_cast<unsigned int>((batch+127)/128),128,0,stream_>>>(view,nominal_.data,noise_.data,states_.data,controls_.data);
     sampleCostKernel<<<static_cast<unsigned int>((n+127)/128),128,0,stream_>>>(view,states_.data,controls_.data,nominal_.data,costs_.data);
     totalCostKernel<<<static_cast<unsigned int>((batch+127)/128),128,0,stream_>>>(costs_.data,batch,steps,totals_.data);
+    weightsKernel<<<1,256,0,stream_>>>(totals_.data,weights_.data,batch,view.settings.temperature,summary_.data);
+    sequenceKernel<<<static_cast<unsigned int>(steps),128,0,stream_>>>(controls_.data,weights_.data,batch,steps,summary_.data,sequence_.data);
     waitUntil(end);
-    std::vector<double> totals(batch),weights(batch);check(cudaMemcpy(totals.data(),totals_.data,batch*sizeof(double),cudaMemcpyDeviceToHost),"sampling cost readback");
-    const double minimum=*std::min_element(totals.begin(),totals.end());double sum=0;
-    for(size_t k=0;k<batch;++k){weights[k]=totals[k]<1e9 ? std::exp(-(totals[k]-minimum)/view.settings.temperature):0;sum+=weights[k];}
-    upload(weights_,weights);
-    sequenceKernel<<<static_cast<unsigned int>(steps),128,0,stream_>>>(controls_.data,weights_.data,batch,steps,sum,sequence_.data);
-    waitUntil(end);
+    std::vector<double> totals(batch);check(cudaMemcpy(totals.data(),totals_.data,batch*sizeof(double),cudaMemcpyDeviceToHost),"sampling cost readback");
     std::vector<Velocity> sequence(steps);check(cudaMemcpy(sequence.data(),sequence_.data,steps*sizeof(Velocity),cudaMemcpyDeviceToHost),"sampling sequence readback");
     return {std::move(totals),std::move(sequence)};
   }

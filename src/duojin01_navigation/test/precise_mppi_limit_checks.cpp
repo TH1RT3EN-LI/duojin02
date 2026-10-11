@@ -26,7 +26,7 @@ void bounded(const geometry_msgs::msg::Twist &v,const OmniVelocityBounds &b,bool
   if(stop)assert(v.linear.x==0 && v.linear.y==0 && v.angular.z==0);
 }
 int main(int argc,char **argv) {
-  bool gpu=false;for(int i=1;i<argc;++i)if(std::string(argv[i])=="--gpu")gpu=true;
+  bool gpu=false,structured=false;for(int i=1;i<argc;++i){if(std::string(argv[i])=="--gpu")gpu=true;if(std::string(argv[i])=="--structured")structured=true;}
   if(gpu){GeometryCompute probe({ComputeBackend::Auto,0,2000});if(!probe.available())return 77;}
   NativeOracle oracle;OmniVelocityLimits reference;reference.configure({.5,-.2,.3,.65});
   for(const auto request:std::vector<std::pair<double,bool>>{{20,true},{60,true},{.1,false},{0,false},{0,true}}) {
@@ -81,6 +81,7 @@ int main(int argc,char **argv) {
       o.append_parameter_override("FollowPath.gpu_wz_std",.12);
       o.append_parameter_override("FollowPath.gpu_path_weight",3.);
       o.append_parameter_override("FollowPath.gpu_goal_weight",16.);
+      if(structured)o.append_parameter_override("FollowPath.gpu_candidate_mode",std::string("path_primitives"));
     }
     return o;
   };
@@ -90,6 +91,17 @@ int main(int argc,char **argv) {
   TestController controller;controller.configure(node,"FollowPath",tf,map);controller.activate();
   nav2_controller::SimpleGoalChecker checker;checker.initialize(node,"probe_goal",map);
   OmniVelocityLimits expected;expected.configure({.5,-.2,.3,.1});
+  if(structured) {
+    // A clear incoming chord must still activate the sampler before a bend.
+    // With zero measured speed its first command obeys the 0.4 m/s^2 rollout
+    // limit, whereas the ordinary deterministic tracker requests 0.36 m/s.
+    nav_msgs::msg::Path bend;bend.header.frame_id="odom";bend.poses={pose(-.8,0),pose(0,0),pose(0,.8)};
+    controller.setPlan(bend);auto incoming=pose(-.8,0);incoming.header.stamp=node->now();geometry_msgs::msg::Twist resting;
+    const auto guided=controller.computeVelocityCommands(incoming,resting,&checker).twist;
+    assert(std::hypot(guided.linear.x,guided.linear.y)>.005);
+    assert(std::hypot(guided.linear.x,guided.linear.y)<=.4*.05+1e-8);
+    std::cout<<"STRUCTURED_EARLY_BEND acceleration-bounded takeover passed\n";
+  }
   const std::vector<geometry_msgs::msg::PoseStamped> goals={pose(.4,0),pose(-.4,0),pose(0,.4),pose(.3,.3,1),pose(0,0,1),pose(.8,0),pose(-.8,0),pose(0,.8),pose(.8,.2,1)};
   int count=0;
   for(const auto request:std::vector<std::pair<double,bool>>{{20,true},{60,true},{20,true},{.1,false},{0,false},{200,true},{2,false},{-1,true},{std::numeric_limits<double>::quiet_NaN(),false},{std::numeric_limits<double>::infinity(),true},{0,true}}) {

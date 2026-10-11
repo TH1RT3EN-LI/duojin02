@@ -1,6 +1,6 @@
 # duojin02 GPU 可选副本
 
-本目录是当前 duojin02 工作区的独立副本，分支 `codex/cuda-optional-20261010`。原始工作区不参与修改。硬件接口、模型、导航主配置和独立速度守卫沿用当前版本。构建开关默认关闭；即使编译 CUDA，主配置仍运行原 CPU 控制器。
+本目录是当前 duojin02 工作区的独立副本，当前实验分支 `codex/gpu-structured-mppi-20261011`。原始工作区不参与修改。硬件接口、模型、导航主配置和独立速度守卫沿用当前版本。构建开关默认关闭；即使编译 CUDA，主配置仍运行原 CPU 控制器。
 
 本版增加两个可独立选择的后端：
 
@@ -31,7 +31,7 @@ CUDA 选项也可通过标准 `colcon build --cmake-args` 传入。完全关闭 
 source ./source.sh
 ```
 
-本次已验证 RTX 5070 / CUDA 12.8.93 的运行与 `87;120` 编译。Orin 的原生 ARM 构建、JetPack 随附 Toolkit 和实际性能尚未验证；请在 Orin 上重新构建，不能复制本机 x86 二进制文件过去。
+本次新候选模式已验证 RTX 5070 / CUDA 12.8.93 的运行与 `87;120` 编译，尚未在 Orin 原生复测。请在 Orin 上重新构建，不能复制本机 x86 二进制文件过去；旧版端侧数据不能直接作为新模式的性能结果。
 
 ## 选择后端并启动
 
@@ -48,6 +48,8 @@ python3 scripts/gpu_profile.py --compute-backend auto --sampling-backend auto \
 # python3 scripts/gpu_profile.py --preset explore --output .cache/gpu/nav2-explore.yaml
 # 更低开销的补充候选（3200 条；验证范围较小）：
 # python3 scripts/gpu_profile.py --preset explore-lite --output .cache/gpu/nav2-explore-lite.yaml
+# 新增路径分段候选（1600 条；实验选项）：
+# python3 scripts/gpu_profile.py --preset structured --output .cache/gpu/nav2-structured.yaml
 ros2 launch duojin01_bringup navigation.launch.py \
   params_file:="$PWD/.cache/gpu/nav2-sampling.yaml"
 # 在线建图导航同样支持：
@@ -63,6 +65,8 @@ ros2 launch duojin01_bringup navigation.launch.py \
 | `FollowPath.gpu_min_work` | `262144` | 几何批处理的姿态数 × 障碍点数阈值 |
 | `FollowPath.gpu_deadline_ms` | `40` | GPU 计算及整次控制调用的软时间预算，需小于控制周期 |
 | `FollowPath.gpu_support_points` | `8` | 新采样器的时间扰动支撑点数，不减少预测状态数量 |
+| `FollowPath.gpu_candidate_mode` | `noise` | `noise` 原扰动候选；`path_primitives` 混入沿路径分段减速、横移的候选 |
+| `FollowPath.gpu_primitive_fraction` | `0.25` | 路径候选占比，范围 `(0, 1]`；第 0 条仍保留原名义序列 |
 | `FollowPath.gpu_batch_size` / `gpu_time_steps` | 继承原 MPPI | GPU 独立搜索规模；不增加无设备时的原 CPU 搜索量 |
 | `FollowPath.gpu_vx_std` / `gpu_vy_std` / `gpu_wz_std` | 继承原 MPPI | GPU 独立速度扰动标准差，不改变最大速度 |
 | `FollowPath.gpu_temperature` | 继承原 MPPI | 新优化器的候选选择温度 |
@@ -73,7 +77,11 @@ ros2 launch duojin01_bringup navigation.launch.py \
 
 清理生命周期时日志中的 `GPU_CONTROL_SUMMARY` 给出真实原 MPPI / CUDA 采样调用次数、最佳候选回退次数、故障和超时；几何后端另给出 CPU / CUDA 批次数；这里只统计后端批处理调用，小任务直接走原 CPU helper 的调用不包含在 `cpu_batches` 中。请先确认目标任务实际进入加速分支，再解释任务性能。
 
-`GPU_SAMPLING_CONFIG` 输出实际采用的搜索规模、噪声和代价权重；`GPU_SAMPLING_SUMMARY` 输出可行候选数量与整次采样耗时。生成器提供 `baseline`、`explore`、`explore-lite` 和仅增加数量的对照档 `coverage`。两个探索档扩大横向搜索并强化目标推进，速度、制动、足迹和默认配置保持当前值；显式增加预测步数还会检查完整全向足迹是否超出局部地图范围。
+`GPU_SAMPLING_CONFIG` 输出实际采用的搜索规模、噪声和代价权重；`GPU_PROPOSAL_CONFIG` 输出候选模式与占比；`GPU_SAMPLING_SUMMARY` 输出可行候选数量与整次采样耗时。生成器提供 `baseline`、`explore`、`explore-lite`、`structured` 和仅增加数量的对照档 `coverage`。探索档扩大横向搜索并强化目标推进，速度、制动、足迹和默认配置保持当前值；显式增加预测步数还会检查完整全向足迹是否超出局部地图范围。
+
+`structured` 在现有 CUDA 采样器中混入 12 组路径引导候选族，保留路径弯折，按实测速度和加速度约束减速到分段点后横移，末端校正 yaw。前 12 条无扰动，其余局部探索；所有候选仍通过完整足迹扫掠与原 CPU 最终制动检查。在距离下一处明显弯折（相邻边方向变化超过 0.20 rad）1.8 m 路径长度内提前调用采样器，直线段和精确停靠保留现有快速路径。它是本机全向底盘的路径候选实现，不是论文 MP-MPPI 的完整复现，也没有新增 SCP/SVGD 梯度优化。
+
+新候选的 CPU 数学参考和 CUDA 在理想运动反馈中均完成 8/8 转角任务；1600 条候选的完整采样调用，CUDA 比同算法 CPU 参考快约 6.3–7.1 倍。真实 ROS/Gazebo 的 60 cm 转角 2/2 通过，但与旧版耗时接近；50 cm 转角仍为 0/2。因此保持可选模式，不替换默认控制器，也不能据此增加真机速度。方法、轨迹、失败和复现入口见 [路径候选实现报告](docs/gpu-structured-2026-10-11.md)。
 
 ## 检查与复现
 
@@ -87,7 +95,7 @@ cmake -S src/duojin01_navigation/gpu -B .cache/gpu-components \
   -DDUOJIN_ENABLE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120
 cmake --build .cache/gpu-components --parallel 2
 ctest --test-dir .cache/gpu-components --output-on-failure
-cmake --build .cache/gpu-components --target gpu_geometry_benchmark gpu_sampling_benchmark
+cmake --build .cache/gpu-components --target gpu_geometry_benchmark gpu_sampling_benchmark gpu_structured_benchmark
 ```
 
 `tests/performance/benchmark_gpu_components.py` 执行连续 ABBA 对比并保留逐调用 CPU / 墙钟时间、输入哈希、指令和退出码。`controller_gpu_benchmark` 可通过 `DUOJIN_ORIGINAL_SOURCE_DIR` 编译同一观察器对原始源码；链接器计数确认真实 Nav2 MPPI 调用。新增算法的 CPU 数学参考与原版 Nav2 MPPI 属于两种不同对比，报告中分别列出。

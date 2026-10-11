@@ -12,7 +12,7 @@ spec.loader.exec_module(gpu_profile)
 SOURCE = ROOT/'src/duojin01_bringup/config/nav2.yaml'
 
 
-@pytest.mark.parametrize('preset', ['baseline', 'coverage', 'explore-lite', 'explore'])
+@pytest.mark.parametrize('preset', ['baseline', 'coverage', 'explore-lite', 'explore', 'structured'])
 def test_native_fallback_and_hardware_are_preserved(preset):
     original = yaml.safe_load(SOURCE.read_text())
     candidate = gpu_profile.make_profile(SOURCE, preset=preset)
@@ -28,6 +28,8 @@ def test_native_fallback_and_hardware_are_preserved(preset):
     {'gpu_batch_size': -1}, {'gpu_vy_std': float('nan')},
     {'gpu_path_weight': -1.}, {'gpu_temperature': 0.},
     {'gpu_time_steps': 80}, {'vx_max': .8},
+    {'gpu_candidate_mode': 'unknown'}, {'gpu_primitive_fraction': 0.},
+    {'gpu_primitive_fraction': float('nan')}, {'gpu_primitive_fraction': 1.1},
 ])
 def test_invalid_or_unobserved_search_is_rejected(overrides):
     with pytest.raises(ValueError):

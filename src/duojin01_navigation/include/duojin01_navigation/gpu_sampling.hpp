@@ -11,11 +11,14 @@ struct SamplingSettings {
   double acceleration{.4},angular_acceleration{.8},margin{.010};
   double path_weight{12.},goal_weight{8.},yaw_weight{1.},cost_weight{2.};
   uint64_t seed{20261010};
+  bool path_primitives{false};
+  double primitive_fraction{.25};
 };
 struct SamplingResult {
   Velocity command;
   bool valid{false},used_cuda{false},used_best_trajectory{false};
   size_t collision_free{0};
+  size_t primitive_samples{0},primitive_collision_free{0};
   double wall_ms{0};
   std::vector<double> costs;
   std::vector<Velocity> sequence;

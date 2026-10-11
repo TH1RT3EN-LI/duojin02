@@ -4,6 +4,35 @@
 #include <random>
 #include <stdexcept>
 namespace duojin01_navigation {
+namespace {
+// Start at the nearest segment projection, retain bends, and merge only
+// collinear forward edges. No obstacle information or evaluator truth is used.
+std::vector<Pose> guidancePath(const std::vector<Pose> &path,Pose start) {
+  if(path.size()<2)return path;
+  size_t edge=1;double minimum=1e100;Pose projection=path.front();
+  for(size_t i=1;i<path.size();++i) {
+    const auto a=path[i-1],b=path[i];const double dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+    if(length<1e-20)continue;
+    const double f=std::clamp(((start.x-a.x)*dx+(start.y-a.y)*dy)/length,0.,1.);
+    Pose p{a.x+f*dx,a.y+f*dy,start.yaw};const double d=std::hypot(p.x-start.x,p.y-start.y);
+    if(d<minimum){minimum=d;projection=p;edge=i;}
+  }
+  std::vector<Pose> result{projection};
+  for(size_t i=edge;i<path.size();++i) {
+    const auto p=path[i];
+    if(std::hypot(p.x-result.back().x,p.y-result.back().y)<1e-9)continue;
+    if(result.size()>1) {
+      const auto a=result[result.size()-2],b=result.back();
+      const double dx=b.x-a.x,dy=b.y-a.y,ex=p.x-b.x,ey=p.y-b.y;
+      if(dx*ex+dy*ey>0 && std::abs(dx*ey-dy*ex)<=1e-7*std::hypot(dx,dy)*std::hypot(ex,ey)) {
+        result.back()=p;continue;
+      }
+    }
+    result.push_back(p);
+  }
+  return result;
+}
+}
 struct SamplingCompute::Impl {
   SamplingSettings settings;ComputeOptions options;
   std::unique_ptr<CudaExecutor> cuda;std::string reason;
@@ -15,6 +44,7 @@ struct SamplingCompute::Impl {
        !std::isfinite(s.dt+s.temperature+s.gamma+s.noise.x+s.noise.y+s.noise.yaw+s.acceleration+s.angular_acceleration+s.margin+s.path_weight+s.goal_weight+s.yaw_weight+s.cost_weight) ||
        s.dt<=0 || s.dt>.2 || s.temperature<=0 || s.gamma<0 || s.noise.x<=0 || s.noise.y<=0 || s.noise.yaw<=0 ||
        s.acceleration<=0 || s.angular_acceleration<=0 || s.margin<0 || s.path_weight<0 || s.goal_weight<0 || s.yaw_weight<0 || s.cost_weight<0 ||
+       !std::isfinite(s.primitive_fraction) || s.primitive_fraction<=0 || s.primitive_fraction>1 ||
        !std::isfinite(o.deadline_ms) || o.deadline_ms<=0)
       throw std::invalid_argument("Invalid optional MPPI settings");
     if(o.backend!=ComputeBackend::Cpu)cuda=makeCudaExecutor(reason);
@@ -64,17 +94,20 @@ SamplingResult SamplingCompute::optimize(const LocalGridSnapshot &map,const Poly
   double radius=0;for(const auto &p:polygon)radius=std::max(radius,std::hypot(p.x,p.y));
   SamplingView view{map.width,map.height,map.crop_x,map.crop_y,map.resolution,map.origin_x,map.origin_y,radius,
     map.data.data(),rows.data(),columns.data(),polygon.data(),polygon.size(),path.data(),path.size(),start,goal,measured,bounds,s};
+  const auto guidance=s.path_primitives ? guidancePath(path,start):std::vector<Pose>{};
+  view.guidance=guidance.data();view.guidance_size=guidance.size();
+  result.primitive_samples=primitiveCount(view);
   if(impl_->cuda) {
     try {
-      auto output=impl_->cuda->sampling(view,map.data,rows,columns,polygon,path,impl_->nominal,noise,impl_->options.deadline_ms);
+      auto output=impl_->cuda->sampling(view,map.data,rows,columns,polygon,path,impl_->nominal,noise,guidance,impl_->options.deadline_ms);
       result.costs=std::move(output.first);result.sequence=std::move(output.second);result.used_cuda=true;
     }catch(const std::exception &e){throw ComputeFailure(e.what());}
   } else {
     result.costs.resize(s.batch_size);std::vector<Velocity> controls(s.batch_size*s.time_steps);
     for(size_t k=0;k<s.batch_size;++k) {
-      Pose pose=start;Velocity u=measured;double cost=0;
+      Pose pose=start;Velocity u=measured;double cost=0;size_t waypoint=0;
       for(size_t t=0;t<s.time_steps;++t) {
-        u=sampleControl(view,impl_->nominal.data(),noise.data(),k,t,u);controls[k*s.time_steps+t]=u;
+        u=candidateControl(view,impl_->nominal.data(),noise.data(),k,t,pose,u,waypoint);controls[k*s.time_steps+t]=u;
         const auto next=sampleAdvance(pose,u,s.dt);cost+=sampleCost(view,pose,next,u,impl_->nominal[t],t);pose=next;
       }
       result.costs[k]=cost;
@@ -89,6 +122,7 @@ SamplingResult SamplingCompute::optimize(const LocalGridSnapshot &map,const Poly
     }
   }
   result.collision_free=std::count_if(result.costs.begin(),result.costs.end(),[](double c){return std::isfinite(c) && c<1e9;});
+  for(size_t k=1;k<=result.primitive_samples;++k)result.primitive_collision_free+=std::isfinite(result.costs[k]) && result.costs[k]<1e9;
   result.valid=result.collision_free>0;
   if(std::any_of(result.costs.begin(),result.costs.end(),[](double c){return !std::isfinite(c);}))
     throw ComputeFailure("Non-finite sampling cost");
@@ -98,7 +132,8 @@ SamplingResult SamplingCompute::optimize(const LocalGridSnapshot &map,const Poly
     for(const auto &u:sequence) {
       if(!std::isfinite(u.x+u.y+u.yaw))return false;
       const auto next=sampleAdvance(pose,u,s.dt);
-      if(rasterSweep(view,pose,next))return false;pose=next;
+      if(rasterSweep(view,pose,next))return false;
+      pose=next;
     }
     return true;
   };
@@ -107,8 +142,8 @@ SamplingResult SamplingCompute::optimize(const LocalGridSnapshot &map,const Poly
   // best validated sampled sequence rather than sending a mode average.
   if(result.valid && !validSequence(result.sequence)) {
     const size_t best=std::min_element(result.costs.begin(),result.costs.end())-result.costs.begin();
-    Velocity u=measured;
-    for(size_t t=0;t<s.time_steps;++t){u=sampleControl(view,impl_->nominal.data(),noise.data(),best,t,u);result.sequence[t]=u;}
+    Velocity u=measured;Pose pose=start;size_t waypoint=0;
+    for(size_t t=0;t<s.time_steps;++t){u=candidateControl(view,impl_->nominal.data(),noise.data(),best,t,pose,u,waypoint);result.sequence[t]=u;pose=sampleAdvance(pose,u,s.dt);}
     result.used_best_trajectory=true;result.valid=validSequence(result.sequence);
   }
   if(result.valid) {

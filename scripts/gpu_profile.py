@@ -16,6 +16,8 @@ PRESETS = {
     'coverage': {'gpu_batch_size': 6400},
     'explore': EXPLORATION,
     'explore-lite': {**EXPLORATION, 'gpu_batch_size': 3200},
+    'structured': {**EXPLORATION, 'gpu_batch_size': 1600,
+                   'gpu_candidate_mode': 'path_primitives', 'gpu_primitive_fraction': .25},
 }
 
 
@@ -50,11 +52,17 @@ def make_profile(source, compute_backend='auto', sampling_backend='auto',
     if support_points is not None:
         follow['gpu_support_points'] = support_points
     allowed = {'gpu_batch_size', 'gpu_time_steps', 'gpu_vx_std', 'gpu_vy_std',
-               'gpu_wz_std', 'gpu_path_weight', 'gpu_goal_weight', 'gpu_temperature'}
+               'gpu_wz_std', 'gpu_path_weight', 'gpu_goal_weight', 'gpu_temperature',
+               'gpu_candidate_mode', 'gpu_primitive_fraction'}
     if overrides:
         if set(overrides) - allowed:
             raise ValueError('Unsupported GPU override')
         follow.update(overrides)
+    if follow.get('gpu_candidate_mode', 'noise') not in ('noise', 'path_primitives'):
+        raise ValueError('Invalid GPU candidate mode')
+    fraction = follow.get('gpu_primitive_fraction', .25)
+    if not math.isfinite(fraction) or not 0 < fraction <= 1:
+        raise ValueError('GPU primitive fraction must be in (0, 1]')
     batch = follow.get('gpu_batch_size', follow['batch_size'])
     steps = follow.get('gpu_time_steps', follow['time_steps'])
     support = follow['gpu_support_points']

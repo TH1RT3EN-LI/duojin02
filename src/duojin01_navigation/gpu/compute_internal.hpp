@@ -20,7 +20,7 @@ class CudaExecutor {
     const SamplingView &,const std::vector<unsigned char> &,
     const std::vector<unsigned int> &,const std::vector<unsigned int> &,
     const Polygon &,const std::vector<Pose> &,
-    const std::vector<Velocity> &,const std::vector<Velocity> &,double deadline_ms)=0;
+    const std::vector<Velocity> &,const std::vector<Velocity> &,const std::vector<Pose> &,double deadline_ms)=0;
 };
 std::unique_ptr<CudaExecutor> makeCudaExecutor(std::string &reason);
 }

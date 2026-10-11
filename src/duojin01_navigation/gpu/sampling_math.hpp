@@ -16,12 +16,24 @@ struct SamplingView {
   const Pose *path;size_t path_size;
   Pose start,goal;Velocity measured;OmniVelocityBounds bounds;
   SamplingSettings settings;
+  const Pose *guidance{nullptr};size_t guidance_size{0};
 };
 DUOJIN_HD inline double smMin(double a,double b){return a<b ? a:b;}
 DUOJIN_HD inline double smMax(double a,double b){return a>b ? a:b;}
 DUOJIN_HD inline double smClamp(double a,double low,double high){return smMin(high,smMax(low,a));}
 DUOJIN_HD inline double smSquare(double a){return a*a;}
 DUOJIN_HD inline double smAngle(double a){return atan2(sin(a),cos(a));}
+DUOJIN_HD inline Velocity boundedSampleControl(const SamplingView &v,Velocity u,Velocity previous) {
+  const auto &s=v.settings;
+  u.x=smClamp(u.x,v.bounds.vx_min,v.bounds.vx_max);u.y=smClamp(u.y,-v.bounds.vy_max,v.bounds.vy_max);
+  u.yaw=smClamp(u.yaw,-v.bounds.wz_max,v.bounds.wz_max);
+  const double dx=u.x-previous.x,dy=u.y-previous.y;
+  const double delta=sqrt(dx*dx+dy*dy),limit=s.acceleration*s.dt;
+  if(delta>limit && delta>0){u.x=previous.x+dx*limit/delta;u.y=previous.y+dy*limit/delta;}
+  u.yaw=smClamp(u.yaw,previous.yaw-s.angular_acceleration*s.dt,previous.yaw+s.angular_acceleration*s.dt);
+  u.x=smClamp(u.x,v.bounds.vx_min,v.bounds.vx_max);u.y=smClamp(u.y,-v.bounds.vy_max,v.bounds.vy_max);
+  u.yaw=smClamp(u.yaw,-v.bounds.wz_max,v.bounds.wz_max);return u;
+}
 DUOJIN_HD inline Velocity sampleControl(const SamplingView &v,const Velocity *nominal,
     const Velocity *noise,size_t trajectory,size_t step,Velocity previous) {
   const auto &s=v.settings;
@@ -31,15 +43,46 @@ DUOJIN_HD inline Velocity sampleControl(const SamplingView &v,const Velocity *no
   const auto &a=noise[trajectory*s.support_points+lo],&b=noise[trajectory*s.support_points+hi];
   const auto &n=nominal[step];
   Velocity u{n.x+a.x+(b.x-a.x)*f,n.y+a.y+(b.y-a.y)*f,n.yaw+a.yaw+(b.yaw-a.yaw)*f};
-  u.x=smClamp(u.x,v.bounds.vx_min,v.bounds.vx_max);u.y=smClamp(u.y,-v.bounds.vy_max,v.bounds.vy_max);
-  u.yaw=smClamp(u.yaw,-v.bounds.wz_max,v.bounds.wz_max);
-  const double dx=u.x-previous.x,dy=u.y-previous.y;
-  const double delta=sqrt(dx*dx+dy*dy),limit=s.acceleration*s.dt;
-  if(delta>limit && delta>0){u.x=previous.x+dx*limit/delta;u.y=previous.y+dy*limit/delta;}
-  u.yaw=smClamp(u.yaw,previous.yaw-s.angular_acceleration*s.dt,previous.yaw+s.angular_acceleration*s.dt);
   // An out-of-bound measured speed may require immediate command clamping.
-  u.x=smClamp(u.x,v.bounds.vx_min,v.bounds.vx_max);u.y=smClamp(u.y,-v.bounds.vy_max,v.bounds.vy_max);
-  u.yaw=smClamp(u.yaw,-v.bounds.wz_max,v.bounds.wz_max);return u;
+  return boundedSampleControl(v,u,previous);
+}
+DUOJIN_HD inline size_t primitiveCount(const SamplingView &v) {
+  if(!v.settings.path_primitives || v.guidance_size<2)return 0;
+  const size_t n=static_cast<size_t>(v.settings.batch_size*v.settings.primitive_fraction);
+  return n<v.settings.batch_size ? n:v.settings.batch_size-1;
+}
+// Robot-specific path-guided proposal families, not a reproduction of the
+// quadrotor MP-MPPI paper. Each family is replayed through the real Omni limits.
+DUOJIN_HD inline Velocity candidateControl(const SamplingView &v,const Velocity *nominal,
+    const Velocity *noise,size_t trajectory,size_t step,Pose pose,Velocity previous,size_t &waypoint) {
+  if(trajectory==0 || trajectory>primitiveCount(v))return sampleControl(v,nominal,noise,trajectory,step,previous);
+  if(waypoint==0)waypoint=1;
+  while(waypoint+1<v.guidance_size) {
+    const auto p=v.guidance[waypoint];
+    if(sqrt(smSquare(p.x-pose.x)+smSquare(p.y-pose.y))>.003 ||
+       sqrt(smSquare(previous.x)+smSquare(previous.y))>.025)break;
+    ++waypoint;
+  }
+  const size_t family=(trajectory-1)%12;
+  const double gain=2.+2.*(family/4),scale=.2+.8*(family%4)/3.;
+  const auto target=v.guidance[waypoint];
+  const double dx=target.x-pose.x,dy=target.y-pose.y,d=sqrt(dx*dx+dy*dy);
+  const double cap=scale*sqrt(smSquare(smMax(v.bounds.vx_max,-v.bounds.vx_min))+smSquare(v.bounds.vy_max));
+  const double speed=smMin(cap,smMin(gain*d,.7*sqrt(2.*v.settings.acceleration*d)));
+  const double c=cos(pose.yaw),s=sin(pose.yaw),factor=d>1e-12 ? speed/d:0.;
+  // The goal heading is the current chassis heading during ordinary detours;
+  // near the real endpoint it becomes the requested terminal heading. Merely
+  // requesting zero yaw speed would preserve an accumulated heading error.
+  Velocity u{factor*(c*dx+s*dy),factor*(-s*dx+c*dy),1.8*smAngle(v.goal.yaw-pose.yaw)};
+  // The first twelve families are noiseless witnesses; later copies explore
+  // locally. Noise vanishes at the knot so a particle can settle and turn.
+  if(trajectory>12) {
+    const size_t j=step*(v.settings.support_points-1)/(v.settings.time_steps>1 ? v.settings.time_steps-1:1);
+    const auto perturbation=noise[trajectory*v.settings.support_points+j];
+    const double blend=.1*smMin(1.,d/.1);
+    u.x+=blend*perturbation.x;u.y+=blend*perturbation.y;
+  }
+  return boundedSampleControl(v,u,previous);
 }
 DUOJIN_HD inline Pose sampleAdvance(Pose p,Velocity u,double dt) {
   const double mid=p.yaw+u.yaw*dt/2,c=cos(mid),s=sin(mid);

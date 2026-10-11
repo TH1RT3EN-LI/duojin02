@@ -84,16 +84,23 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       settings.goal_weight=weight("gpu_goal_weight",settings.goal_weight);
       settings.yaw_weight=weight("gpu_yaw_weight",settings.yaw_weight);
       settings.cost_weight=weight("gpu_cost_weight",settings.cost_weight);
+      if(!node->has_parameter(name+".gpu_candidate_mode"))node->declare_parameter(name+".gpu_candidate_mode",std::string("noise"));
+      const auto mode=node->get_parameter(name+".gpu_candidate_mode").as_string();
+      if(mode!="noise" && mode!="path_primitives")throw std::invalid_argument("gpu_candidate_mode must be noise or path_primitives");
+      settings.path_primitives=mode=="path_primitives";
+      structured_sampling_=settings.path_primitives;
+      settings.primitive_fraction=weight("gpu_primitive_fraction",settings.primitive_fraction);
       sampling_=std::make_unique<SamplingCompute>(settings,ComputeOptions{parseComputeBackend(sampling),0,gpu_deadline_ms_});
       RCLCPP_INFO(logger_,"Navigation sampling backend: %s (%s); time-interpolated sampling, filled sweeps and validated sequence selection",sampling.c_str(),sampling_->deviceName().c_str());
       RCLCPP_INFO(logger_,"GPU_SAMPLING_CONFIG batch=%zu steps=%zu support=%zu noise=%.3f,%.3f,%.3f path_weight=%.3f goal_weight=%.3f yaw_weight=%.3f cost_weight=%.3f",
         settings.batch_size,settings.time_steps,settings.support_points,settings.noise.x,settings.noise.y,settings.noise.yaw,
         settings.path_weight,settings.goal_weight,settings.yaw_weight,settings.cost_weight);
+      RCLCPP_INFO(logger_,"GPU_PROPOSAL_CONFIG mode=%s fraction=%.3f",mode.c_str(),settings.primitive_fraction);
     }
   }
   void cleanup() override {
     reportStatistics();
-    sampling_.reset();sample_path_=nav_msgs::msg::Path();geometry_.reset();
+    sampling_.reset();sample_path_=nav_msgs::msg::Path();sample_arcs_.clear();sample_bends_.clear();structured_sampling_=false;geometry_.reset();
     nav2_mppi_controller::MPPIController::cleanup();
   }
   void reportStatistics() {
@@ -113,6 +120,16 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     nav2_mppi_controller::MPPIController::setPlan(path);
     target_path_.setPath(path);
     if(sampling_) {sample_path_=path;sampling_->reset();}
+    sample_arcs_.assign(path.poses.size(),0.);sample_bends_.clear();
+    if(structured_sampling_)for(size_t i=1;i<path.poses.size();++i) {
+      const auto &a=path.poses[i-1].pose.position,&b=path.poses[i].pose.position;
+      const double dx=b.x-a.x,dy=b.y-a.y,length=std::hypot(dx,dy);
+      sample_arcs_[i]=sample_arcs_[i-1]+length;
+      if(i+1<path.poses.size()) {
+        const auto &c=path.poses[i+1].pose.position;const double ex=c.x-b.x,ey=c.y-b.y,next=std::hypot(ex,ey);
+        if(length>1e-9 && next>1e-9 && (dx*ex+dy*ey)/(length*next)<std::cos(.20))sample_bends_.push_back(i);
+      }
+    }
     have_goal_=!path.poses.empty();if(have_goal_) goal_=path.poses.back();
   }
   void setSpeedLimit(const double &limit,const bool &percentage) override {
@@ -161,6 +178,11 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     }
     const double distance=std::hypot(target.pose.position.x-pose.pose.position.x,target.pose.position.y-pose.pose.position.y);
     if(distance<=.45 && directApproachClear(pose,target)) return checked(converge(pose,target,true),pose,speed);
+    // Activate the path-guided optimizer before a bend, while measured speed
+    // can still decelerate. A clear short chord does not describe the next turn.
+    // Straight sections and precision docking retain the existing CPU path.
+    if(structured_sampling_ && sampling_ && sampling_->available() && upcomingBend(pose))
+      return sampledCommand(pose,speed,checker);
     // Follow a collision-checked short SE2 lattice chord directly. Sampling is
     // reserved for blocked chords / dynamic detours, reducing CPU and jitter.
     if(trackingTarget(pose,target,speed)) return checked(converge(pose,target,false),pose,speed);
@@ -203,6 +225,21 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   }
   bool nearObstacle(const geometry_msgs::msg::PoseStamped &pose) {
     return grid_.nearObstacle(pose.pose.position.x,pose.pose.position.y);
+  }
+  bool upcomingBend(const geometry_msgs::msg::PoseStamped &pose) {
+    if(sample_bends_.empty())return false;
+    geometry_msgs::msg::PoseStamped in_path;
+    try {tf2::doTransform(pose,in_path,freshTransform(sample_path_.header.frame_id,pose.header.frame_id,pose.header.stamp));}
+    catch(const tf2::TransformException &) {return true;}
+    size_t nearest=0;double minimum=1e100;
+    for(size_t i=0;i<sample_path_.poses.size();++i) {
+      const auto &p=sample_path_.poses[i].pose.position;
+      const double distance=std::hypot(p.x-in_path.pose.position.x,p.y-in_path.pose.position.y);
+      if(distance<minimum){minimum=distance;nearest=i;}
+    }
+    for(const auto bend:sample_bends_)if(bend>=nearest)
+      return sample_arcs_[bend]-sample_arcs_[nearest]<=1.8;
+    return false;
   }
   bool trackingTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target,const geometry_msgs::msg::Twist &speed) {
     if(!pathTarget(pose,target,speed)) return false;
@@ -448,6 +485,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   OmniVelocityLimits limits_;std::mutex limits_mutex_;
   std::unique_ptr<GeometryCompute> geometry_;
   std::unique_ptr<SamplingCompute> sampling_;nav_msgs::msg::Path sample_path_;
+  std::vector<double> sample_arcs_;std::vector<size_t> sample_bends_;bool structured_sampling_{false};
   double gpu_deadline_ms_{40};
   uint64_t native_samples_{0},cuda_samples_{0},best_sequences_{0},gpu_failures_{0},gpu_deadline_misses_{0};
   uint64_t valid_samples_{0};size_t feasible_min_{std::numeric_limits<size_t>::max()};
