@@ -60,6 +60,8 @@ ros2 launch duojin01_bringup navigation.launch.py \
 
 `structured` 的 1600 条预设用于桌面实验，不能直接作为 Orin 配置：本轮 Orin 完整采样均值为 67.66–101.99 ms，超过 40 ms 预算。独立端侧测试改为 128 条，仍没有解决 50 cm 闭环转角，保持实验模式；目前推荐保留端侧默认 `sampling_backend=original`，不增加真机速度。
 
+后续 [控制周期分解](docs/gpu-orin-control-profile-2026-10-12.md) 用四个场景和关闭 GPU 事件计时的对照定位到：GPU 栅格足迹/轨迹代价核占主要持续开销，狭窄场景的地图锁等待会叠加成超时长尾。最终 CPU 制动检查整体较小。计时会影响时序，报告保留原版重跑和原始失败；这些发现尚未作为生产优化启用。
+
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
 | `FollowPath.compute_backend` | `cpu` | `cpu` 原几何路径；`auto` 按任务量选择；`cuda` 强制设备可用 |
