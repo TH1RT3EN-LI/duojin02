@@ -31,7 +31,7 @@ CUDA 选项也可通过标准 `colcon build --cmake-args` 传入。完全关闭 
 source ./source.sh
 ```
 
-本次新候选模式已验证 RTX 5070 / CUDA 12.8.93 的运行与 `87;120` 编译，尚未在 Orin 原生复测。请在 Orin 上重新构建，不能复制本机 x86 二进制文件过去；旧版端侧数据不能直接作为新模式的性能结果。
+新候选模式已验证 RTX 5070 / CUDA 12.8.93，并于 2026-10-11 在 Orin / CUDA 12.6.68 原生构建、运行，10-12 重启后复核。请在 Orin 上重新构建，不能复制本机 x86 二进制文件过去。端侧 128 条候选的开阔控制 API 平均约 6.72 ms，但复杂地图的同算法 CPU 参考比 GPU 更快，闭环仍有整次控制调用超时；原生检查为 20/21，固定 3200 条的检查失败。测试范围与失败见 [Orin 原生报告](docs/gpu-orin-structured-2026-10-12.md)。
 
 ## 选择后端并启动
 
@@ -57,6 +57,8 @@ ros2 launch duojin01_bringup navigation.launch.py \
 ```
 
 串口、地图和定位初始化使用原项目文档的步骤。这些命令会启动真实硬件节点；本次对比测试只使用仿真。
+
+`structured` 的 1600 条预设用于桌面实验，不能直接作为 Orin 配置：本轮 Orin 完整采样均值为 67.66–101.99 ms，超过 40 ms 预算。独立端侧测试改为 128 条，仍没有解决 50 cm 闭环转角，保持实验模式；目前推荐保留端侧默认 `sampling_backend=original`，不增加真机速度。
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -100,4 +102,4 @@ cmake --build .cache/gpu-components --target gpu_geometry_benchmark gpu_sampling
 
 `tests/performance/benchmark_gpu_components.py` 执行连续 ABBA 对比并保留逐调用 CPU / 墙钟时间、输入哈希、指令和退出码。`controller_gpu_benchmark` 可通过 `DUOJIN_ORIGINAL_SOURCE_DIR` 编译同一观察器对原始源码；链接器计数确认真实 Nav2 MPPI 调用。新增算法的 CPU 数学参考与原版 Nav2 MPPI 属于两种不同对比，报告中分别列出。
 
-首轮方法与完整失败记录见 [首轮性能报告](docs/gpu-performance-report-2026-10-10.md)。第二轮调参、实际绕障轨迹和计算预算见 [调参报告](docs/gpu-tuning-round2-2026-10-10.md)。首轮固定穿障用例失败；第二轮 `explore` 的 12 个任务全部到达，`explore-lite` 的两个补充穿障任务到达。仍有公共仿真收尾异常，探索档在狭窄输入中的采样覆盖仍有限，均保持实验选项。整体导航尚无一致提速；GPU 控制器增加约 100 MiB RSS，Orin 原生预算尚未复测。
+首轮方法与完整失败记录见 [首轮性能报告](docs/gpu-performance-report-2026-10-10.md)。第二轮调参、实际绕障轨迹和计算预算见 [调参报告](docs/gpu-tuning-round2-2026-10-10.md)。首轮固定穿障用例失败；第二轮 `explore` 的 12 个任务全部到达，`explore-lite` 的两个补充穿障任务到达。仍有公共仿真收尾异常，探索档在狭窄输入中的采样覆盖仍有限，均保持实验选项。整体导航尚无一致提速；约 100 MiB 的 GPU RSS 增量是首轮桌面观察，当前 Orin 新模式的预算与闭环结论以 [原生报告](docs/gpu-orin-structured-2026-10-12.md) 为准。

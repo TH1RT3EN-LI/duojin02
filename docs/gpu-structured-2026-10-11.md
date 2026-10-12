@@ -2,6 +2,8 @@
 
 本轮在独立 GPU 副本实现 `path_primitives` 候选模式，并将最小代价、指数权重和权重和归约移到 GPU。路径候选改善了原随机采样器在理想 L 转角中的覆盖，但真实 ROS/Gazebo 的 50 cm 转角仍失败，60 cm 转角的完成时间与旧版接近。保留实验选项，主配置仍使用原控制器。
 
+后续原生 Orin 测试与 10-12 开机复核见 [端侧报告](gpu-orin-structured-2026-10-12.md)。下文保留这轮 RTX 5070 的冻结数据；桌面加速倍数不代表 Orin 性能，端侧小批量的新算法 CPU 参考反而更快，整次控制调用仍出现超时。
+
 工作区 `/home/th1rt3en/dev/forge/duojin02-gpu`，分支 `codex/gpu-structured-mppi-20261011`；对照基线为 `e3969fb`。原始 `/home/th1rt3en/dev/forge/duojin02` 未参与本轮编辑。
 
 ## 实现与入口
