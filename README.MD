@@ -1,165 +1,99 @@
-# Duojin01 真机工作区
+# Duojin02 真机工作区
 
-`hardware-only` 分支面向 **Jetson Orin Nano / Ubuntu 22.04（Jammy）+ ROS 2 Humble**。包含麦克纳姆底盘串口驱动、N10Plus 雷达、建图、Nav2 导航和遥控。硬件配置统一，不保留相机、机械臂或旧设备兼容入口。
+面向 **Jetson Orin Nano / Ubuntu 22.04 + ROS 2 Humble**，包含麦克纳姆底盘、IMU、N10Plus 二维雷达、建图、定位、Nav2 导航和遥控。仓库名为 `duojin02`；ROS 包、脚本、环境变量和镜像保留 `duojin01_*` 名称，命令中不要按仓库名替换它们。
 
-雷达基于官方 **V5.1.3_250822** 的 N10Plus 串口实现，固定上游提交 `ecd9a836`，仅保留当前 108 字节双回波协议；来源及项目补丁见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。
+本页是构建与启动入口；模块、指令链路见 [开发接口](README_DEVELOPMENT.md)，操作说明与历史试验的阅读顺序见 [文档索引](docs/README.md)。工作树、main、设备部署是不同状态，历史报告的通过结果不能证明当前版本已合并或部署。
 
-## 最新底盘模型
+## Ubuntu 22.04 原生构建（Jetson 首选）
 
-真机描述已按 2026-09-21 的 CAD 更新：四个独立麦克纳姆轮使用原始滚子网格，轮毂拟合轴距约 **312.8 mm**、轮距约 **355.1 mm**、轮宽 **50.0 mm**；底盘投影约 **426.0 × 405.4 mm**。`base_footprint` 原点为四轮轴中心的地面投影，雷达转轴位于车体中心前方约 **92.5 mm**，零度标记朝车头。
-
-Nav2 足迹采用底盘（含四轮）的保守投影。详细尺寸、预览、坐标系、生成方法与尚待实测的雷达光学高度 / IMU 外参见 [底盘测算报告](docs/chassis/README.md)。
-
-## Docker：构建和运行
-
-在仓库根目录执行：
-
-```bash
-./scripts/build_image.sh
-```
-
-生成 `duojin01:hardware-humble`。镜像从 `ros:humble-ros-base-jammy` 构建，包含已编译的全部 6 个真机 ROS 包；进入容器后即可使用 ROS 命令。镜像安装所需的 ROS 和硬件依赖，不添加 OSRF 软件源。
-
-Docker 将包依赖清单与源码编译分层缓存。固定源码的 SLAM Toolbox 2.6.10 覆盖层包含旋转筛选、Ceres 线程数与离线队列检查补丁，详见 [SLAM 升级与验证](docs/slam-upgrade-review.md)。编译默认 2 作业、1 包并行，适合从 Orin 开始联调。
-
-在 Orin 上直接构建会生成 ARM64 镜像。在具备 ARM64 构建器或架构模拟器的 x86 开发机上可执行：
-
-```bash
-PLATFORM=linux/arm64 ./scripts/build_image.sh
-# x86 交叉构建默认使用 duojin01:hardware-humble-arm64，避免覆盖本机镜像
-
-# 从开发机导出 ARM64 镜像
-docker save -o duojin01-hardware-humble-arm64.tar duojin01:hardware-humble-arm64
-# 在 Orin 上导入，并设置开发脚本的默认镜像名
-docker load -i duojin01-hardware-humble-arm64.tar
-docker tag duojin01:hardware-humble-arm64 duojin01:hardware-humble
-```
-
-镜像的架构必须匹配运行设备。跨机器只传源码、录包、地图及对应架构镜像；不复用另一种架构的 `build/`、`install/`。Jetson 无需 GPU 运行此二维 SLAM；`GPU=1` 时使用已安装的 NVIDIA Container Runtime。系统和驱动由宿主机的 JetPack 提供，容器不安装或更换 JetPack。
-
-构建脚本会传递当前终端的代理变量；Linux 上的本地回环代理会自动使用构建主机网络，也可用 `DOCKER_BUILD_NETWORK` 指定网络。基础镜像拉取由 Docker 服务负责，如这一阶段超时，应配置 Docker 服务的网络代理，或先通过 `docker load` 导入官方基础镜像。代理配置不会写入生成镜像的运行环境。
-
-底盘和雷达使用稳定设备名：
-
-```bash
-DEV_LIST=/dev/duojin01_controller,/dev/lslidar \
-  ./scripts/dev.sh
-./scripts/enter.sh
-```
-
-容器名默认 `duojin01_hardware`，工作区挂载到 `/ws`，地图保存到宿主机仓库的 `maps/`。容器启用 `--init` 回收退出的子进程。启动容器只打开开发环境，不会自动启动机器人节点或发送运动命令。
-
-需要本机 RViz 窗口时增加 `GUI=1 GPU=1`。`DEV_LIST` 支持逗号分隔的设备列表，`DEV` 支持单设备，`DEV_GLOB` 支持设备通配符。明确指定的设备不存在时会报错，需按实际连接情况调整列表。
-
-```bash
-# 示例：启用本机图形界面
-GUI=1 GPU=1 \
-  DEV_LIST=/dev/duojin01_controller,/dev/lslidar \
-  ./scripts/dev.sh
-
-# 停止并删除本分支的开发容器
-./scripts/stop.sh
-
-# 转移镜像到另一台真机
-# docker save -o duojin01-hardware-humble.tar duojin01:hardware-humble
-# docker load -i duojin01-hardware-humble.tar
-```
-
-修改设备映射后应先停止旧容器，再重新创建。`IMAGE` 和 `NAME` 可以覆盖默认镜像和容器名。默认 `ROS_DOMAIN_ID=20`，参与同一真机系统的所有终端应使用相同值；可在创建容器前设置其他值。
-
-镜像中的工作区位于 `/opt/duojin01/install`。如需修改源码并在开发容器中重编译：
-
-```bash
-./scripts/build_hardware.sh
-source ./source.sh
-```
-
-开发构建先生成 `install/slam_backend`，再将 6 个真机包构建到独立的 `build/hardware`、`install/hardware`、`log/hardware`。再次进入容器会优先加载这两个覆盖层；架构标记不匹配时会提示重新构建。
-
-## Ubuntu 22.04 原生构建
-
-先安装 ROS 2 Humble，然后运行：
+先安装 [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)，在仓库根目录执行：
 
 ```bash
 ./setup_ubuntu22.sh
 ./scripts/build_hardware.sh
 source ./source.sh
+export ROS_DOMAIN_ID=20
 ```
 
-ROS 安装说明：[官方 Ubuntu Debian 安装文档](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)。
+项目脚本先构建带项目补丁的 SLAM Toolbox 2.6.10 到 `install/slam_backend`，再将 **7 个真机包**构建到 `build/hardware`、`install/hardware`、`log/hardware`。普通 `colcon build` 或 apt 原版 SLAM 库不能替代这个覆盖层。构建默认 2 作业、1 包并行，来源与补丁边界见 [SLAM 工作流](docs/slam-workflow.md)。跨机器可传源码、录包、地图；跨架构不复用 `build/` 和 `install/`。
 
-串口设备需要当前用户具备 `dialout` 组权限。稳定设备名可通过 `scripts/set_dev.sh` 为实际设备建立，例如：
+串口用户需要 `dialout` 组权限，新增组成员资格后重新登录。先按设备身份确认底盘和雷达，再用 `scripts/set_dev.sh` 建立设备名。脚本要求设备提供厂商、产品及序列号，缺字段会退出；已有同名规则会跳过，不会替换绑定。下面的路径是占位符，必须替换；`ttyACM0/1` 的枚举顺序不能用于判断身份。
 
 ```bash
-sudo ./scripts/set_dev.sh /dev/ttyACM0 duojin01_controller Controller
-sudo ./scripts/set_dev.sh /dev/ttyACM1 lslidar Lslidar
+sudo ./scripts/set_dev.sh /dev/ttyACM_CONTROLLER duojin01_controller Controller
+sudo ./scripts/set_dev.sh /dev/ttyACM_LIDAR lslidar Lslidar
 ```
 
-## 真机启动入口
+## 真机启动
+
+每个终端先在工作区加载 `source ./source.sh` 并设置控制系统的 ROS 域。下列入口按任务选择；建图、固定图导航、在线建图导航分别拥有其底盘和雷达节点，不要与独立底盘/雷达入口叠加启动。
+
+| 任务 | 入口 |
+| --- | --- |
+| 底盘节点联调，不启动雷达 | `ros2 launch duojin01_bringup base.launch.py use_lidar:=false` |
+| 独立雷达观察 | `ros2 launch lslidar_driver lslidar_x10_launch.py serial_port:=/dev/lslidar` |
+| 建图 | `ros2 launch duojin01_bringup mapping.launch.py` |
+| 固定地图定位与导航 | `ros2 launch duojin01_bringup navigation.launch.py map:=maps/0.yaml` |
+| 在线 SLAM 与导航 | `ros2 launch duojin01_bringup online_navigation.launch.py` |
+
+无雷达联调不代表具备移动条件，缺扫描时速度保护可能停车。在线导航接收指定目标，不包含自主探索。固定图入口不传 `map` 时优先选择工作区 `maps/` 的最大数字编号；无数字地图时选修改时间最新的 YAML，不按具名地图的字母顺序。使用指定地图时显式传路径。地图需采集或提供，不随镜像附带。
+
+固定图启动后，在 RViz 用 **2D Pose Estimate** 指定真实初始位置；待定位健康确认且 Nav2 生命周期节点 ACTIVE 后，再发送目标。失配与恢复步骤见 [定位健康与恢复](docs/localization-health.md)。所有真机入口使用系统时钟；录包时钟只用于独立离线消费者。
+
+以下操作附着于已启动的系统，不再启动一套底盘或雷达：
 
 ```bash
-# 底盘联调：包含导航与手柄速度仲裁
-ros2 launch duojin01_bringup base.launch.py use_lidar:=false
-
-# 独立雷达，不自动启动 RViz
-ros2 launch lslidar_driver lslidar_x10_launch.py serial_port:=/dev/lslidar
-
-# 建图
-ros2 launch duojin01_bringup mapping.launch.py
-
-# 保存栅格图、位姿图和校验清单到工作区 maps/；建图节点需已启动，先停稳机器人
+# 已有建图节点，先停稳，再保存地图与位姿图
 ros2 launch duojin01_bringup save_map.launch.py
-
-# 导航，默认从 maps/ 选择最大的数字编号地图
-ros2 launch duojin01_bringup navigation.launch.py
-# 或显式指定地图；相对路径从工作区根目录解析
-ros2 launch duojin01_bringup navigation.launch.py map:=maps/0.yaml
-
-# 键盘控制
+# 键盘遥控；需要接管导航中的机器人时先取消目标
 ros2 run duojin01_teleop keyboard_teleop_node
 ```
 
-所有真机启动入口固定使用系统时钟。独立离线回放入口使用录包时钟，操作见 [SLAM 升级与验证](docs/slam-upgrade-review.md)。导航启动后需在 RViz 中用 **2D Pose Estimate** 指定真实初始位置，然后发送目标点。地图不是随镜像附带的预设场景，需要从真实环境采集或指定已有地图。
+常用参数的外层显式声明范围如下；子 launch 的声明、转发与作用域另需核对：
 
-常用启动参数：
+| 参数 | `base` | `mapping` | `navigation` | `online_navigation` |
+| --- | --- | --- | --- | --- |
+| `base_serial_port`、`lidar_serial_port` | 声明 | 声明 | 声明 | 声明 |
+| `use_teleop`、`use_foxglove` | 声明 | 声明 | 声明 | 声明 |
+| `base_params_file`、`base_serial_baudrate`、`odom0`、`imu0` | 声明 | 声明 | 声明 | — |
+| `use_lidar`、`publish_robot_model`、`publish_joint_states` | 声明 | — | — | — |
+| `use_rviz` | — | 声明 | 声明 | — |
+| `rviz_config` | — | 声明 | — | — |
+| `slam_params_file`、`pose_graph`、`map_start_pose`、`start_at_dock` | — | 声明 | — | — |
+| `map`、`autostart` | — | — | 声明 | — |
+| `params_file`（Nav2） | — | — | 声明 | 声明 |
 
-| 参数 | 含义 |
-| --- | --- |
-| `base_serial_port` | 底盘串口，默认 `/dev/duojin01_controller` |
-| `base_serial_baudrate` | 底盘波特率，默认 `115200` |
-| `base_params_file` | 底盘尺度、IMU 偏置及速度方差配置 |
-| `slam_params_file` | 在线 / 离线 SLAM 参数配置 |
-| `pose_graph` / `map_start_pose` | 续建的位姿图及真实起始位置 |
-| `lidar_serial_port` | 雷达串口，默认 `/dev/lslidar`；底盘、建图和导航入口均支持 |
-| `use_teleop` | 手柄链路开关，与雷达开关独立 |
-| `use_foxglove` | Foxglove Bridge 开关 |
-| `use_rviz` | 建图/导航的 RViz 开关 |
-| `map` / `params_file` | 导航地图及 Nav2 参数文件 |
+表中名称省略 `.launch.py`，`—` 只表示外层未声明，不证明嵌套入口无法接收同名参数。`use_teleop` 控制手柄节点，键盘遥控是上方独立入口。建图 / 固定图无显示器时传 `use_rviz:=false`；底盘及在线导航不自动启动 RViz。已构建环境可用 `ros2 launch duojin01_bringup mapping.launch.py --show-args` 查看声明，检查其他入口时替换文件名；参数被命令行接受仍需核对实际节点有效值。
 
-无显示器时可设置 `use_rviz:=false`；不使用 Foxglove 时设置 `use_foxglove:=false`。可通过 `DUOJIN01_WORKSPACE_ROOT` 指定数据工作区的绝对路径，导航选图和保存地图使用相同根目录。
+`DUOJIN01_WORKSPACE_ROOT` 指定数据工作区的绝对路径，导航选图和保存地图共用它；录包、离线输出和续建前缀的路径规则见 [SLAM 工作流](docs/slam-workflow.md)。雷达来源、固定协议和配置集中在 [UPSTREAM](src/lslidar_driver/UPSTREAM.md)；换硬件需验证对应驱动，不能猜协议。
 
-雷达配置为 [`duojin01_n10plus.yaml`](src/lslidar_driver/lslidar_driver/config/duojin01_n10plus.yaml)，保留串口、话题、坐标系和距离过滤配置。协议、460800 波特率、顺时针角度转换及 540 格输出固定对应当前 10 Hz N10Plus；每格取最近有效回波。换用其他硬件时应修改对应驱动，不通过兼容分支猜测协议。
+## 本机与远程 RViz
 
-## 验证
+观看机运行独立 RViz，加载本机架构的同版本描述包和网格；不再启动机器人入口。域 / 网络、只看雷达的固定坐标系、完整导航模板的已知差异及 QoS 排查统一见 [RViz 观察](docs/remote-rviz.md)。该页也说明直接订阅与实验分域显示的性能边界。
 
-在硬件 Docker 镜像或已构建的原生环境执行：
+## 可选 Docker 环境
+
+原生运行无需 Docker。需要隔离开发环境时，在仓库根目录执行：
 
 ```bash
-./scripts/validate_hardware.sh
-
-# 编译并运行雷达协议与数据发布测试，使用独立测试构建目录
-./scripts/test_lidar.sh
+./scripts/build_image.sh
+DEV_LIST=/dev/duojin01_controller,/dev/lslidar ./scripts/dev.sh
+./scripts/enter.sh
 ```
 
-验证包依赖边界、真实时钟配置、URDF/网格完整性、速度仲裁连接、地图路径以及全部启动入口的参数解析；不会打开物理设备。当前精简及回归结果见 [本轮减法记录](docs/hardware-simplification.md)。伪串口与构造录包证明软件路径可执行，真实雷达采集、地图精度和 Orin 实时性能仍需要板端验证。
+默认镜像 `duojin01:hardware-humble`、容器 `duojin01_hardware`；工作区挂载到 `/ws`，预编译安装位于 `/opt/duojin01/install`，开发构建覆盖层通过 `source.sh` 加载。容器只打开开发环境，不自动启动机器人。`DEV_LIST` 支持逗号分隔设备；`DEV`、`DEV_GLOB`、`IMAGE`、`NAME` 可覆盖相应设置。已有容器不更新映射；改设备或 GUI 设置前先正常退出其中的 ROS，再用 `./scripts/stop.sh` 删除旧容器，以新设置运行 `dev.sh`。该脚本会强制删除容器，`/ws` 外未另挂载的数据须先保存。
 
-模块和标准接口见 [README_DEVELOPMENT.md](README_DEVELOPMENT.md)。雷达来源和裁剪范围见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。自研 `duojin01_*` 包使用 GPL-3.0-only；第三方驱动遵循各自目录的许可证。
+Orin 本地构建得到 ARM64 镜像；具备 ARM64 构建器或架构模拟器的 x86 机器可用 `PLATFORM=linux/arm64 ./scripts/build_image.sh`，默认另命名为 `duojin01:hardware-humble-arm64`。用 `docker save/load` 转移对应架构镜像，在板端按需要重命名；不可运行错误架构的产物。
 
-录包、独立离线建图与位姿图续建的具体命令、验证记录和算法升级顺序见 [SLAM 升级与验证](docs/slam-upgrade-review.md)。集成回归测试使用容器内伪串口和构造录包：
+本机容器 RViz 可设置 `GUI=1 GPU=1`；Jetson 上的 GPU 映射依赖宿主已安装的 NVIDIA Container Runtime。二维算法主要使用 CPU，容器不安装或更换 JetPack。构建脚本传递终端代理，`DOCKER_BUILD_NETWORK` 可设置构建网络；基础镜像拉取的代理由 Docker 服务单独配置。
+
+## 验证边界
+
+已构建环境可运行 `./scripts/validate_hardware.sh` 和 `./scripts/test_lidar.sh`。伪串口、合成扫描与构造录包证明软件路径，不等于真实雷达稳定性、底盘制动距离、毫米级精度或 Orin 长期实时性。集成回归在隔离容器执行，不映射物理设备：
 
 ```bash
-# 在隔离网络的容器内执行，不映射实际设备
 docker run --rm --init --network none -v "$PWD":/ws -w /ws \
   duojin01:hardware-humble bash -c './scripts/test_slam.sh'
-# QEMU 跨架构验证时可设置 SLAM_PROBE_RATE=0.1、SLAM_PROBE_DRAIN_TIMEOUT=120
 ```
+
+导航算法的测试构建与分项计时见 [导航验证](docs/navigation-validation.md)。默认硬件构建关闭 `BUILD_TESTING`；`validate_hardware.sh` 的 Python / launch 检查不能替代导航 CTest。结果按冻结版本阅读，不从旧报告推断当前性能。CAD 几何、未标定外参见 [底盘报告](docs/chassis/README.md)。自研 `duojin01_*` 包使用 GPL-3.0-only；第三方遵循各自目录许可证。

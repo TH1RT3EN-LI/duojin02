@@ -6,6 +6,7 @@ from pathlib import Path
 import signal
 import subprocess
 import time
+from ament_index_python.packages import get_package_prefix
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile,DurabilityPolicy,qos_profile_sensor_data
@@ -20,7 +21,7 @@ def run():
     rclpy.init();node=Node('velocity_guard_probe')
     status=[];output=[]
     node.create_subscription(String,'/navigation/guard_status',lambda m:status.append(json.loads(m.data)),10)
-    node.create_subscription(Twist,'/cmd_vel_guarded',output.append,10)
+    node.create_subscription(Twist,'/cmd_vel_base',output.append,10)
     cmd=node.create_publisher(Twist,'/cmd_vel_requested',10)
     odom=node.create_publisher(Odometry,'/odometry/filtered',10)
     scan=node.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
@@ -28,7 +29,8 @@ def run():
     covariance=node.create_publisher(PoseWithCovarianceStamped,'/amcl_pose',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     parameters=Path(__file__).resolve().parents[2]/'src/duojin01_bringup/config/velocity_guard.yaml'
     with open('/tmp/velocity-guard-probe.log','w') as log:
-        process=subprocess.Popen(['ros2','run','duojin01_navigation','velocity_guard','--ros-args','--params-file',str(parameters)],
+        binary=Path(get_package_prefix('duojin01_navigation'))/'lib/duojin01_navigation/velocity_guard'
+        process=subprocess.Popen([str(binary),'--ros-args','--params-file',str(parameters)],
                                  stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         def pump(duration,point=(1.5,0),requested=.3,actual=0.0,send_scan=True,send_command=True,scan_min=.02):
             end=time.monotonic()+duration
@@ -39,7 +41,7 @@ def run():
                 if send_scan:
                     s=LaserScan();s.header.stamp=stamp;s.header.frame_id='odom';s.range_min=scan_min;s.range_max=8.0
                     s.angle_min=float(math.atan2(point[1],point[0])) if point else 0.0;s.angle_increment=.01
-                    s.ranges=[float(math.hypot(*point)) if point else math.inf];scan.publish(s)
+                    s.ranges=[float(math.hypot(*point)) if point else math.inf];s.angle_max=s.angle_min;scan.publish(s)
                 if send_command:
                     v=Twist();v.linear.x=requested;cmd.publish(v)
                 rclpy.spin_once(node,timeout_sec=.02)
@@ -76,8 +78,9 @@ def run():
                               'measured_speed_braking':True,'command_dropout':True,'scan_dropout':True,'map_dropout':True}))
         finally:
             os.killpg(process.pid,signal.SIGINT)
-            try:process.wait(timeout=5)
-            except subprocess.TimeoutExpired:os.killpg(process.pid,signal.SIGKILL);process.wait()
+            returncode=process.wait(timeout=5)
+            assert returncode==0,returncode
+            print(json.dumps({'cleanup':{'returncode':returncode,'forced':False}}))
             node.destroy_node();rclpy.shutdown()
 
 

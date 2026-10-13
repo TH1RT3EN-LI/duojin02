@@ -17,6 +17,7 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
+from duojin01_bringup.navigation_stack import NAVIGATION_NODES
 
 
 def percentile(values,q):
@@ -45,8 +46,11 @@ def main():
         for directory in Path('/proc').iterdir():
             if not directory.name.isdigit():continue
             try:
-                name=Path((directory/'cmdline').read_bytes().split(b'\0')[0].decode()).name
-                if name not in {'controller_server','planner_server','amcl','async_slam_toolbox_node','velocity_guard','collision_monitor','ekf_node'}:continue
+                arguments=(directory/'cmdline').read_bytes().split(b'\0')
+                tracked=set(NAVIGATION_NODES)|{'amcl','async_slam_toolbox_node','velocity_guard','localization_manager','ekf_node'}
+                name=next((Path(value.decode()).name for value in arguments[:2]
+                           if Path(value.decode()).name in tracked),None)
+                if name is None:continue
                 fields=(directory/'stat').read_text().split(') ',1)[1].split()
                 cpu=(int(fields[11])+int(fields[12]))/os.sysconf('SC_CLK_TCK')
                 rss=int(fields[21])*os.sysconf('SC_PAGE_SIZE')/2**20

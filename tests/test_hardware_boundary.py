@@ -70,7 +70,7 @@ def test_all_hardware_configuration_clocks_are_real():
 
 @pytest.mark.parametrize("name", [
     "base", "mapping", "navigation", "nav2", "slam",
-    "save_map", "joy_teleop", "online_navigation", "velocity_guard",
+    "save_map", "joy_teleop", "online_navigation", "velocity_guard", "navigation_stack",
 ])
 def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
     from launch.actions import DeclareLaunchArgument
@@ -128,10 +128,9 @@ def test_command_sources_reach_base_through_validated_velocity_arbitration():
                 nodes[package] = dict(ast.literal_eval(fields["remappings"]))
     output_topic = nodes["twist_mux"]["/cmd_vel_out"]
     assert output_topic == "/cmd_vel_requested"
-    guard = yaml.safe_load((BRINGUP / "config/velocity_guard.yaml").read_text())
-    monitor = guard["collision_monitor"]["ros__parameters"]
-    assert monitor["cmd_vel_in_topic"] == "/cmd_vel_guarded"
-    assert monitor["cmd_vel_out_topic"] == nodes["duojin01_base_driver"]["/cmd_vel"]
+    guard_source = (ROOT / "src/duojin01_navigation/src/velocity_guard.cpp").read_text()
+    assert 'Twist>("/cmd_vel_requested",qos,' in guard_source
+    assert f'Twist>("{nodes["duojin01_base_driver"]["/cmd_vel"]}",qos)' in guard_source
     assert output_topic not in {entry["topic"] for entry in parameters["topics"].values()}
 
 

@@ -1,0 +1,49 @@
+{
+  "protocol": "serial ABBA, two fresh processes per arm per case, one native container, no rebuild within timed schedule",
+  "index_cases": [
+    "compact_queries",
+    "compact_rebuild_query",
+    "sparse_rebuild_query"
+  ],
+  "association_cases": [
+    "scan10_guard20",
+    "transform_each_cycle",
+    "scan20_guard20"
+  ],
+  "timing": "index batch includes 256 hasWithin + near visits/output-vector append and optional rebuild; association program times obstacle preparation with predecessor association cache enabled in BOTH arms, excluding rebuild/ROS/braking/fingerprint",
+  "sources": {
+    "src/duojin01_navigation/include/duojin01_navigation/guard_query.hpp": "82e68f1328b95dbccddd6177108db07de21c2942b7a98ba0e15541d269a0db97",
+    "src/duojin01_navigation/test/spatial_index_reference.hpp": "f21803fffbf226f5fdde30bf4a1fd77df3005c287dd70e883148773977bdea97",
+    "src/duojin01_navigation/test/spatial_index_checks.cpp": "24d7f149300633d33772af4066dd50a8af7a65f43248e104ab07e9045034f02e",
+    "tests/performance/spatial_index_benchmark.cpp": "626524465854316ffbeb9d170d82539f9854afec873ea970b0098b5cf62e6620",
+    "tests/performance/prior_association_benchmark.cpp": "1e22a86bc46ded3644f9523353686009ffe511e82ac3594888c0c53ab2803cc7",
+    "src/duojin01_navigation/include/duojin01_navigation/prior_association_cache.hpp": "25f3d68b359bd0e087adac1151ea3678f729b1a4ce790063a943c604e4f7585b",
+    "src/duojin01_navigation/include/duojin01_navigation/sweep.hpp": "e43c682c7184f2e7468d0953ade592e23bcef62bab3a36d73280bec467f98fec",
+    "src/duojin01_navigation/CMakeLists.txt": "f177d75e753104683c29cdc4a7438c7ca5681dd232ead12cb7cf25ebaa7554e2"
+  },
+  "baseline_header_sha256": "f179fcd6b6d8e3f5b7420c4f0bc18f12427e4e340e41bc4e0eed45eed94d964f",
+  "image_id": "sha256:8786fda0c09225ab03c1f50a684b0b3e67dba026b3c140c81f3082122c4e5b44",
+  "resources": {
+    "cpus": 2,
+    "memory": "2g",
+    "pids": 128,
+    "network": "none"
+  },
+  "architecture": "x86_64 native, not Jetson",
+  "storage_policy": {
+    "max_dense_cells": 65536,
+    "max_empty_extent_ratio": "16 * max(64, point_count), capped at max cells",
+    "fallback": "original hash buckets, stable original owner indices"
+  },
+  "candidate_revision": "v2: sample middle/end only for proven early rejection; full envelope required to approve dense mode",
+  "drivers": {
+    "run_benchmark_v2.py": "11287f30b28e00a6c86fa0837670a4925cbdcb723b5947aa0a4d6ffea7d19805",
+    "summarize.py": "6fe64c236ab5d8965d3c4a7453b57d360de82d4c2f7648c8f6a7956d9fe4da9e",
+    "benchmark-v2.sh": "bc4984efa383b6aaacc2f63e2954464988416979ab039edaa6bbacabbdcaf83a"
+  },
+  "compile": {
+    "index": "cmake Release target spatial_index_benchmark; C++17 -O3 -DNDEBUG -Wall -Wextra -Wpedantic",
+    "association_baseline": "g++ -std=c++17 -O3 -DNDEBUG -DDUOJIN_ASSOCIATION_CACHE_BENCH -I/work/before/src/duojin01_navigation/include -I/source/src/duojin01_navigation/include /source/tests/performance/prior_association_benchmark.cpp -o /work/association-baseline",
+    "association_candidate": "g++ -std=c++17 -O3 -DNDEBUG -DDUOJIN_ASSOCIATION_CACHE_BENCH -I/source/src/duojin01_navigation/include /source/tests/performance/prior_association_benchmark.cpp -o /work/association-candidate"
+  }
+}

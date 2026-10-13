@@ -38,6 +38,9 @@ setup(
     description='Duojin01 real-hardware bringup',
     license='GPL-3.0-only',
     entry_points={
-        'console_scripts': ['localization_readiness = duojin01_bringup.localization_readiness:main'],
+        'console_scripts': [
+            'localization_readiness = duojin01_bringup.localization_readiness:main',
+            'localization_manager = duojin01_bringup.localization_manager:main',
+        ],
     },
 )

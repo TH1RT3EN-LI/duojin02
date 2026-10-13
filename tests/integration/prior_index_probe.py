@@ -23,7 +23,7 @@ def pump(seconds):
   stamp=n.get_clock().now().to_msg();tf=TransformStamped();tf.header.stamp=stamp;tf.header.frame_id='odom';tf.child_frame_id='map'
   tf.transform.translation.x=tx;tf.transform.translation.y=ty;tf.transform.rotation.z=math.sin(angle/2);tf.transform.rotation.w=math.cos(angle/2);broadcaster.sendTransform(tf)
   o=Odometry();o.header.stamp=stamp;o.header.frame_id='odom';o.child_frame_id='base_footprint';o.pose.pose.orientation.w=1.;odom.publish(o)
-  laser=LaserScan();laser.header.stamp=stamp;laser.header.frame_id='odom';laser.range_min=.02;laser.range_max=8.;laser.angle_increment=.01;laser.ranges=[1.5];scan.publish(laser)
+  laser=LaserScan();laser.header.stamp=stamp;laser.header.frame_id='odom';laser.range_min=.02;laser.range_max=8.;laser.angle_increment=.01;laser.ranges=[1.5];laser.angle_max=laser.angle_min;scan.publish(laser)
   v=Twist();v.linear.x=.3;cmd.publish(v);rclpy.spin_once(n,timeout_sec=.02)
 def map_point(x,y,res):
  qx=c*(x-tx)+s*(y-ty);qy=-s*(x-tx)+c*(y-ty)

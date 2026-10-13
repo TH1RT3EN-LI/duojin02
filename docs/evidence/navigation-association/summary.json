@@ -1,0 +1,32 @@
+[
+  {
+    "mode": "scan10_guard20",
+    "baseline_mean_cpu_ms": 0.13355638749999998,
+    "candidate_mean_cpu_ms": 0.0784186415,
+    "cpu_change_percent": -41.284244828799366,
+    "output_identity": true,
+    "candidate_hits": 8923886,
+    "candidate_calculations": 8932778,
+    "baseline_calculations": 17856664
+  },
+  {
+    "mode": "transform_each_cycle",
+    "baseline_mean_cpu_ms": 0.13769192,
+    "candidate_mean_cpu_ms": 0.13803225400000002,
+    "cpu_change_percent": 0.24717064007824252,
+    "output_identity": true,
+    "candidate_hits": 0,
+    "candidate_calculations": 17856210,
+    "baseline_calculations": 17856210
+  },
+  {
+    "mode": "scan20_guard20",
+    "baseline_mean_cpu_ms": 0.1316195265,
+    "candidate_mean_cpu_ms": 0.134082521,
+    "cpu_change_percent": 1.8712987088583821,
+    "output_identity": true,
+    "candidate_hits": 0,
+    "candidate_calculations": 17856664,
+    "baseline_calculations": 17856664
+  }
+]

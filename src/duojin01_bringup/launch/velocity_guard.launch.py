@@ -11,9 +11,4 @@ def generate_launch_description():
         middleware(),
         Node(package='duojin01_navigation', executable='velocity_guard', name='velocity_guard',
              parameters=[config, {'use_sim_time': False}], output='screen'),
-        Node(package='nav2_collision_monitor', executable='collision_monitor', name='collision_monitor',
-             parameters=[config, {'use_sim_time': False}], output='screen'),
-        Node(package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_guard',
-             parameters=[{'use_sim_time': False, 'autostart': True, 'node_names': ['collision_monitor']}],
-             output='screen'),
     ])

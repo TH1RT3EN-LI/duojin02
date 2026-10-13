@@ -1,0 +1,54 @@
+[
+  {
+    "points": 100,
+    "mode": "reuse",
+    "cpu_mean_ms": {
+      "baseline": 0.006823655735,
+      "candidate": 0.0046407074625
+    },
+    "delta_percent": -31.990891060098292,
+    "output_identity": true,
+    "corpus_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "points": 1000,
+    "mode": "reuse",
+    "cpu_mean_ms": {
+      "baseline": 0.0776164651,
+      "candidate": 0.04212472065
+    },
+    "delta_percent": -45.72708175291533,
+    "output_identity": true,
+    "corpus_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "points": 10000,
+    "mode": "reuse",
+    "cpu_mean_ms": {
+      "baseline": 1.1596898485,
+      "candidate": 0.427333554
+    },
+    "delta_percent": -63.15104813991997,
+    "output_identity": true,
+    "corpus_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  },
+  {
+    "points": 1000,
+    "mode": "replace-every-cycle",
+    "cpu_mean_ms": {
+      "baseline": 0.0801570601,
+      "candidate": 0.04911623285
+    },
+    "delta_percent": -38.725007143818644,
+    "output_identity": true,
+    "corpus_identity": true,
+    "repeats_per_arm": 2,
+    "component_only": true
+  }
+]

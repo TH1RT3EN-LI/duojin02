@@ -51,10 +51,13 @@ index d30329a..58b84c6 100644
  
  }  // namespace slam_toolbox
 diff --git a/solvers/ceres_solver.cpp b/solvers/ceres_solver.cpp
-index 1828ed8..e9116d1 100644
 --- a/solvers/ceres_solver.cpp
 +++ b/solvers/ceres_solver.cpp
-@@ -7,6 +7,7 @@
+@@ -4,9 +4,11 @@
+  */
+ 
+ #include <unordered_map>
++#include <unordered_set>
  #include <string>
  #include <utility>
  #include "ceres_solver.hpp"
@@ -62,7 +65,17 @@ index 1828ed8..e9116d1 100644
  
  namespace solver_plugins
  {
-@@ -123,7 +124,12 @@ void CeresSolver::Configure(rclcpp::Node::SharedPtr node)
+@@ -43,7 +45,8 @@
+   debug_logging_ = node->get_parameter("debug_logging").as_bool();
+ 
+   corrections_.clear();
+-  first_node_ = nodes_->end();
++  has_first_node_ = false;
++  was_constant_set_ = false;
+ 
+   // formulate problem
+   angle_local_parameterization_ = AngleLocalParameterization::Create();
+@@ -123,7 +126,12 @@
    options_.max_num_consecutive_invalid_steps = 3;
    options_.max_consecutive_nonmonotonic_steps =
      options_.max_num_consecutive_invalid_steps;
@@ -76,8 +89,158 @@ index 1828ed8..e9116d1 100644
    options_.use_nonmonotonic_steps = true;
    options_.jacobi_scaling = true;
  
+@@ -183,19 +191,56 @@
+     return;
+   }
+ 
+-  // populate contraint for static initial pose
+-  if (!was_constant_set_ && first_node_ != nodes_->end() &&
+-      problem_->HasParameterBlock(&first_node_->second(0)) &&
+-      problem_->HasParameterBlock(&first_node_->second(1)) &&
+-      problem_->HasParameterBlock(&first_node_->second(2))) {
++  // Look up the anchor under the graph lock: unordered_map rehash invalidates iterators.
++  GraphIterator first_node = has_first_node_ ? nodes_->find(first_node_id_) : nodes_->end();
++  const auto is_constrained_pose = [this](GraphIterator candidate) {
++      if (candidate == nodes_->end() ||
++        !problem_->HasParameterBlock(&candidate->second(0)) ||
++        !problem_->HasParameterBlock(&candidate->second(1)) ||
++        !problem_->HasParameterBlock(&candidate->second(2)))
++      {
++        return false;
++      }
++      // Ceres retains parameter blocks after their last residual has been removed.
++      std::vector<ceres::ResidualBlockId> residual_blocks;
++      problem_->GetResidualBlocksForParameterBlock(&candidate->second(0), &residual_blocks);
++      return !residual_blocks.empty();
++    };
++  if (!is_constrained_pose(first_node)) {
++    // Release a surviving orphan before reanchoring, so reconnecting it cannot fix two poses.
++    if (was_constant_set_ && first_node != nodes_->end()) {
++      for (int axis = 0; axis < 3; ++axis) {
++        if (problem_->HasParameterBlock(&first_node->second(axis))) {
++          problem_->SetParameterBlockVariable(&first_node->second(axis));
++        }
++      }
++    }
++    // A removed or unconstrained anchor needs a deterministic, constrained replacement.
++    first_node = nodes_->end();
++    for (GraphIterator candidate = nodes_->begin(); candidate != nodes_->end(); ++candidate) {
++      if ((first_node == nodes_->end() || candidate->first < first_node->first) &&
++        is_constrained_pose(candidate))
++      {
++        first_node = candidate;
++      }
++    }
++    has_first_node_ = first_node != nodes_->end();
++    was_constant_set_ = false;
++    if (has_first_node_) {
++      first_node_id_ = first_node->first;
++    }
++  }
++
++  // Fix the surviving anchor's current pose, preserving the graph's coordinate frame.
++  if (!was_constant_set_ && has_first_node_) {
+     RCLCPP_DEBUG(node_->get_logger(),
+-      "CeresSolver: Setting first node as a constant pose:"
+-      "%0.2f, %0.2f, %0.2f.", first_node_->second(0),
+-      first_node_->second(1), first_node_->second(2));
+-    problem_->SetParameterBlockConstant(&first_node_->second(0));
+-    problem_->SetParameterBlockConstant(&first_node_->second(1));
+-    problem_->SetParameterBlockConstant(&first_node_->second(2));
+-    was_constant_set_ = !was_constant_set_;
++      "CeresSolver: Setting node %d as a constant pose:"
++      "%0.2f, %0.2f, %0.2f.", first_node->first, first_node->second(0),
++      first_node->second(1), first_node->second(2));
++    problem_->SetParameterBlockConstant(&first_node->second(0));
++    problem_->SetParameterBlockConstant(&first_node->second(1));
++    problem_->SetParameterBlockConstant(&first_node->second(2));
++    was_constant_set_ = true;
+   }
+ 
+   ceres::Solver::Summary summary;
+@@ -265,7 +310,7 @@
+   nodes_ = new std::unordered_map<int, Eigen::Vector3d>();
+   blocks_ = new std::unordered_map<std::size_t, ceres::ResidualBlockId>();
+   problem_ = new ceres::Problem(options_problem_);
+-  first_node_ = nodes_->end();
++  has_first_node_ = false;
+ 
+   angle_local_parameterization_ = AngleLocalParameterization::Create();
+ }
+@@ -288,7 +333,8 @@
+   nodes_->insert(std::pair<int, Eigen::Vector3d>(id, pose2d));
+ 
+   if (nodes_->size() == 1) {
+-    first_node_ = nodes_->find(id);
++    first_node_id_ = id;
++    has_first_node_ = true;
+   }
+ }
+ 
+@@ -354,23 +400,31 @@
+   boost::mutex::scoped_lock lock(nodes_mutex_);
+   GraphIterator nodeit = nodes_->find(id);
+   if (nodeit != nodes_->end()) {
+-    if (problem_->HasParameterBlock(&nodeit->second(0)) &&
+-        problem_->HasParameterBlock(&nodeit->second(1)) &&
+-        problem_->HasParameterBlock(&nodeit->second(2)))
+-    {
+-      problem_->RemoveParameterBlock(&nodeit->second(0));
+-      problem_->RemoveParameterBlock(&nodeit->second(1));
+-      problem_->RemoveParameterBlock(&nodeit->second(2));
+-      RCLCPP_DEBUG(
+-        node_->get_logger(),
+-        "RemoveNode: Removed node id %d" ,nodeit->first);
+-    }
+-    else
+-    {
+-      RCLCPP_DEBUG(
+-        node_->get_logger(),
+-        "RemoveNode: Missing parameter blocks for "
+-        "node id %d", nodeit->first);
++    // Removing a parameter block also removes its residuals. Drop our matching handles first.
++    std::unordered_set<ceres::ResidualBlockId> incident_blocks;
++    for (int axis = 0; axis < 3; ++axis) {
++      if (problem_->HasParameterBlock(&nodeit->second(axis))) {
++        std::vector<ceres::ResidualBlockId> residual_blocks;
++        problem_->GetResidualBlocksForParameterBlock(&nodeit->second(axis), &residual_blocks);
++        incident_blocks.insert(residual_blocks.begin(), residual_blocks.end());
++      }
++    }
++    for (auto block = blocks_->begin(); block != blocks_->end(); ) {
++      if (incident_blocks.count(block->second) != 0) {
++        block = blocks_->erase(block);
++      } else {
++        ++block;
++      }
++    }
++    for (int axis = 0; axis < 3; ++axis) {
++      if (problem_->HasParameterBlock(&nodeit->second(axis))) {
++        problem_->RemoveParameterBlock(&nodeit->second(axis));
++      }
++    }
++    RCLCPP_DEBUG(node_->get_logger(), "RemoveNode: Removed node id %d", nodeit->first);
++    if (has_first_node_ && first_node_id_ == id) {
++      has_first_node_ = false;
++      was_constant_set_ = false;
+     }
+     nodes_->erase(nodeit);
+   } else {
+diff --git a/solvers/ceres_solver.hpp b/solvers/ceres_solver.hpp
+--- a/solvers/ceres_solver.hpp
++++ b/solvers/ceres_solver.hpp
+@@ -71,7 +71,9 @@
+   // graph
+   std::unordered_map<int, Eigen::Vector3d> * nodes_;
+   std::unordered_map<size_t, ceres::ResidualBlockId> * blocks_;
+-  std::unordered_map<int, Eigen::Vector3d>::iterator first_node_;
++  // IDs survive rehash; the separate flag keeps node ID zero a valid anchor.
++  int first_node_id_{0};
++  bool has_first_node_{false};
+   boost::mutex nodes_mutex_;
+ 
+   // ros
 diff --git a/src/map_saver.cpp b/src/map_saver.cpp
-index 0633fed..d20584b 100644
 --- a/src/map_saver.cpp
 +++ b/src/map_saver.cpp
 @@ -22,6 +22,21 @@
@@ -102,7 +265,7 @@ index 0633fed..d20584b 100644
  
  /*****************************************************************************/
  MapSaver::MapSaver(rclcpp::Node::SharedPtr node, const std::string & map_name)
-@@ -61,13 +76,13 @@ bool MapSaver::saveMapCallback(
+@@ -61,13 +76,15 @@
    std::string set_namespace;
    const std::string namespace_str = std::string(node_->get_namespace());
    if (!namespace_str.empty()) {
@@ -114,7 +277,18 @@ index 0633fed..d20584b 100644
      RCLCPP_INFO(node_->get_logger(),
        "SlamToolbox: Saving map as %s.", name.c_str());
 -    int rc = system(("ros2 run nav2_map_server map_saver_cli -f " + name  + " --ros-args -p map_subscribe_transient_local:=true" + set_namespace).c_str());
-+    int rc = system(("ros2 run nav2_map_server map_saver_cli -f " + shellQuote(name)  + " --ros-args -p map_subscribe_transient_local:=true" + set_namespace).c_str());
++    // Gray 205 represents unknown. A free threshold of .25 would reload it
++    // as free (1 - 205 / 255 < .25); preserve all three occupancy classes.
++    int rc = system(("ros2 run nav2_map_server map_saver_cli -f " + shellQuote(name)  + " --fmt pgm --mode trinary --free 0.196 --occ 0.65 --ros-args -p map_subscribe_transient_local:=true" + set_namespace).c_str());
+     if (rc == 0) {
+       response->result = response->RESULT_SUCCESS;
+     } else {
+@@ -76,7 +93,7 @@
+   } else {
+     RCLCPP_INFO(node_->get_logger(),
+       "SlamToolbox: Saving map in current directory.");
+-    int rc = system(("ros2 run nav2_map_server map_saver_cli --ros-args -p map_subscribe_transient_local:=true" + set_namespace).c_str());
++    int rc = system(("ros2 run nav2_map_server map_saver_cli --fmt pgm --mode trinary --free 0.196 --occ 0.65 --ros-args -p map_subscribe_transient_local:=true" + set_namespace).c_str());
      if (rc == 0) {
        response->result = response->RESULT_SUCCESS;
      } else {

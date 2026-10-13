@@ -1,0 +1,8 @@
+{
+  "benchmark-baseline": "ef638b6a243e4ebe003f12310a5e921e19b7efccebb16df402c76b5517875946",
+  "benchmark-candidate": "26df2096858b9d2757cc2c599b57fba370aaa6855204f1e1974b9be641113fec",
+  "benchmark_source": "1e22a86bc46ded3644f9523353686009ffe511e82ac3594888c0c53ab2803cc7",
+  "architecture": "x86_64",
+  "compiler": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "protocol": "Serial ABBA per mode; 10000 active + 200 warmup cycles per execution; thread CPU and wall time cover obstacle preparation only. Synthetic point corpus, no ROS/Gazebo/Jetson timing."
+}

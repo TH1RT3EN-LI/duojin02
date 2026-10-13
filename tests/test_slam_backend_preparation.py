@@ -15,7 +15,7 @@ backend = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(backend)
 
 
-def test_nested_git_cache_applies_patch_and_repairs_false_provenance(tmp_path):
+def make_cached_backend(tmp_path):
     subprocess.run(['git', 'init', '-q', '--initial-branch=fixture'], cwd=tmp_path, check=True)
     patch_dir = tmp_path / 'patches/slam_toolbox'
     patch_dir.mkdir(parents=True)
@@ -31,6 +31,11 @@ def test_nested_git_cache_applies_patch_and_repairs_false_provenance(tmp_path):
     source = {'version': 'fixture', 'commit': 'fixture', 'archive_url': archive.as_uri(),
               'archive_sha256': hashlib.sha256(archive.read_bytes()).hexdigest(), 'patch': patch.name}
     (patch_dir / 'source.json').write_text(json.dumps(source))
+    return destination, patch
+
+
+def test_nested_git_cache_applies_patch_and_repairs_false_provenance(tmp_path):
+    destination, patch = make_cached_backend(tmp_path)
 
     backend.prepare(tmp_path, destination)
     assert (destination / 'main.cpp').read_text() == 'patched\n'
@@ -41,3 +46,20 @@ def test_nested_git_cache_applies_patch_and_repairs_false_provenance(tmp_path):
     (destination / 'main.cpp').write_text('old\n')
     backend.prepare(tmp_path, destination)
     assert (destination / 'main.cpp').read_text() == 'patched\n'
+
+
+def test_patch_update_replaces_old_prepared_source_without_download(tmp_path, monkeypatch):
+    destination, patch = make_cached_backend(tmp_path)
+    backend.prepare(tmp_path, destination)
+    old_provenance = json.loads((destination / 'hardware_build.json').read_text())
+
+    def unexpected_download(*args, **kwargs):
+        raise AssertionError('a verified cached archive must be reused')
+
+    monkeypatch.setattr(backend.urllib.request, 'urlopen', unexpected_download)
+    patch.write_text('--- a/main.cpp\n+++ b/main.cpp\n@@ -1 +1 @@\n-old\n+fixed\n')
+    backend.prepare(tmp_path, destination)
+    assert (destination / 'main.cpp').read_text() == 'fixed\n'
+    provenance = json.loads((destination / 'hardware_build.json').read_text())
+    assert provenance['patch_sha256'] != old_provenance['patch_sha256']
+    assert provenance['patch_sha256'] == hashlib.sha256(patch.read_bytes()).hexdigest()

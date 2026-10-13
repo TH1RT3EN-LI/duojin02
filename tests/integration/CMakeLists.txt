@@ -11,3 +11,25 @@ ament_target_dependencies(scan_gate_probe rclcpp slam_toolbox)
 find_library(TOOLBOX_COMMON_LIBRARY NAMES toolbox_common HINTS ${slam_toolbox_DIR}/../../../lib NO_DEFAULT_PATH REQUIRED)
 find_library(KARTO_LIBRARY NAMES kartoSlamToolbox HINTS ${slam_toolbox_DIR}/../../../lib NO_DEFAULT_PATH REQUIRED)
 target_link_libraries(scan_gate_probe ${TOOLBOX_COMMON_LIBRARY} ${KARTO_LIBRARY} Boost::serialization Boost::thread TBB::tbb)
+find_package(Ceres REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+get_filename_component(HARDWARE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+set(PREPARED_SLAM_SOURCE "${HARDWARE_ROOT}/.cache/slam_backend/src/slam_toolbox"
+  CACHE PATH "Verified and patched SLAM source prepared by prepare_slam_backend.py")
+if(NOT EXISTS "${PREPARED_SLAM_SOURCE}/solvers/ceres_solver.cpp")
+  message(FATAL_ERROR "Prepare the pinned SLAM source with scripts/prepare_slam_backend.py before integration tests")
+endif()
+add_executable(ceres_anchor_probe ceres_anchor_probe.cpp
+  "${PREPARED_SLAM_SOURCE}/solvers/ceres_solver.cpp")
+target_include_directories(ceres_anchor_probe BEFORE PRIVATE
+  "${PREPARED_SLAM_SOURCE}" "${PREPARED_SLAM_SOURCE}/include"
+  "${PREPARED_SLAM_SOURCE}/lib/karto_sdk/include" ${slam_toolbox_INCLUDE_DIRS})
+ament_target_dependencies(ceres_anchor_probe rclcpp slam_toolbox std_srvs pluginlib
+  tf2_ros tf2_geometry_msgs nav_msgs sensor_msgs visualization_msgs)
+target_link_libraries(ceres_anchor_probe ${KARTO_LIBRARY} Ceres::ceres Boost::serialization Boost::thread)

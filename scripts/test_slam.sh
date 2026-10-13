@@ -9,6 +9,7 @@ cd "$hardware_root"
 cmake -S tests/integration -B build/slam-input-tests
 cmake --build build/slam-input-tests -j"${BUILD_JOBS:-2}"
 ROS_LOCALHOST_ONLY=1 ROS_DOMAIN_ID=90 build/slam-input-tests/scan_gate_probe
+ROS_LOCALHOST_ONLY=1 ROS_DOMAIN_ID=90 build/slam-input-tests/ceres_anchor_probe
 python3 tests/integration/base_feedback_probe.py
 python3 tests/integration/map_save_service_probe.py
 python3 tests/integration/recording_probe.py
