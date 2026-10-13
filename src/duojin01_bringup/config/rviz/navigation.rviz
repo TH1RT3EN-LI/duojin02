@@ -80,7 +80,7 @@ Visualization Manager:
       Description Source: Topic
       Description Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /robot_description
@@ -99,7 +99,7 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Alpha: 0
+    - Alpha: 0.4
       Class: rviz_default_plugins/Map
       Color Scheme: costmap
       Draw Behind: false
@@ -107,17 +107,17 @@ Visualization Manager:
       Name: GlobalCostMap
       Topic:
         Depth: 5
-        Durability Policy: System Default
+        Durability Policy: Transient Local
         Filter size: 10
         History Policy: System Default
-        Reliability Policy: Best Effort
-        Value: /local_costmap/costmap
+        Reliability Policy: Reliable
+        Value: /global_costmap/costmap
       Update Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /local_costmap/costmap_updates
+        Value: /global_costmap/costmap_updates
       Use Timestamp: false
       Value: true
     - Alpha: 1
@@ -163,39 +163,21 @@ Visualization Manager:
           Value: true
         base_link:
           Value: false
-        computer:
-          Value: false
         imu_link:
           Value: true
         laser:
           Value: false
-        lower_left_pillar:
-          Value: false
         lower_left_wheel:
           Value: false
-        lower_left_wheel_shaft:
-          Value: false
-        lower_right_pillar:
-          Value: false
         lower_right_wheel:
-          Value: false
-        lower_right_wheel_shaft:
           Value: false
         map:
           Value: true
         odom:
           Value: true
-        upper_left_pillar:
-          Value: false
         upper_left_wheel:
           Value: false
-        upper_left_wheel_shaft:
-          Value: false
-        upper_right_pillar:
-          Value: false
         upper_right_wheel:
-          Value: false
-        upper_right_wheel_shaft:
           Value: false
       Marker Scale: 1
       Name: TF
@@ -207,32 +189,10 @@ Visualization Manager:
           odom:
             base_footprint:
               base_link:
-                computer:
-                  {}
                 imu_link:
                   {}
                 laser:
                   {}
-                lower_left_pillar:
-                  {}
-                lower_left_wheel_shaft:
-                  lower_left_wheel:
-                    {}
-                lower_right_pillar:
-                  {}
-                lower_right_wheel_shaft:
-                  lower_right_wheel:
-                    {}
-                upper_left_pillar:
-                  {}
-                upper_left_wheel_shaft:
-                  upper_left_wheel:
-                    {}
-                upper_right_pillar:
-                  {}
-                upper_right_wheel_shaft:
-                  upper_right_wheel:
-                    {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -347,7 +307,7 @@ Visualization Manager:
         Value: /map
       Update Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /map_updates

@@ -20,11 +20,20 @@ find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 get_filename_component(HARDWARE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
-set(PREPARED_SLAM_SOURCE "${HARDWARE_ROOT}/.cache/slam_backend/src/slam_toolbox"
-  CACHE PATH "Verified and patched SLAM source prepared by prepare_slam_backend.py")
-if(NOT EXISTS "${PREPARED_SLAM_SOURCE}/solvers/ceres_solver.cpp")
-  message(FATAL_ERROR "Prepare the pinned SLAM source with scripts/prepare_slam_backend.py before integration tests")
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(PREPARED_SLAM_SOURCE "" CACHE PATH "Existing verified SLAM test source; empty selects cache or Docker testing source")
+set(SLAM_SOURCE_ARGUMENTS --root "${HARDWARE_ROOT}")
+if(PREPARED_SLAM_SOURCE)
+  list(APPEND SLAM_SOURCE_ARGUMENTS --source "${PREPARED_SLAM_SOURCE}")
 endif()
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/slam_test_source.py"
+  ${SLAM_SOURCE_ARGUMENTS}
+  RESULT_VARIABLE SLAM_SOURCE_RESULT OUTPUT_VARIABLE VERIFIED_SLAM_SOURCE
+  ERROR_VARIABLE SLAM_SOURCE_ERROR OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT SLAM_SOURCE_RESULT STREQUAL "0")
+  message(FATAL_ERROR "${SLAM_SOURCE_ERROR}")
+endif()
+set(PREPARED_SLAM_SOURCE "${VERIFIED_SLAM_SOURCE}")
 add_executable(ceres_anchor_probe ceres_anchor_probe.cpp
   "${PREPARED_SLAM_SOURCE}/solvers/ceres_solver.cpp")
 target_include_directories(ceres_anchor_probe BEFORE PRIVATE
@@ -32,4 +41,4 @@ target_include_directories(ceres_anchor_probe BEFORE PRIVATE
   "${PREPARED_SLAM_SOURCE}/lib/karto_sdk/include" ${slam_toolbox_INCLUDE_DIRS})
 ament_target_dependencies(ceres_anchor_probe rclcpp slam_toolbox std_srvs pluginlib
   tf2_ros tf2_geometry_msgs nav_msgs sensor_msgs visualization_msgs)
-target_link_libraries(ceres_anchor_probe ${KARTO_LIBRARY} Ceres::ceres Boost::serialization Boost::thread)
+target_link_libraries(ceres_anchor_probe ${KARTO_LIBRARY} Ceres::ceres Boost::serialization Boost::thread TBB::tbb)

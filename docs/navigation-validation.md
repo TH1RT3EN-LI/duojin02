@@ -42,6 +42,10 @@ docker run --rm --init --network none --cpus 2 --memory 3g --pids-limit 256 \
 
 额外扫描故障与 TF 探针见 `tests/integration/scan_fault_probe.py` 和 `guard_tf_probe.py`，CLI 使用 `--guard-binary`、`--params-file`、`--json-out`、`--log-dir`。它们也应在上述隔离环境中执行，使用本轮构建产物和当前 YAML。CTest 内缓存探针与额外运行的同名探针不能重复计入不同场景数；通过断言和正常进程退出分别核对。
 
+完整命令链检查入口为 `scripts/test_navigation.sh`，在上方同类无网、无设备容器中执行。它构建当前 bringup、navigation、base driver，串行检查坏图恢复、定位许可、指令失联和实际 PTY 零速度帧；`NAVIGATION_TEST_ROOT` 可指定独立输出目录。探针在 ROS 初始化前通过一个共用隔离工具分配本机测试域，子进程继承该域，并检查正常退出。它不测量实物制动距离。
+
+SLAM 回归入口 `scripts/test_slam.sh` 另需与当前版本 / 补丁匹配的源码，先构建 Docker `testing` 目标，或在进入无网环境前准备固定源码。源码前置校验只读且不自动联网，`PREPARED_SLAM_SOURCE` 可指定已有目录，`SLAM_TEST_ROOT` 可指定输出目录。构建和运行的完整命令见[主 README](../README.MD#验证边界)。
+
 ## 组件性能
 
 两个组件基准均是按需构建目标，不进入 CTest 的速度判据。前面的 `docker run --rm` 完成后容器已退出，不能在宿主直接运行 `/check/...`。以下是仓库根目录的一条完整命令：使用独立输出目录重新配置 / 构建，并在同一隔离容器内串行 ABBA；每次语料使用不同路径。

@@ -5,7 +5,6 @@ Uses the same CLI as scan_fault_probe.py. Every topic (including TF) is remapped
 commands are synthetic, and the test never contacts a physical base.
 """
 import json,os,time,sys,math
-from pathlib import Path
 from geometry_msgs.msg import TransformStamped
 from tf2_msgs.msg import TFMessage
 from scan_fault_probe import arguments,CaseProbe,require,zero,clear_command,stamp_ns,xyz_points

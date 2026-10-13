@@ -9,8 +9,10 @@ import yaml
 from launch import Substitution
 from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
 
+from duojin01_bringup.lattice import for_resolution
 
-def online_parameters(parameters):
+
+def online_parameters(parameters, resolution, lattice_file):
     result = copy.deepcopy(parameters)
     local = result['local_costmap']['local_costmap']['ros__parameters']
     # A SLAM surface and its current odom-frame observation need not coincide.
@@ -18,14 +20,26 @@ def online_parameters(parameters):
     # returns remain active, including returns inside the lidar's blind zone.
     local['plugins'] = [name for name in local['plugins']
                         if local[name]['plugin'] != 'nav2_costmap_2d::StaticLayer']
-    result['global_costmap']['global_costmap']['ros__parameters']['track_unknown_space'] = False
-    for planner in result['planner_server']['ros__parameters']['planner_plugins']:
-        result['planner_server']['ros__parameters'][planner]['allow_unknown'] = True
+    global_map = result['global_costmap']['global_costmap']['ros__parameters']
+    global_map['resolution'] = float(resolution)
+    # Global hypotheses may cross unobserved space; the local map and
+    # live-scan braking guard still validate executable motion.
+    global_map['track_unknown_space'] = False
+    lattice_path = for_resolution(lattice_file, resolution)
+    planners = result['planner_server']['ros__parameters']
+    for name in planners['planner_plugins']:
+        planner = planners[name]
+        planner['allow_unknown'] = True
+        if 'lattice_filepath' in planner:
+            planner['lattice_filepath'] = lattice_path
     return result
 
 
-def for_online_file(source_file):
-    payload = yaml.safe_dump(online_parameters(yaml.safe_load(Path(source_file).read_text()))).encode()
+def for_online_file(source_file, slam_params_file, lattice_file):
+    parameters = yaml.safe_load(Path(source_file).read_text())
+    slam = yaml.safe_load(Path(slam_params_file).read_text())
+    resolution = slam['slam_toolbox']['ros__parameters']['resolution']
+    payload = yaml.safe_dump(online_parameters(parameters, resolution, lattice_file)).encode()
     directory = Path(tempfile.gettempdir()) / f'duojin01-online-{os.getuid()}'
     directory.mkdir(mode=0o700, exist_ok=True)
     destination = directory / (hashlib.sha256(payload).hexdigest() + '.yaml')
@@ -38,12 +52,15 @@ def for_online_file(source_file):
 
 
 class OnlineParameters(Substitution):
-    def __init__(self, source_file):
+    def __init__(self, source_file, slam_params_file, lattice_file):
         super().__init__()
         self.source_file = normalize_to_list_of_substitutions(source_file)
+        self.slam_params_file = normalize_to_list_of_substitutions(slam_params_file)
+        self.lattice_file = normalize_to_list_of_substitutions(lattice_file)
 
     def perform(self, context):
-        return for_online_file(perform_substitutions(context, self.source_file))
+        return for_online_file(*(perform_substitutions(context, value) for value in
+                                 (self.source_file, self.slam_params_file, self.lattice_file)))
 
     def describe(self):
         return 'Online lidar-local navigation parameters'

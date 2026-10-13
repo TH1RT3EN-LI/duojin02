@@ -16,6 +16,7 @@
 | 模型从哪里来，哪些尺寸尚未标定 | [底盘测量](chassis/README.md) | CAD 来源、投影、TF、实测边界 |
 | 雷达来源与裁剪范围 | [UPSTREAM](../src/lslidar_driver/UPSTREAM.md)、[上游评审](lidar-upstream-review.md) | 固定协议与项目补丁 |
 | 现在有哪些优化证据、哪些未完成 | [优化状态](navigation-optimization.md) | 有限结果和候选状态 |
+| 结构清理、参数入口和算法保留边界 | [维护记录](maintenance-cleanup.md) | 2026-10-13 清理范围与验证 |
 | 实时性候选与本地继续优化做了什么 | [实时性记录](navigation-latency-optimization.md) | 各阶段机制、功能 / 分项测量及待完成板端对照 |
 
 当前参数以所检出的配置为维护位置，见开发接口中的配置表；历史报告的数值不是新的默认值。文档发生冲突时先对齐所用源码、安装产物和有效参数，再修正文档；不按旧性能结果绕过当前安全契约。首轮文档检查的静态范围见 [检查记录](documentation-review.md)；随后算法性能工作单独记录在实时性页，不回填为历史试验结果。引用的 Rolling / Jazzy 页面用于解释概念，不保证 Humble 提供同名参数或 API；具体功能需核对项目固定版本，不能从较新文档直接抄入运行配置。
@@ -34,7 +35,7 @@
 | [定位健康修正历史](localization-health-history.md) | 旧缺测规则的修正背景与原会话证据说明，操作已独立 |
 | [首次升级证据索引](evidence/navigation-upgrade/README.md) | 原试验表和原始证据的说明，不改写成当前版本结果 |
 
-截至 2026-10-10，修复在 `codex/navigation-repairs-20261007` 的未提交工作树，基于 main `6a20e6d`；这一状态不等于已合并或部署。以后读本文时应重新查看 Git 与部署记录，不能沿用这个截点。
+2026-10-10 的原修复工作树已在 `f90a30c` 冻结，2026-10-13 的结构清理以该版本为算法基线，见[维护记录](maintenance-cleanup.md)。main 的源码状态与设备部署仍需分别核对；冻结历史不随本次清理改写。
 
 ## 结论口径
 

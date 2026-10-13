@@ -1,5 +1,6 @@
 #pragma once
 #include <nav2_controller/plugins/stopped_goal_checker.hpp>
+#include <rcl_interfaces/msg/parameter_descriptor.hpp>
 #include <cmath>
 #include <stdexcept>
 
@@ -10,7 +11,18 @@ class StableStoppedGoalChecker : public nav2_controller::StoppedGoalChecker {
       const std::string &name, const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
     nav2_controller::StoppedGoalChecker::initialize(parent,name,costmap);
     auto node=parent.lock();clock_=node->get_clock();
-    if(!node->has_parameter(name+".settle_time")) node->declare_parameter(name+".settle_time",.25);
+    rcl_interfaces::msg::ParameterDescriptor descriptor;
+    descriptor.read_only=true;
+    descriptor.description="Required continuous stopped dwell; configured at startup.";
+    if(!node->has_parameter(name+".settle_time")) {
+      node->declare_parameter(name+".settle_time",.25,descriptor);
+    } else if(!node->describe_parameter(name+".settle_time").read_only) {
+      // NodeOptions may already have declared startup overrides. Preserve that
+      // exact value while attaching the descriptor before navigation starts.
+      const double configured=node->get_parameter(name+".settle_time").as_double();
+      node->undeclare_parameter(name+".settle_time");
+      node->declare_parameter(name+".settle_time",configured,descriptor,true);
+    }
     settle_time_=node->get_parameter(name+".settle_time").as_double();
     if(!std::isfinite(settle_time_) || settle_time_<.10) throw std::invalid_argument("Goal settle_time must be at least 0.10 seconds");
     reset();

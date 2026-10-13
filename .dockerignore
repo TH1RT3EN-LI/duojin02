@@ -10,5 +10,7 @@ __pycache__
 **/*.pyc
 .pytest_cache
 .cache
+docs/evidence
 *.tar
+*.tar.gz
 *.tar.part.*

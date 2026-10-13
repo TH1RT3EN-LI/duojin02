@@ -520,6 +520,89 @@ def monitor_fixture():
     return LocalizationManager, monitor, msg, SimpleNamespace(nanoseconds=11_000_000_000)
 
 
+def test_original_valid_map_can_reload_after_invalid_map_without_preserving_permission():
+    from array import array
+    from types import SimpleNamespace as S
+
+    methods, monitor, _msg, _stamp = monitor_fixture()
+    monitor.grid, monitor.map_signature = None, None
+    monitor.convention = 'amcl_nearest'
+    published, errors = [], []
+    monitor.publish = lambda: published.append(monitor.state.healthy)
+    monitor.get_logger = lambda: S(error=errors.append)
+    valid = S(header=S(frame_id='map'), info=S(width=2, height=2, resolution=.01,
+        origin=S(position=S(x=0., y=0.), orientation=S(x=0., y=0., z=0., w=1.))),
+        data=array('b', [0, 0, 0, 100]))
+
+    methods.on_map(monitor, valid)
+    first_grid, first_signature = monitor.grid, monitor.map_signature
+    assert first_grid is not None and first_signature is not None
+    published.clear()
+    methods.on_map(monitor, valid)
+    assert monitor.grid is first_grid and not published
+
+    invalid = S(header=S(frame_id='map'), info=valid.info, data=array('b', [0]))
+    methods.on_map(monitor, invalid)
+    assert monitor.grid is None and monitor.map_signature is None
+    assert not monitor.state.healthy and errors
+    methods.on_map(monitor, valid)
+    assert monitor.grid is not None and monitor.grid is not first_grid
+    assert monitor.map_signature == first_signature
+    assert monitor.state.reason == 'map_received_or_changed'
+    assert not monitor.state.healthy and published == [False, False]
+
+
+def test_manager_shutdown_publishes_only_while_context_is_available(monkeypatch):
+    import pytest
+    pytest.importorskip('rclpy')
+    from types import SimpleNamespace as S
+    from duojin01_bringup import localization_manager as module
+
+    for active, close_during_publish in ((True, False), (False, False), (True, True)):
+        context = S(active=active)
+        context.ok = lambda: context.active
+        invalidations, published, destroyed, shutdown = [], [], [], []
+
+        def publish():
+            published.append(True)
+            if close_during_publish:
+                context.active = False
+                raise module.rclpy_implementation.RCLError('publisher context is invalid')
+
+        node = S(context=context, state=S(invalidate=lambda *args, **kwargs: invalidations.append((args, kwargs))),
+                 publish=publish, destroy_node=lambda: destroyed.append(True))
+        monkeypatch.setattr(module, 'LocalizationManager', lambda: node)
+        monkeypatch.setattr(module.rclpy, 'init', lambda: None)
+        monkeypatch.setattr(module.rclpy, 'spin', lambda _: None)
+        monkeypatch.setattr(module.rclpy, 'try_shutdown', lambda **kwargs: shutdown.append(kwargs['context']))
+        module.main()
+        assert invalidations == [(('manager_stopping',), {'latch': True})]
+        assert bool(published) == active
+        assert destroyed == [True] and shutdown == [context]
+
+
+def test_manager_shutdown_preserves_live_context_errors_and_always_cleans_up(monkeypatch):
+    import pytest
+    pytest.importorskip('rclpy')
+    from types import SimpleNamespace as S
+    from duojin01_bringup import localization_manager as module
+
+    context, destroyed, shutdown = S(ok=lambda: True), [], []
+
+    def publish():
+        raise module.rclpy_implementation.RCLError('unexpected live-context publication failure')
+
+    node = S(context=context, state=S(invalidate=lambda *args, **kwargs: None),
+             publish=publish, destroy_node=lambda: destroyed.append(True))
+    monkeypatch.setattr(module, 'LocalizationManager', lambda: node)
+    monkeypatch.setattr(module.rclpy, 'init', lambda: None)
+    monkeypatch.setattr(module.rclpy, 'spin', lambda _: None)
+    monkeypatch.setattr(module.rclpy, 'try_shutdown', lambda **kwargs: shutdown.append(kwargs['context']))
+    with pytest.raises(module.rclpy_implementation.RCLError, match='unexpected live-context'):
+        module.main()
+    assert destroyed == [True] and shutdown == [context]
+
+
 def test_exact_tf_wait_duplicate_and_natural_aging_requalifies_as_stale():
     methods, monitor, msg, stamp = monitor_fixture()
     methods.on_scan(monitor, msg)

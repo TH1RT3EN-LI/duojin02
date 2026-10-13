@@ -1,7 +1,6 @@
 """Render the actual exported hardware meshes with Blender, without a simulator."""
 import bpy
 import json
-import math
 from pathlib import Path
 import struct
 import tempfile

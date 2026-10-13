@@ -21,9 +21,11 @@ import rclpy
 import yaml
 
 from localization_manager_probe import ROOT, SensorFixture
+from ros_isolation import configure_isolation
 
 
 def run(args):
+    domain = configure_isolation()
     args.output_dir.mkdir(parents=True, exist_ok=False)
     configuration = yaml.safe_load(args.params.read_text())['velocity_smoother']
     timeout = configuration['ros__parameters']['velocity_timeout']
@@ -40,6 +42,7 @@ def run(args):
         lambda m: smooth.append((time.monotonic(), m.linear.x)), 10)
     processes, logs = [], []
     result = {'pass': False, 'velocity_timeout_s': timeout, 'checks': [], 'cleanup': [],
+              'ros_domain_id': domain,
               'scope': 'Actual DDS command chain, controlled healthy sensors, PTY serial; no physical displacement'}
 
     def start(name, command):

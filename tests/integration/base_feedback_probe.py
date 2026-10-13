@@ -1,6 +1,5 @@
 """Exercise the compiled serial driver against a PTY; never opens physical devices."""
 import json
-import math
 import os
 import signal
 import struct

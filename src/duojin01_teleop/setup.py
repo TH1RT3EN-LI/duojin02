@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 import os
 package_name = 'duojin01_teleop'
 
@@ -13,14 +13,13 @@ setup(
         (os.path.join('share', package_name, 'config'), [
             'config/joy_launcher.yaml',
             'config/joy_axis_selector.yaml',
-            'config/keyboard_teleop.yaml',
         ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='litianshun',
     maintainer_email='litianshun.cn@gmail.com',
-    description='TODO: Package description',
+    description='Keyboard and joystick teleoperation for the Duojin mobile base.',
     license='GPL-3.0-only',
     extras_require={
         'test': [

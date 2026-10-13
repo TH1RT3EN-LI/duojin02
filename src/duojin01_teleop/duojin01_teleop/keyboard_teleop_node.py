@@ -16,20 +16,8 @@ from duojin01_teleop.keyboard_teleop_defaults import (
     ACCEL_LIMIT_LINEAR,
     DECEL_LIMIT_ANGULAR,
     DECEL_LIMIT_LINEAR,
-    DEFAULT_ANGULAR_SPEED,
-    DEFAULT_ANGULAR_SPEED_STEP,
-    DEFAULT_CMD_VEL_TOPIC,
-    DEFAULT_FRAME_ID,
     DEFAULT_IDLE_TIMEOUT_SEC,
-    DEFAULT_PUBLISH_RATE,
-    DEFAULT_LINEAR_SPEED,
-    DEFAULT_LINEAR_SPEED_STEP,
-    DEFAULT_MAX_ANGULAR_SPEED,
-    DEFAULT_MAX_LINEAR_SPEED,
-    DEFAULT_READ_POLL_TIMEOUT_SEC,
-    DEFAULT_REPEAT_TIMEOUT_SEC,
-    DEFAULT_STAMPED,
-    DEFAULT_TTY_DEVICE_PATH,
+    keyboard_teleop_parameter_defaults,
 )
 
 MSG = """
@@ -200,27 +188,23 @@ def main():
     node = rclpy.create_node('keyboard_teleop_node')
 
     read_only_descriptor = rcl_interfaces.msg.ParameterDescriptor(read_only=True)
-    stamped = node.declare_parameter('stamped', DEFAULT_STAMPED, read_only_descriptor).value
-    frame_id = node.declare_parameter('frame_id', DEFAULT_FRAME_ID, read_only_descriptor).value
-    speed = node.declare_parameter('speed', DEFAULT_LINEAR_SPEED, read_only_descriptor).value
-    turn = node.declare_parameter('turn', DEFAULT_ANGULAR_SPEED, read_only_descriptor).value
-    max_speed = node.declare_parameter('max_speed', DEFAULT_MAX_LINEAR_SPEED, read_only_descriptor).value
-    max_turn = node.declare_parameter('max_turn', DEFAULT_MAX_ANGULAR_SPEED, read_only_descriptor).value
-    speed_step = node.declare_parameter('speed_step', DEFAULT_LINEAR_SPEED_STEP, read_only_descriptor).value
-    turn_step = node.declare_parameter('turn_step', DEFAULT_ANGULAR_SPEED_STEP, read_only_descriptor).value
-    cmd_vel_topic = node.declare_parameter('cmd_vel_topic', DEFAULT_CMD_VEL_TOPIC, read_only_descriptor).value
-    publish_rate = node.declare_parameter('publish_rate', DEFAULT_PUBLISH_RATE, read_only_descriptor).value
-    repeat_timeout_sec = node.declare_parameter(
-        'repeat_timeout_sec',
-        DEFAULT_REPEAT_TIMEOUT_SEC,
-        read_only_descriptor,
-    ).value
-    read_poll_timeout = node.declare_parameter(
-        'read_poll_timeout',
-        DEFAULT_READ_POLL_TIMEOUT_SEC,
-        read_only_descriptor,
-    ).value
-    tty_device_path = node.declare_parameter('tty_device_path', DEFAULT_TTY_DEVICE_PATH, read_only_descriptor).value
+    parameters = {
+        name: node.declare_parameter(name, default, read_only_descriptor).value
+        for name, default in keyboard_teleop_parameter_defaults().items()
+    }
+    stamped = parameters['stamped']
+    frame_id = parameters['frame_id']
+    speed = parameters['speed']
+    turn = parameters['turn']
+    max_speed = parameters['max_speed']
+    max_turn = parameters['max_turn']
+    speed_step = parameters['speed_step']
+    turn_step = parameters['turn_step']
+    cmd_vel_topic = parameters['cmd_vel_topic']
+    publish_rate = parameters['publish_rate']
+    repeat_timeout_sec = parameters['repeat_timeout_sec']
+    read_poll_timeout = parameters['read_poll_timeout']
+    tty_device_path = parameters['tty_device_path']
 
     if not stamped and frame_id:
         raise Exception("'frame_id' can only be set when 'stamped' is True")

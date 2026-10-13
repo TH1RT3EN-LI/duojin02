@@ -1,3 +1,5 @@
+"""Authoritative keyboard teleop defaults; ROS startup parameters may override them."""
+
 DEFAULT_CMD_VEL_TOPIC = '/cmd_vel'
 DEFAULT_STAMPED = False
 DEFAULT_FRAME_ID = ''

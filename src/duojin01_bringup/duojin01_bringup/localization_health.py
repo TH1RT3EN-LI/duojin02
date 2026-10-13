@@ -8,26 +8,43 @@ unobserved (+Inf) beams never provide positive localization evidence.
 from bisect import bisect_left
 from dataclasses import dataclass
 import math
+from pathlib import Path
+from types import MappingProxyType
+
+import yaml
+
+
+def _parameter_defaults():
+    # Source checkouts keep the same canonical YAML beside the Python package;
+    # installed packages use its ament share location.
+    config = Path(__file__).resolve().parents[1] / 'config/localization_health.yaml'
+    if not config.is_file():
+        from ament_index_python.packages import get_package_share_directory
+        config = Path(get_package_share_directory('duojin01_bringup')) / 'config/localization_health.yaml'
+    return yaml.safe_load(config.read_text())['localization_manager']['ros__parameters']
+
+
+PARAMETER_DEFAULTS = MappingProxyType(_parameter_defaults())
 
 
 @dataclass(frozen=True)
 class HealthPolicy:
-    min_hits: int = 45
-    hit_fraction: float = 0.75
-    known_fraction: float = 0.90
-    max_contradiction_fraction: float = 0.15
-    endpoint_tolerance: float = 0.12
-    ray_margin: float = 0.18
-    max_ray_cells: int = 50000
-    max_range: float = 8.0
-    max_beams: int = 90
-    good_scans: int = 6
-    good_span_s: float = 0.5
-    bad_scans: int = 3
-    bad_span_s: float = 0.2
-    recovery_scans: int = 15
-    recovery_span_s: float = 1.4
-    scan_timeout_s: float = 0.4
+    min_hits: int = PARAMETER_DEFAULTS['min_hits']
+    hit_fraction: float = PARAMETER_DEFAULTS['hit_fraction']
+    known_fraction: float = PARAMETER_DEFAULTS['known_fraction']
+    max_contradiction_fraction: float = PARAMETER_DEFAULTS['max_contradiction_fraction']
+    endpoint_tolerance: float = PARAMETER_DEFAULTS['endpoint_tolerance']
+    ray_margin: float = PARAMETER_DEFAULTS['ray_margin']
+    max_ray_cells: int = PARAMETER_DEFAULTS['max_ray_cells']
+    max_range: float = PARAMETER_DEFAULTS['max_range']
+    max_beams: int = PARAMETER_DEFAULTS['max_beams']
+    good_scans: int = PARAMETER_DEFAULTS['good_scans']
+    good_span_s: float = PARAMETER_DEFAULTS['good_span_s']
+    bad_scans: int = PARAMETER_DEFAULTS['bad_scans']
+    bad_span_s: float = PARAMETER_DEFAULTS['bad_span_s']
+    recovery_scans: int = PARAMETER_DEFAULTS['recovery_scans']
+    recovery_span_s: float = PARAMETER_DEFAULTS['recovery_span_s']
+    scan_timeout_s: float = PARAMETER_DEFAULTS['scan_timeout_s']
 
 
 class MapEvidence:

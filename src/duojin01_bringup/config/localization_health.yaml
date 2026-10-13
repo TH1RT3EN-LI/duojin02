@@ -2,6 +2,7 @@
 # convention without shifting saved map origin or poses. Rotated maps fail closed.
 localization_manager:
   ros__parameters:
+    map_frame: map
     map_cell_convention: amcl_nearest
     min_hits: 45
     max_beams: 90
@@ -22,3 +23,5 @@ localization_manager:
     recovery_max_attempts: 2
     recovery_attempt_timeout_s: 8.0
     command_timeout_s: 0.25
+    global_localization_service: /reinitialize_global_localization
+    nomotion_update_service: /request_nomotion_update

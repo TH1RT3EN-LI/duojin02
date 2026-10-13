@@ -26,10 +26,7 @@ setup(
             glob('config/rviz/*.rviz')),
         
         (os.path.join('share', package_name, 'config', 'foxglove'),
-            glob('config/foxglove/*.yaml') + glob('config/foxglove/*.json')),
-
-        (os.path.join('share', package_name, 'maps'),
-            glob('maps/*')),
+            glob('config/foxglove/*.yaml')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

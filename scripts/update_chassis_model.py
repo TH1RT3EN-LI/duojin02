@@ -332,8 +332,6 @@ def main():
     text = nav.read_text()
     text, count = re.subn(r'footprint: "[^"\n]+"', 'footprint: "' + json.dumps(polygon, separators=(", ", ": ")) + '"', text)
     assert count == 2, count
-    text, count = re.subn(r"inflation_radius: 0\.10\b", "inflation_radius: 0.35", text)
-    assert count in {0, 2}, count
     nav.write_text(text)
     draw_projection(docs / "projection.png", data)
     print(json.dumps({"wheelbase_m": wheelbase, "track_width_m": track, "mesh_triangles": sum(a["triangles"] for a in assets.values()),

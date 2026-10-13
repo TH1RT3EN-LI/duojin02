@@ -25,6 +25,8 @@ from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
 
+from ros_isolation import configure_isolation
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -172,10 +174,12 @@ class SensorFixture(Node):
 
 
 def run(args):
+    domain = configure_isolation()
     rclpy.init()
     fixture = SensorFixture()
     processes, logs = [], []
-    result = {'checks': [], 'cleanup': [], 'scope': 'DDS, controlled scan/map, compiled mux/guard, PTY driver; no Gazebo or physical robot'}
+    result = {'pass': False, 'checks': [], 'cleanup': [], 'ros_domain_id': domain,
+              'scope': 'DDS, controlled scan/map, compiled mux/guard, PTY driver; no Gazebo or physical robot'}
 
     def start(name, command):
         log = (args.output_dir/(name+'.log')).open('w')
@@ -260,10 +264,12 @@ def run(args):
         result['pass'] = True
     finally:
         for name, process in reversed(processes):
-            os.killpg(process.pid, signal.SIGCONT)
-            os.killpg(process.pid, signal.SIGINT)
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGCONT)
+                os.killpg(process.pid, signal.SIGINT)
             returncode = process.wait(timeout=8)
             result['cleanup'].append({'name': name, 'returncode': returncode, 'forced': False})
+            result['pass'] = result['pass'] and returncode == 0
         result['published'] = {'clock':fixture.clock_count, 'scans':fixture.scan_count, 'commands':fixture.command_count}
         result['observed'] = {'health':len(fixture.status), 'commands':len(fixture.outputs),
                               'guard':len(fixture.base), 'serial_packets':len(fixture.wire_packets)}
@@ -274,6 +280,7 @@ def run(args):
         os.close(master);os.close(slave)
         for log in logs:
             log.close()
+    assert result['pass'], result['cleanup']
     print(json.dumps(result, indent=2))
 
 

@@ -2,6 +2,13 @@ import math
 import threading
 import time
 from dataclasses import dataclass, field
+from duojin01_teleop.keyboard_teleop_defaults import (
+    ACCEL_LIMIT_ANGULAR,
+    ACCEL_LIMIT_LINEAR,
+    DECEL_LIMIT_ANGULAR,
+    DECEL_LIMIT_LINEAR,
+    DEFAULT_IDLE_TIMEOUT_SEC,
+)
 
 
 MOVE_BINDINGS = {
@@ -49,11 +56,11 @@ class KeyboardTeleopCore:
         turn_step: float,
         max_linear_speed: float | None = None,
         max_angular_speed: float | None = None,
-        accel_limit_linear: float = 2.0,
-        decel_limit_linear: float = 3.0,
-        accel_limit_angular: float = 6.0,
-        decel_limit_angular: float = 8.0,
-        idle_timeout_sec: float = 0.0,
+        accel_limit_linear: float = ACCEL_LIMIT_LINEAR,
+        decel_limit_linear: float = DECEL_LIMIT_LINEAR,
+        accel_limit_angular: float = ACCEL_LIMIT_ANGULAR,
+        decel_limit_angular: float = DECEL_LIMIT_ANGULAR,
+        idle_timeout_sec: float = DEFAULT_IDLE_TIMEOUT_SEC,
     ) -> None:
         self._lock = threading.Lock()
         self._pressed_move_keys: set[str] = set()

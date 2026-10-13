@@ -55,7 +55,7 @@ Visualization Manager:
       Name: Map
       Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
@@ -75,7 +75,7 @@ Visualization Manager:
       Description Source: Topic
       Description Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /robot_description
@@ -95,11 +95,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        computer:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         imu_link:
           Alpha: 1
           Show Axes: false
@@ -109,22 +104,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        lower_left_pillar:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         lower_left_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lower_left_wheel_shaft:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lower_right_pillar:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -134,37 +114,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        lower_right_wheel_shaft:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        upper_left_pillar:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         upper_left_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        upper_left_wheel_shaft:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        upper_right_pillar:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         upper_right_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        upper_right_wheel_shaft:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -220,39 +175,21 @@ Visualization Manager:
           Value: true
         base_link:
           Value: false
-        computer:
-          Value: false
         imu_link:
           Value: true
         laser:
           Value: false
-        lower_left_pillar:
-          Value: false
         lower_left_wheel:
           Value: false
-        lower_left_wheel_shaft:
-          Value: false
-        lower_right_pillar:
-          Value: false
         lower_right_wheel:
-          Value: false
-        lower_right_wheel_shaft:
           Value: false
         map:
           Value: true
         odom:
           Value: true
-        upper_left_pillar:
-          Value: false
         upper_left_wheel:
           Value: false
-        upper_left_wheel_shaft:
-          Value: false
-        upper_right_pillar:
-          Value: false
         upper_right_wheel:
-          Value: false
-        upper_right_wheel_shaft:
           Value: false
       Marker Scale: 1
       Name: TF
@@ -264,32 +201,10 @@ Visualization Manager:
           odom:
             base_footprint:
               base_link:
-                computer:
-                  {}
                 imu_link:
                   {}
                 laser:
                   {}
-                lower_left_pillar:
-                  {}
-                lower_left_wheel_shaft:
-                  lower_left_wheel:
-                    {}
-                lower_right_pillar:
-                  {}
-                lower_right_wheel_shaft:
-                  lower_right_wheel:
-                    {}
-                upper_left_pillar:
-                  {}
-                upper_left_wheel_shaft:
-                  upper_left_wheel:
-                    {}
-                upper_right_pillar:
-                  {}
-                upper_right_wheel_shaft:
-                  upper_right_wheel:
-                    {}
       Update Interval: 0
       Value: true
   Enabled: true

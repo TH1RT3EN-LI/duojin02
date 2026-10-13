@@ -4,17 +4,10 @@
 
   <!-- Native CAD visuals use metres. Collision envelopes are independent. -->
   <xacro:macro name="mecanum_wheel_unit" params="prefix cad_name x y z radius width">
-    <!-- Preserve existing shaft/joint names at the measured axle, without fake shafts. -->
-    <joint name="${prefix}_wheel_shaft_joint" type="fixed">
-      <parent link="base_link" />
-      <child link="${prefix}_wheel_shaft" />
-      <origin xyz="${x} ${y} ${z}" rpy="0 0 0" />
-    </joint>
-    <link name="${prefix}_wheel_shaft" />
     <joint name="${prefix}_wheel_joint" type="continuous">
-      <parent link="${prefix}_wheel_shaft" />
+      <parent link="base_link" />
       <child link="${prefix}_wheel" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0" />
       <axis xyz="0 1 0" />
     </joint>
     <link name="${prefix}_wheel">

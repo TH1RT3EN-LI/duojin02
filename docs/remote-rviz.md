@@ -43,9 +43,9 @@ ros2 run rviz2 rviz2 -d "$PWD/src/duojin01_bringup/config/rviz/navigation.rviz" 
 
 建图时改用 [mapping.rviz](../src/duojin01_bringup/config/rviz/mapping.rviz)。两个模板的 Fixed Frame 均为 `map`，不能用于没有地图 TF 的独立雷达观察。
 
-当前 [navigation.rviz](../src/duojin01_bringup/config/rviz/navigation.rviz) 有一项名为 `GlobalCostMap`，实际 Topic 是 `/local_costmap/costmap`。要检查全局代价地图，应在该显示项将 Topic 改成 `/global_costmap/costmap`，先确认实际发布者；显示项名称不代表话题来源。需要保存观看设置时使用自己的 RViz 配置文件。
+当前 [navigation.rviz](../src/duojin01_bringup/config/rviz/navigation.rviz) 的 `GlobalCostMap` 显示 `/global_costmap/costmap`，局部显示订阅 `/local_costmap/costmap`；两者分别使用对应的更新话题。查看前确认节点 ACTIVE 和实际发布者。需要保存观看设置时使用自己的 RViz 配置文件。
 
-RobotModel 接收 `/robot_description`，网格由观看机本地解析；机器人端已有模型 / TF 发布者，观看机不再启动一套。模板中的 RobotModel，以及建图模板的 Map，当前 Durability 为 Volatile。晚加入时如历史模型 / 地图未出现，先用发布端实际 QoS 核对对应显示项；发布端为 Reliable / Transient Local 时将接收项匹配到它，不能靠重复发布另一套 TF 解决。导航模板的 `/map` 已配置 Reliable / Transient Local。
+RobotModel 接收 `/robot_description`，网格由观看机本地解析；机器人端已有模型 / TF 发布者，观看机不再启动一套。两个模板的 RobotModel、`/map` 及导航全局代价图使用 Reliable / Transient Local；局部代价图和增量更新保留对应订阅设置。晚加入时如模型 / 地图未出现，核对实际发布端 QoS 和本地网格路径。模板已移除旧 computer、pillar 和空轮轴中间 frame；轮子仍在原测量位置。
 
 ## 按现象排查
 

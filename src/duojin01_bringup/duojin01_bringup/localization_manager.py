@@ -16,6 +16,7 @@ from rclpy.clock import Clock, ClockType
 from rclpy.callback_groups import CallbackGroup
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, qos_profile_sensor_data
 from rclpy.time import Time
+from rclpy.impl.implementation_singleton import rclpy_implementation
 from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import LaserScan
@@ -23,7 +24,8 @@ from std_msgs.msg import Bool, String
 from std_srvs.srv import Empty, Trigger
 from tf2_ros import Buffer, TransformListener, TransformException
 
-from duojin01_bringup.localization_health import HealthPolicy, HealthState, MapEvidence
+from duojin01_bringup.localization_health import (
+    HealthPolicy, HealthState, MapEvidence, PARAMETER_DEFAULTS)
 
 
 def yaw(q):
@@ -59,10 +61,10 @@ class LocalizationManager(Node):
                 policy['ray_margin'] < policy['endpoint_tolerance']):
             raise ValueError('Evidence time spans, tolerances and range must be finite and positive')
         self.state = HealthState(self.policy)
-        self.map_frame = self.declare_parameter('map_frame', 'map').value
-        self.convention = self.declare_parameter('map_cell_convention', 'amcl_nearest').value
-        self.recovery_timeout = self.declare_parameter('recovery_attempt_timeout_s', 8.0).value
-        self.max_attempts = self.declare_parameter('recovery_max_attempts', 2).value
+        self.map_frame = self.declare_parameter('map_frame', PARAMETER_DEFAULTS['map_frame']).value
+        self.convention = self.declare_parameter('map_cell_convention', PARAMETER_DEFAULTS['map_cell_convention']).value
+        self.recovery_timeout = self.declare_parameter('recovery_attempt_timeout_s', PARAMETER_DEFAULTS['recovery_attempt_timeout_s']).value
+        self.max_attempts = self.declare_parameter('recovery_max_attempts', PARAMETER_DEFAULTS['recovery_max_attempts']).value
         if not 1 <= self.max_attempts <= 3 or not 0 < self.recovery_timeout <= 60:
             raise ValueError('Recovery must have 1..3 finite attempts of at most 60 seconds')
         self.grid, self.pending, self.evidence = None, None, {}
@@ -79,7 +81,7 @@ class LocalizationManager(Node):
         self.recovery_mode = None
         self.session, self.sequence = str(uuid.uuid4()), 0
         self.recovery_sensor_cutoff = None
-        self.command_timeout = self.declare_parameter('command_timeout_s', 0.25).value
+        self.command_timeout = self.declare_parameter('command_timeout_s', PARAMETER_DEFAULTS['command_timeout_s']).value
         if not math.isfinite(self.command_timeout) or self.command_timeout <= 0:
             raise ValueError('command_timeout_s must be finite and positive')
         self.nav_allowed = self.nav_active = False
@@ -100,8 +102,8 @@ class LocalizationManager(Node):
         self.create_subscription(LaserScan, '/scan', self.on_scan, qos_profile_sensor_data)
         self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.on_pose, 10)
         self.create_subscription(PoseWithCovarianceStamped, '/initialpose', self.on_initialpose, 10)
-        global_name = self.declare_parameter('global_localization_service', '/reinitialize_global_localization').value
-        nomotion_name = self.declare_parameter('nomotion_update_service', '/request_nomotion_update').value
+        global_name = self.declare_parameter('global_localization_service', PARAMETER_DEFAULTS['global_localization_service']).value
+        nomotion_name = self.declare_parameter('nomotion_update_service', PARAMETER_DEFAULTS['nomotion_update_service']).value
         self.global_client = self.create_client(Empty, global_name)
         self.nomotion_client = self.create_client(Empty, nomotion_name)
         self.create_service(Trigger, '/localization/recover', self.recover)
@@ -129,6 +131,7 @@ class LocalizationManager(Node):
             self.state.invalidate('map_received_or_changed', latch=self.state.last_stamp is not None)
         except ValueError as error:
             self.grid = None
+            self.map_signature = None
             self.state.invalidate(str(error), latch=True)
             self.get_logger().error(str(error))
         self.publish()
@@ -387,10 +390,18 @@ def main():
         pass
     finally:
         node.state.invalidate('manager_stopping', latch=True)
-        if rclpy.ok():
-            node.publish()
-        node.destroy_node()
-        rclpy.try_shutdown()
+        try:
+            if node.context.ok():
+                try:
+                    node.publish()
+                except rclpy_implementation.RCLError:
+                    # SIGINT can close the context between the check and a
+                    # publication. A live-context failure must still surface.
+                    if node.context.ok():
+                        raise
+        finally:
+            node.destroy_node()
+            rclpy.try_shutdown(context=node.context)
 
 
 if __name__ == '__main__':

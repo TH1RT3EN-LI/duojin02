@@ -1,8 +1,5 @@
 """Hardware: online SLAM and navigation, without a saved map or AMCL."""
 import os
-from pathlib import Path
-import yaml
-from duojin01_bringup.lattice import for_resolution
 from duojin01_bringup.online_profile import OnlineParameters
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -12,33 +9,48 @@ from launch.event_handlers import OnProcessExit
 from launch_ros.actions import Node
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from nav2_common.launch import RewrittenYaml
 
 
 def generate_launch_description():
-    own=get_package_share_directory('duojin01_bringup')
-    resolution=yaml.safe_load(Path(own,'config/slam_toolbox.yaml').read_text())['slam_toolbox']['ros__parameters']['resolution']
-    include=lambda path,args={}:IncludeLaunchDescription(PythonLaunchDescriptionSource(path),launch_arguments=args.items())
-    parameters=RewrittenYaml(source_file=OnlineParameters(LaunchConfiguration('params_file')),param_rewrites={
-        'lattice_filepath':for_resolution(os.path.join(own,'config/lattice_primitives/duojin01_omni_2cm_rich_lattice.json'),resolution),
-        'global_costmap.global_costmap.ros__parameters.resolution':str(resolution),
-        # Global hypotheses may cross unobserved space; the local map and
-        # live-scan braking guard still validate executable motion.
-        'global_costmap.global_costmap.ros__parameters.track_unknown_space':'false',
-        'allow_unknown':'true'},convert_types=True)
-    ready=Node(package='duojin01_bringup',executable='localization_readiness',output='screen')
-    navigation=GroupAction([include(os.path.join(own,'launch/navigation_stack.launch.py'),{
-        'params_file':parameters,'autostart':'true'})])
+    own = get_package_share_directory('duojin01_bringup')
+
+    def include(name, arguments):
+        return IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(own, 'launch', name)),
+            launch_arguments=arguments.items())
+
+    parameters = OnlineParameters(
+        LaunchConfiguration('params_file'), LaunchConfiguration('slam_params_file'),
+        os.path.join(own, 'config/lattice_primitives/duojin01_omni_2cm_rich_lattice.json'))
+    ready = Node(package='duojin01_bringup', executable='localization_readiness', output='screen')
+    navigation = GroupAction([include('navigation_stack.launch.py', {
+        'params_file': parameters, 'autostart': 'true',
+        'log_level': LaunchConfiguration('nav_log_level')})])
     return LaunchDescription([
         middleware(),
-        DeclareLaunchArgument('params_file',default_value=os.path.join(own,'config/nav2.yaml')),
-        DeclareLaunchArgument('use_foxglove',default_value='true'),
-        DeclareLaunchArgument('use_teleop',default_value='true'),
-        DeclareLaunchArgument('base_serial_port',default_value='/dev/duojin01_controller'),
-        DeclareLaunchArgument('lidar_serial_port',default_value='/dev/lslidar'),
-        include(os.path.join(own,'launch/base.launch.py'),{
-            name:LaunchConfiguration(name) for name in ('use_foxglove','use_teleop','base_serial_port','lidar_serial_port')}),
-        include(os.path.join(own,'launch/slam.launch.py')),
+        DeclareLaunchArgument('params_file', default_value=os.path.join(own, 'config/nav2.yaml')),
+        DeclareLaunchArgument('slam_params_file', default_value=os.path.join(own, 'config/slam_toolbox.yaml')),
+        DeclareLaunchArgument('pose_graph', default_value=''),
+        DeclareLaunchArgument('map_start_pose', default_value=''),
+        DeclareLaunchArgument('start_at_dock', default_value='false'),
+        DeclareLaunchArgument('nav_log_level', default_value='info'),
+        DeclareLaunchArgument('use_foxglove', default_value='true'),
+        DeclareLaunchArgument('use_teleop', default_value='true'),
+        DeclareLaunchArgument('base_params_file', default_value=os.path.join(own, 'config/base_driver.yaml')),
+        DeclareLaunchArgument('base_serial_port', default_value='/dev/duojin01_controller'),
+        DeclareLaunchArgument('base_serial_baudrate', default_value='115200'),
+        DeclareLaunchArgument('lidar_serial_port', default_value='/dev/lslidar'),
+        DeclareLaunchArgument('odom0', default_value='/odom'),
+        DeclareLaunchArgument('imu0', default_value='/imu'),
+        include('base.launch.py', {
+            name: LaunchConfiguration(name) for name in (
+                'use_foxglove', 'use_teleop', 'base_params_file', 'base_serial_port',
+                'base_serial_baudrate', 'lidar_serial_port', 'odom0', 'imu0')}),
+        include('slam.launch.py', {
+            name: LaunchConfiguration(name) for name in (
+                'slam_params_file', 'pose_graph', 'map_start_pose', 'start_at_dock')}),
         RegisterEventHandler(OnProcessExit(target_action=ready,
-            on_exit=lambda event,context:[navigation] if event.returncode==0 else [Shutdown(reason='Localization readiness failed')])),ready,
+            on_exit=lambda event, context: [navigation] if event.returncode == 0
+            else [Shutdown(reason='Localization readiness failed')])),
+        ready,
     ])

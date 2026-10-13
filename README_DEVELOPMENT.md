@@ -67,6 +67,13 @@ flowchart LR
 | 当前足迹、padding、控制与规划参数 | [nav2.yaml](src/duojin01_bringup/config/nav2.yaml)，历史报告数值不覆盖它 |
 | 固定图健康参数与地图语义 | [localization_health.yaml](src/duojin01_bringup/config/localization_health.yaml)、[健康契约](docs/localization-health.md) |
 | 保护参数 | [velocity_guard.yaml](src/duojin01_bringup/config/velocity_guard.yaml)，不为显示性能削弱安全检查 |
+| SLAM 后端参数 | [slam_toolbox.yaml](src/duojin01_bringup/config/slam_toolbox.yaml)；在线地图分辨率由所选配置统一派生 |
+| 键盘遥控默认值 | [keyboard_teleop_defaults.py](src/duojin01_teleop/duojin01_teleop/keyboard_teleop_defaults.py)，节点和控制核心共同读取 |
+| 手柄输入与速度档位 | `duojin01_teleop/config/joy_*.yaml` 与 `duojin01_bringup/config/joy_teleop_*.yaml`，分别维护输入映射与档位 |
+
+定位健康模型及管理器的默认值只从 `localization_health.yaml` 读取；键盘默认值只在 defaults 模块维护。Launch 选择 / 转发配置，不再另存健康阈值或在线地图分辨率。ROS 参数覆盖可用于当次实验，经过验证的持久修改回写上表入口。
+
+Nav2 控制器的搜索限速与平滑器的输出约束都在 `nav2.yaml`，仍分别表达两个模块的约束。采样频率、平滑频率、保护余量和 costmap padding 同样有独立语义，不能因为数值相同就绑定。生产 YAML 不使用 Humble 原生解析器不支持的 alias。模型测量、参数默认值与离线实验夹具各自有明确维护位置，不把冻结证据当作另一套生产配置。
 
 导航范围按底盘含四轮的投影维护。CAD 的轮轴和滚子包络不是已标定有效轮径；底层控制器处理轮速换算，主机驱动没有轮径、轴距、轮距参数。雷达零度标记朝车头，光学高度仍用明确标记的壳体中面代理，IMU 零外参仍待实测。硬件 URDF 没有未经测量的质量和惯量，不能当作接触动力学模型。
 

@@ -55,17 +55,19 @@ ros2 run duojin01_teleop keyboard_teleop_node
 | --- | --- | --- | --- | --- |
 | `base_serial_port`、`lidar_serial_port` | 声明 | 声明 | 声明 | 声明 |
 | `use_teleop`、`use_foxglove` | 声明 | 声明 | 声明 | 声明 |
-| `base_params_file`、`base_serial_baudrate`、`odom0`、`imu0` | 声明 | 声明 | 声明 | — |
+| `base_params_file`、`base_serial_baudrate`、`odom0`、`imu0` | 声明 | 声明 | 声明 | 声明 |
 | `use_lidar`、`publish_robot_model`、`publish_joint_states` | 声明 | — | — | — |
 | `use_rviz` | — | 声明 | 声明 | — |
 | `rviz_config` | — | 声明 | — | — |
-| `slam_params_file`、`pose_graph`、`map_start_pose`、`start_at_dock` | — | 声明 | — | — |
+| `slam_params_file`、`pose_graph`、`map_start_pose`、`start_at_dock` | — | 声明 | — | 声明 |
 | `map`、`autostart` | — | — | 声明 | — |
 | `params_file`（Nav2） | — | — | 声明 | 声明 |
 
 表中名称省略 `.launch.py`，`—` 只表示外层未声明，不证明嵌套入口无法接收同名参数。`use_teleop` 控制手柄节点，键盘遥控是上方独立入口。建图 / 固定图无显示器时传 `use_rviz:=false`；底盘及在线导航不自动启动 RViz。已构建环境可用 `ros2 launch duojin01_bringup mapping.launch.py --show-args` 查看声明，检查其他入口时替换文件名；参数被命令行接受仍需核对实际节点有效值。
 
 `DUOJIN01_WORKSPACE_ROOT` 指定数据工作区的绝对路径，导航选图和保存地图共用它；录包、离线输出和续建前缀的路径规则见 [SLAM 工作流](docs/slam-workflow.md)。雷达来源、固定协议和配置集中在 [UPSTREAM](src/lslidar_driver/UPSTREAM.md)；换硬件需验证对应驱动，不能猜协议。
+
+持久调参只在[参数维护表](README_DEVELOPMENT.md#配置与模型边界)列出的入口进行。在线导航的地图分辨率和控制集由实际 `slam_params_file` 派生；`nav_log_level` 控制在线 Nav2 日志。停稳时间 `settle_time` 是启动参数，修改配置后重新配置 / 启动节点。
 
 ## 本机与远程 RViz
 
@@ -89,11 +91,20 @@ Orin 本地构建得到 ARM64 镜像；具备 ARM64 构建器或架构模拟器�
 
 ## 验证边界
 
-已构建环境可运行 `./scripts/validate_hardware.sh` 和 `./scripts/test_lidar.sh`。伪串口、合成扫描与构造录包证明软件路径，不等于真实雷达稳定性、底盘制动距离、毫米级精度或 Orin 长期实时性。集成回归在隔离容器执行，不映射物理设备：
+已构建环境可运行 `./scripts/validate_hardware.sh` 和 `./scripts/test_lidar.sh`。伪串口、合成扫描与构造录包证明软件路径，不等于真实雷达稳定性、底盘制动距离、毫米级精度或 Orin 长期实时性。Docker 集成检查使用 `testing` 目标，包含与当前补丁对应的冻结 SLAM 源码；普通运行镜像不携带该测试源码。先完成镜像构建，再在断网、无设备映射、源码只读的容器中执行：
 
 ```bash
-docker run --rm --init --network none -v "$PWD":/ws -w /ws \
-  duojin01:hardware-humble bash -c './scripts/test_slam.sh'
+IMAGE=duojin01:hardware-humble-testing ./scripts/build_image.sh --target testing
+validation_output=$(mktemp -d /tmp/duojin-hardware-check.XXXXXX)
+docker run --rm --init --network none --cap-drop ALL --user "$(id -u):$(id -g)" \
+  -v "$PWD":/ws:ro -v "$validation_output":/check -w /ws \
+  -e PYTHONDONTWRITEBYTECODE=1 -e PYTEST_ADDOPTS='-p no:cacheprovider' \
+  -e SLAM_TEST_ROOT=/check/slam -e NAVIGATION_TEST_ROOT=/check/navigation \
+  -e ROS_LOG_DIR=/check/ros-logs \
+  duojin01:hardware-humble-testing bash -c \
+  './scripts/validate_hardware.sh && ./scripts/test_slam.sh && ./scripts/test_navigation.sh'
 ```
 
 导航算法的测试构建与分项计时见 [导航验证](docs/navigation-validation.md)。默认硬件构建关闭 `BUILD_TESTING`；`validate_hardware.sh` 的 Python / launch 检查不能替代导航 CTest。结果按冻结版本阅读，不从旧报告推断当前性能。CAD 几何、未标定外参见 [底盘报告](docs/chassis/README.md)。自研 `duojin01_*` 包使用 GPL-3.0-only；第三方遵循各自目录许可证。
+
+2026-10-13 的结构清理、算法保留范围和参数入口见[维护记录](docs/maintenance-cleanup.md)。

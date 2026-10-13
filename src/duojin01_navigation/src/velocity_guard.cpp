@@ -1,6 +1,7 @@
 #include "duojin01_navigation/sweep.hpp"
 #include "duojin01_navigation/scan_validity.hpp"
 #include "duojin01_navigation/guard_query.hpp"
+#include "duojin01_navigation/guard_input_validity.hpp"
 #include "duojin01_navigation/prior_association_cache.hpp"
 #include <deque>
 #include <chrono>
@@ -79,19 +80,21 @@ class VelocityGuard : public rclcpp::Node {
       [this](nav_msgs::msg::OccupancyGrid::SharedPtr m){costmap(m);});
     prior_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(1).transient_local(),
       [this](nav_msgs::msg::OccupancyGrid::SharedPtr m){
-        if(m->header.frame_id!="map" || !m->info.width || !m->info.height ||
-           !std::isfinite(m->info.resolution) || m->info.resolution<=0 ||
-           m->data.size()!=static_cast<size_t>(m->info.width)*m->info.height) return;
+        if(m->header.frame_id!="map" || !guardGridValid(*m)) {prior_invalid_=true;return;}
         Pose origin{m->info.origin.position.x,m->info.origin.position.y,tf2::getYaw(m->info.origin.orientation)};
-        prior_points_.clear();
+        if(!guardGridExtentValid(*m,origin,{},prior_index_bin_)) {prior_invalid_=true;return;}
+        std::vector<Point> points;
         for(size_t i=0;i<m->data.size();++i) if(m->data[i]>=65) {
           Point p{(i%m->info.width+.5)*m->info.resolution,(i/m->info.width+.5)*m->info.resolution,
                   std::sqrt(2.0)*m->info.resolution/2};
-          prior_points_.push_back(transform(p,origin));
+          const auto point=transform(p,origin);
+          if(!guardPointValid(point,prior_index_bin_)) {prior_invalid_=true;return;}
+          points.push_back(point);
         }
+        prior_points_=std::move(points);
         prior_index_.rebuild(prior_points_);
         ++prior_epoch_;
-        have_prior_=true;
+        have_prior_=true;prior_invalid_=false;
       });
     localization_sub_=create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose",rclcpp::QoS(1).transient_local(),
       [this](geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr m){
@@ -178,6 +181,7 @@ class VelocityGuard : public rclcpp::Node {
         }
         // Fixed map bins prevent repeated rebinning from growing the radius
         // of a blind-zone point on every localization correction.
+        if(!guardPointValid(index,.005)) throw tf2::TransformException("Invalid obstacle memory index coordinates");
         const auto x=static_cast<int32_t>(std::floor(index.x/.005)),y=static_cast<int32_t>(std::floor(index.y/.005));
         const uint64_t key=(static_cast<uint64_t>(static_cast<uint32_t>(x))<<32)|static_cast<uint32_t>(y);
         auto found=memory.find(key);
@@ -229,20 +233,22 @@ class VelocityGuard : public rclcpp::Node {
     } catch (const tf2::TransformException &) { /* Fail closed until fresh sensor TF is available. */ }
   }
   void costmap(const nav_msgs::msg::OccupancyGrid::SharedPtr &m) {
-    if(!m->info.width || !m->info.height || !std::isfinite(m->info.resolution) || m->info.resolution<=0 ||
-       m->data.size()!=static_cast<size_t>(m->info.width)*m->info.height ||
-       std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>.60) return;
+    if(!guardGridValid(*m)) {costmap_invalid_=true;return;}
+    if(std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>.60) return;
     try {
       auto tf=framePose(m->header.frame_id,m->header.stamp);
       Pose origin{m->info.origin.position.x,m->info.origin.position.y,tf2::getYaw(m->info.origin.orientation)};
+      if(!guardGridExtentValid(*m,origin,tf,prior_index_bin_)) {costmap_invalid_=true;return;}
       std::vector<Point> points;
       for (size_t i=0;i<m->data.size();++i) {
         if (m->data[i]!=100) continue; // Filled LETHAL cells; inflation remains a soft preference.
         Point p{(i%m->info.width+.5)*m->info.resolution,(i/m->info.width+.5)*m->info.resolution,
                 std::sqrt(2.0)*m->info.resolution/2};
-        points.push_back(transform(transform(p,origin),tf));
+        const auto point=transform(transform(p,origin),tf);
+        if(!guardPointValid(point,prior_index_bin_)) {costmap_invalid_=true;return;}
+        points.push_back(point);
       }
-      map_points_=std::move(points);last_map_=Clock::now();have_map_=true;
+      map_points_=std::move(points);last_map_=Clock::now();have_map_=true;costmap_invalid_=false;
     } catch (const tf2::TransformException &) { }
   }
   bool blocked(Velocity v,const std::vector<Point> &points,double reserve=0) {
@@ -258,6 +264,7 @@ class VelocityGuard : public rclcpp::Node {
     if(std::abs((now()-rclcpp::Time(tf.header.stamp)).seconds())>.50)
       throw tf2::TransformException("Stale localization transform");
     Pose map_pose{tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
+    if(!guardPoseValid(map_pose)) throw tf2::TransformException("Non-finite localization transform");
     // Index once per map update. Transform only nearby cells per control tick,
     // so a large warehouse does not add a full-map scan to every brake check.
     const double c=std::cos(map_pose.yaw),s=std::sin(map_pose.yaw);
@@ -265,6 +272,8 @@ class VelocityGuard : public rclcpp::Node {
     const double my=-s*(pose_.x-map_pose.x)+c*(pose_.y-map_pose.y);
     query_radius_=guardQueryRadius(polygon_,actual_,requested,margin_,reaction_,decel_,
       prior_index_.maxRadius(),localization_margin_,memory_radius_);
+    if(!guardIndexQueryValid(mx,my,query_radius_,prior_index_bin_,true))
+      throw tf2::TransformException("Invalid prior index query coordinates");
     association_cache_.begin(prior_points_.size(),
       {prior_epoch_,observation_epoch_,map_pose,localization_margin_,range_error_});
     prior_examined_=prior_index_.forEachNearIndexed(prior_points_,mx,my,query_radius_,[&](const Point &q,size_t index) {
@@ -273,6 +282,8 @@ class VelocityGuard : public rclcpp::Node {
         bool matched=false;
         const double association=p.radius+std::min(.10,localization_margin_)+range_error_+.015;
         if(localization_margin_<.15) matched=association_cache_.match(index,[&](){
+          if(!guardIndexQueryValid(p.x,p.y,association,observed_index_bin_,false))
+            throw tf2::TransformException("Invalid observation association coordinates");
           return observed_index_.hasWithin(scan_points_,p,association);
         });
         if(!matched) {p.radius+=localization_margin_;points.push_back(p);}
@@ -289,6 +300,8 @@ class VelocityGuard : public rclcpp::Node {
     else if (scan_invalid_) reason="scan_invalid";
     else if (!have_scan_ || age(last_scan_)>scan_timeout_) reason="scan_or_tf_stale";
     else if (!have_odom_ || age(last_odom_)>.20) reason="odometry_stale";
+    else if (prior_invalid_) reason="map_invalid";
+    else if (costmap_invalid_) reason="costmap_invalid";
     else if (have_map_ && age(last_map_)>.60) reason="costmap_stale";
     else {
       Velocity requested{command_.linear.x,command_.linear.y,command_.angular.z};
@@ -347,7 +360,8 @@ class VelocityGuard : public rclcpp::Node {
   }
   Polygon polygon_; Pose pose_,memory_anchor_; Velocity actual_;geometry_msgs::msg::Twist command_;
   std::vector<Point> scan_points_,map_points_,prior_points_;
-  SpatialPointIndex prior_index_{.10},observed_index_{.05};
+  static constexpr double prior_index_bin_=.10,observed_index_bin_=.05;
+  SpatialPointIndex prior_index_{prior_index_bin_},observed_index_{observed_index_bin_};
   PriorAssociationCache association_cache_;
   uint64_t prior_epoch_{0},observation_epoch_{0};
   size_t prior_examined_{0},candidate_points_{0},tf_ready_scans_{0};double query_radius_{0};
@@ -356,6 +370,7 @@ class VelocityGuard : public rclcpp::Node {
   Clock::time_point last_command_,last_scan_,last_odom_,last_map_;
   ScanRecoveryOrder scan_order_;
   bool have_command_{false},have_scan_{false},have_odom_{false},have_map_{false},have_prior_{false},have_anchor_{false},scan_invalid_{false};
+  bool prior_invalid_{false},costmap_invalid_{false};
   tf2_ros::Buffer buffer_;tf2_ros::TransformListener listener_;
   std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>> scan_filter_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr output_;

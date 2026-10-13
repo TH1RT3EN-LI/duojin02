@@ -38,13 +38,12 @@ def test_wheel_joints_use_hub_centers_and_true_mecanum_meshes(robot, measurement
                "upper_right": "front_right", "lower_right": "rear_right"}
     assets = set()
     for prefix, name in mapping.items():
-        joint = robot.find(f"joint[@name='{prefix}_wheel_shaft_joint']")
-        xyz = list(map(float, joint.find("origin").attrib["xyz"].split()))
-        assert xyz == pytest.approx(measurements["wheels"][name]["center_xyz_m"], abs=1e-9)
         rotation = robot.find(f"joint[@name='{prefix}_wheel_joint']")
+        xyz = list(map(float, rotation.find("origin").attrib["xyz"].split()))
+        assert xyz == pytest.approx(measurements["wheels"][name]["center_xyz_m"], abs=1e-9)
         assert rotation.attrib["type"] == "continuous"
+        assert rotation.find("parent").attrib["link"] == "base_link"
         assert rotation.find("axis").attrib["xyz"] == "0 1 0"
-        assert rotation.find("origin").attrib["xyz"] == "0 0 0"
         link = robot.find(f"link[@name='{prefix}_wheel']")
         mesh = link.find("visual/geometry/mesh")
         assert "scale" not in mesh.attrib  # Native geometry is already in metres.

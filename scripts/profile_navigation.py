@@ -8,7 +8,6 @@ from pathlib import Path
 import platform
 import shutil
 import subprocess
-import statistics
 import time
 import rclpy
 from rclpy.node import Node
