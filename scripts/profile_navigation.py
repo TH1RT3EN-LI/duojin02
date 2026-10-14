@@ -46,7 +46,7 @@ def main():
             if not directory.name.isdigit():continue
             try:
                 arguments=(directory/'cmdline').read_bytes().split(b'\0')
-                tracked=set(NAVIGATION_NODES)|{'amcl','async_slam_toolbox_node','velocity_guard','localization_manager','ekf_node'}
+                tracked=set(NAVIGATION_NODES)|{'amcl','async_slam_toolbox_node','velocity_guard','localization_monitor','ekf_node'}
                 name=next((Path(value.decode()).name for value in arguments[:2]
                            if Path(value.decode()).name in tracked),None)
                 if name is None:continue

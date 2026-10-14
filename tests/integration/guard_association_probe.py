@@ -85,7 +85,7 @@ def main():
             before = time.monotonic()
             pump(.115)
             ready = [v for received, v in probe.statuses if received >= before]
-            if name not in ('map_first_then_same_epoch', 'association_reenabled'):
+            if name != 'map_first_then_same_epoch':
                 require(any(v['prior_association_hits'] > 0 for v in ready),
                         'Pre-change association epoch was not stably cached: ' + name,
                         statuses=ready)
@@ -102,13 +102,13 @@ def main():
                 require(any(v['prior_association_hits'] > 0 for v in values),
                         'Stable context did not reuse results: ' + name, statuses=values)
             else:
-                require(any(v['prior_association_hits'] == 0
+                require(all(v['prior_association_hits'] > 0
                             and v['prior_association_misses'] == 0 for v in values),
-                        'High uncertainty must bypass association', statuses=values)
+                        'Advisory covariance changed geometry association', statuses=values)
             report['cases'].append({'case': name, 'result': 'passed', 'statuses': values})
 
         deadline = time.monotonic() + args.discovery_timeout_s
-        while not all(pub.get_subscription_count() for pub in (tf_pub, map_pub, covariance_pub)):
+        while not all(pub.get_subscription_count() for pub in (tf_pub, map_pub)):
             require(time.monotonic() < deadline, 'Synthetic prior/TF discovery timed out')
             pump(.02)
         pump(.05)
@@ -119,10 +119,12 @@ def main():
             nonlocal yaw
             yaw = .73
         observe('map_transform_change', rotate)
-        observe('localization_uncertainty_change', lambda: uncertainty(.02))
+        observe('localization_covariance_is_advisory', lambda: uncertainty(.02), expect_miss=False)
         observe('prior_size_change', lambda: map_pub.publish(prior(2)))
-        observe('association_disabled', lambda: uncertainty(.16), expect_miss=False)
-        observe('association_reenabled', lambda: uncertainty(.02))
+        observe('large_covariance_does_not_disable_association', lambda: uncertainty(.16), expect_miss=False)
+        observe('invalid_covariance_does_not_change_geometry', lambda: uncertainty(math.nan), expect_miss=False)
+        require(covariance_pub.get_subscription_count() == 0,
+                'Guard must not subscribe to localization covariance')
         pump(.35)
         require(probe.statuses[-1][1]['reason'] == 'scan_or_tf_stale'
                 and zero(probe.outputs[-1][1]), 'Cache extended stale scan validity', **probe.snapshot())

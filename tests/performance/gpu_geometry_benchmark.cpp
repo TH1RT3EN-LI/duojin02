@@ -12,7 +12,7 @@ int main() {
   std::vector<Pose> poses;
   for (int i=0;i<8000;++i) points.push_back({xy(random),xy(random),.007071067812});
   for (int i=0;i<256;++i) poses.push_back({xy(random),xy(random),xy(random)});
-  GeometryCompute cpu({false,0,5000}), gpu({true,0,5000});
+  GeometryCompute cpu({false,0}), gpu({true,0});
   cpu.setScene(polygon,points);gpu.setScene(polygon,points);
   const auto reference=cpu.evaluate(poses,.010);
   const auto warm=gpu.evaluate(poses,.010);

@@ -16,7 +16,7 @@ scan=n.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
 prior=n.create_publisher(OccupancyGrid,'/map',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
 broadcaster=TransformBroadcaster(n)
 angle=.73;tx=-1.2;ty=.8;c=math.cos(angle);s=math.sin(angle)
-log=open('/tmp/prior-index-probe.log','w');p=subprocess.Popen(['ros2','run','duojin02_navigation','velocity_guard','--ros-args','--params-file',str(Path(__file__).resolve().parents[2]/'src/duojin02_bringup/config/velocity_guard.yaml')],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+log=open('/tmp/prior-index-probe.log','w');p=subprocess.Popen(['ros2','run','duojin02_navigation','velocity_guard','--ros-args','--params-file',str(Path(__file__).resolve().parents[2]/'src/duojin02_bringup/config/safety.yaml')],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
 def pump(seconds):
  end=time.monotonic()+seconds
  while time.monotonic()<end:

@@ -1,0 +1,14 @@
+# Advisory scan/map quality. These thresholds never grant or deny motion.
+localization_monitor:
+  ros__parameters:
+    map_frame: map
+    map_cell_convention: amcl_nearest
+    min_hits: 45
+    max_beams: 90
+    max_range: 8.0
+    hit_fraction: 0.75
+    known_fraction: 0.90
+    max_contradiction_fraction: 0.15
+    endpoint_tolerance: 0.12
+    ray_margin: 0.18
+    max_ray_cells: 50000

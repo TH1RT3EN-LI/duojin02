@@ -37,10 +37,7 @@ def main():
         probe = CaseProbe('grid_validation', args)
         probe.wait_ready()
         qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
-        publishers = {
-            'map': probe.create_publisher(OccupancyGrid, probe.topic('unused_map'), qos),
-            'costmap': probe.create_publisher(OccupancyGrid, probe.topic('unused_costmap'), qos),
-        }
+        publisher = probe.create_publisher(OccupancyGrid, probe.topic('unused_map'), qos)
         tf_publisher = probe.create_publisher(TFMessage, probe.topic('unused_tf'), 10)
 
         def pump(duration):
@@ -58,8 +55,7 @@ def main():
                 probe.spin()
 
         deadline = time.monotonic() + args.discovery_timeout_s
-        while not all(publisher.get_subscription_count() for publisher in
-                      [*publishers.values(), tf_publisher]):
+        while not all(pub.get_subscription_count() for pub in [publisher, tf_publisher]):
             require(time.monotonic() < deadline, 'Grid/TF discovery timed out', **probe.snapshot())
             pump(.02)
 
@@ -74,18 +70,17 @@ def main():
                     case=name, expected_reason=reason, **probe.snapshot())
             report['cases'].append({'case': name, 'result': 'passed', **probe.snapshot()})
 
-        for kind, publisher in publishers.items():
-            valid = OccupancyGrid()
-            valid.header.frame_id = 'map' if kind == 'map' else 'odom'
-            valid.info.width = valid.info.height = 1
-            valid.info.resolution = .01
-            valid.info.origin.orientation.w = 1.0
-            valid.data = [0]
-            invalid = deepcopy(valid)
-            invalid.info.origin.position.x = math.nan
-            observe(kind + '_valid_before_fault', publisher, valid, 'clear', False)
-            observe(kind + '_invalid_origin_stops', publisher, invalid, kind + '_invalid', True)
-            observe(kind + '_original_valid_grid_recovers', publisher, valid, 'clear', False)
+        valid = OccupancyGrid()
+        valid.header.frame_id = 'map'
+        valid.info.width = valid.info.height = 1
+        valid.info.resolution = .01
+        valid.info.origin.orientation.w = 1.0
+        valid.data = [0]
+        invalid = deepcopy(valid)
+        invalid.info.origin.position.x = math.nan
+        observe('map_valid_before_fault', publisher, valid, 'clear', False)
+        observe('map_invalid_origin_stops', publisher, invalid, 'map_invalid', True)
+        observe('map_original_valid_grid_recovers', publisher, valid, 'clear', False)
         report['result'] = 'passed'
     except BaseException as error:
         exit_code = 130 if isinstance(error, KeyboardInterrupt) else 1

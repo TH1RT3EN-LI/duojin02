@@ -12,6 +12,7 @@
 #include <vector>
 #include <array>
 #include <functional>
+#include <stdexcept>
 
 #include "io_context/io_context.hpp"
 #include "serial_driver/serial_port.hpp"
@@ -215,13 +216,22 @@ private:
      */
     void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        last_command_time_ = std::chrono::steady_clock::now();
-        command_active_ = true;
+        if (shutting_down_.load(std::memory_order_acquire) || serial_reconnecting_ ||
+            !serial_ || !serial_->is_open())
+        {
+            command_active_ = false;
+            RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+                "Serial port not ready, ignoring cmd_vel");
+            return;
+        }
+
+        const bool valid = std::isfinite(msg->linear.x) && std::isfinite(msg->linear.y) &&
+            std::isfinite(msg->angular.z);
         auto &tx = tx_buf_;
         constexpr double k_mmps = 1000.0;
-        const int16_t vx_mmps = saturate_i16_from_scaled(msg->linear.x, k_mmps);
-        const int16_t vy_mmps = saturate_i16_from_scaled(msg->linear.y, k_mmps);
-        const int16_t wz_mradps = saturate_i16_from_scaled(msg->angular.z, k_mmps);
+        const int16_t vx_mmps = valid ? saturate_i16_from_scaled(msg->linear.x, k_mmps) : 0;
+        const int16_t vy_mmps = valid ? saturate_i16_from_scaled(msg->linear.y, k_mmps) : 0;
+        const int16_t wz_mradps = valid ? saturate_i16_from_scaled(msg->angular.z, k_mmps) : 0;
 
         encode_i16_be(vx_mmps, tx[3], tx[4]);
         encode_i16_be(vy_mmps, tx[5], tx[6]);
@@ -231,18 +241,12 @@ private:
 
         try
         {
-            if (serial_ && serial_->is_open())
-            {
-                serial_->send(tx);
-            }
-            else
-            {
-                RCLCPP_WARN_THROTTLE(
-                    this->get_logger(),
-                    *this->get_clock(),
-                    2000,
-                    "Serial port not open, cannot send cmd_vel");
-            }
+            send_command_frame();
+            last_command_time_ = std::chrono::steady_clock::now();
+            command_active_ = vx_mmps != 0 || vy_mmps != 0 || wz_mradps != 0;
+            if (!valid)
+                RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+                    "Invalid cmd_vel, sent zero velocity to controller");
         }
         catch (const std::exception &e)
         {
@@ -252,8 +256,14 @@ private:
             handle_serial_error(std::string("cmd_vel send failed: ") + e.what());
         }
     }
+    void send_command_frame()
+    {
+        if (serial_->send(tx_buf_) != tx_buf_.size())
+            throw std::runtime_error("incomplete velocity frame write");
+    }
+
     /**
-     * @brief 构造并发送零速度帧到下位机，实现上位机层面的急停。调用前需确保 serial_ 非空且 is_open()。
+     * @brief 构造并发送零速度帧到下位机。调用前需确保 serial_ 非空且 is_open()。
      *
      * @author litianshun (litianshun.cn@gmail.com)
      * @date 2026-01-29
@@ -263,7 +273,7 @@ private:
         auto &tx = tx_buf_;
         std::fill(tx.begin() + 3, tx.begin() + 9, 0);
         tx[9] = xor_checksum(tx.data(), 9);
-        serial_->send(tx);
+        send_command_frame();
     }
 
     /**
@@ -274,6 +284,7 @@ private:
      */
     void handle_serial_error(const std::string &reason)
     {
+        command_active_ = false;
         if (shutting_down_.load(std::memory_order_acquire))
             return;
         if (serial_reconnecting_)
@@ -709,6 +720,9 @@ private:
         {
             serial_ = std::make_unique<drivers::serial_driver::SerialPort>(io_ctx_, usart_port_name_, serial_cfg_);
             serial_->open();
+            // A connection is usable only after a complete zero frame is written.
+            // Failed initialization leaves the existing retry timer active.
+            send_stop_command();
         }
         catch (const std::exception &e)
         {
@@ -716,25 +730,20 @@ private:
                 this->get_logger(),
                 *this->get_clock(),
                 2000,
-                "cannot open serial port %s: %s",
+                "cannot initialize serial port %s: %s",
                 usart_port_name_.c_str(),
                 e.what());
+            if (serial_ && serial_->is_open())
+                try { serial_->close(); } catch (...) {}
             serial_.reset();
             return;
         }
 
         if (serial_ && serial_->is_open())
         {
-            try
-            {
-                send_stop_command();
-                RCLCPP_WARN(this->get_logger(), "reconnected — sent stop command to lower controller");
-            }
-            catch (const std::exception &e)
-            {
-                RCLCPP_ERROR(this->get_logger(), "reconnected but failed to send stop: %s", e.what());
-            }
-
+            command_active_ = false;
+            serial_eof_detected_.store(false, std::memory_order_release);
+            RCLCPP_WARN(this->get_logger(), "connected — sent stop command to lower controller");
             {
                 std::lock_guard<std::mutex> lk(state_mtx_);
                 frame_ready_ = false;

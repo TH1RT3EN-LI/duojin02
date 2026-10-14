@@ -13,8 +13,8 @@ template<class F> void rejects(F &&f) {
 int main(int argc, char **argv) {
   const std::string mode = argc > 1 ? argv[1] : "";
   const bool required = mode == "--require-cuda";
-  GeometryCompute cpu({false, 0, 5000});
-  GeometryCompute automatic({true, 0, 5000});
+  GeometryCompute cpu({false, 0});
+  GeometryCompute automatic({true, 0});
   assert(!cpu.available());
   if (mode == "--no-device") assert(!automatic.available());
   if (required && !automatic.available()) {
@@ -89,21 +89,11 @@ int main(int argc, char **argv) {
   rejects([&] { automatic.setScene({{-.2,-.2},{-.2,.2},{.2,.2},{.2,-.2}}, {}); });
   rejects([&] { automatic.setScene({{0,0},{1,0},{2,0}}, {}); });
   rejects([&] { automatic.setScene(square, {{0,0,-.1}}); });
-  rejects([] { GeometryCompute invalid({false,0,-1}); });
-  rejects([] { GeometryCompute invalid({false,0,std::numeric_limits<double>::quiet_NaN()}); });
-  GeometryCompute sparse({true,std::numeric_limits<uint64_t>::max(),5000});
+  GeometryCompute sparse({true,std::numeric_limits<uint64_t>::max()});
   sparse.setScene(square, point);
   assert(!sparse.willUseCuda(1));
   assert(!sparse.evaluate({{}},.010).used_cuda);
   assert(sparse.statistics().cuda_batches == 0);
-  // A missed runtime deadline must be surfaced as an error rather than
-  // silently switching algorithms or accepting the late device answer.
-  if (automatic.available()) {
-    GeometryCompute deadline({true,0,1e-9});
-    deadline.setScene(square, point);
-    rejects([&] { deadline.evaluate(std::vector<Pose>(256),.010); });
-    rejects([&] { deadline.evaluate(std::vector<Pose>(256),.010); });
-  }
   const auto &stats = automatic.statistics();
   if (required) assert(stats.boundary_rechecks > 0);
   std::cout << "GEOMETRY_CHECKS comparisons=" << comparisons << " device=" << automatic.deviceName()

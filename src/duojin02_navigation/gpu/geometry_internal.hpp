@@ -10,7 +10,7 @@ class CudaExecutor {
   virtual std::string name() const = 0;
   virtual std::vector<DeviceGeometryResult> geometry(
     const Polygon &, const std::vector<Point> &, uint64_t epoch,
-    const std::vector<PoseFrame> &, double margin, double deadline_ms) = 0;
+    const std::vector<PoseFrame> &, double margin) = 0;
 };
 std::unique_ptr<CudaExecutor> makeCudaExecutor(std::string &reason);
 }

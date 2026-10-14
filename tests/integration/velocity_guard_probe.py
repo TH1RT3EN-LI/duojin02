@@ -1,5 +1,6 @@
 """Exercise the compiled safety node with sensor faults; no physical devices."""
 import json
+import argparse
 import math
 import os
 from pathlib import Path
@@ -10,13 +11,18 @@ from ament_index_python.packages import get_package_prefix
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile,DurabilityPolicy,qos_profile_sensor_data
-from geometry_msgs.msg import Twist,PoseWithCovarianceStamped
+from geometry_msgs.msg import Twist,PoseWithCovarianceStamped,TransformStamped
 from nav_msgs.msg import Odometry,OccupancyGrid
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
+from tf2_msgs.msg import TFMessage
 
 
 def run():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--guard-binary',type=Path)
+    parser.add_argument('--params-file',type=Path,default=Path(__file__).resolve().parents[2]/'src/duojin02_bringup/config/safety.yaml')
+    args=parser.parse_args()
     os.environ['ROS_DOMAIN_ID']='92';os.environ['ROS_LOCALHOST_ONLY']='1'
     rclpy.init();node=Node('velocity_guard_probe')
     status=[];output=[]
@@ -26,18 +32,23 @@ def run():
     odom=node.create_publisher(Odometry,'/odometry/filtered',10)
     scan=node.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
     grid=node.create_publisher(OccupancyGrid,'/local_costmap/costmap',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
+    prior=node.create_publisher(OccupancyGrid,'/map',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     covariance=node.create_publisher(PoseWithCovarianceStamped,'/amcl_pose',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
-    parameters=Path(__file__).resolve().parents[2]/'src/duojin02_bringup/config/velocity_guard.yaml'
+    transforms=node.create_publisher(TFMessage,'/tf',10)
+    parameters=args.params_file
     with open('/tmp/velocity-guard-probe.log','w') as log:
-        binary=Path(get_package_prefix('duojin02_navigation'))/'lib/duojin02_navigation/velocity_guard'
+        binary=args.guard_binary or Path(get_package_prefix('duojin02_navigation'))/'lib/duojin02_navigation/velocity_guard'
         process=subprocess.Popen([str(binary),'--ros-args','--params-file',str(parameters)],
                                  stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
-        def pump(duration,point=(1.5,0),requested=.3,actual=0.0,send_scan=True,send_command=True,scan_min=.02):
+        def pump(duration,point=(1.5,0),requested=.3,actual=0.0,send_scan=True,send_command=True,send_odom=True,scan_min=.02):
             end=time.monotonic()+duration
             while time.monotonic()<end:
                 stamp=node.get_clock().now().to_msg()
+                tf=TransformStamped();tf.header.stamp=stamp;tf.header.frame_id='odom';tf.child_frame_id='map'
+                tf.transform.rotation.w=1.0;transforms.publish(TFMessage(transforms=[tf]))
                 o=Odometry();o.header.stamp=stamp;o.header.frame_id='odom';o.child_frame_id='base_footprint'
-                o.pose.pose.orientation.w=1.0;o.twist.twist.linear.x=actual;odom.publish(o)
+                o.pose.pose.orientation.w=1.0;o.twist.twist.linear.x=actual
+                if send_odom:odom.publish(o)
                 if send_scan:
                     s=LaserScan();s.header.stamp=stamp;s.header.frame_id='odom';s.range_min=scan_min;s.range_max=8.0
                     s.angle_min=float(math.atan2(point[1],point[0])) if point else 0.0;s.angle_increment=.01
@@ -52,7 +63,7 @@ def run():
             pump(.5);assert status[-1]['reason']=='clear' and output[-1].linear.x==.3,status[-1]
             pump(.5,point=(.35,0));assert status[-1]['reason']=='braking_slowdown' and 0<output[-1].linear.x<.3,status[-1]
             pump(.5,point=(.241,0))
-            assert status[-1]['reason']=='braking_slowdown' and 0<output[-1].linear.x<=.04,status[-1]
+            assert status[-1]['reason']=='braking_slowdown' and 0<output[-1].linear.x<.3,status[-1]
             pump(.5,point=(.10,0));assert status[-1]['reason']=='measured_braking_collision' and output[-1].linear.x==0,status[-1]
             # Fresh scan heartbeats with blind / invalid rays must not erase a
             # previously seen obstacle after a short retention timeout.
@@ -61,21 +72,32 @@ def run():
             pump(.5,point=(.36,0),actual=.35);assert status[-1]['reason']=='measured_braking_collision' and output[-1].linear.x==0,status[-1]
             pump(.5);pump(.4,send_command=False);assert status[-1]['reason']=='command_stale' and output[-1].linear.x==0,status[-1]
             pump(.5);pump(.4,send_scan=False);assert status[-1]['reason']=='scan_or_tf_stale' and output[-1].linear.x==0,status[-1]
+            pump(.5);pump(.3,send_odom=False);assert status[-1]['reason']=='odometry_stale' and output[-1].linear.x==0,status[-1]
+            pump(.5,requested=math.nan);assert status[-1]['reason']=='invalid_command' and output[-1].linear.x==0,status[-1]
             pump(.5)
-            m=OccupancyGrid();m.header.frame_id='odom';m.header.stamp=node.get_clock().now().to_msg()
+            m=OccupancyGrid();m.header.frame_id='map';m.header.stamp=node.get_clock().now().to_msg()
             m.info.width=m.info.height=1;m.info.resolution=.01;m.info.origin.position.x=.50;m.info.origin.orientation.w=1.0;m.data=[100]
+            prior.publish(m)
             c=PoseWithCovarianceStamped();c.pose.covariance[0]=c.pose.covariance[7]=.25;covariance.publish(c)
-            grid.publish(m);pump(.3)
+            pump(.3)
             assert status[-1]['reason']=='clear' and output[-1].linear.x==.3,status[-1]
+            # Quality estimates and generated Nav2 costmaps cannot add a second
+            # safety envelope or expire otherwise fresh sensor geometry.
+            c.pose.covariance[0]=math.nan;covariance.publish(c)
+            generated=OccupancyGrid();generated.header.frame_id='odom'
+            generated.info.origin.position.x=math.nan;grid.publish(generated)
+            pump(.75)
+            assert status[-1]['reason']=='clear' and output[-1].linear.x==.3,status[-1]
+            assert node.count_subscribers('/amcl_pose')==node.count_subscribers('/local_costmap/costmap')==0
             m.header.stamp=node.get_clock().now().to_msg();m.info.origin.position.x=.10
-            grid.publish(m);pump(.3)
+            prior.publish(m);pump(.3)
             assert status[-1]['reason']=='measured_braking_collision' and output[-1].linear.x==0,status[-1]
-            pump(.5);assert status[-1]['reason']=='costmap_stale' and output[-1].linear.x==0,status[-1]
-            print(json.dumps({'checks':11,'filled_scan_interior':True,'filled_map_interior':True,'braking_slowdown':True,
-                              'core_validated_boundary_crawl':True,
-                              'live_observation_not_amcl_inflated':True,
+            print(json.dumps({'checks':13,'filled_scan_interior':True,'filled_map_interior':True,'braking_slowdown':True,
+                              'core_validated_boundary_speed':True,
+                              'quality_estimates_do_not_inflate_geometry':True,'generated_costmap_not_a_guard_input':True,
                               'blind_obstacle_memory':True,'positive_free_ray_clearing':True,
-                              'measured_speed_braking':True,'command_dropout':True,'scan_dropout':True,'map_dropout':True}))
+                              'measured_speed_braking':True,'command_dropout':True,'scan_dropout':True,
+                              'odometry_dropout':True,'invalid_command':True}))
         finally:
             os.killpg(process.pid,signal.SIGINT)
             returncode=process.wait(timeout=5)

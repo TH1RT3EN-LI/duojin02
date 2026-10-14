@@ -11,7 +11,8 @@
 | 如何选择 GPU / CPU，怎样保留同一优化器 | [GPU / CPU 统一入口](gpu-cpu.md) | `use_gpu`、可选 CUDA 构建、仿真 worktree 与目录归档 |
 | 如何在观看机看雷达、模型和导航话题 | [RViz 观察](remote-rviz.md) | 显示域、坐标系、模板差异和 QoS；不重复启动机器人 |
 | 包有哪些，谁发布速度，节点怎样连接 | [开发接口](../README_DEVELOPMENT.md) | 7 包职责、当前话题和指令所有权 |
-| 固定图怎样就绪、闭锁、恢复 | [定位健康](localization-health.md) | 状态机、证据窗口、地图和扫描语义 |
+| 固定图怎样就绪、诊断、恢复 | [定位质量](localization-health.md) | 报警、AMCL 原生恢复、地图和扫描语义 |
+| 哪些故障停车，哪些指标只报警 | [停车保护](safety.md) | 必要保护、唯一配置与删除边界 |
 | 录包、保存、离线回放、续建 | [SLAM 数据工作流](slam-workflow.md) | 录包、快照、回放、续建；研究另列 |
 | 修复机制与回归前提 | [导航修复](navigation-repairs.md) | 规划、控制、扫描与地图契约 |
 | 如何启用 CTest、隔离检查和复现分项计时 | [导航验证](navigation-validation.md) | 构建开关、功能覆盖、组件与板端验收边界 |

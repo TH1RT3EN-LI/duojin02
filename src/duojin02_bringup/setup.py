@@ -37,7 +37,7 @@ setup(
     entry_points={
         'console_scripts': [
             'localization_readiness = duojin02_bringup.localization_readiness:main',
-            'localization_manager = duojin02_bringup.localization_manager:main',
+            'localization_monitor = duojin02_bringup.localization_monitor:main',
         ],
     },
 )

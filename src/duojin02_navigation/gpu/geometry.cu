@@ -2,9 +2,7 @@
 #include "geometry_internal.hpp"
 #include <cuda_runtime.h>
 #include <cfloat>
-#include <chrono>
 #include <limits>
-#include <thread>
 
 namespace duojin02_navigation {
 namespace {
@@ -88,25 +86,12 @@ __global__ void geometryKernel(const Point *polygon, size_t vertices, Bounds bou
 }
 class Executor final : public CudaExecutor {
   cudaStream_t stream_{nullptr};
-  cudaEvent_t done_{nullptr};
   Buffer<Point> polygon_, points_;
   Buffer<PoseFrame> poses_;
   Buffer<DeviceGeometryResult> results_;
   uint64_t epoch_{0};
   std::string name_;
   bool failed_{false};
-  void waitUntil(std::chrono::steady_clock::time_point end) {
-    check(cudaGetLastError(), "CUDA kernel launch");
-    check(cudaEventRecord(done_, stream_), "CUDA completion event");
-    while (true) {
-      const auto error = cudaEventQuery(done_);
-      if (error == cudaSuccess) break;
-      if (error != cudaErrorNotReady) check(error, "CUDA completion");
-      if (std::chrono::steady_clock::now() > end)
-        throw std::runtime_error("CUDA geometry completion deadline exceeded");
-      std::this_thread::sleep_for(std::chrono::microseconds(25));
-    }
-  }
  public:
   Executor() {
     try {
@@ -121,25 +106,20 @@ class Executor final : public CudaExecutor {
       cudaFuncAttributes attributes{};
       check(cudaFuncGetAttributes(&attributes, geometryKernel), "CUDA geometry kernel compatibility");
       check(cudaStreamCreateWithFlags(&stream_, cudaStreamNonBlocking), "cudaStreamCreate");
-      check(cudaEventCreateWithFlags(&done_, cudaEventDisableTiming), "cudaEventCreate");
     } catch (...) {
-      if (done_) cudaEventDestroy(done_);
       if (stream_) cudaStreamDestroy(stream_);
       throw;
     }
   }
   ~Executor() override {
     if (stream_) cudaStreamSynchronize(stream_);
-    if (done_) cudaEventDestroy(done_);
     if (stream_) cudaStreamDestroy(stream_);
   }
   std::string name() const override { return name_; }
   std::vector<DeviceGeometryResult> geometry(const Polygon &polygon, const std::vector<Point> &points,
-      uint64_t epoch, const std::vector<PoseFrame> &poses, double margin, double deadline_ms) override {
+      uint64_t epoch, const std::vector<PoseFrame> &poses, double margin) override {
     if (failed_) throw std::runtime_error("CUDA geometry fault latched; reconfigure required");
     try {
-      const auto end = std::chrono::steady_clock::now() +
-        std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double, std::milli>(deadline_ms));
       polygon_.reserve(polygon.size());
       points_.reserve(points.size());
       poses_.reserve(poses.size());
@@ -164,7 +144,8 @@ class Executor final : public CudaExecutor {
         throw std::runtime_error("CUDA geometry batch exceeds device grid limit");
       geometryKernel<<<static_cast<unsigned int>(tiles * poses.size()), 128, 0, stream_>>>(
         polygon_.data, polygon.size(), bounds, points_.data, points.size(), poses_.data, tiles, margin, results_.data);
-      waitUntil(end);
+      check(cudaGetLastError(), "CUDA kernel launch");
+      check(cudaStreamSynchronize(stream_), "CUDA geometry completion");
       std::vector<DeviceGeometryResult> result(poses.size());
       check(cudaMemcpy(result.data(), results_.data, result.size() * sizeof(DeviceGeometryResult),
         cudaMemcpyDeviceToHost), "CUDA geometry readback");

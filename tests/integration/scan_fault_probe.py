@@ -5,7 +5,7 @@ Run in an environment where rclpy and the supplied guard's ROS libraries are
 available, after the guard has been built by the caller:
 
   python3 tests/integration/scan_fault_probe.py --guard-binary /absolute/path/velocity_guard \
-      --params-file /absolute/path/velocity_guard.yaml \
+      --params-file /absolute/path/safety.yaml \
       --json-out /absolute/path/scan_fault_results.json
 
 The probe does not build anything or contact hardware. It uses a random local

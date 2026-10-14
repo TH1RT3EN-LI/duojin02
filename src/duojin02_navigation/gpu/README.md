@@ -17,9 +17,9 @@ Clearance scores and candidate ordering remain on the CPU.
 `DUOJIN_ENABLE_CUDA=OFF` forces a build with no CUDA dependency. A missing device
 or incompatible kernel at startup falls back to the original CPU path. A CUDA
 runtime fault stops the current command and latches the device executor until
-lifecycle reconfiguration. The geometry deadline is a soft deadline: it cannot
-interrupt a blocked driver operation and does not add a deadline to the native
-CPU optimizer.
+lifecycle reconfiguration. Compute duration is diagnostic only. No soft deadline
+parks the robot; loss of controller output is covered by the shared command
+chain, for both CPU and CUDA.
 
 The component can be built independently of ROS:
 

@@ -1,3 +1,9 @@
+# The final guard and serial writer share one command lease. Both checks remain:
+# the writer must still stop when the guard process disappears.
+/**:
+  ros__parameters:
+    command_timeout_s: 0.25
+
 velocity_guard:
   ros__parameters:
     use_sim_time: false
@@ -24,5 +30,6 @@ velocity_guard:
     braking_deceleration_mps2: 0.4
     angular_deceleration_radps2: 0.8
     scan_timeout_s: 0.3
-    command_timeout_s: 0.25
+    odometry_timeout_s: 0.2
+    localization_tf_timeout_s: 0.5
     obstacle_memory_radius_m: 2.5

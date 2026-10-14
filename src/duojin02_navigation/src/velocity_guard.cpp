@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
@@ -46,10 +45,13 @@ class VelocityGuard : public rclcpp::Node {
     angular_decel_=declare_parameter("angular_deceleration_radps2",.8);
     scan_timeout_=declare_parameter("scan_timeout_s",.30);
     command_timeout_=declare_parameter("command_timeout_s",.25);
+    odometry_timeout_=declare_parameter("odometry_timeout_s",.20);
+    localization_tf_timeout_=declare_parameter("localization_tf_timeout_s",.50);
     memory_radius_=declare_parameter("obstacle_memory_radius_m",2.5);
-    if (!std::isfinite(margin_+range_error_+decel_+angular_decel_+reaction_+scan_timeout_+command_timeout_+memory_radius_) ||
+    if (!std::isfinite(margin_+range_error_+decel_+angular_decel_+reaction_+scan_timeout_+command_timeout_+odometry_timeout_+localization_tf_timeout_+memory_radius_) ||
         margin_<0 || range_error_<0 || decel_<=0 || angular_decel_<=0 || reaction_<0 ||
-        scan_timeout_<=0 || command_timeout_<=0 || memory_radius_<=0) throw std::runtime_error("Invalid guard limits");
+        scan_timeout_<=0 || command_timeout_<=0 || odometry_timeout_<=0 || localization_tf_timeout_<=0 || memory_radius_<=0)
+      throw std::runtime_error("Invalid guard limits");
     auto qos=rclcpp::QoS(1);
     output_=create_publisher<geometry_msgs::msg::Twist>("/cmd_vel_base",qos);
     status_=create_publisher<std_msgs::msg::String>("/navigation/guard_status",qos);
@@ -61,7 +63,7 @@ class VelocityGuard : public rclcpp::Node {
         if(m->header.frame_id!="odom" || m->child_frame_id!="base_footprint" ||
             !std::isfinite(m->pose.pose.position.x+m->pose.pose.position.y+
             m->twist.twist.linear.x+m->twist.twist.linear.y+m->twist.twist.angular.z) ||
-            std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>.20) {have_odom_=false;return;}
+            std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>odometry_timeout_) {have_odom_=false;return;}
         pose_={m->pose.pose.position.x,m->pose.pose.position.y,tf2::getYaw(m->pose.pose.orientation)};
         actual_={m->twist.twist.linear.x,m->twist.twist.linear.y,m->twist.twist.angular.z};
         if(!std::isfinite(pose_.yaw)) {have_odom_=false;return;}
@@ -76,8 +78,6 @@ class VelocityGuard : public rclcpp::Node {
     scan_filter_->registerCallback([this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){++tf_ready_scans_;scan(m);});
     scan_sub_=create_subscription<sensor_msgs::msg::LaserScan>("/scan",rclcpp::SensorDataQoS(),
       [this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){receiveScan(m);});
-    costmap_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/local_costmap/costmap",rclcpp::QoS(1).transient_local(),
-      [this](nav_msgs::msg::OccupancyGrid::SharedPtr m){costmap(m);});
     prior_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(1).transient_local(),
       [this](nav_msgs::msg::OccupancyGrid::SharedPtr m){
         if(m->header.frame_id!="map" || !guardGridValid(*m)) {prior_invalid_=true;return;}
@@ -95,17 +95,6 @@ class VelocityGuard : public rclcpp::Node {
         prior_index_.rebuild(prior_points_);
         ++prior_epoch_;
         have_prior_=true;prior_invalid_=false;
-      });
-    localization_sub_=create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose",rclcpp::QoS(1).transient_local(),
-      [this](geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr m){
-        const auto &c=m->pose.covariance;
-        const double xy=(c[1]+c[6])/2;
-        if(!std::isfinite(c[0]+c[7]+c[35]+xy) || c[0]<0 || c[7]<0 || c[35]<0 || c[0]*c[7]-xy*xy < -1e-9) {
-          localization_margin_=10;return;
-        }
-        const double eigenvalue=(c[0]+c[7]+std::hypot(c[0]-c[7],2*xy))/2;
-        double radius=0;for(const auto &p:polygon_) radius=std::max(radius,std::hypot(p.x,p.y));
-        localization_margin_=2*std::sqrt(std::max(0.0,eigenvalue))+2*radius*std::sqrt(c[35]);
       });
     timer_=create_wall_timer(std::chrono::milliseconds(50),[this](){tick();});
     RCLCPP_INFO(get_logger(),"Filled footprint braking sweep: margin %.3f m, reaction %.2f s; all commands are gated",margin_,reaction_);
@@ -232,36 +221,16 @@ class VelocityGuard : public rclcpp::Node {
       last_scan_=received;have_scan_=true;scan_invalid_=false;
     } catch (const tf2::TransformException &) { /* Fail closed until fresh sensor TF is available. */ }
   }
-  void costmap(const nav_msgs::msg::OccupancyGrid::SharedPtr &m) {
-    if(!guardGridValid(*m)) {costmap_invalid_=true;return;}
-    if(std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>.60) return;
-    try {
-      auto tf=framePose(m->header.frame_id,m->header.stamp);
-      Pose origin{m->info.origin.position.x,m->info.origin.position.y,tf2::getYaw(m->info.origin.orientation)};
-      if(!guardGridExtentValid(*m,origin,tf,prior_index_bin_)) {costmap_invalid_=true;return;}
-      std::vector<Point> points;
-      for (size_t i=0;i<m->data.size();++i) {
-        if (m->data[i]!=100) continue; // Filled LETHAL cells; inflation remains a soft preference.
-        Point p{(i%m->info.width+.5)*m->info.resolution,(i/m->info.width+.5)*m->info.resolution,
-                std::sqrt(2.0)*m->info.resolution/2};
-        const auto point=transform(transform(p,origin),tf);
-        if(!guardPointValid(point,prior_index_bin_)) {costmap_invalid_=true;return;}
-        points.push_back(point);
-      }
-      map_points_=std::move(points);last_map_=Clock::now();have_map_=true;costmap_invalid_=false;
-    } catch (const tf2::TransformException &) { }
-  }
-  bool blocked(Velocity v,const std::vector<Point> &points,double reserve=0) {
-    return brakingSweep(pose_,v,polygon_,points,margin_+reserve,reaction_,decel_,angular_decel_);
+  bool blocked(Velocity v,const std::vector<Point> &points) {
+    return brakingSweep(pose_,v,polygon_,points,margin_,reaction_,decel_,angular_decel_);
   }
   std::vector<Point> obstacles(const Velocity &requested) {
-    // Live scan obstacles are measured in odom: AMCL covariance is not an
-    // additional independent error on those observations. A map prior needs
-    // that margin only where its surface has not been directly observed.
+    // The guard consumes measured geometry. Nav2's generated costmap and AMCL
+    // quality estimates do not add a second obstacle or clearance envelope.
     std::vector<Point> points=scan_points_;
-    if(!have_prior_) {points.insert(points.end(),map_points_.begin(),map_points_.end());return points;}
+    if(!have_prior_) return points;
     auto tf=buffer_.lookupTransform("odom","map",tf2::TimePointZero);
-    if(std::abs((now()-rclcpp::Time(tf.header.stamp)).seconds())>.50)
+    if(std::abs((now()-rclcpp::Time(tf.header.stamp)).seconds())>localization_tf_timeout_)
       throw tf2::TransformException("Stale localization transform");
     Pose map_pose{tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
     if(!guardPoseValid(map_pose)) throw tf2::TransformException("Non-finite localization transform");
@@ -271,22 +240,21 @@ class VelocityGuard : public rclcpp::Node {
     const double mx=c*(pose_.x-map_pose.x)+s*(pose_.y-map_pose.y);
     const double my=-s*(pose_.x-map_pose.x)+c*(pose_.y-map_pose.y);
     query_radius_=guardQueryRadius(polygon_,actual_,requested,margin_,reaction_,decel_,
-      prior_index_.maxRadius(),localization_margin_,memory_radius_);
+      prior_index_.maxRadius(),0,memory_radius_);
     if(!guardIndexQueryValid(mx,my,query_radius_,prior_index_bin_,true))
       throw tf2::TransformException("Invalid prior index query coordinates");
     association_cache_.begin(prior_points_.size(),
-      {prior_epoch_,observation_epoch_,map_pose,localization_margin_,range_error_});
+      {prior_epoch_,observation_epoch_,map_pose,0,range_error_});
     prior_examined_=prior_index_.forEachNearIndexed(prior_points_,mx,my,query_radius_,[&](const Point &q,size_t index) {
         Point p{map_pose.x+c*q.x-s*q.y,map_pose.y+s*q.x+c*q.y,q.radius};
         if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) return;
-        bool matched=false;
-        const double association=p.radius+std::min(.10,localization_margin_)+range_error_+.015;
-        if(localization_margin_<.15) matched=association_cache_.match(index,[&](){
+        const double association=p.radius+range_error_+.015;
+        const bool matched=association_cache_.match(index,[&](){
           if(!guardIndexQueryValid(p.x,p.y,association,observed_index_bin_,false))
             throw tf2::TransformException("Invalid observation association coordinates");
           return observed_index_.hasWithin(scan_points_,p,association);
         });
-        if(!matched) {p.radius+=localization_margin_;points.push_back(p);}
+        if(!matched) points.push_back(p);
     });
     candidate_points_=points.size();
     return points;
@@ -299,10 +267,8 @@ class VelocityGuard : public rclcpp::Node {
     if (!have_command_ || age(last_command_)>command_timeout_) reason="command_stale";
     else if (scan_invalid_) reason="scan_invalid";
     else if (!have_scan_ || age(last_scan_)>scan_timeout_) reason="scan_or_tf_stale";
-    else if (!have_odom_ || age(last_odom_)>.20) reason="odometry_stale";
+    else if (!have_odom_ || age(last_odom_)>odometry_timeout_) reason="odometry_stale";
     else if (prior_invalid_) reason="map_invalid";
-    else if (costmap_invalid_) reason="costmap_invalid";
-    else if (have_map_ && age(last_map_)>.60) reason="costmap_stale";
     else {
       Velocity requested{command_.linear.x,command_.linear.y,command_.angular.z};
       if (!std::isfinite(requested.x)||!std::isfinite(requested.y)||!std::isfinite(requested.yaw)) {
@@ -328,10 +294,6 @@ class VelocityGuard : public rclcpp::Node {
         for (double candidate:{1.0,.8,.6,.4,.25,.15,.08,.04}) {
           Velocity v{requested.x*candidate,requested.y*candidate,requested.yaw*candidate};
           bool safe=!blocked(v,points);
-          // Inside the extra reserve, retain the complete core safety envelope
-          // and allow only crawl speed. Otherwise even a safe lateral escape
-          // would be rejected merely because its initial pose lacks reserve.
-          if(safe && blocked(v,points,.005) && (std::hypot(v.x,v.y)>.04 || std::abs(v.yaw)>.08)) safe=false;
           // Validate intermediate velocities during a change of translation /
           // rotation. Endpoint sweeps alone can miss a curved transition.
           if(safe) for(double f:{.25,.5,.75}) {
@@ -351,7 +313,7 @@ class VelocityGuard : public rclcpp::Node {
     const double milliseconds=std::chrono::duration<double,std::milli>(Clock::now()-start).count();
     std::ostringstream stream;
     stream << "{\"reason\":\"" << reason << "\",\"scale\":" << scale << ",\"compute_ms\":" << milliseconds
-           << ",\"localization_margin_m\":" << localization_margin_ << ",\"remembered_points\":" << scan_points_.size()
+           << ",\"remembered_points\":" << scan_points_.size()
            << ",\"prior_examined\":" << prior_examined_ << ",\"candidate_points\":" << candidate_points_
            << ",\"prior_association_hits\":" << association_cache_.hits()
            << ",\"prior_association_misses\":" << association_cache_.misses()
@@ -359,18 +321,18 @@ class VelocityGuard : public rclcpp::Node {
     std_msgs::msg::String status;status.data=stream.str();status_->publish(status);
   }
   Polygon polygon_; Pose pose_,memory_anchor_; Velocity actual_;geometry_msgs::msg::Twist command_;
-  std::vector<Point> scan_points_,map_points_,prior_points_;
+  std::vector<Point> scan_points_,prior_points_;
   static constexpr double prior_index_bin_=.10,observed_index_bin_=.05;
   SpatialPointIndex prior_index_{prior_index_bin_},observed_index_{observed_index_bin_};
   PriorAssociationCache association_cache_;
   uint64_t prior_epoch_{0},observation_epoch_{0};
   size_t prior_examined_{0},candidate_points_{0},tf_ready_scans_{0};double query_radius_{0};
   std::deque<std::pair<int64_t,Clock::time_point>> scan_receipts_;
-  double margin_,range_error_,reaction_,decel_,angular_decel_,scan_timeout_,command_timeout_,memory_radius_,localization_margin_{0};
-  Clock::time_point last_command_,last_scan_,last_odom_,last_map_;
+  double margin_,range_error_,reaction_,decel_,angular_decel_,scan_timeout_,command_timeout_,odometry_timeout_,localization_tf_timeout_,memory_radius_;
+  Clock::time_point last_command_,last_scan_,last_odom_;
   ScanRecoveryOrder scan_order_;
-  bool have_command_{false},have_scan_{false},have_odom_{false},have_map_{false},have_prior_{false},have_anchor_{false},scan_invalid_{false};
-  bool prior_invalid_{false},costmap_invalid_{false};
+  bool have_command_{false},have_scan_{false},have_odom_{false},have_prior_{false},have_anchor_{false},scan_invalid_{false};
+  bool prior_invalid_{false};
   tf2_ros::Buffer buffer_;tf2_ros::TransformListener listener_;
   std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>> scan_filter_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr output_;
@@ -379,8 +341,7 @@ class VelocityGuard : public rclcpp::Node {
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr command_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub_;
-  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr costmap_sub_,prior_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr localization_sub_;
+  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr prior_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 int main(int argc,char **argv) {

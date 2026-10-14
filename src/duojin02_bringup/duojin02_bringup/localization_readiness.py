@@ -1,6 +1,5 @@
 """Wait for distinct live scans and localization before starting navigation."""
 from collections import deque
-import json
 import math
 import time
 
@@ -132,29 +131,19 @@ class ScanReadiness:
 def main():
     import rclpy
     from rclpy.node import Node
-    from rclpy.qos import qos_profile_sensor_data, QoSProfile, ReliabilityPolicy, DurabilityPolicy
+    from rclpy.qos import qos_profile_sensor_data
     from rclpy.time import Time
     from sensor_msgs.msg import LaserScan
-    from std_msgs.msg import String
     from tf2_ros import Buffer, TransformListener
-    from duojin02_bringup.localization_health import HealthSignal
 
     rclpy.init()
     node=Node('navigation_localization_readiness')
     timeout=node.declare_parameter('timeout_s',0.0).value
-    require_health=node.declare_parameter('require_health',False).value
     buffer=Buffer();listener=TransformListener(buffer,node)
     scans=ScanReadiness()
     subscription=node.create_subscription(LaserScan,'/scan',
         lambda m:scans.receive(m,node.get_clock().now().nanoseconds,time.monotonic()),
         qos_profile_sensor_data)
-    health=[];signal=HealthSignal()
-    def health_callback(msg):
-        try:valid=signal.accept(json.loads(msg.data),node.get_clock().now().nanoseconds/1e9,time.monotonic())
-        except (json.JSONDecodeError,TypeError):valid=False
-        health.__setitem__(slice(None),[(valid,time.monotonic())])
-    health_subscription=node.create_subscription(String,'/localization/status',health_callback,
-        QoSProfile(depth=1,reliability=ReliabilityPolicy.RELIABLE,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     def exact_tf_ready(scan):
         stamp=Time.from_msg(scan.header.stamp)
         if not buffer.can_transform('odom',scan.header.frame_id,stamp):
@@ -168,12 +157,6 @@ def main():
     node.get_logger().info('Waiting for live scan and map localization; fixed maps require an initial pose.')
     while rclpy.ok() and (timeout<=0 or time.monotonic()-start<timeout):
         rclpy.spin_once(node,timeout_sec=.05)
-        if require_health:
-            # The persistent monitor already requires distinct sensor stamps
-            # and geometric evidence; repeated heartbeats cannot advance it.
-            if health and health[0][0] and time.monotonic()-health[0][1]<.35 and signal.fresh(node.get_clock().now().nanoseconds/1e9):
-                ready=True;break
-            continue
         if scans.poll(node.get_clock().now().nanoseconds,time.monotonic(),exact_tf_ready):
             ready=True;break
     node.destroy_node();rclpy.try_shutdown()

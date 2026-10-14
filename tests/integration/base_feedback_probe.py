@@ -92,6 +92,9 @@ def run():
                 ((1.234, -0.5, 0.75), (1234, -500, 750)),
                 ((1e100, -1e100, 32.768), (32767, -32768, 32767)),
                 ((float('nan'), float('inf'), -float('inf')), (0, 0, 0)),
+                ((float('nan'), -0.5, 0.75), (0, 0, 0)),
+                ((1.234, float('inf'), 0.75), (0, 0, 0)),
+                ((1.234, -0.5, -float('inf')), (0, 0, 0)),
             ]:
                 command = Twist()
                 command.linear.x, command.linear.y, command.angular.z = values
@@ -141,7 +144,8 @@ def run():
                               'elapsed_seconds': elapsed, 'distance_meters': distance,
                               'ratio': distance / elapsed, 'custom_baud': 57600,
                               'bad_checksum_ignored': True, 'calibration_parameters': 'passed',
-                              'command_encoding': 'passed', 'command_expiry_stop_s':expired_stop,
+                              'command_encoding': 'passed', 'mixed_invalid_command_stop': 'passed',
+                              'command_expiry_stop_s':expired_stop,
                               'silent_reconnect': 'passed'}, indent=2))
         finally:
             os.killpg(process.pid, signal.SIGINT)

@@ -23,10 +23,10 @@ probe_arguments=(
 )
 python3 "$hardware_root/tests/integration/guard_map_validation_probe.py" \
   --guard-binary "$test_root/install/lib/duojin02_navigation/velocity_guard" \
-  --params-file "$hardware_root/src/duojin02_bringup/config/velocity_guard.yaml" \
+  --params-file "$hardware_root/src/duojin02_bringup/config/safety.yaml" \
   --json-out "$probe_directory/grid-validation.json" --log-dir "$probe_directory/grid-validation-logs"
-python3 "$hardware_root/tests/integration/localization_manager_probe.py" \
-  "${probe_arguments[@]}" --output-dir "$probe_directory/localization-owner"
+python3 "$hardware_root/tests/integration/localization_monitor_probe.py" \
+  "${probe_arguments[@]}" --output-dir "$probe_directory/localization-monitor"
 python3 "$hardware_root/tests/integration/navigation_command_timeout_probe.py" \
   "${probe_arguments[@]}" --params "$hardware_root/src/duojin02_bringup/config/nav2.yaml" \
   --candidate --output-dir "$probe_directory/command-timeout"

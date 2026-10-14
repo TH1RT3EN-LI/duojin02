@@ -1,7 +1,7 @@
 """Measure raw navigation producer loss through the installed command chain.
 
 The scan/map fixture remains healthy during the fault. The actual smoother,
-localization owner, mux, guard and PTY driver run in an isolated ROS domain.
+mux, guard and PTY driver run in an isolated ROS domain.
 Travel is an integral of commanded speed, not physical robot displacement.
 """
 import argparse
@@ -20,7 +20,7 @@ from lifecycle_msgs.srv import ChangeState
 import rclpy
 import yaml
 
-from localization_manager_probe import ROOT, SensorFixture
+from navigation_probe_fixture import ROOT, SensorFixture
 from ros_isolation import configure_isolation
 
 
@@ -38,7 +38,7 @@ def run(args):
     raw, smooth = [], []
     fixture.create_subscription(Twist, '/cmd_vel_nav',
         lambda m: raw.append((time.monotonic(), m.linear.x)), 10)
-    fixture.create_subscription(Twist, '/nav/localization_requested',
+    fixture.create_subscription(Twist, '/cmd_vel',
         lambda m: smooth.append((time.monotonic(), m.linear.x)), 10)
     processes, logs = [], []
     result = {'pass': False, 'velocity_timeout_s': timeout, 'checks': [], 'cleanup': [],
@@ -55,7 +55,7 @@ def run(args):
     def check(name, condition):
         if not condition:
             raise AssertionError({'case': name, 'metrics': result.get('metrics'),
-                                  'health': fixture.status[-1:],
+                                  'diagnostics': fixture.status[-1:],
                                   'guard': fixture.guard_status[-1:],
                                   'requested': fixture.requested[-3:]})
         result['checks'].append(name)
@@ -65,21 +65,21 @@ def run(args):
     os.set_blocking(master, False)
     fixture.master = master
     try:
-        start('manager', ['ros2', 'run', 'duojin02_bringup', 'localization_manager',
-            '--ros-args', '--params-file', str(ROOT/'src/duojin02_bringup/config/localization_health.yaml'),
-            '-p', 'use_sim_time:=true'])
         start('mux', ['ros2', 'run', 'twist_mux', 'twist_mux', '--ros-args',
             '--params-file', str(ROOT/'src/duojin02_bringup/config/twist_mux.yaml'),
             '-r', '/cmd_vel_out:=/cmd_vel_requested'])
+        # Use a node-scoped clock override: Humble merges node-specific YAML
+        # after global CLI parameters when the file also contains /** defaults.
         start('guard', [str(args.guard_binary), '--ros-args', '--params-file',
-            str(ROOT/'src/duojin02_bringup/config/velocity_guard.yaml'), '-p', 'use_sim_time:=true'])
-        start('driver', [str(args.driver_binary), '--ros-args', '-p',
+            str(ROOT/'src/duojin02_bringup/config/safety.yaml'), '-p', 'velocity_guard:use_sim_time:=true'])
+        start('driver', [str(args.driver_binary), '--ros-args', '--params-file',
+            str(ROOT/'src/duojin02_bringup/config/safety.yaml'), '-p',
             f'usart_port_name:={os.ttyname(slave)}', '-p', 'serial_baud_rate:=57600',
             '-p', 'use_sim_time:=true', '-r', '/cmd_vel:=/cmd_vel_base'])
         start('smoother', [str(Path(get_package_prefix('nav2_velocity_smoother')) /
             'lib/nav2_velocity_smoother/velocity_smoother'), '--ros-args', '--params-file', str(params),
-            '-p', 'use_sim_time:=true', '-r', 'cmd_vel:=/cmd_vel_nav',
-            '-r', 'cmd_vel_smoothed:=/nav/localization_requested'])
+            '-p', 'velocity_smoother:use_sim_time:=true', '-r', 'cmd_vel:=/cmd_vel_nav',
+            '-r', 'cmd_vel_smoothed:=/cmd_vel'])
         client = fixture.create_client(ChangeState, '/velocity_smoother/change_state')
         check('smoother_service', client.wait_for_service(timeout_sec=10))
         for transition in (Transition.TRANSITION_CONFIGURE, Transition.TRANSITION_ACTIVATE):
@@ -89,7 +89,6 @@ def run(args):
             rclpy.spin_until_future_complete(fixture, future, timeout_sec=10)
             check(f'lifecycle_{transition}', future.done() and future.result().success)
         fixture.pump(3.0, nav=.24)
-        check('healthy_localization', bool(fixture.status) and fixture.status[-1][1]['healthy'])
         check('steady_command_at_serial', fixture.wire_packets[-1][1] == (240, 0, 0))
         last_input_wall = raw[-1][0]
         loss_wall = time.monotonic()
@@ -113,7 +112,7 @@ def run(args):
             'commanded_travel_after_loss_m': travel,
             'max_braking_step_mps': max(steps), 'steady_outputs_last_second': len(steady),
             'max_steady_receipt_gap_s': max(b[0]-a[0] for a, b in zip(steady, steady[1:]))}
-        check('healthy_sensors_during_producer_loss', fixture.status[-1][1]['healthy'])
+        check('fresh_sensors_during_producer_loss', fixture.guard_status[-1]['reason'] != 'scan_or_tf_stale')
         check('steady_20hz_output', 18 <= len(steady) <= 22)
         check('continuous_deceleration', max(steps) <= .02+1e-6)
         check('timeout_onset', timeout-.03 <= brake_wall-last_input_wall <= timeout+.11)
@@ -141,7 +140,7 @@ def run(args):
             returncode = process.wait(timeout=8)
             result['cleanup'].append({'name': name, 'returncode': returncode, 'forced': False})
             result['pass'] = result['pass'] and returncode == 0
-        result['streams'] = {'raw': raw, 'smoothed': smooth, 'manager': fixture.outputs,
+        result['streams'] = {'raw': raw, 'smoothed': smooth, 'navigation': fixture.outputs,
                              'guard': fixture.base, 'serial': fixture.wire_packets}
         result['published'] = {'clock': fixture.clock_count, 'scans': fixture.scan_count,
                                'raw_commands': fixture.command_count}
@@ -154,7 +153,7 @@ def run(args):
         for log in logs:
             log.close()
     assert result['pass'], result['cleanup']
-    print(json.dumps({k: v for k, v in result.items() if k != 'streams'}, indent=2))
+    print(json.dumps({k: v for k, v in result.items() if k not in ('streams', 'guard_status')}, indent=2))
 
 
 if __name__ == '__main__':

@@ -42,7 +42,7 @@ sudo ./scripts/set_dev.sh /dev/ttyACM_LIDAR lslidar Lslidar
 
 无雷达联调不代表具备移动条件，缺扫描时速度保护可能停车。在线导航接收指定目标，不包含自主探索。固定图入口不传 `map` 时优先选择工作区 `maps/` 的最大数字编号；无数字地图时选修改时间最新的 YAML，不按具名地图的字母顺序。使用指定地图时显式传路径。地图需采集或提供，不随镜像附带。
 
-固定图启动后，在 RViz 用 **2D Pose Estimate** 指定真实初始位置；待定位健康确认且 Nav2 生命周期节点 ACTIVE 后，再发送目标。失配与恢复步骤见 [定位健康与恢复](docs/localization-health.md)。所有真机入口使用系统时钟；录包时钟只用于独立离线消费者。
+固定图启动后，在 RViz 用 **2D Pose Estimate** 指定真实初始位置；待新鲜扫描、map TF 可用且 Nav2 生命周期节点 ACTIVE 后，再发送目标。定位质量只报警，初值与恢复步骤见 [定位质量诊断](docs/localization-health.md)；停车条件见 [停车保护](docs/safety.md)。所有真机入口使用系统时钟；录包时钟只用于独立离线消费者。
 
 以下操作附着于已启动的系统，不再启动一套底盘或雷达：
 

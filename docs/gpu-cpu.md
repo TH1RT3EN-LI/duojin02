@@ -17,9 +17,9 @@ ros2 launch duojin02_bringup online_navigation.launch.py use_gpu:=false
 
 两种模式均使用原来的 Nav2 MPPI 优化器、目标选择、候选排序、速度约束和制动保护。CUDA 只批量计算直接接近路径上的填充足迹碰撞谓词；小批次继续使用原 CPU 循环。设备浮点边界不明确的行由原 CPU 谓词复核。clearance 打分仍在 CPU 上，防止数值差异改变候选排序。
 
-`use_gpu=false` 不创建 CUDA 执行器。`true` 在已编译 CUDA 且设备可用时允许加速；工作量达到 `gpu_minimum_work` 才提交 GPU。未编译 CUDA、无设备或初始化不可用时明确报告 CPU 回退。已开始的 GPU 调用失败或超过 `gpu_deadline_ms` 时停止本次运动请求，不能把运行期故障伪装成成功输出。
+`use_gpu=false` 不创建 CUDA 执行器。`true` 在已编译 CUDA 且设备可用时允许加速；工作量达到 `gpu_minimum_work` 才提交 GPU。未编译 CUDA、无设备或初始化不可用时明确报告 CPU 回退。已开始的 GPU 调用发生真实 CUDA 错误时停止本次运动请求并锁存执行器故障；计算耗时仍记录，不因一次偏慢闭锁导航。若控制计算停止产出指令，速度链路的独立超时负责停车。
 
-这两个性能参数与开关一起维护在 [nav2.yaml](../src/duojin02_bringup/config/nav2.yaml)。SLAM、AMCL、全局规划、EKF、雷达、最终制动检查与 VelocityGuard 沿用 CPU 实现；开关不宣称这些模块已经 CUDA 化。
+工作量参数与开关一起维护在 [nav2.yaml](../src/duojin02_bringup/config/nav2.yaml)。原 40 ms 软期限已删除：它没有设备标定依据，也不能中断卡住的 CUDA 驱动。SLAM、AMCL、全局规划、EKF、雷达、最终制动检查与 VelocityGuard 沿用 CPU 实现；开关不宣称这些模块已经 CUDA 化。
 
 独立 GPU 工作区原有的替代采样优化器、EDT / study 优化和调参预设保留在历史归档，不进入当前生产路径。其原生 Orin 性能证据不能用于断言本次几何加速的速度或实时性。
 

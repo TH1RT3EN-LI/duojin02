@@ -4,7 +4,7 @@
 
 ## 参数维护
 
-持久参数的完整表在[开发接口](../README_DEVELOPMENT.md#配置与模型边界)。导航、SLAM、固定图健康、VelocityGuard、底盘反馈与雷达各由其明确配置文件维护。键盘节点和纯控制核心共同读取 `keyboard_teleop_defaults.py`，删除没有消费者的重复 YAML；健康模型和管理器共同读取 `localization_health.yaml`，不另存阈值。
+持久参数的完整表在[开发接口](../README_DEVELOPMENT.md#配置与模型边界)。导航、SLAM、固定图质量报警、停车保护、底盘反馈与雷达各由其明确配置文件维护。键盘节点和纯控制核心共同读取 `keyboard_teleop_defaults.py`；质量模型和监视器共同读取 `localization_monitor.yaml`；Guard 与底盘的共同命令超时在 `safety.yaml`。后续停车逻辑精简见 [停车保护](safety.md)。
 
 在线导航只传递所选配置，`online_profile` 根据实际 `slam_params_file` 统一派生地图分辨率和 lattice，并维护在线未知区域策略。默认派生结果与基线最终有效 YAML 完全一致，另验证改变 SLAM 文件会同步改变关联派生配置。控制器限速和平滑器输出约束、各节点频率、保护余量与 costmap padding 有独立语义，仍在各自所属入口维护。
 

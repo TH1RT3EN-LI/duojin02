@@ -100,7 +100,6 @@ controller_server:
       # Optional geometry computation only; the MPPI optimizer is unchanged.
       use_gpu: true
       gpu_minimum_work: 262144
-      gpu_deadline_ms: 40.0
       time_steps: 56
       model_dt: 0.05
       batch_size: 1600

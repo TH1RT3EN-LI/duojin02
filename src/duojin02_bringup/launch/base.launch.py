@@ -115,7 +115,8 @@ def generate_launch_description():
             executable="duojin02_base_driver_node",
             name="base_driver",
             output="screen",
-            parameters=[LaunchConfiguration("base_params_file"), {
+            parameters=[os.path.join(bringup_share, "config", "safety.yaml"),
+                LaunchConfiguration("base_params_file"), {
                 "use_sim_time": False,
                 "usart_port_name": base_serial_port,
                 "serial_baud_rate": ParameterValue(base_serial_baudrate, value_type=int),

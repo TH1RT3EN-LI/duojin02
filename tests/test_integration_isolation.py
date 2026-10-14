@@ -55,7 +55,7 @@ def test_subprocesses_inherit_the_reserved_local_domain(isolation):
                          'CYCLONEDDS_URI': None}
 
 
-@pytest.mark.parametrize('name', ['localization_manager_probe', 'navigation_command_timeout_probe'])
+@pytest.mark.parametrize('name', ['localization_monitor_probe', 'navigation_command_timeout_probe'])
 def test_direct_probe_configures_isolation_before_ros_init(isolation, tmp_path, name):
     # Execute the actual entry function with ROS init replaced by a stopping
     # sentinel. This exercises initialization order without loading DDS on host.

@@ -48,14 +48,14 @@ def _create_nav_actions(context, nav2_share: str):
         os.path.join(get_package_share_directory(PACKAGE_NAME),'launch','navigation_stack.launch.py')),
         launch_arguments={'params_file':rewritten,'autostart':autostart,'log_level':log_level,
                           'use_gpu':LaunchConfiguration('use_gpu', default=GpuDefault(params_file)),
-                          'navigation_output':'/nav/localization_requested'}.items())])
-    health_config=os.path.join(get_package_share_directory(PACKAGE_NAME),'config','localization_health.yaml')
-    manager=Node(package=PACKAGE_NAME,executable='localization_manager',
-        parameters=[health_config,{'use_sim_time':False}],output='screen')
-    nav_actions=[localization,manager]
+                          'navigation_output':'/cmd_vel'}.items())])
+    monitor_config=os.path.join(get_package_share_directory(PACKAGE_NAME),'config','localization_monitor.yaml')
+    monitor=Node(package=PACKAGE_NAME,executable='localization_monitor',
+        parameters=[monitor_config,{'use_sim_time':False}],output='screen')
+    nav_actions=[localization,monitor]
     if autostart.perform(context).lower()=='true':
         ready=Node(package="duojin02_bringup",executable="localization_readiness",
-                   parameters=[{'require_health':True}],output="screen")
+                   output="screen")
         nav_actions += [RegisterEventHandler(OnProcessExit(target_action=ready,
             on_exit=lambda event,context:[navigation] if event.returncode==0 else [Shutdown(reason="Localization readiness failed")])),ready]
     else:nav_actions.append(navigation)

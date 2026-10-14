@@ -21,8 +21,6 @@ struct GeometryCompute::Impl {
   std::unique_ptr<CudaExecutor> cuda;
   std::string reason;
   explicit Impl(GeometryOptions o) : options(o) {
-    if (!std::isfinite(o.deadline_ms) || o.deadline_ms <= 0)
-      throw std::invalid_argument("GPU geometry deadline must be finite and positive");
     if (o.use_gpu) cuda = makeCudaExecutor(reason);
     else reason = "use_gpu=false";
   }
@@ -70,7 +68,7 @@ GeometryResult GeometryCompute::evaluate(const std::vector<Pose> &poses, double 
     for (const auto &p : poses) frames.push_back({p.x, p.y, std::cos(p.yaw), std::sin(p.yaw)});
     std::vector<DeviceGeometryResult> raw;
     try {
-      raw = impl_->cuda->geometry(polygon, points, impl_->epoch, frames, margin, impl_->options.deadline_ms);
+      raw = impl_->cuda->geometry(polygon, points, impl_->epoch, frames, margin);
     } catch (const std::exception &e) { throw ComputeFailure(e.what()); }
     if (raw.size() != poses.size()) throw ComputeFailure("CUDA result cardinality mismatch");
     for (size_t i = 0; i < poses.size(); ++i) {
@@ -90,8 +88,6 @@ GeometryResult GeometryCompute::evaluate(const std::vector<Pose> &poses, double 
   }
   impl_->stats.last_wall_ms = std::chrono::duration<double, std::milli>(
     std::chrono::steady_clock::now() - begin).count();
-  if (result.used_cuda && impl_->stats.last_wall_ms > impl_->options.deadline_ms)
-    throw ComputeFailure("CUDA geometry exceeded whole-call deadline");
   return result;
 }
 bool GeometryCompute::available() const { return impl_->cuda != nullptr; }

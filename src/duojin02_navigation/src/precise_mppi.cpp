@@ -46,14 +46,12 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     };
     startup_parameter("use_gpu",rclcpp::ParameterValue(defaults.use_gpu));
     startup_parameter("gpu_minimum_work",rclcpp::ParameterValue(static_cast<int64_t>(defaults.minimum_work)));
-    startup_parameter("gpu_deadline_ms",rclcpp::ParameterValue(defaults.deadline_ms));
     const bool use_gpu=node->get_parameter(name+".use_gpu").as_bool();
     const auto work=node->get_parameter(name+".gpu_minimum_work").as_int();
-    const double deadline=node->get_parameter(name+".gpu_deadline_ms").as_double();
-    if(work<0 || !std::isfinite(deadline) || deadline<=0)
-      throw std::invalid_argument("GPU geometry requires nonnegative gpu_minimum_work and positive finite gpu_deadline_ms");
+    if(work<0)
+      throw std::invalid_argument("GPU geometry requires nonnegative gpu_minimum_work");
     if(use_gpu) {
-      geometry_=std::make_unique<GeometryCompute>(GeometryOptions{true,static_cast<uint64_t>(work),deadline});
+      geometry_=std::make_unique<GeometryCompute>(GeometryOptions{true,static_cast<uint64_t>(work)});
       if(geometry_->available()) RCLCPP_INFO(logger_,"GPU geometry enabled: %s; native Nav2 optimizer unchanged",geometry_->deviceName().c_str());
       else RCLCPP_WARN(logger_,"GPU geometry unavailable (%s); using original CPU geometry and native Nav2 optimizer",geometry_->deviceName().c_str());
     } else RCLCPP_INFO(logger_,"use_gpu=false: original CPU geometry and native Nav2 optimizer");

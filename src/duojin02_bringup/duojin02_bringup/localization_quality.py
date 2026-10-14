@@ -1,4 +1,4 @@
-"""ROS-independent scan/map evidence and fail-closed localization state.
+"""ROS-independent scan/map quality evidence for advisory diagnostics.
 
 AMCL/Karto use nearest grid indices and store the first cell centre in origin.
 No map or pose is shifted here. `occupancy_cell` is an explicit alternative for
@@ -17,18 +17,18 @@ import yaml
 def _parameter_defaults():
     # Source checkouts keep the same canonical YAML beside the Python package;
     # installed packages use its ament share location.
-    config = Path(__file__).resolve().parents[1] / 'config/localization_health.yaml'
+    config = Path(__file__).resolve().parents[1] / 'config/localization_monitor.yaml'
     if not config.is_file():
         from ament_index_python.packages import get_package_share_directory
-        config = Path(get_package_share_directory('duojin02_bringup')) / 'config/localization_health.yaml'
-    return yaml.safe_load(config.read_text())['localization_manager']['ros__parameters']
+        config = Path(get_package_share_directory('duojin02_bringup')) / 'config/localization_monitor.yaml'
+    return yaml.safe_load(config.read_text())['localization_monitor']['ros__parameters']
 
 
 PARAMETER_DEFAULTS = MappingProxyType(_parameter_defaults())
 
 
 @dataclass(frozen=True)
-class HealthPolicy:
+class ScorePolicy:
     min_hits: int = PARAMETER_DEFAULTS['min_hits']
     hit_fraction: float = PARAMETER_DEFAULTS['hit_fraction']
     known_fraction: float = PARAMETER_DEFAULTS['known_fraction']
@@ -38,13 +38,6 @@ class HealthPolicy:
     max_ray_cells: int = PARAMETER_DEFAULTS['max_ray_cells']
     max_range: float = PARAMETER_DEFAULTS['max_range']
     max_beams: int = PARAMETER_DEFAULTS['max_beams']
-    good_scans: int = PARAMETER_DEFAULTS['good_scans']
-    good_span_s: float = PARAMETER_DEFAULTS['good_span_s']
-    bad_scans: int = PARAMETER_DEFAULTS['bad_scans']
-    bad_span_s: float = PARAMETER_DEFAULTS['bad_span_s']
-    recovery_scans: int = PARAMETER_DEFAULTS['recovery_scans']
-    recovery_span_s: float = PARAMETER_DEFAULTS['recovery_span_s']
-    scan_timeout_s: float = PARAMETER_DEFAULTS['scan_timeout_s']
 
 
 class MapEvidence:
@@ -140,7 +133,7 @@ class MapEvidence:
                 t, ix, iy, tx, ty = tx, ix + stepx, iy + stepy, tx + dtx, ty + dty
 
     def score(self, ranges, angle_min, angle_increment, range_min, range_max,
-              laser_pose, policy=HealthPolicy()):
+              laser_pose, policy=ScorePolicy()):
         if (not ranges or not all(math.isfinite(x) for x in (*laser_pose, angle_min, angle_increment, range_min, range_max)) or
                 not 0 <= range_min < range_max or angle_increment == 0 or
                 not math.pi <= abs(angle_increment) * (len(ranges) - 1) <= 2 * math.pi + 0.05):
@@ -221,157 +214,3 @@ class MapEvidence:
                     all_ray_known_fraction=ray_known/ray_total if ray_total else 0.0,
                     contradiction_fraction=contradiction_fraction)
 
-
-class HealthState:
-    """Independent sensor stamps, bounded windows, and latched recovery failure."""
-    def __init__(self, policy=HealthPolicy()):
-        self.policy = policy
-        self.state, self.healthy, self.reason = 'WAITING', False, 'awaiting_map_scan_transform'
-        self.last_stamp = None
-        self.last_wall = None
-        self.good = []
-        self.bad = []
-        self.good_started = self.bad_started = None
-        self.recovery_observations = set()
-        self.ever_healthy = False
-
-    def reset_windows(self):
-        self.good.clear()
-        self.bad.clear()
-        self.good_started = self.bad_started = None
-        self.recovery_observations.clear()
-
-    def invalidate(self, reason, latch=False):
-        self.healthy = False
-        self.reason = reason
-        self.reset_windows()
-        if self.state == 'RECOVERY_FAILED':
-            return
-        if latch or self.state in ('HEALTHY', 'SUSPECT'):
-            self.state = 'MISMATCH'
-
-    def perception_stale(self, reason):
-        """Withdraw permission for missing evidence without resetting a hypothesis.
-
-        Hard faults still require explicit recovery. A pure perception gap can
-        rebuild the normal evidence window, while an active recovery keeps its
-        existing service deadline and must rebuild its longer confirmation.
-        """
-        self.healthy = False
-        if self.state in ('MISMATCH', 'RECOVERY_FAILED'):
-            return
-        self.reason = reason
-        self.reset_windows()
-        if self.state != 'RECOVERING' and self.ever_healthy:
-            self.state = 'PERCEPTION_STALE'
-
-    def start_recovery(self):
-        self.state, self.healthy, self.reason = 'RECOVERING', False, 'global_reinitialization_requested'
-        self.reset_windows()
-
-    def recovery_failed(self, reason):
-        self.state, self.healthy, self.reason = 'RECOVERY_FAILED', False, reason
-        self.reset_windows()
-
-    def observe(self, stamp_s, wall_s, evidence, recovery_pose_stamp=None):
-        if not math.isfinite(stamp_s):
-            self.invalidate('invalid_sensor_stamp', latch=True)
-            return False
-        if self.last_stamp is not None and stamp_s < self.last_stamp:
-            self.invalidate('sensor_stamp_rewind', latch=True)
-            return False
-        if self.last_stamp is not None and stamp_s == self.last_stamp:
-            return False  # A repeated stamp cannot advance any window or heartbeat.
-        if self.last_wall is not None and wall_s - self.last_wall > self.policy.scan_timeout_s:
-            self.perception_stale('scan_observation_gap')
-        self.last_stamp, self.last_wall = stamp_s, wall_s
-        if evidence.get('reason') in ('invalid_scan_geometry', 'invalid_scan_ray'):
-            self.invalidate(evidence['reason'], latch=True)
-            return True
-        if evidence.get('valid', False):
-            self.bad.clear()
-            self.bad_started = None
-            if self.good_started is None:
-                self.good_started = stamp_s
-            self.good.append(stamp_s)
-            self.good = self.good[-max(self.policy.good_scans, self.policy.recovery_scans):]
-            if self.state in ('MISMATCH', 'RECOVERY_FAILED'):
-                return True  # Fresh TF/geometry alone cannot clear a latched failure.
-            recovering = self.state == 'RECOVERING'
-            if recovering and recovery_pose_stamp is not None:
-                self.recovery_observations.add(recovery_pose_stamp)
-            count = self.policy.recovery_scans if recovering else self.policy.good_scans
-            span = self.policy.recovery_span_s if recovering else self.policy.good_span_s
-            if len(self.good) >= count and stamp_s - self.good_started >= span - 1e-8:
-                if not recovering or len(self.recovery_observations) >= 3:
-                    self.state, self.healthy, self.reason = 'HEALTHY', True, 'independent_scans_consistent'
-                    self.ever_healthy = True
-        else:
-            self.good.clear()
-            self.good_started = None
-            self.recovery_observations.clear()
-            self.healthy, self.reason = False, evidence.get('reason', 'scan_map_mismatch')
-            if self.bad_started is None:
-                self.bad_started = stamp_s
-            self.bad.append(stamp_s)
-            self.bad = self.bad[-self.policy.bad_scans:]
-            if self.state not in ('RECOVERING', 'MISMATCH', 'RECOVERY_FAILED'):
-                self.state = 'SUSPECT'
-                if self.ever_healthy and len(self.bad) >= self.policy.bad_scans and stamp_s - self.bad_started >= self.policy.bad_span_s - 1e-8:
-                    self.state = 'MISMATCH'
-        return True
-
-    def tick(self, wall_s):
-        if self.state == 'RECOVERY_FAILED':
-            return  # Preserve the bounded-service failure until explicit retry.
-        if self.last_wall is not None and wall_s - self.last_wall > self.policy.scan_timeout_s:
-            self.perception_stale('scan_or_exact_transform_timeout')
-
-
-class HealthSignal:
-    """Validate source freshness and ordering; retained Bool is diagnostic only."""
-    def __init__(self, source_timeout_s=0.25, scan_timeout_s=0.4):
-        self.source_timeout_s, self.scan_timeout_s = source_timeout_s, scan_timeout_s
-        self.session = None
-        self.retired_sessions = set()
-        self.sequence = -1
-        self.first_wall = None
-        self.messages = 0
-        self.last_emitted = self.last_scan = None
-
-    def accept(self, status, ros_now_s, wall_s):
-        try:
-            session, seq = status['session'], status['sequence']
-            emitted = status['emitted_ros_ns'] / 1e9
-            scan = status.get('scan_stamp')
-            if not isinstance(session, str) or not session or not isinstance(seq, int) or seq < 0:
-                return False
-            if not math.isfinite(emitted) or not -0.05 <= ros_now_s - emitted <= self.source_timeout_s:
-                return False
-            if session in self.retired_sessions:
-                return False
-            if session != self.session:
-                if self.session is not None:
-                    self.retired_sessions.add(self.session)
-                self.session, self.sequence = session, -1
-                self.messages, self.first_wall = 0, wall_s
-            if seq <= self.sequence:
-                return False
-            self.sequence = seq
-            self.messages += 1
-            if status['healthy'] is not True or status.get('state') != 'HEALTHY':
-                return False
-            if scan is None or not math.isfinite(scan) or not -0.05 <= ros_now_s - scan <= self.scan_timeout_s:
-                return False
-            # A single retained true cannot open a newly started receiver.
-            accepted = self.messages >= 2 and wall_s - self.first_wall >= 0.04
-            if accepted:
-                self.last_emitted, self.last_scan = emitted, scan
-            return accepted
-        except (KeyError, TypeError, ValueError, OverflowError):
-            return False
-
-    def fresh(self, ros_now_s):
-        return (self.last_emitted is not None and self.last_scan is not None and
-                -0.05 <= ros_now_s - self.last_emitted <= self.source_timeout_s and
-                -0.05 <= ros_now_s - self.last_scan <= self.scan_timeout_s)

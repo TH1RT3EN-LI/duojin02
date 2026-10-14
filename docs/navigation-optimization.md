@@ -4,7 +4,7 @@
 
 ## 当前机制
 
-模块、话题与启动模式统一见 [开发接口](../README_DEVELOPMENT.md)，固定图闭锁和恢复见 [定位健康](localization-health.md)。当前 Nav2 使用 5 个服务节点，固定图由一个定位管理器统一评分、恢复和导航许可；全部指令经 mux 和 VelocityGuard 进入底盘，不使用历史重复 Collision Monitor 链路。
+模块、话题与启动模式统一见 [开发接口](../README_DEVELOPMENT.md)，固定图诊断与 AMCL 恢复见 [定位质量](localization-health.md)。当前 Nav2 使用 5 个服务节点，全部指令经 mux 和 VelocityGuard 进入底盘。2026-10-14 已删除质量停车状态机与速度中继，必要保护见 [停车保护](safety.md)；本页旧实验结果仍只对其冻结版本成立。
 
 已修复限速传播、缓存失效、扫描故障、Ceres 节点生命周期和地图快照问题；机制及复现条件见 [导航修复](navigation-repairs.md)。保留 PreciseLattice / PreciseMPPI 和既有 SLAM Toolbox / AMCL。模块替换实验没有证明整套替换更好，也没有证明当前配置全局最优。
 

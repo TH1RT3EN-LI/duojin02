@@ -16,7 +16,6 @@ class ComputeFailure : public std::runtime_error {
 struct GeometryOptions {
   bool use_gpu{true};
   uint64_t minimum_work{262144};
-  double deadline_ms{40.0};
 };
 struct GeometryStatistics {
   uint64_t cpu_batches{0}, cuda_batches{0}, boundary_rechecks{0};

@@ -1,0 +1,496 @@
+{
+  "pass": true,
+  "baseline_commit": "81594b1b7e3ea559b8ac256412e0824c14db7ab0",
+  "scope": "Working-tree source preservation; intentionally deleted stopping policy is not behavior-equivalent",
+  "unchanged_navigation_files": [
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/finite_heading.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "56d26f4e6e56d5d55488a581a04167100ad2b9f5f484dfeac6f80efa032b6cf3",
+      "current_sha256": "56d26f4e6e56d5d55488a581a04167100ad2b9f5f484dfeac6f80efa032b6cf3"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/guard_input_validity.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "75ee5e97e3d343ec63e177b051c451a56b19af3aa2150d30020f36246ac2b402",
+      "current_sha256": "75ee5e97e3d343ec63e177b051c451a56b19af3aa2150d30020f36246ac2b402"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "76b435b96d4f3499c004fe8185455054151ffeb0db41f1f69511fbef5541f74b",
+      "current_sha256": "76b435b96d4f3499c004fe8185455054151ffeb0db41f1f69511fbef5541f74b"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/local_grid_snapshot.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "1a3a5594cca05fdd85e2f4248c96bb476f2450257e4c77d9addc7c33a434e191",
+      "current_sha256": "1a3a5594cca05fdd85e2f4248c96bb476f2450257e4c77d9addc7c33a434e191"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/path_cleanup.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "19cc96a1a1a5c5e5210b890d04a7b2ebcf769d1348253b98d8dfa1588eee29f3",
+      "current_sha256": "19cc96a1a1a5c5e5210b890d04a7b2ebcf769d1348253b98d8dfa1588eee29f3"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/path_target.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "4522f8cd364c1b2a1111f4627c0fb68e2d0aaf20082415817a7001ba6379bbc6",
+      "current_sha256": "4522f8cd364c1b2a1111f4627c0fb68e2d0aaf20082415817a7001ba6379bbc6"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/planner_checks.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "1ee9eb27acf9f1da2b83156e370421cfbd2da7f140c4faf628be2affe7840603",
+      "current_sha256": "1ee9eb27acf9f1da2b83156e370421cfbd2da7f140c4faf628be2affe7840603"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "94aa2adfe94cd18d77f72ba87c1302f16a1af7f99b87d2ded66bfa2fd0cc5ffa",
+      "current_sha256": "94aa2adfe94cd18d77f72ba87c1302f16a1af7f99b87d2ded66bfa2fd0cc5ffa"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/scan_validity.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "d665a8390c287fbc1193137cf69e095e79eaa3ff2cc3ec70308e21ecd8ff049e",
+      "current_sha256": "d665a8390c287fbc1193137cf69e095e79eaa3ff2cc3ec70308e21ecd8ff049e"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/stable_goal_checker.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "08a4c5d1daf96626878555726c11e63a9805bcd31b82fb71a0d8d554dedbbef5",
+      "current_sha256": "08a4c5d1daf96626878555726c11e63a9805bcd31b82fb71a0d8d554dedbbef5"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/sweep.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "e28dbbe1049ce7654d91dde6f01908b054b8e7f11880ffbc60c99a8074e6a364",
+      "current_sha256": "e28dbbe1049ce7654d91dde6f01908b054b8e7f11880ffbc60c99a8074e6a364"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/tracking.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "195b39d48cbd08bac933d4d5f253d837390b5a7f3ba484456d5e76a275029223",
+      "current_sha256": "195b39d48cbd08bac933d4d5f253d837390b5a7f3ba484456d5e76a275029223"
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/velocity_limits.hpp",
+      "identical_bytes": true,
+      "baseline_sha256": "af96f7ddf55ee04cd77c8566edd8ff5f97b957990d22843c11ec5af678faefa3",
+      "current_sha256": "af96f7ddf55ee04cd77c8566edd8ff5f97b957990d22843c11ec5af678faefa3"
+    },
+    {
+      "path": "src/duojin02_navigation/src/precise_lattice.cpp",
+      "identical_bytes": true,
+      "baseline_sha256": "d0204ca1958f16af4d40d2569dfc41db170cc3130fc7ffbd12d252488a82e9c4",
+      "current_sha256": "d0204ca1958f16af4d40d2569dfc41db170cc3130fc7ffbd12d252488a82e9c4"
+    },
+    {
+      "path": "src/duojin02_navigation/src/stable_goal_checker.cpp",
+      "identical_bytes": true,
+      "baseline_sha256": "d5125e6f656d91d2fe533beb1c3c6fef6830fa1afbcfb0b801b288b52504a102",
+      "current_sha256": "d5125e6f656d91d2fe533beb1c3c6fef6830fa1afbcfb0b801b288b52504a102"
+    }
+  ],
+  "precise_mppi": {
+    "path": "src/duojin02_navigation/src/precise_mppi.cpp",
+    "only_configure_body_changed": true,
+    "methods": [
+      {
+        "name": "configure",
+        "body_identical_bytes": false,
+        "baseline_body_sha256": "b1fd0903282212de4c40a60f30f3d9b34a910c9198ddc7dbdb4a859d0e6df45b",
+        "current_body_sha256": "992eabc6a415ef8edb871982a9b0d82f14c012b038bd6d19bfd26ba291e5291e",
+        "intentional_config_change": true
+      },
+      {
+        "name": "cleanup",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "4a609b04e568ecb61571ba832421d7c103aa6fcc79e231b232e6ae3ac4389535",
+        "current_body_sha256": "4a609b04e568ecb61571ba832421d7c103aa6fcc79e231b232e6ae3ac4389535",
+        "intentional_config_change": false
+      },
+      {
+        "name": "setPlan",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "7269b7eaa264fbed46edfa827f8bb0e93ddfaa415efc1ede46027eb897d8793b",
+        "current_body_sha256": "7269b7eaa264fbed46edfa827f8bb0e93ddfaa415efc1ede46027eb897d8793b",
+        "intentional_config_change": false
+      },
+      {
+        "name": "setSpeedLimit",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "e83ad6ae193acb246631de1e7d08b7a54cfae1a842eee26aebd7f242aae2662c",
+        "current_body_sha256": "e83ad6ae193acb246631de1e7d08b7a54cfae1a842eee26aebd7f242aae2662c",
+        "intentional_config_change": false
+      },
+      {
+        "name": "computeVelocityCommands",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "fead7661d6da3700a3bf54f0e99a2763b1af44c5d98bca47df71e15085903616",
+        "current_body_sha256": "fead7661d6da3700a3bf54f0e99a2763b1af44c5d98bca47df71e15085903616",
+        "intentional_config_change": false
+      },
+      {
+        "name": "computeCommand",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "3aa44c5144cd72a8cc9f1570264eb29ba173fa3135938ba134091fa89b31f27f",
+        "current_body_sha256": "3aa44c5144cd72a8cc9f1570264eb29ba173fa3135938ba134091fa89b31f27f",
+        "intentional_config_change": false
+      },
+      {
+        "name": "converge",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "3a8b74570c30275cf28e8df2060661d3c0838267cbe541b6a7bab967eaafed8c",
+        "current_body_sha256": "3a8b74570c30275cf28e8df2060661d3c0838267cbe541b6a7bab967eaafed8c",
+        "intentional_config_change": false
+      },
+      {
+        "name": "nearObstacle",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "4a54c6cb4dee45bf3324af5fa758873944a72b06cf5799a5068262c42b2dc5bb",
+        "current_body_sha256": "4a54c6cb4dee45bf3324af5fa758873944a72b06cf5799a5068262c42b2dc5bb",
+        "intentional_config_change": false
+      },
+      {
+        "name": "trackingTarget",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "ddedd8a87c559420b3812fc5a67b09371442eba2bf043687c48b5e8f553b5176",
+        "current_body_sha256": "ddedd8a87c559420b3812fc5a67b09371442eba2bf043687c48b5e8f553b5176",
+        "intentional_config_change": false
+      },
+      {
+        "name": "pathTarget",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "4bf3396906bb0224b4e8c31fb8a0e011dcad29967bf9eeedf341d91656b3a149",
+        "current_body_sha256": "4bf3396906bb0224b4e8c31fb8a0e011dcad29967bf9eeedf341d91656b3a149",
+        "intentional_config_change": false
+      },
+      {
+        "name": "directApproachClear",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "7be515f9d6f011ba7bb7d335d4c375f4bdef7c6e8280e677b1db5b92de33a580",
+        "current_body_sha256": "7be515f9d6f011ba7bb7d335d4c375f4bdef7c6e8280e677b1db5b92de33a580",
+        "intentional_config_change": false
+      },
+      {
+        "name": "freshTransform",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "b4070e45770b5ad6b0fac4628b636ed7cfaf6523698fec06d47951af8c6c57ac",
+        "current_body_sha256": "b4070e45770b5ad6b0fac4628b636ed7cfaf6523698fec06d47951af8c6c57ac",
+        "intentional_config_change": false
+      },
+      {
+        "name": "stopped",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "1ed938c3874f298e16e29effdac647c02058a8ddbde02b59436546981d821104",
+        "current_body_sha256": "1ed938c3874f298e16e29effdac647c02058a8ddbde02b59436546981d821104",
+        "intentional_config_change": false
+      },
+      {
+        "name": "snapshot",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "ca689cb6c8bce5eebc5fa604703ed74476a8a462a03b1c3a1eb5313584244f8e",
+        "current_body_sha256": "ca689cb6c8bce5eebc5fa604703ed74476a8a462a03b1c3a1eb5313584244f8e",
+        "intentional_config_change": false
+      },
+      {
+        "name": "centeredTarget",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "1f0a8d7d2ea0edf003c34b0fa18ca681ca9c1f53217cd114fdbb5a8731ebd3d8",
+        "current_body_sha256": "1f0a8d7d2ea0edf003c34b0fa18ca681ca9c1f53217cd114fdbb5a8731ebd3d8",
+        "intentional_config_change": false
+      },
+      {
+        "name": "checked",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "f11251a284b5285a9d6d803a553fe423781d796535f1573303e7c73f2496e20d",
+        "current_body_sha256": "f11251a284b5285a9d6d803a553fe423781d796535f1573303e7c73f2496e20d",
+        "intentional_config_change": false
+      },
+      {
+        "name": "sampledCommand",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "c778e61e3cafa4303000d36096ddf6a9e87baa2c846022ef65fa67f9ba5547c6",
+        "current_body_sha256": "c778e61e3cafa4303000d36096ddf6a9e87baa2c846022ef65fa67f9ba5547c6",
+        "intentional_config_change": false
+      },
+      {
+        "name": "applyNativeLimit",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "3a23a9315e5173ee69f6b78c759a22435e03b179bf4b5fbc2e9702ac2e350999",
+        "current_body_sha256": "3a23a9315e5173ee69f6b78c759a22435e03b179bf4b5fbc2e9702ac2e350999",
+        "intentional_config_change": false
+      },
+      {
+        "name": "refreshLimits",
+        "body_identical_bytes": true,
+        "baseline_body_sha256": "299ed5270e3017460c75d3dbabdade76d0af55c51aa04387323601e88a67fb6c",
+        "current_body_sha256": "299ed5270e3017460c75d3dbabdade76d0af55c51aa04387323601e88a67fb6c",
+        "intentional_config_change": false
+      }
+    ]
+  },
+  "cuda_collision_functions": {
+    "path": "src/duojin02_navigation/gpu/geometry.cu",
+    "functions": [
+      {
+        "name": "segmentDistance",
+        "source_identical_bytes": true,
+        "baseline_source_sha256": "3cb5bb8d193f4f87a902bfb50fa53c5e4011b6bbeded7325cab71cb0c1941ad5",
+        "current_source_sha256": "3cb5bb8d193f4f87a902bfb50fa53c5e4011b6bbeded7325cab71cb0c1941ad5"
+      },
+      {
+        "name": "geometryKernel",
+        "source_identical_bytes": true,
+        "baseline_source_sha256": "09d3082a10c12454d8a3ac2c128a81b933c31f302e2ed2b2790450004d9a8075",
+        "current_source_sha256": "09d3082a10c12454d8a3ac2c128a81b933c31f302e2ed2b2790450004d9a8075"
+      }
+    ]
+  },
+  "localization_quality": {
+    "methods": {
+      "__init__": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "9ebe565270bf1b918990344a2be2c91c012316cef6623c327c54576ca512869c",
+        "current_body_ast_sha256": "9ebe565270bf1b918990344a2be2c91c012316cef6623c327c54576ca512869c"
+      },
+      "grid_point": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "465c85691d69c4b71e1c66f8b10be76ddec125cf0c920c04da70da30963bd074",
+        "current_body_ast_sha256": "465c85691d69c4b71e1c66f8b10be76ddec125cf0c920c04da70da30963bd074"
+      },
+      "cell": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "39ffce6e757ba414a5b72323b84d295a0e98141ce96f5f3b8295f2ca869d2426",
+        "current_body_ast_sha256": "39ffce6e757ba414a5b72323b84d295a0e98141ce96f5f3b8295f2ca869d2426"
+      },
+      "near_occupied": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "f60acbf455cf1cf5112fc5ec1bf26b766fe7489bba2a9a755dfb7f4ecc30f58f",
+        "current_body_ast_sha256": "f60acbf455cf1cf5112fc5ec1bf26b766fe7489bba2a9a755dfb7f4ecc30f58f"
+      },
+      "ray_cells": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "9dd0c046f746e8b8373d0231d50a31ac28d0a5058b4da5779bdc93c59abb733a",
+        "current_body_ast_sha256": "9dd0c046f746e8b8373d0231d50a31ac28d0a5058b4da5779bdc93c59abb733a"
+      },
+      "score": {
+        "body_ast_identical": true,
+        "baseline_body_ast_sha256": "3a7e359e60bdbe0ea537e664937b307682801ae8087627787e5a447a39b86dbf",
+        "current_body_ast_sha256": "3a7e359e60bdbe0ea537e664937b307682801ae8087627787e5a447a39b86dbf"
+      }
+    },
+    "retained_quality_config_values_identical": true,
+    "retained_config_keys": [
+      "endpoint_tolerance",
+      "hit_fraction",
+      "known_fraction",
+      "map_cell_convention",
+      "map_frame",
+      "max_beams",
+      "max_contradiction_fraction",
+      "max_range",
+      "max_ray_cells",
+      "min_hits",
+      "ray_margin"
+    ],
+    "removed_policy_config": {
+      "bad_scans": 3,
+      "bad_span_s": 0.2,
+      "command_timeout_s": 0.25,
+      "global_localization_service": "/reinitialize_global_localization",
+      "good_scans": 6,
+      "good_span_s": 0.5,
+      "nomotion_update_service": "/request_nomotion_update",
+      "recovery_attempt_timeout_s": 8.0,
+      "recovery_max_attempts": 2,
+      "recovery_scans": 15,
+      "recovery_span_s": 1.4,
+      "scan_timeout_s": 0.4
+    },
+    "prior_equivalence_artifact": {
+      "pass": true,
+      "baseline": "81594b1b7e3ea559b8ac256412e0824c14db7ab0",
+      "unchanged_method_body_sha256": {
+        "__init__": "9ebe565270bf1b918990344a2be2c91c012316cef6623c327c54576ca512869c",
+        "grid_point": "465c85691d69c4b71e1c66f8b10be76ddec125cf0c920c04da70da30963bd074",
+        "cell": "39ffce6e757ba414a5b72323b84d295a0e98141ce96f5f3b8295f2ca869d2426",
+        "near_occupied": "f60acbf455cf1cf5112fc5ec1bf26b766fe7489bba2a9a755dfb7f4ecc30f58f",
+        "ray_cells": "9dd0c046f746e8b8373d0231d50a31ac28d0a5058b4da5779bdc93c59abb733a",
+        "score": "3a7e359e60bdbe0ea537e664937b307682801ae8087627787e5a447a39b86dbf"
+      }
+    }
+  },
+  "configuration": {
+    "nav2_identical_except_gpu_deadline": true,
+    "nav2_raw_text_identical_except_deadline_line": true,
+    "removed_gpu_deadline_ms": 40.0,
+    "retained_guard_parameters": {
+      "use_sim_time": {
+        "baseline": false,
+        "current": false,
+        "unchanged": true
+      },
+      "footprint": {
+        "baseline": [
+          0.213,
+          0.191465,
+          0.201465,
+          0.203,
+          -0.202879,
+          0.203,
+          -0.214,
+          0.191879,
+          -0.214,
+          -0.190465,
+          -0.201465,
+          -0.203,
+          0.202879,
+          -0.203,
+          0.213,
+          -0.192879
+        ],
+        "current": [
+          0.213,
+          0.191465,
+          0.201465,
+          0.203,
+          -0.202879,
+          0.203,
+          -0.214,
+          0.191879,
+          -0.214,
+          -0.190465,
+          -0.201465,
+          -0.203,
+          0.202879,
+          -0.203,
+          0.213,
+          -0.192879
+        ],
+        "unchanged": true
+      },
+      "clearance_margin_m": {
+        "baseline": 0.008,
+        "current": 0.008,
+        "unchanged": true
+      },
+      "range_error_m": {
+        "baseline": 0.015,
+        "current": 0.015,
+        "unchanged": true
+      },
+      "reaction_time_s": {
+        "baseline": 0.2,
+        "current": 0.2,
+        "unchanged": true
+      },
+      "braking_deceleration_mps2": {
+        "baseline": 0.4,
+        "current": 0.4,
+        "unchanged": true
+      },
+      "angular_deceleration_radps2": {
+        "baseline": 0.8,
+        "current": 0.8,
+        "unchanged": true
+      },
+      "scan_timeout_s": {
+        "baseline": 0.3,
+        "current": 0.3,
+        "unchanged": true
+      },
+      "command_timeout_s": {
+        "baseline": 0.25,
+        "current": 0.25,
+        "unchanged": true
+      },
+      "obstacle_memory_radius_m": {
+        "baseline": 2.5,
+        "current": 2.5,
+        "unchanged": true
+      }
+    },
+    "new_explicit_timeouts": {
+      "odometry_timeout_s": {
+        "baseline_hardcoded_s": 0.2,
+        "current_s": 0.2,
+        "unchanged": true
+      },
+      "localization_tf_timeout_s": {
+        "baseline_hardcoded_s": 0.5,
+        "current_s": 0.5,
+        "unchanged": true
+      }
+    },
+    "base_driver_other_config_identical": true,
+    "driver_command_timeout_relocated_unchanged": true,
+    "shared_command_timeout_s": 0.25
+  },
+  "production_python_size": {
+    "measurement": "Physical and nonblank lines, including comments/docstrings",
+    "baseline": {
+      "localization_manager.py": {
+        "physical_lines": 408,
+        "nonblank_lines": 378
+      },
+      "localization_health.py": {
+        "physical_lines": 377,
+        "nonblank_lines": 348
+      },
+      "localization_readiness.py": {
+        "physical_lines": 183,
+        "nonblank_lines": 168
+      }
+    },
+    "current": {
+      "localization_monitor.py": {
+        "physical_lines": 139,
+        "nonblank_lines": 125
+      },
+      "localization_quality.py": {
+        "physical_lines": 216,
+        "nonblank_lines": 200
+      },
+      "localization_readiness.py": {
+        "physical_lines": 166,
+        "nonblank_lines": 151
+      }
+    },
+    "baseline_total_physical_lines": 968,
+    "current_total_physical_lines": 521,
+    "reduction_physical_lines": 447,
+    "reduction_fraction": 0.4617768595041322
+  },
+  "documentation_links": {
+    "scope": "Changed/current Markdown only, local file existence; frozen historical pages not rescanned, external URLs and anchors not validated",
+    "checked_pages": [
+      "README_DEVELOPMENT.md",
+      "docs/README.md",
+      "docs/gpu-cpu.md",
+      "docs/localization-health.md",
+      "docs/maintenance-cleanup.md",
+      "docs/navigation-optimization.md",
+      "docs/navigation-repairs.md",
+      "docs/navigation-validation.md",
+      "docs/safety.md",
+      "src/duojin02_navigation/gpu/README.md"
+    ],
+    "local_file_links_checked": 84,
+    "missing_links": []
+  },
+  "intentional_behavior_changes": [
+    "Quality scoring becomes advisory; health/permission/recovery state machine removed",
+    "Generated local costmap and AMCL covariance removed from Guard inputs",
+    "Unconfigured reserve/crawl stop overlay removed; core braking geometry retained",
+    "GPU elapsed-time stopping removed; real CUDA faults still rejected and latched"
+  ],
+  "limitations": [
+    "Does not claim identical overall stopping decisions",
+    "Does not validate physical braking, lower-controller firmware, or Jetson timing",
+    "GPU interface ABI changed; matching fresh builds/images required"
+  ]
+}

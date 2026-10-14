@@ -86,7 +86,6 @@ int main(int argc,char **argv) {
   TestController controller;controller.configure(node,"FollowPath",tf,map);controller.activate();
   assert(node->describe_parameter("FollowPath.use_gpu").read_only);
   assert(node->describe_parameter("FollowPath.gpu_minimum_work").read_only);
-  assert(node->describe_parameter("FollowPath.gpu_deadline_ms").read_only);
   assert(!node->set_parameter(rclcpp::Parameter("FollowPath.use_gpu",!use_gpu)).successful);
   nav2_controller::SimpleGoalChecker checker;checker.initialize(node,"probe_goal",map);
   OmniVelocityLimits expected;expected.configure({.5,-.2,.3,.1});

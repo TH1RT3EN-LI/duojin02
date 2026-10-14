@@ -1,0 +1,139 @@
+{
+  "result": "passed",
+  "date": "2026-10-14",
+  "baseline_commit": "81594b1b7e3ea559b8ac256412e0824c14db7ab0",
+  "scope": "Static source review, isolated ROS synthetic inputs and PTY, actual RTX 5070 CUDA; no physical braking or Orin timing claim",
+  "changes": [
+    "advisory localization quality without command relay or recovery latch",
+    "one configured braking envelope; no costmap feedback or covariance inflation",
+    "no GPU duration parking threshold; real runtime fault latch retained",
+    "whole-frame invalid motion rejection; stop-before-ready serial reconnect",
+    "one common final command lease in safety.yaml"
+  ],
+  "checks": {
+    "python": {
+      "passed": 136,
+      "failed": 0
+    },
+    "launch_entries": {
+      "passed": 12
+    },
+    "cpu_ctest": {
+      "passed": 17,
+      "skipped": 1,
+      "failed": 0
+    },
+    "gpu_ctest": {
+      "passed": 20,
+      "skipped": 0,
+      "failed": 0
+    },
+    "guard_cases": {
+      "association": {
+        "result": "passed",
+        "case_count": 9,
+        "evidence": "association.json"
+      },
+      "map": {
+        "result": "passed",
+        "case_count": 3,
+        "evidence": "map.json"
+      },
+      "scan": {
+        "result": "passed",
+        "case_count": 15,
+        "evidence": "scan.json"
+      },
+      "tf": {
+        "result": "passed",
+        "case_count": 4,
+        "evidence": "tf.json"
+      },
+      "velocity": {
+        "result": "passed",
+        "check_count": 13,
+        "evidence": "velocity-with-odom-command.log",
+        "cleanup": {
+          "returncode": 0,
+          "forced": false
+        }
+      }
+    },
+    "advisory_monitor": {
+      "passed": 14,
+      "normal_exit": true
+    },
+    "producer_loss_chain": {
+      "passed": 15,
+      "metrics": {
+        "last_raw_receipt_wall": 217808.010410243,
+        "producer_stopped_wall": 217808.029986246,
+        "brake_onset_s": 0.26928058700286783,
+        "smoother_zero_s": 0.8195443750009872,
+        "serial_zero_s": 0.8252950320020318,
+        "commanded_travel_after_loss_m": 0.1306558494991623,
+        "max_braking_step_mps": 0.020000000000000004,
+        "steady_outputs_last_second": 20,
+        "max_steady_receipt_gap_s": 0.050184857012936845
+      },
+      "normal_exit": true
+    },
+    "base_feedback": "passed, mixed invalid axes zero and monotonic lease expiry; normal exit",
+    "shared_config": {
+      "pass": true,
+      "authored_lease_s": 0.41,
+      "effective": {
+        "velocity_guard": 0.41,
+        "base_driver": 0.41
+      },
+      "cleanup": [
+        {
+          "name": "base_driver",
+          "returncode": 0
+        },
+        {
+          "name": "velocity_guard",
+          "returncode": 0
+        }
+      ]
+    },
+    "installed_backend": {
+      "comparisons": 14472,
+      "cuda_batches": 470,
+      "cpu_boundary_rechecks": 439,
+      "mismatches": 0,
+      "cpu_and_no_device_fallback": "passed"
+    },
+    "algorithm_preservation": "algorithm-preservation.json"
+  },
+  "runtime_images": {
+    "gpu": "sha256:398e5db63d669f943fbb3a508d86c1c222e5ada25f6c76fd031ff7db13e5b039",
+    "cpu": "sha256:1d24419eae2bba25f0f034c13c4777c12a159b18d9f7cb29581909cc1f3d3b56"
+  },
+  "source_sha256": {
+    "src/duojin02_navigation/src/velocity_guard.cpp": "ac842cabb9d73a89b45aa9071cf0f9968b557ebcb23e7b13a6f26bf2203d8c36",
+    "src/duojin02_navigation/src/precise_mppi.cpp": "94aedd34b3b07cd8d38ee0117b782d676b786b620c444a033aaf603e8e9774a7",
+    "src/duojin02_navigation/gpu/geometry.cpp": "1c59b0bb679bd889d4b7e669f54894532a49d2fd0ad88fb4fe57d8c4d71fa290",
+    "src/duojin02_navigation/gpu/geometry.cu": "4a5f9308e5ad964087211b450d686ebff40ee65e2dd171ca6511c9e81d019563",
+    "src/duojin02_base_driver/src/duojin02_base_driver.cpp": "c2ae9af6fb51ee9ab4541b7fcfdab95bcd93767313833e81104551a7cc3eacdf",
+    "src/duojin02_bringup/duojin02_bringup/localization_monitor.py": "779ed893657208f98ad0afebfd42e32f46658c42a960d04fde163e6fca73e638",
+    "src/duojin02_bringup/duojin02_bringup/localization_quality.py": "8a99f8046a036e39ca0d0a4db29ee9afc247dfea5a21d7766ff78189d06fac9e",
+    "src/duojin02_bringup/config/safety.yaml": "f16777a693bec9e6c1e1d04a07d04ceeb7ce3fa64be7342e0afa9b377bae56a7",
+    "src/duojin02_bringup/config/localization_monitor.yaml": "f98c5c396e47fa5380997bf38d7c70d7655fd2d5daa7dfdbe4f500c73de299f6",
+    "src/duojin02_bringup/config/nav2.yaml": "b1b5f56b9a4357f2ba32fea90ef650033418cd14f3fe8352f9f3db18616e73cd"
+  },
+  "local_full_evidence": "/home/th1rt3en/.codex/visualizations/2026/10/14/01a1380c-9518-7301-b2de-434ad530817e/duojin02-safety-cleanup",
+  "authoritative_logs": [
+    "python.log",
+    "launch.log",
+    "vendor-launch.log",
+    "cpu/ctest-final.log",
+    "gpu/ctest-complete-final.log",
+    "chain-final.log",
+    "base-feedback.log",
+    "installed-cpu/monitor/result.json",
+    "installed-gpu/command-timeout/result.json",
+    "shared-config-result.json"
+  ],
+  "failed_attempts_retained": true
+}

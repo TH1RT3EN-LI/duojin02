@@ -78,7 +78,7 @@ if(BUILD_TESTING)
   add_test(NAME guard_association_probe COMMAND ${Python3_EXECUTABLE}
     "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_association_probe.py"
     --guard-binary $<TARGET_FILE:velocity_guard>
-    --params-file "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/velocity_guard.yaml"
+    --params-file "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml"
     --json-out "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe.json"
     --log-dir "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe-logs")
   set_tests_properties(guard_association_probe PROPERTIES TIMEOUT 60
