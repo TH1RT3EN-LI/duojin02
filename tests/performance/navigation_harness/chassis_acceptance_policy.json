@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "effective_date": "2026-10-13",
+  "scope": "fixed bottom-chassis footprint in simulation",
+  "regular_minimum_corridor_width_m": 0.6,
+  "default_corridor_case": "corridor_0.60",
+  "widths_below_minimum": "stress_and_failure_diagnosis",
+  "retained_extreme_stress_width_m": 0.5,
+  "historical_results_reclassified": false,
+  "physical_hardware_safety_floor_verified": false,
+  "controller_and_guard_reserves_changed": false,
+  "laser_range_filter_changed": false,
+  "evidence": {
+    "corner60_update_frequency_trials": "6/6 arrivals per 10, 15 and 20 Hz arm; no observed collisions",
+    "corner60_current_top1_publish_arm": "2/2 arrivals; no observed collisions",
+    "scope_limit": "Corner60 HIL evidence motivates the width policy; the newly added straight corridor case has not run in this change."
+  }
+}

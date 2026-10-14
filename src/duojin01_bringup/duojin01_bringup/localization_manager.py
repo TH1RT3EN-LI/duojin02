@@ -314,7 +314,10 @@ class LocalizationManager(Node):
                     abs(msg.angle_max-expected_max) > max(1e-4,abs(msg.angle_increment)*0.05) or
                     not all(math.isfinite(v) and v >= 0 for v in (msg.scan_time,msg.time_increment))):
                 raise ValueError('Inconsistent LaserScan metadata')
-            if any(math.isnan(r) or r == -math.inf or r < msg.range_min for r in msg.ranges):
+            # Self-masked bins are NaN: they are unknown directions, not a
+            # malformed scan or evidence of free space. Keep source-time and
+            # map-support checks for the remaining fixed angular roster.
+            if any(r is None or r == -math.inf or r < msg.range_min for r in msg.ranges):
                 raise ValueError('Invalid LaserScan ray')
         except (ValueError, TypeError, OverflowError) as error:
             self.pending = None

@@ -10,11 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'config'), [
-            'config/joy_launcher.yaml',
-            'config/joy_axis_selector.yaml',
-            'config/keyboard_teleop.yaml',
-        ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

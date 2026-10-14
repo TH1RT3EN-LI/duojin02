@@ -21,11 +21,12 @@ import rclpy
 import yaml
 
 from localization_manager_probe import ROOT, SensorFixture
+from chassis_probe import component_file, load_profile, render
 
 
 def run(args):
     args.output_dir.mkdir(parents=True, exist_ok=False)
-    configuration = yaml.safe_load(args.params.read_text())['velocity_smoother']
+    configuration = render(load_profile(args.chassis_profile), 'navigation')['velocity_smoother']
     timeout = configuration['ros__parameters']['velocity_timeout']
     params = args.output_dir/'smoother.yaml'
     params.write_text(yaml.safe_dump({'velocity_smoother': configuration}))
@@ -63,13 +64,13 @@ def run(args):
     fixture.master = master
     try:
         start('manager', ['ros2', 'run', 'duojin01_bringup', 'localization_manager',
-            '--ros-args', '--params-file', str(ROOT/'src/duojin01_bringup/config/localization_health.yaml'),
+            '--ros-args', '--params-file', component_file('health', args.chassis_profile),
             '-p', 'use_sim_time:=true'])
         start('mux', ['ros2', 'run', 'twist_mux', 'twist_mux', '--ros-args',
-            '--params-file', str(ROOT/'src/duojin01_bringup/config/twist_mux.yaml'),
+            '--params-file', component_file('twist_mux', args.chassis_profile),
             '-r', '/cmd_vel_out:=/cmd_vel_requested'])
         start('guard', [str(args.guard_binary), '--ros-args', '--params-file',
-            str(ROOT/'src/duojin01_bringup/config/velocity_guard.yaml'), '-p', 'use_sim_time:=true'])
+            component_file('guard', args.chassis_profile), '-p', 'use_sim_time:=true'])
         start('driver', [str(args.driver_binary), '--ros-args', '-p',
             f'usart_port_name:={os.ttyname(slave)}', '-p', 'serial_baud_rate:=57600',
             '-p', 'use_sim_time:=true', '-r', '/cmd_vel:=/cmd_vel_base'])
@@ -116,11 +117,8 @@ def run(args):
         check('timeout_onset', timeout-.03 <= brake_wall-last_input_wall <= timeout+.11)
         check('serial_stop_after_deceleration', serial_zero_wall-last_input_wall <= timeout+.80)
         check('serial_stays_stopped', fixture.wire_packets[-1][1] == (0, 0, 0))
-        if args.candidate:
-            check('candidate_onset_within_360ms', brake_wall-last_input_wall <= .36)
-            check('candidate_serial_zero_within_1050ms', serial_zero_wall-last_input_wall <= 1.05)
-        else:
-            check('baseline_serial_zero_exceeds_1450ms', serial_zero_wall-last_input_wall >= 1.45)
+        check('onset_within_360ms', brake_wall-last_input_wall <= .36)
+        check('serial_zero_within_1050ms', serial_zero_wall-last_input_wall <= 1.05)
         fixture.pump(.7, manual=.12)
         check('idle_navigation_releases_mux', fixture.wire_packets[-1][1] == (120, 0, 0))
         fixture.pump(1.0, nav=.24)
@@ -156,9 +154,8 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--params', type=Path, required=True)
+    parser.add_argument('--chassis-profile', type=Path, default=None)
     parser.add_argument('--guard-binary', type=Path, required=True)
     parser.add_argument('--driver-binary', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
-    parser.add_argument('--candidate', action='store_true')
     run(parser.parse_args())

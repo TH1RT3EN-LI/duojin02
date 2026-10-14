@@ -141,8 +141,8 @@ def run(args):
         with log.open("w") as stream:
             command = ["ros2", "launch", "duojin01_bringup", "offline_mapping.launch.py",
                        f"odom_source:={args.odom_source}", f"scan_start_time_ns:={report['scan_start_time_ns']}"]
-            if args.slam_params_file:
-                command.append(f"slam_params_file:={args.slam_params_file.resolve()}")
+            if args.chassis_profile:
+                command.append(f"chassis_profile:={args.chassis_profile.resolve()}")
             launch = subprocess.Popen(command, env=environment, stdout=stream,
                                       stderr=subprocess.STDOUT, start_new_session=True)
             deadline = time.monotonic() + args.startup_timeout
@@ -237,7 +237,7 @@ def main():
     parser.add_argument("--odom-source", choices=("recorded", "ekf"), default="recorded")
     parser.add_argument("--output-dir", type=Path, default=Path(os.environ.get("DUOJIN01_WORKSPACE_ROOT", ".")) / "maps")
     parser.add_argument("--map-name", default="auto")
-    parser.add_argument("--slam-params-file", type=Path)
+    parser.add_argument("--chassis-profile", type=Path)
     parser.add_argument("--domain-id", type=int, default=97)
     parser.add_argument("--rate", type=float, default=0.5)
     parser.add_argument("--ekf-warmup", type=float, default=0.5,

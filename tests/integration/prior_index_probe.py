@@ -1,6 +1,7 @@
 """Verify compiled map-prior indexing with rotated localization and negative bins."""
 import json,math,os,signal,subprocess,time
 from pathlib import Path
+from chassis_probe import component_file
 os.environ['ROS_DOMAIN_ID']='94';os.environ['ROS_LOCALHOST_ONLY']='1'
 import rclpy
 from rclpy.qos import QoSProfile,DurabilityPolicy,qos_profile_sensor_data
@@ -16,7 +17,7 @@ scan=n.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
 prior=n.create_publisher(OccupancyGrid,'/map',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
 broadcaster=TransformBroadcaster(n)
 angle=.73;tx=-1.2;ty=.8;c=math.cos(angle);s=math.sin(angle)
-log=open('/tmp/prior-index-probe.log','w');p=subprocess.Popen(['ros2','run','duojin01_navigation','velocity_guard','--ros-args','--params-file',str(Path(__file__).resolve().parents[2]/'src/duojin01_bringup/config/velocity_guard.yaml')],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+log=open('/tmp/prior-index-probe.log','w');p=subprocess.Popen(['ros2','run','duojin01_navigation','velocity_guard','--ros-args','--params-file',str(component_file('guard'))],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
 def pump(seconds):
  end=time.monotonic()+seconds
  while time.monotonic()<end:

@@ -1,14 +1,24 @@
-import os
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
+"""Collision guard derived from the chassis configuration."""
+
+from duojin01_bringup.chassis_profile import component_file, default_profile
 from duojin01_bringup.middleware import middleware
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+def create_node(context):
+    profile = LaunchConfiguration("chassis_profile").perform(context)
+    return [Node(
+        package="duojin01_navigation", executable="velocity_guard", name="velocity_guard",
+        parameters=[component_file("guard", profile), {"use_sim_time": False}], output="screen",
+    )]
+
+
 def generate_launch_description():
-    config = os.path.join(get_package_share_directory('duojin01_bringup'), 'config', 'velocity_guard.yaml')
     return LaunchDescription([
         middleware(),
-        Node(package='duojin01_navigation', executable='velocity_guard', name='velocity_guard',
-             parameters=[config, {'use_sim_time': False}], output='screen'),
+        DeclareLaunchArgument("chassis_profile", default_value=default_profile()),
+        OpaqueFunction(function=create_node),
     ])

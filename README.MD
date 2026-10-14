@@ -46,24 +46,12 @@ sudo ./scripts/set_dev.sh /dev/ttyACM_LIDAR lslidar Lslidar
 # 已有建图节点，先停稳，再保存地图与位姿图
 ros2 launch duojin01_bringup save_map.launch.py
 # 键盘遥控；需要接管导航中的机器人时先取消目标
-ros2 run duojin01_teleop keyboard_teleop_node
+ros2 launch duojin01_bringup keyboard_teleop.launch.py
 ```
 
-常用参数的外层显式声明范围如下；子 launch 的声明、转发与作用域另需核对：
+当前所有底盘参数只维护在 [chassis.yaml](src/duojin01_bringup/config/chassis.yaml)。前进、后退、横移三个速度仍可分别设置；串口、波特率、EKF、雷达裁剪、guard、SLAM 和导航组件均从总配置派生。修改后执行 `python3 scripts/chassis_config.py check` 和 `python3 scripts/chassis_config.py adopt`，具体字段及 Jetson 入口见 [唯一配置说明](docs/chassis/configuration.md)。
 
-| 参数 | `base` | `mapping` | `navigation` | `online_navigation` |
-| --- | --- | --- | --- | --- |
-| `base_serial_port`、`lidar_serial_port` | 声明 | 声明 | 声明 | 声明 |
-| `use_teleop`、`use_foxglove` | 声明 | 声明 | 声明 | 声明 |
-| `base_params_file`、`base_serial_baudrate`、`odom0`、`imu0` | 声明 | 声明 | 声明 | — |
-| `use_lidar`、`publish_robot_model`、`publish_joint_states` | 声明 | — | — | — |
-| `use_rviz` | — | 声明 | 声明 | — |
-| `rviz_config` | — | 声明 | — | — |
-| `slam_params_file`、`pose_graph`、`map_start_pose`、`start_at_dock` | — | 声明 | — | — |
-| `map`、`autostart` | — | — | 声明 | — |
-| `params_file`（Nav2） | — | — | 声明 | 声明 |
-
-表中名称省略 `.launch.py`，`—` 只表示外层未声明，不证明嵌套入口无法接收同名参数。`use_teleop` 控制手柄节点，键盘遥控是上方独立入口。建图 / 固定图无显示器时传 `use_rviz:=false`；底盘及在线导航不自动启动 RViz。已构建环境可用 `ros2 launch duojin01_bringup mapping.launch.py --show-args` 查看声明，检查其他入口时替换文件名；参数被命令行接受仍需核对实际节点有效值。
+各 bringup 入口接收 `chassis_profile` 指向该总配置；运行时地图、回放/续建位置、显示开关和输出目录继续按单次任务指定。旧串口与局部 YAML 参数覆盖入口已移除。Nav2 内部的 `params_file` 只传递生成后的参数。`use_teleop` 控制手柄，键盘使用上方独立入口。
 
 `DUOJIN01_WORKSPACE_ROOT` 指定数据工作区的绝对路径，导航选图和保存地图共用它；录包、离线输出和续建前缀的路径规则见 [SLAM 工作流](docs/slam-workflow.md)。雷达来源、固定协议和配置集中在 [UPSTREAM](src/lslidar_driver/UPSTREAM.md)；换硬件需验证对应驱动，不能猜协议。
 

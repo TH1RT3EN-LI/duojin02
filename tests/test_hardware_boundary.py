@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 import yaml
+from conftest import CHASSIS_PROFILE
+from duojin01_bringup.chassis_profile import load_profile, render
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,6 +90,27 @@ def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
                     assert value.value is False or value.value == "false"
 
 
+@pytest.mark.parametrize("name", [
+    "base", "mapping", "navigation", "nav2", "slam", "joy_teleop",
+    "online_navigation", "velocity_guard", "navigation_stack", "offline_mapping",
+])
+def test_launches_expose_only_master_config_and_runtime_inputs(name):
+    from launch.actions import DeclareLaunchArgument
+    description = load_launch(name).generate_launch_description()
+    arguments = {action.name for action in description.entities
+                 if isinstance(action, DeclareLaunchArgument)}
+    assert "chassis_profile" in arguments
+    assert not arguments & {"base_params_file", "slam_params_file", "base_serial_port",
+                            "base_serial_baudrate", "lidar_serial_port", "odom0", "imu0",
+                            "scan_queue_size"}
+    if name != "navigation_stack":
+        assert "params_file" not in arguments
+    tree = ast.parse((BRINGUP / "launch" / f"{name}.launch.py").read_text())
+    for call in ast.walk(tree):
+        if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == "component_file":
+            assert len(call.args) == 2, f"{name} must propagate the selected master explicitly"
+
+
 def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatch):
     from ament_index_python.packages import get_package_share_directory
     from launch import LaunchContext
@@ -99,8 +122,8 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     (tmp_path / "0.pgm").write_bytes(b"P5\n1 1\n255\n\xff")
     context = LaunchContext()
     context.launch_configurations["map"] = str(map_file)
-    actions = load_launch("nav2")._create_nav_actions(
-        context, get_package_share_directory("nav2_bringup"))
+    context.launch_configurations.update(chassis_profile=str(CHASSIS_PROFILE), autostart="false", log_level="info", use_rviz="false", rviz_config="/tmp/test.rviz")
+    actions = load_launch("nav2").create_navigation(context)
     grouped_actions = [entity for action in actions if isinstance(action, GroupAction)
                        for entity in action.get_sub_entities()]
     include = next(action for action in grouped_actions
@@ -113,7 +136,7 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
 
 
 def test_command_sources_reach_base_through_validated_velocity_arbitration():
-    config = yaml.safe_load((BRINGUP / "config/twist_mux.yaml").read_text())
+    config = render(load_profile(CHASSIS_PROFILE), "twist_mux")
     parameters = config["twist_mux"]["ros__parameters"]
     assert {entry["topic"] for entry in parameters["topics"].values()} == {
         "/cmd_vel", "/cmd_vel_normal", "/cmd_vel_slow"}
@@ -159,44 +182,37 @@ def test_generated_urdf_contains_only_hardware_geometry():
         assert (ROOT / "src/duojin01_description" / relative).is_file(), filename
 
 
-def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monkeypatch):
+def test_lidar_hardware_interfaces_are_derived_from_selected_master(monkeypatch, tmp_path):
     from launch import LaunchContext
-    from launch.actions import GroupAction, IncludeLaunchDescription
-    from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
+    from launch_ros.actions import Node
     module = load_launch("base")
-    lidar_share = ROOT / "src/lslidar_driver/lslidar_driver"
-    shares = {"lslidar_driver": lidar_share,
-              "duojin01_description": ROOT / "src/duojin01_description",
-              "duojin01_bringup": BRINGUP}
+    shares = {"duojin01_description": ROOT / "src/duojin01_description", "duojin01_bringup": BRINGUP}
     monkeypatch.setattr(module, "get_package_share_directory", lambda name: str(shares[name]))
-    description = module.generate_launch_description()
-    groups = [item for item in description.entities if isinstance(item, GroupAction)]
-    assert len(groups) == 1
-    children = groups[0].get_sub_entities()
-    include = next(item for item in children if isinstance(item, IncludeLaunchDescription))
+    selected = yaml.safe_load(CHASSIS_PROFILE.read_text())
+    selected["lidar"]["driver_parameters"]["serial_port"] = "/dev/test_lidar"
+    profile = tmp_path / "chassis.yaml"
+    profile.write_text(yaml.safe_dump(selected))
+    requested = []
+    actual_component_file = module.component_file
+    def record_component(component, profile_path):
+        requested.append((component, profile_path))
+        return actual_component_file(component, profile_path)
+    monkeypatch.setattr(module, "component_file", record_component)
     context = LaunchContext()
-    context.launch_configurations.update(
-        params_file="/ws/config/nav2.yaml", lidar_serial_port="/dev/test_lidar")
-    include.launch_description_source.get_launch_description(context)
-    path = include.launch_description_source.location
-    assert Path(path) == lidar_share / "launch/lslidar_x10_launch.py"
-    values = {name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
-              for name, value in include.launch_arguments}
-    assert values["params_file"] == str(lidar_share / "config/duojin01_n10plus.yaml")
-    assert values["serial_port"] == "/dev/test_lidar"
-    assert values["frame_id"] == "laser"
-    assert values["scan_topic"] == "/scan"
-    # Exercise the group's configuration stack without executing any node actions.
-    for action in groups[0].execute(context):
-        if action is include:
-            context.launch_configurations["params_file"] = values["params_file"]
-        else:
-            action.execute(context)
-    assert context.launch_configurations["params_file"] == "/ws/config/nav2.yaml"
-    configuration = yaml.safe_load(Path(values["params_file"]).read_text())["lslidar_driver_node"]["ros__parameters"]
+    context.launch_configurations.update(chassis_profile=str(profile))
+    actions = module.create_nodes(context)
+    lidar = [node for node in actions if isinstance(node, Node) and node.node_package == "lslidar_driver"]
+    assert len(lidar) == 1
+    assert all(path == str(profile) for _, path in requested)
+    assert ("lidar", str(profile)) in requested
+    configuration = render(load_profile(profile), "lidar")["lslidar_driver_node"]["ros__parameters"]
+    assert configuration["serial_port"] == "/dev/test_lidar"
+    assert configuration["frame_id"] == "laser"
+    assert configuration["laserscan_topic"] == "/scan"
     assert configuration["use_sim_time"] is False
-    assert not (lidar_share / "src/lslidar_driver.cc").exists()
-    assert not (lidar_share / "params/lsx10.yaml").exists()
+    source = (BRINGUP / "launch/base.launch.py").read_text()
+    assert "lslidar_x10_launch.py" not in source
+    assert "lidar_serial_port" not in source
 
 
 def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, monkeypatch):

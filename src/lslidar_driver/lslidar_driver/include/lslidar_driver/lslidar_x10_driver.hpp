@@ -13,6 +13,7 @@
 
 #include "lslidar_driver/publication_worker.hpp"
 #include "lslidar_driver/data_acquisition_strategy.hpp"
+#include "lslidar_driver/self_filter.hpp"
 
 namespace lslidar_driver {
 
@@ -48,11 +49,17 @@ public:
 
 protected:
     void pointcloudToLaserscan(const pcl::PointCloud<pcl::PointXYZI> &cloud,
-                              sensor_msgs::msg::LaserScan &scan) const;
+                              sensor_msgs::msg::LaserScan &scan,
+                              pcl::PointCloud<pcl::PointXYZI> *retained_cloud = nullptr,
+                              bool apply_self_filter = true) const;
     rclcpp::Node::SharedPtr node_;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_pub_;
     rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laserscan_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr raw_pointcloud_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr raw_laserscan_pub_;
     std::string serial_port_, frame_id, san_topic_, pointcloud_topic;
+    std::string raw_scan_topic_, raw_pointcloud_topic_;
+    bool publish_raw_{false};
 
 private:
     void appendPoints(size_t begin, size_t end);
@@ -60,6 +67,7 @@ private:
                       double frame_time, double frame_duration);
 
     double min_range, max_range;
+    SelfFilter self_filter_;
     std::array<float, 36000> cos_azimuth_table{}, sin_azimuth_table{};
     int last_azimuth_{0};
     bool first_sweep_{true};

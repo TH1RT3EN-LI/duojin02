@@ -8,11 +8,12 @@ from launch.substitutions import LaunchConfiguration
 from nav2_common.launch import RewrittenYaml
 from duojin01_bringup.online_profile import OnlineParameters, online_parameters
 
-CONFIG = Path(__file__).resolve().parents[1] / 'src/duojin01_bringup/config/nav2.yaml'
+from conftest import CHASSIS_PROFILE
+from duojin01_bringup.chassis_profile import component_file, load_profile, render
 
 
 def test_online_local_map_uses_lidar_and_memory_without_changing_fixed_config():
-    fixed = yaml.safe_load(CONFIG.read_text())
+    fixed = render(load_profile(CHASSIS_PROFILE), 'navigation')
     original = copy.deepcopy(fixed)
     local = fixed['local_costmap']['local_costmap']['ros__parameters']
     local['plugins'].append('custom')
@@ -32,7 +33,7 @@ def test_online_local_map_uses_lidar_and_memory_without_changing_fixed_config():
 
 def test_online_file_resolves_launch_configuration_and_preserves_list_types():
     context = LaunchContext()
-    context.launch_configurations['params_file'] = str(CONFIG)
+    context.launch_configurations['params_file'] = component_file('navigation', str(CHASSIS_PROFILE))
     substitution = OnlineParameters(LaunchConfiguration('params_file'))
     rewritten = RewrittenYaml(source_file=substitution, param_rewrites={'use_sim_time': 'true'}, convert_types=True)
     path = rewritten.perform(context)

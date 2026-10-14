@@ -5,7 +5,7 @@ Run in an environment where rclpy and the supplied guard's ROS libraries are
 available, after the guard has been built by the caller:
 
   python3 tests/integration/scan_fault_probe.py --guard-binary /absolute/path/velocity_guard \
-      --params-file /absolute/path/velocity_guard.yaml \
+      --chassis-profile /absolute/path/chassis.yaml \
       --json-out /absolute/path/scan_fault_results.json
 
 The probe does not build anything or contact hardware. It uses a random local
@@ -45,6 +45,8 @@ import subprocess
 import sys
 import time
 import uuid
+
+from chassis_probe import component_file, default_profile, load_profile
 
 import rclpy
 from rclpy.node import Node
@@ -139,7 +141,7 @@ class CaseProbe(Node):
             "/map": "unused_map", "/local_costmap/costmap": "unused_costmap",
             "/amcl_pose": "unused_localization", "/tf": "unused_tf", "/tf_static": "unused_tf_static",
         }
-        command = [str(args.guard_binary), "--ros-args", "--params-file", str(args.params_file),
+        command = [str(args.guard_binary), "--ros-args", "--params-file", args.guard_parameters,
                    "-p", "use_sim_time:=false", "-p", "scan_timeout_s:=0.3",
                    "-p", "command_timeout_s:=0.25"]
         for original, suffix in remaps.items():
@@ -603,7 +605,7 @@ class CaseProbe(Node):
 def arguments():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--guard-binary", type=Path, required=True)
-    parser.add_argument("--params-file", type=Path, required=True)
+    parser.add_argument("--chassis-profile", type=Path, default=None)
     parser.add_argument("--domain-id", type=int, default=None,
                         help="Isolated ROS domain; default random 100..199")
     parser.add_argument("--json-out", type=Path, default=None)
@@ -614,12 +616,12 @@ def arguments():
     parser.add_argument("--invalid-reason", default="scan_invalid")
     args = parser.parse_args()
     args.guard_binary = args.guard_binary.resolve()
-    args.params_file = args.params_file.resolve()
+    args.chassis_profile = Path(args.chassis_profile or default_profile()).resolve(strict=True)
+    load_profile(args.chassis_profile)
+    args.guard_parameters = component_file("guard", args.chassis_profile)
     args.log_dir = args.log_dir.resolve()
     if not args.guard_binary.is_file() or not os.access(args.guard_binary, os.X_OK):
         parser.error("--guard-binary must be an executable file")
-    if not args.params_file.is_file():
-        parser.error("--params-file must be a file")
     if args.domain_id is None:
         args.domain_id = random.SystemRandom().randrange(100, 200)
     if not 0 <= args.domain_id <= 232:
@@ -638,7 +640,8 @@ def main():
     args.log_dir.mkdir(parents=True, exist_ok=True)
     report = {
         "test": "VelocityGuard_scan_fault_api", "result": "running",
-        "guard_binary": str(args.guard_binary), "params_file": str(args.params_file),
+        "guard_binary": str(args.guard_binary), "chassis_profile": str(args.chassis_profile),
+        "derived_guard_parameters": args.guard_parameters,
         "ros_domain_id": args.domain_id, "local_only": True,
         "scan_timeout_s": SCAN_TIMEOUT_S, "tick_s": TICK_S,
         "response_bound_ms": (TICK_S + args.timing_tolerance_s) * 1000,

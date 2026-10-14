@@ -1,5 +1,0 @@
-/**:
-  ros__parameters:
-    port: 8765
-    address: "0.0.0.0"
-

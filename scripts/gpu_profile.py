@@ -5,6 +5,9 @@ import json
 import math
 from pathlib import Path
 import yaml
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src/duojin01_bringup'))
+from duojin01_bringup.chassis_profile import component_file, default_profile
 
 EXPLORATION = dict(gpu_batch_size=6400, gpu_support_points=4,
                    gpu_vx_std=.35, gpu_vy_std=.35, gpu_wz_std=.12,
@@ -95,7 +98,7 @@ def make_profile(source, compute_backend='auto', sampling_backend='auto',
 def main():
     root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', type=Path, default=root/'src/duojin01_bringup/config/nav2.yaml')
+    parser.add_argument('--chassis-profile', type=Path, default=Path(default_profile()))
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--compute-backend', choices=['cpu', 'auto', 'cuda'], default='auto')
     parser.add_argument('--sampling-backend', choices=['original', 'auto', 'cuda'], default='auto')
@@ -109,7 +112,7 @@ def main():
     parser.add_argument('--path-weight', type=float)
     parser.add_argument('--goal-weight', type=float)
     args = parser.parse_args()
-    if args.source.resolve() == args.output.resolve():
+    if args.chassis_profile.resolve() == args.output.resolve():
         parser.error('Output must differ from the primary input profile')
     overrides = {key: getattr(args, key) for key in ('gpu_batch_size', 'gpu_time_steps',
                  'gpu_vx_std', 'gpu_vy_std', 'gpu_wz_std', 'gpu_temperature')
@@ -117,7 +120,7 @@ def main():
     overrides.update({f'gpu_{key}': getattr(args, key) for key in ('path_weight', 'goal_weight')
                       if getattr(args, key) is not None})
     try:
-        data = make_profile(args.source, args.compute_backend, args.sampling_backend,
+        data = make_profile(component_file('navigation', args.chassis_profile), args.compute_backend, args.sampling_backend,
                             args.deadline_ms, args.minimum_work, args.support_points,
                             args.preset, overrides)
     except ValueError as e:

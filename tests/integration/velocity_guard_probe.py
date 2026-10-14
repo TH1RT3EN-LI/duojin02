@@ -3,6 +3,7 @@ import json
 import math
 import os
 from pathlib import Path
+from chassis_probe import component_file
 import signal
 import subprocess
 import time
@@ -27,7 +28,7 @@ def run():
     scan=node.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
     grid=node.create_publisher(OccupancyGrid,'/local_costmap/costmap',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     covariance=node.create_publisher(PoseWithCovarianceStamped,'/amcl_pose',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
-    parameters=Path(__file__).resolve().parents[2]/'src/duojin01_bringup/config/velocity_guard.yaml'
+    parameters=component_file('guard')
     with open('/tmp/velocity-guard-probe.log','w') as log:
         binary=Path(get_package_prefix('duojin01_navigation'))/'lib/duojin01_navigation/velocity_guard'
         process=subprocess.Popen([str(binary),'--ros-args','--params-file',str(parameters)],

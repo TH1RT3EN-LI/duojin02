@@ -9,17 +9,24 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('gpu_profile', ROOT/'scripts/gpu_profile.py')
 gpu_profile = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gpu_profile)
-SOURCE = ROOT/'src/duojin01_bringup/config/nav2.yaml'
+from conftest import CHASSIS_PROFILE
+from duojin01_bringup.chassis_profile import component_file
+
+
+def navigation_source():
+    return Path(component_file('navigation', str(CHASSIS_PROFILE)))
 
 
 @pytest.mark.parametrize('preset', ['baseline', 'coverage', 'explore-lite', 'explore', 'structured'])
 def test_native_fallback_and_hardware_are_preserved(preset):
-    original = yaml.safe_load(SOURCE.read_text())
-    candidate = gpu_profile.make_profile(SOURCE, preset=preset)
-    follow = candidate['controller_server']['ros__parameters']['FollowPath']
-    for key in list(follow):
-        if key.startswith('gpu_') or key in ('compute_backend', 'sampling_backend'):
-            del follow[key]
+    source = navigation_source()
+    original = yaml.safe_load(source.read_text())
+    candidate = gpu_profile.make_profile(source, preset=preset)
+    for document in (original, candidate):
+        follow = document['controller_server']['ros__parameters']['FollowPath']
+        for key in list(follow):
+            if key.startswith('gpu_') or key in ('compute_backend', 'sampling_backend'):
+                del follow[key]
     assert candidate == original
 
 
@@ -33,9 +40,9 @@ def test_native_fallback_and_hardware_are_preserved(preset):
 ])
 def test_invalid_or_unobserved_search_is_rejected(overrides):
     with pytest.raises(ValueError):
-        gpu_profile.make_profile(SOURCE, preset='explore-lite', overrides=overrides)
+        gpu_profile.make_profile(navigation_source(), preset='explore-lite', overrides=overrides)
 
 
 def test_support_cannot_exceed_horizon():
     with pytest.raises(ValueError):
-        gpu_profile.make_profile(SOURCE, support_points=100)
+        gpu_profile.make_profile(navigation_source(), support_points=100)

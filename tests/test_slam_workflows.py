@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from conftest import CHASSIS_PROFILE
 from geometry_msgs.msg import TransformStamped
 from launch import LaunchContext
 from launch_ros.actions import Node
@@ -102,7 +103,7 @@ def load_launch(name):
 @pytest.mark.parametrize('route', ['recorded', 'ekf'])
 def test_offline_launch_starts_only_recorded_data_consumers(route):
     context = LaunchContext()
-    context.launch_configurations.update(odom_source=route, slam_params_file='/tmp/config.yaml', scan_queue_size='100', scan_start_time_ns='0')
+    context.launch_configurations.update(odom_source=route, chassis_profile=str(CHASSIS_PROFILE), scan_start_time_ns='0')
     nodes = load_launch('offline_mapping').create_nodes(context)
     assert all(isinstance(node, Node) for node in nodes)
     assert len(nodes) == (2 if route == 'recorded' else 3)
@@ -112,7 +113,7 @@ def test_offline_launch_starts_only_recorded_data_consumers(route):
 def test_continuation_requires_a_real_graph_and_explicit_pose(tmp_path):
     module = load_launch('slam')
     context = LaunchContext()
-    context.launch_configurations.update(pose_graph=str(tmp_path / 'room'), map_start_pose='', start_at_dock='false', slam_params_file='/tmp/config.yaml')
+    context.launch_configurations.update(pose_graph=str(tmp_path / 'room'), map_start_pose='', start_at_dock='false', chassis_profile=str(CHASSIS_PROFILE))
     with pytest.raises(ValueError, match='Missing pose graph'):
         module.create_node(context)
     (tmp_path / 'room.posegraph').write_bytes(b'graph')

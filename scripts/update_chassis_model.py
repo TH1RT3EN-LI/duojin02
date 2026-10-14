@@ -328,13 +328,12 @@ def main():
         ET.SubElement(root, "xacro:property", name=name, value=f"{value:.12g}")
     xml_write(repo / "src/duojin01_description/urdf/chassis_geometry.xacro", root)
     polygon = data["projections"][args.footprint]["navigation_polygon_xy_m"]
-    nav = repo / "src/duojin01_bringup/config/nav2.yaml"
-    text = nav.read_text()
-    text, count = re.subn(r'footprint: "[^"\n]+"', 'footprint: "' + json.dumps(polygon, separators=(", ", ": ")) + '"', text)
-    assert count == 2, count
-    text, count = re.subn(r"inflation_radius: 0\.10\b", "inflation_radius: 0.35", text)
-    assert count in {0, 2}, count
-    nav.write_text(text)
+    import yaml
+    configuration = repo / "src/duojin01_bringup/config/chassis.yaml"
+    settings = yaml.safe_load(configuration.read_text())
+    settings['geometry']['body_polygon_xy_m'] = [float(value) for pair in polygon for value in pair]
+    configuration.write_text(yaml.safe_dump(settings, sort_keys=False, allow_unicode=True))
+    print('Chassis authority updated; review geometry and run scripts/chassis_config.py adopt.')
     draw_projection(docs / "projection.png", data)
     print(json.dumps({"wheelbase_m": wheelbase, "track_width_m": track, "mesh_triangles": sum(a["triangles"] for a in assets.values()),
                       "lidar_axis_m": lidar_axis.tolist(), "footprint": polygon}, indent=2))

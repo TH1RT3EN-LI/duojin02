@@ -129,7 +129,9 @@ class MapEvidence:
                 not math.pi <= abs(angle_increment) * (len(ranges) - 1) <= 2 * math.pi + 0.05):
             return {'valid': False, 'reason': 'invalid_scan_geometry', 'hits': 0}
         # Malformed rays outside the scoring subset still invalidate the scan.
-        if any(r is None or math.isnan(r) or r == -math.inf or r < range_min for r in ranges):
+        # A NaN marks an unknown or self-masked direction and supplies no
+        # endpoint or ray evidence; it does not invalidate other directions.
+        if any(r is None or r == -math.inf or r < range_min for r in ranges):
             return {'valid': False, 'reason': 'invalid_scan_ray', 'hits': 0}
         # Select uniformly before filtering: invalid/unknown beams cannot cause
         # a favourable subset to replace the requested angular evidence.
@@ -142,7 +144,10 @@ class MapEvidence:
         limit = min(range_max, policy.max_range)
         for i in range(0, len(ranges), step):
             r = ranges[i]
-            if r is None or math.isnan(r) or r == -math.inf or r < range_min:
+            if math.isnan(r):
+                unobserved += 1
+                continue
+            if r is None or r == -math.inf or r < range_min:
                 invalid += 1
                 continue
             # The N10 publisher uses Inf for every empty bin after range

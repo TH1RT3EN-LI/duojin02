@@ -1,12 +1,12 @@
 """Online mapping and explicit continuation from a paired pose graph."""
 
 import math
-import os
 from pathlib import Path
 
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from duojin01_slam_tools.snapshots import artifact_path, validate_map
+from duojin01_bringup.chassis_profile import component_file, default_profile
 from launch import LaunchDescription
 from duojin01_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, Shutdown
@@ -49,15 +49,14 @@ def create_node(context):
         raise ValueError("pose_graph is required when selecting a continuation pose")
     return [Node(package="slam_toolbox", executable="async_slam_toolbox_node",
                  name="slam_toolbox", output="screen",
-                 parameters=[LaunchConfiguration("slam_params_file"), parameters],
+                 parameters=[component_file("slam", LaunchConfiguration("chassis_profile").perform(context)), parameters],
                  on_exit=[Shutdown(reason="SLAM node exited")])]
 
 
 def generate_launch_description():
-    share = get_package_share_directory("duojin01_bringup")
     return LaunchDescription([
         middleware(),
-        DeclareLaunchArgument("slam_params_file", default_value=os.path.join(share, "config", "slam_toolbox.yaml")),
+        DeclareLaunchArgument("chassis_profile", default_value=default_profile()),
         DeclareLaunchArgument("pose_graph", default_value="", description="Saved graph prefix or .posegraph file"),
         DeclareLaunchArgument("map_start_pose", default_value="", description="Explicit continuation pose [x, y, yaw]"),
         DeclareLaunchArgument("start_at_dock", default_value="false", description="Continue at the graph's first scan pose"),

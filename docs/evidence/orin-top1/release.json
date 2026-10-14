@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "architecture": "aarch64",
+  "cuda_architecture": "sm87",
+  "profile": {
+    "path": "src/duojin01_bringup/config/chassis.yaml",
+    "sha256": "7569382e9e20ccfc2d52f18411bd83737acbf789633622632780074c26178bc8",
+    "derived_component_sha256": {
+      "base": "07fdcf774e3de0400f7a83a4692aa3a7e235d35de4df3208a4173f1d5b37913c",
+      "ekf": "6b151da6e1891e025fbf7370ff6abb761cbaf148a2e2ef0856bde5e9044e2c5f",
+      "foxglove": "4592c42dab99fda976991343eda306c666b6824270ae7139a2c6b830c1d8b3a7",
+      "guard": "6628a98d9813580c8d1df6a1c853a42908d626f898c28772b35dbaec363084b6",
+      "health": "bf469585488ac1e8cb495d4a654338503def4fa08e2bf5812d312390b0404b8b",
+      "joy": "3e377fe3e4b659f04d583fbbcfed02d9a9ac1b96dcb86a088a93fd5c22d7c22d",
+      "joy_axis_selector": "22b6278e980f0bb941920de3910194df341583cfdfbfc4f8a4e538aa1aeecded",
+      "joy_launcher": "e0533dd869ff5b185fe39e1c6b8f29a39a7fccc64b0d8fba1d95ff47cbab5d2f",
+      "keyboard": "13f4a2075825ba857dd92a8af24295d9a83586fffbba34a68bdf6b6f13e7ad1e",
+      "lidar": "e35eea31989ea841fd8d7fa3bc4a78d891ab850d3241e48085b5f148958ac170",
+      "navigation": "c1b52201c9bbdf539220ddda9f48c3319fd3f906b8cedc5a822b82c16a496fd5",
+      "recording_qos": "b557ebe19e4cce8bd60619c1be41dace9009a22706e94b850ac7a595490a849f",
+      "slam": "15ce6991a51341e3e71750a5f34630fd84b80d27333baad8d0854aa97eabdd5a",
+      "slam_offline": "d0ff25d0b2a0e6c1bcbaca7aa702b948e1ee9d4bfbd9611955e3ee5f124c7873",
+      "teleop_normal": "167f7bb03ab92ff37e012c56b9b8b0b94f2308a84db4678eff6c34fc4a605cea",
+      "teleop_slow": "45226dd4887c17c8bff4e26dc4fe263229b41b66e1d5381eb11c67fd2d569c0f",
+      "twist_mux": "8c4a9b701b0e93f723c7ae77d309540b718ff1af416afe0919051f271e1f1293"
+    }
+  },
+  "install_subdir": "install/orin_top1",
+  "required_install_files": {
+    "_local_setup_util_sh.py": "1d288ded3830dfd38e01684c2b3bd0fcefa5ccbe583ab37499333aff73e69356",
+    ".colcon_install_layout": "9b8d77949b6e468746790cc1ada9432ca9984c51533a086544c8d0c01f18cc66",
+    "duojin01_navigation/share/duojin01_navigation/controller_plugins.xml": "e808f5496b8962c48206cc6a6339f22ad42061b7092ce55288466a3a5bc287e8",
+    "duojin01_navigation/share/duojin01_navigation/study_costmap_plugins.xml": "a6a4caea6ff7876ee19786ba3f830f027e4a6caef24f21724248503ea1459386",
+    "duojin01_navigation/share/duojin01_navigation/package.xml": "f2c8c9d155e8463073b9935773ea716edd16636afb79d2ea6d1645e191f0231a",
+    "duojin01_navigation/share/duojin01_navigation/goal_checker_plugins.xml": "a72b67c155b9621f279b17b293841b2ee551b9c65359474cc501176373908977",
+    "duojin01_navigation/share/duojin01_navigation/planner_plugins.xml": "83d1d3f7b55e0314c9b5fcd8d5635fe43506e5f7efe83f820310c0eede556fce",
+    "duojin01_navigation/share/ament_index/resource_index/package_run_dependencies/duojin01_navigation": "d05138fa379cd99a3b39bbd816a351464c1f20d01be6a85c3d6ed42cc83541a9",
+    "duojin01_navigation/share/ament_index/resource_index/packages/duojin01_navigation": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "duojin01_navigation/share/ament_index/resource_index/nav2_core__pluginlib__plugin/duojin01_navigation": "7d3691762d82648363daf89dc073f66d49b26e7c3516425c70a7457d8431b995",
+    "duojin01_navigation/share/ament_index/resource_index/parent_prefix_path/duojin01_navigation": "dd90fbf53ce0008d2fd33015fec062b9dce33b0eed9d3a63c957f32e0e068756",
+    "duojin01_navigation/share/ament_index/resource_index/nav2_costmap_2d__pluginlib__plugin/duojin01_navigation": "6f0ee4b18f3b864a534ec4f8e120466dc5a759d575f1f1ba53e9dfc79461db82",
+    "duojin01_navigation/lib/libprecise_lattice.so": "c921594dfd4f718f464cd633cd7599c8c098898f728402384d8ed7aa66f44a86",
+    "duojin01_navigation/lib/libduojin_gpu_backend.so": "c870d0b82b718ea32d0030c60d1e02607c4d1689e1c158cf4ab2d7cef978b05e",
+    "duojin01_navigation/lib/libprecise_mppi.so": "09141252d64dadb47dc8b2984148879732630d148f9987f92a9ba37dd0f2d7f1",
+    "duojin01_navigation/lib/libstudy_layer_spans.so": "bf1461edc9c402ebc3619084f8a43030defd7ea1f7e50be283620c31ee4c68a1",
+    "duojin01_navigation/lib/duojin01_navigation/velocity_guard": "d31b016a0f8ef5cbc68ee535f6b74ea27360503dc4ad9af592a4c95ef64f97fb",
+    "duojin01_navigation/lib/libstable_goal_checker.so": "a7d40fca29b373f2062041d1a3d6322bdc3087cb24743f28d3b6c164bac65716",
+    "duojin01_navigation/lib/libstudy_inflation_layer.so": "a9215efeb7b836c4c726aab70d7257da07c7e049adcb2d1d707c36e51cad41f9",
+    "duojin01_navigation/lib/libprofile_transport.so": "e297077c907ba47d2b6bb2928f3395485748bb9fd562247a10b2a25f56cc7e8e",
+    "local_setup.bash": "0e10d666bbf43cf559467b11b75cf6d26cf8d210e7f94e79dfe5a7dddb2fe91c"
+  },
+  "runtime_environment": {
+    "OMP_NUM_THREADS": "4",
+    "DUOJIN_GPU_COST_KERNEL": "interval",
+    "DUOJIN_GPU_ROLLOUT_THREADS": "32",
+    "DUOJIN_GPU_COST_THREADS": "32"
+  },
+  "provenance": {
+    "scope": "Exact installed v4 algorithm artifacts used in primary72 and publish20; production entry disables HIL observers; no rebuilding or new latency claim",
+    "artifact_archive": "/home/th1rt3en/Documents/Codex/2026-10-12/outputs/controller-algorithm-study-20261012/evidence/versions/joint-v4-installed.tar.gz",
+    "artifact_archive_sha256": "89011c1141350a3dde48698b1c1fd58a3c443f021097939caaea6e0d93799580",
+    "build_manifest": "/home/th1rt3en/Documents/Codex/2026-10-12/outputs/controller-algorithm-study-20261012/evidence/versions/native-build-manifest-v4.json",
+    "build_manifest_sha256": "cd9543aebc47fb65ef19531152dc04b50c0ca8b3534e455c45c71f0dc187c437",
+    "frozen_source_archive": "/home/th1rt3en/Documents/Codex/2026-10-12/outputs/controller-algorithm-study-20261012/evidence/versions/joint-v4-source.tar.gz",
+    "frozen_source_archive_sha256": "3863106963f2ce5e8898f7c5ab5e7d19e1f4e3ec873162d7fb64f1625b423b42",
+    "algorithm_patch": "/home/th1rt3en/Documents/Codex/2026-10-12/outputs/controller-algorithm-study-20261012/patches/algorithm-study-v4.patch",
+    "algorithm_patch_sha256": "4b9fd6985c71ad62fde124458c4d87594472695d884aacb4901fa47002d686fe",
+    "frequency_report": "/home/th1rt3en/Documents/Codex/2026-10-12/outputs/controller-algorithm-study-20261012/frequency-study-20261012/report.md",
+    "footprint_scope": "Fixed configured base footprint; articulated whole-robot geometry and dynamic footprint updates not validated",
+    "production_default_profile_retained": true
+  },
+  "configuration_schema": 1,
+  "configuration_revision": {
+    "change": "Single chassis authority; deterministic runtime-only ROS/simulator derivatives",
+    "previous_profile": {
+      "path": "src/duojin01_bringup/config/chassis.yaml",
+      "sha256": "7569382e9e20ccfc2d52f18411bd83737acbf789633622632780074c26178bc8",
+      "derived_component_sha256": {
+        "base": "07fdcf774e3de0400f7a83a4692aa3a7e235d35de4df3208a4173f1d5b37913c",
+        "ekf": "6b151da6e1891e025fbf7370ff6abb761cbaf148a2e2ef0856bde5e9044e2c5f",
+        "foxglove": "4592c42dab99fda976991343eda306c666b6824270ae7139a2c6b830c1d8b3a7",
+        "guard": "6628a98d9813580c8d1df6a1c853a42908d626f898c28772b35dbaec363084b6",
+        "health": "bf469585488ac1e8cb495d4a654338503def4fa08e2bf5812d312390b0404b8b",
+        "joy": "3e377fe3e4b659f04d583fbbcfed02d9a9ac1b96dcb86a088a93fd5c22d7c22d",
+        "joy_axis_selector": "22b6278e980f0bb941920de3910194df341583cfdfbfc4f8a4e538aa1aeecded",
+        "joy_launcher": "e0533dd869ff5b185fe39e1c6b8f29a39a7fccc64b0d8fba1d95ff47cbab5d2f",
+        "keyboard": "13f4a2075825ba857dd92a8af24295d9a83586fffbba34a68bdf6b6f13e7ad1e",
+        "lidar": "e35eea31989ea841fd8d7fa3bc4a78d891ab850d3241e48085b5f148958ac170",
+        "navigation": "c1b52201c9bbdf539220ddda9f48c3319fd3f906b8cedc5a822b82c16a496fd5",
+        "recording_qos": "b557ebe19e4cce8bd60619c1be41dace9009a22706e94b850ac7a595490a849f",
+        "slam": "15ce6991a51341e3e71750a5f34630fd84b80d27333baad8d0854aa97eabdd5a",
+        "slam_offline": "d0ff25d0b2a0e6c1bcbaca7aa702b948e1ee9d4bfbd9611955e3ee5f124c7873",
+        "teleop_normal": "167f7bb03ab92ff37e012c56b9b8b0b94f2308a84db4678eff6c34fc4a605cea",
+        "teleop_slow": "45226dd4887c17c8bff4e26dc4fe263229b41b66e1d5381eb11c67fd2d569c0f",
+        "twist_mux": "8c4a9b701b0e93f723c7ae77d309540b718ff1af416afe0919051f271e1f1293"
+      }
+    },
+    "validation_scope": "Configuration and native artifact admission; no new motion or timing claim"
+  }
+}

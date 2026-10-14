@@ -19,6 +19,7 @@ from lifecycle_msgs.msg import Transition
 from lifecycle_msgs.srv import ChangeState
 from rclpy.node import Node
 import yaml
+from chassis_probe import load_profile, render
 
 
 def trial(node, configuration, directory, label):
@@ -93,18 +94,17 @@ def trial(node, configuration, directory, label):
 
 
 def main():
-    root = Path(__file__).resolve().parents[2]
     directory = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.mkdtemp(prefix='smoother-probe-'))
     directory.mkdir(parents=True, exist_ok=True)
-    config = yaml.safe_load((root / 'src/duojin01_bringup/config/nav2.yaml').read_text())['velocity_smoother']
-    candidate = json.loads(json.dumps(config))
-    old = json.loads(json.dumps(config))
-    old['ros__parameters']['deadband_velocity'] = [.005, .005, .003]
+    config = render(load_profile(), 'navigation')['velocity_smoother']
+    current = json.loads(json.dumps(config))
+    deadband_fault = json.loads(json.dumps(config))
+    deadband_fault['ros__parameters']['deadband_velocity'] = [.005, .005, .003]
     rclpy.init()
     node = Node('smoother_braking_probe')
     try:
         trials = [trial(node, params, directory, label)
-                  for params, label in ((old, 'baseline'), (candidate, 'candidate'))]
+                  for params, label in ((deadband_fault, 'injected_deadband_fault'), (current, 'current'))]
         (directory / 'result.json').write_text(json.dumps(trials, indent=2) + '\n')
         assert any(step > bound + 1e-6 for step, bound in
                    zip(trials[0]['max_braking_step'], trials[0]['cycle_bounds'])), trials[0]

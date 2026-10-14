@@ -59,18 +59,11 @@ flowchart LR
 
 ## 配置与模型边界
 
-| 内容 | 维护位置 / 边界 |
-| --- | --- |
-| 串口路径、波特率 | 启动参数 `base_serial_port`、`base_serial_baudrate`、`lidar_serial_port`；各完整入口提供的范围见 [启动参数表](README.MD#真机启动) |
-| 里程计尺度、IMU 偏置、协方差 | [base_driver.yaml](src/duojin01_bringup/config/base_driver.yaml)，需要实物标定 |
-| CAD 安装几何、坐标基准 | [chassis_geometry.xacro](src/duojin01_description/urdf/chassis_geometry.xacro)、[测量报告](docs/chassis/README.md) |
-| 当前足迹、padding、控制与规划参数 | [nav2.yaml](src/duojin01_bringup/config/nav2.yaml)，历史报告数值不覆盖它 |
-| 固定图健康参数与地图语义 | [localization_health.yaml](src/duojin01_bringup/config/localization_health.yaml)、[健康契约](docs/localization-health.md) |
-| 保护参数 | [velocity_guard.yaml](src/duojin01_bringup/config/velocity_guard.yaml)，不为显示性能削弱安全检查 |
+所有人工调参集中在 [chassis.yaml](src/duojin01_bringup/config/chassis.yaml)：独立方向速度、导航、保护、定位、SLAM、EKF、串口和遥控为同一来源；仿真仅使用其中 `simulation` 覆盖项。几何多边形、雷达量程与光学外参在该文件只保存一次。CAD 网格和机械结构仍由描述包及测量报告维护。字段、运行时派生和更新方法见 [唯一配置说明](docs/chassis/configuration.md)。
 
-导航范围按底盘含四轮的投影维护。CAD 的轮轴和滚子包络不是已标定有效轮径；底层控制器处理轮速换算，主机驱动没有轮径、轴距、轮距参数。雷达零度标记朝车头，光学高度仍用明确标记的壳体中面代理，IMU 零外参仍待实测。硬件 URDF 没有未经测量的质量和惯量，不能当作接触动力学模型。
+导航范围按底盘含四轮的投影维护。CAD 的轮轴和滚子包络不是已标定有效轮径；底层控制器处理轮速换算，主机驱动没有轮径、轴距、轮距参数。雷达零方向尚未实物校准，光学高度仍用明确标记的壳体中面代理，IMU 零外参仍待实测。硬件 URDF 没有未经测量的质量和惯量，不能当作接触动力学模型。
 
-雷达固定为 460800 波特率、108 字节双回波、540 格输出，只保留串口、话题、坐标系和距离过滤配置。不提供其他型号、UDP/PCAP、多回波输出或旧协议猜测。数据按角度格重排且 `time_increment=0`，不能据此生成人造逐束时间戳；`+Inf` 的缺测语义见健康契约。原始包在 C++ 内部使用固定长度数组，不发布自定义 ROS 包消息。雷达子 launch 独立作用域，避免其 `params_file` 覆盖 Nav2 配置。
+雷达固定为 460800 波特率、108 字节双回波、540 格输出，只保留串口、话题、坐标系和距离过滤配置。不提供其他型号、UDP/PCAP、多回波输出或旧协议猜测。数据按角度格重排且 `time_increment=0`，不能据此生成人造逐束时间戳；`+Inf` 的缺测语义见健康契约。原始包在 C++ 内部使用固定长度数组，不发布自定义 ROS 包消息。雷达直接读取总配置派生参数，不再有供应商子 launch 的第二份默认值。
 
 ## 构建与数据
 

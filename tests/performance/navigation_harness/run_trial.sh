@@ -1,31 +1,22 @@
 #!/usr/bin/env bash
-# This reproducibility wrapper uses the isolated comparison-container mounts.
-# It does not connect to or start hardware. One fresh graph per invocation.
+# One fresh graph of the selected current hardware build per invocation.
 set -eo pipefail
-arm="${1:?original|cpu|gpu}";case_name="${2:?case}";seed="${3:?seed}";output="${4:?output}"
-case "$arm" in
- original) hardware_root=/original;nav_config=/original/src/duojin01_bringup/config/nav2.yaml ;;
- cpu) hardware_root=/candidate;nav_config=/candidate/src/duojin01_bringup/config/nav2.yaml ;;
- gpu) hardware_root=/candidate;nav_config=/candidate/.cache/profiles/gpu.yaml ;;
- *) exit 2 ;;
-esac
-ln -sfn "$hardware_root" /hardware
-ln -sfn "/candidate/.cache/full-$arm" /tmp/navbuild
+case_name="${1:?case}"; seed="${2:?seed}"; output="${3:?output}"
 source /opt/ros/humble/setup.bash
-source /candidate/.cache/slam-install/setup.bash
-source "/candidate/.cache/full-$arm/install/local_setup.bash"
+source /opt/duojin01/slam_backend/setup.bash
+source /tmp/navbuild/install/local_setup.bash
+source /ws/simulation/container_entry.sh
+duojin_sim_verify_hardware_contract /hardware /ws /tmp/navbuild/install
 export GZ_SIM_SYSTEM_PLUGIN_PATH="/tmp/duojin02_odometry_plugin:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
-export GZ_PARTITION="duojin_gpu_${arm}_${case_name}_${seed}_$$"
+export GZ_PARTITION="duojin_chassis_${case_name}_${seed}_$$"
 export QT_QPA_PLATFORM=offscreen
-# The manifest is frozen after compilation; never re-stamp edited source
-# against old binaries at trial startup.
-if [ ! -f /tmp/navbuild/navigation-build.json ];then
-  printf '%s\n' 'Missing frozen build manifest; rebuild and run record_build.py immediately after compilation.' >&2
+if [[ ! -f /tmp/navbuild/navigation-build.json ]]; then
+  printf '%s\n' 'Missing frozen build manifest; record it immediately after compilation.' >&2
   exit 3
 fi
 extra=()
-if [ "$case_name" = offplan_followpath ];then
- extra+=(--scenario-file /candidate/tests/performance/navigation_harness/offplan-followpath.json)
+if [[ "$case_name" == offplan_followpath ]]; then
+  extra+=(--scenario-file /hardware/tests/performance/navigation_harness/offplan-followpath.json)
 fi
-exec python3 /candidate/tests/performance/navigation_harness/nav_benchmark.py --variant upgraded \
- --case "$case_name" --seed "$seed" --nav-config "$nav_config" --output "$output" "${extra[@]}"
+exec python3 /ws/simulation/nav_benchmark.py \
+  --case "$case_name" --seed "$seed" --output "$output" "${extra[@]}"

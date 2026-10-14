@@ -62,6 +62,10 @@ class OfflineX10Driver : public LslidarX10Driver {
     ++io_created;
     pointcloud_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(pointcloud_topic, 10);
     laserscan_pub_ = node_->create_publisher<sensor_msgs::msg::LaserScan>(san_topic_, 10);
+    if (publish_raw_) {
+      raw_pointcloud_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(raw_pointcloud_topic_, 10);
+      raw_laserscan_pub_ = node_->create_publisher<sensor_msgs::msg::LaserScan>(raw_scan_topic_, 10);
+    }
   }
 };
 
@@ -73,11 +77,17 @@ class X10Test : public testing::Test {
     rclcpp::init(argc, argv);
   }
   static void TearDownTestSuite() { rclcpp::shutdown(); }
-  void createDriver(const std::vector<rclcpp::Parameter> &overrides = {}) {
+  void createDriver(const std::vector<rclcpp::Parameter> &overrides = {},
+                    const std::vector<std::string> &extra_ros_arguments = {},
+                    bool load_hardware_config = true) {
     driver.reset();
     node.reset();
     rclcpp::NodeOptions options;
-    options.arguments({"--ros-args", "--params-file", HARDWARE_LIDAR_CONFIG});
+    std::vector<std::string> arguments{"--ros-args"};
+    if (load_hardware_config)
+      arguments.insert(arguments.end(), {"--params-file", HARDWARE_LIDAR_CONFIG});
+    arguments.insert(arguments.end(), extra_ros_arguments.begin(), extra_ros_arguments.end());
+    options.arguments(arguments);
     options.parameter_overrides(overrides);
     node = std::make_shared<rclcpp::Node>("lslidar_driver_node", options);
     driver.reset(new OfflineX10Driver(node));
@@ -130,9 +140,59 @@ class X10Test : public testing::Test {
     executor.spin_some();
     return received;
   }
+  struct PairedFrames {
+    std::vector<sensor_msgs::msg::LaserScan> scans, raw_scans;
+    std::vector<sensor_msgs::msg::PointCloud2> clouds, raw_clouds;
+  };
+  PairedFrames collectPairedPackets(const std::vector<Packet> &packets, size_t expected) {
+    PairedFrames received;
+    auto scan_sub = node->create_subscription<sensor_msgs::msg::LaserScan>(
+        "/scan", 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr msg) { received.scans.push_back(*msg); });
+    auto raw_scan_sub = node->create_subscription<sensor_msgs::msg::LaserScan>(
+        "/scan_raw", 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr msg) { received.raw_scans.push_back(*msg); });
+    auto cloud_sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+        "/lslidar_point_cloud", 10, [&received](sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) { received.clouds.push_back(*msg); });
+    auto raw_cloud_sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+        "/lslidar_point_cloud_raw", 10, [&received](sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) { received.raw_clouds.push_back(*msg); });
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(node);
+    for (int attempt = 0; attempt < 100; ++attempt) {
+      executor.spin_some();
+      if (node->count_subscribers("/scan") && node->count_subscribers("/scan_raw") &&
+          node->count_subscribers("/lslidar_point_cloud") && node->count_subscribers("/lslidar_point_cloud_raw")) break;
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    auto source = std::make_shared<PacketSource>();
+    source->packets = packets;
+    driver->data_acquisition_strategy_ = source;
+    for (size_t i = 0; i < packets.size(); ++i) {
+      EXPECT_TRUE(driver->poll());
+      executor.spin_some();
+    }
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while ((received.scans.size() < expected || received.raw_scans.size() < expected ||
+            received.clouds.size() < expected || received.raw_clouds.size() < expected) &&
+           std::chrono::steady_clock::now() < deadline) {
+      executor.spin_some();
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    executor.spin_some();
+    return received;
+  }
   rclcpp::Node::SharedPtr node;
   std::unique_ptr<OfflineX10Driver> driver;
 };
+
+std::vector<rclcpp::Parameter> syntheticSelfFilterParameters() {
+  return {
+    rclcpp::Parameter("self_filter.enabled", true),
+    rclcpp::Parameter("self_filter.laser_to_body_xyz_m", std::vector<double>{0.09, 0.0, 0.14}),
+    rclcpp::Parameter("self_filter.laser_to_body_rpy_rad", std::vector<double>{0.0, 0.0, 0.0}),
+    rclcpp::Parameter("self_filter.body_polygon_xy_m", std::vector<double>{-0.21, -0.2, 0.21, -0.2, 0.21, 0.2, -0.21, 0.2}),
+    rclcpp::Parameter("self_filter.body_z_bounds_m", std::vector<double>{0.12, 0.16}),
+    rclcpp::Parameter("self_filter.boundary_ambiguity_m", 0.0),
+  };
+}
 
 TEST_F(X10Test, HardwareConfigurationMatchesFixedPacketLayout) {
   EXPECT_EQ(driver->packet_length, 108);
@@ -145,6 +205,10 @@ TEST_F(X10Test, HardwareConfigurationMatchesFixedPacketLayout) {
   EXPECT_EQ(node->get_parameter("laserscan_topic").as_string(), "/scan");
   EXPECT_EQ(node->get_parameter("frame_id").as_string(), "laser");
   EXPECT_FALSE(node->get_parameter("use_sim_time").as_bool());
+  EXPECT_TRUE(node->get_parameter("self_filter.enabled").as_bool());
+  EXPECT_TRUE(node->get_parameter("self_filter.publish_raw").as_bool());
+  EXPECT_DOUBLE_EQ(node->get_parameter("min_range").as_double(), 0.02);
+  EXPECT_DOUBLE_EQ(node->get_parameter("self_filter.boundary_ambiguity_m").as_double(), 0.0);
 }
 
 TEST_F(X10Test, DecodesBothEchoesAcrossZeroAngle) {
@@ -185,6 +249,162 @@ TEST_F(X10Test, KeepsNearestEchoAndConsistentScanGeometry) {
   EXPECT_EQ(rclcpp::Time(scan.header.stamp).nanoseconds(), input.header.stamp * 1000);
   EXPECT_NEAR(scan.angle_max, scan.angle_min + scan.angle_increment * 539, 1e-6);
   EXPECT_FLOAT_EQ(scan.time_increment, 0.0f);
+}
+
+TEST_F(X10Test, FiltersBothEchoesBeforeNearestReductionAndPreservesRawCloud) {
+  auto parameters = syntheticSelfFilterParameters();
+  parameters.emplace_back("min_range", 0.02);  // Test-only sensor contract.
+  createDriver(parameters);
+  driver->initialize();
+  auto input = cloud({point(0.10, 0.0, 41), point(0.15, 0.0, 72), point(0.0, 0.25, 83)});
+  pcl::PointCloud<pcl::PointXYZI> retained;
+  sensor_msgs::msg::LaserScan scan, raw_scan;
+  driver->pointcloudToLaserscan(input, scan, &retained);
+  driver->pointcloudToLaserscan(input, raw_scan, nullptr, false);
+  EXPECT_FLOAT_EQ(scan.ranges[270], 0.15f);
+  EXPECT_FLOAT_EQ(scan.intensities[270], 72.0f);
+  EXPECT_FLOAT_EQ(raw_scan.ranges[270], 0.10f);
+  ASSERT_EQ(retained.points.size(), 2u);
+  EXPECT_FLOAT_EQ(retained.points[0].x, 0.15f);
+  EXPECT_FLOAT_EQ(retained.points[1].y, 0.25f);
+  ASSERT_EQ(input.points.size(), 3u);
+  EXPECT_FLOAT_EQ(input.points[0].x, 0.10f);
+  EXPECT_EQ(scan.header, raw_scan.header);
+  EXPECT_EQ(retained.header.frame_id, input.header.frame_id);
+}
+
+TEST_F(X10Test, MaskedOnlyBinsBecomeUnknownWhileUntouchedBinsKeepLegacyInfinity) {
+  createDriver(syntheticSelfFilterParameters());
+  driver->initialize();
+  const auto input = cloud({point(0.10, 0.0, 41)});
+  sensor_msgs::msg::LaserScan scan;
+  pcl::PointCloud<pcl::PointXYZI> retained;
+  driver->pointcloudToLaserscan(input, scan, &retained);
+  EXPECT_TRUE(std::isnan(scan.ranges[270]));
+  EXPECT_TRUE(std::isnan(scan.intensities[270]));
+  EXPECT_TRUE(std::isinf(scan.ranges[271]));
+  EXPECT_TRUE(retained.points.empty());
+}
+
+TEST_F(X10Test, DisabledGeometryKeepsLegacyNearestReturnAndAllEchoes) {
+  auto parameters = syntheticSelfFilterParameters();
+  parameters[0] = rclcpp::Parameter("self_filter.enabled", false);
+  createDriver(parameters);
+  driver->initialize();
+  const auto input = cloud({point(0.10, 0.0, 41), point(0.15, 0.0, 72)});
+  sensor_msgs::msg::LaserScan scan;
+  pcl::PointCloud<pcl::PointXYZI> retained;
+  driver->pointcloudToLaserscan(input, scan, &retained);
+  EXPECT_FLOAT_EQ(scan.ranges[270], 0.10f);
+  EXPECT_FLOAT_EQ(scan.intensities[270], 41.0f);
+  EXPECT_EQ(retained.points.size(), input.points.size());
+}
+
+TEST_F(X10Test, EnablingWithoutTransformOrHeightFailsBeforeOpeningDevice) {
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.enabled", true)}, {}, false), std::invalid_argument);
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.publish_raw", true),
+                            rclcpp::Parameter("self_filter.raw_scan_topic", "/scan")}), std::invalid_argument);
+}
+
+TEST_F(X10Test, HardwareCropPreservesExternalNearBoundaryAndSecondEchoThroughPublication) {
+  std::vector<Packet> packets;
+  for (int turn = 0; turn < 4; ++turn) {
+    for (int block = 0; block < 24; ++block) {
+      auto packet = makePacket(block * 1500, (block + 1) * 1500, 0);
+      for (int group = 0; group < 16; ++group) {
+        const int angle = (block * 1500 + group * 100) % 36000;
+        int first = 0, second = 0, intensity = 0;
+        if (angle == 0) { first = 50; second = 700; intensity = 50; }
+        if (angle == 9000) { first = 250; intensity = 25; }   // Outside right edge, within old .3 gate.
+        if (angle == 18000) { first = 230; intensity = 23; } // Strictly inside the rear region.
+        if (angle == 27000) { first = 180; intensity = 18; } // Strict interior, formerly retained by the 30 mm band.
+        packet[7 + group * 6] = first >> 8;
+        packet[8 + group * 6] = first & 0xff;
+        packet[9 + group * 6] = intensity;
+        packet[10 + group * 6] = second >> 8;
+        packet[11 + group * 6] = second & 0xff;
+        packet[12 + group * 6] = second ? 70 : 0;
+      }
+      uint8_t checksum = 0;
+      for (size_t i = 0; i < 107; ++i) checksum += packet[i];
+      packet[107] = checksum;
+      packets.push_back(packet);
+    }
+  }
+  const auto received = collectPairedPackets(packets, 3);
+  ASSERT_EQ(received.scans.size(), 3u);
+  ASSERT_EQ(received.raw_scans.size(), 3u);
+  ASSERT_EQ(received.clouds.size(), 3u);
+  ASSERT_EQ(received.raw_clouds.size(), 3u);
+  for (size_t i = 0; i < 3; ++i) {
+    pcl::PointCloud<pcl::PointXYZI> kept, raw;
+    pcl::fromROSMsg(received.clouds[i], kept);
+    pcl::fromROSMsg(received.raw_clouds[i], raw);
+    const auto has = [](const auto &points, float intensity) {
+      return std::any_of(points.begin(), points.end(), [intensity](const auto &p) { return p.intensity == intensity; });
+    };
+    EXPECT_TRUE(has(raw.points, 50));
+    EXPECT_TRUE(has(raw.points, 23));
+    EXPECT_TRUE(has(raw.points, 18));
+    EXPECT_TRUE(has(kept.points, 25));
+    EXPECT_FALSE(has(kept.points, 18));
+    EXPECT_TRUE(has(kept.points, 70));
+    EXPECT_FALSE(has(kept.points, 50));
+    EXPECT_FALSE(has(kept.points, 23));
+    EXPECT_NEAR(received.raw_scans[i].ranges[270], .05f, 1e-6);
+    EXPECT_NEAR(received.scans[i].ranges[270], .70f, 1e-6);
+    // The float32 sine lookup can place the 180 degree beam on either side
+    // of the -pi/pi seam; both bins denote the same rear direction.
+    EXPECT_TRUE(std::isnan(received.scans[i].ranges[0]) ||
+                std::isnan(received.scans[i].ranges[539]));
+    EXPECT_EQ(received.scans[i].header.stamp, received.raw_scans[i].header.stamp);
+    EXPECT_EQ(received.scans[i].header.stamp, received.clouds[i].header.stamp);
+    EXPECT_EQ(received.scans[i].header.stamp, received.raw_clouds[i].header.stamp);
+  }
+}
+
+TEST_F(X10Test, SensorFloorKeepsExactlyTwentyMillimetresAndRejectsNineteenThroughPublication) {
+  createDriver({rclcpp::Parameter("self_filter.enabled", false)});
+  driver->initialize();
+  std::vector<Packet> packets;
+  for (int turn = 0; turn < 4; ++turn) {
+    for (int block = 0; block < 24; ++block) {
+      auto packet = makePacket(block * 1500, (block + 1) * 1500, 0);
+      for (int group = 0; group < 16; ++group) {
+        packet[8 + group * 6] = group == 1 ? 21 : 20;
+        packet[9 + group * 6] = group == 1 ? 21 : 20;
+        packet[11 + group * 6] = 19;
+        packet[12 + group * 6] = 19;
+      }
+      uint8_t checksum = 0;
+      for (size_t i = 0; i < 107; ++i) checksum += packet[i];
+      packet[107] = checksum;
+      packets.push_back(packet);
+    }
+  }
+  const auto received = collectPairedPackets(packets, 3);
+  ASSERT_EQ(received.raw_clouds.size(), 3u);
+  ASSERT_EQ(received.clouds.size(), 3u);
+  for (size_t i = 0; i < 3; ++i) {
+    pcl::PointCloud<pcl::PointXYZI> raw, kept;
+    pcl::fromROSMsg(received.raw_clouds[i], raw);
+    pcl::fromROSMsg(received.clouds[i], kept);
+    EXPECT_EQ(raw.points.size(), kept.points.size());
+    EXPECT_TRUE(std::any_of(raw.points.begin(), raw.points.end(), [](const auto &p) { return p.intensity == 20; }));
+    EXPECT_TRUE(std::any_of(raw.points.begin(), raw.points.end(), [](const auto &p) { return p.intensity == 21; }));
+    EXPECT_FALSE(std::any_of(raw.points.begin(), raw.points.end(), [](const auto &p) { return p.intensity == 19; }));
+  }
+}
+
+TEST_F(X10Test, RejectsRawTopicNamespaceAliasesAndRemapsToFilteredDestinations) {
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.publish_raw", true),
+                            rclcpp::Parameter("self_filter.raw_scan_topic", "scan")}), std::invalid_argument);
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.publish_raw", true)},
+                           {"-r", "/scan_raw:=/scan"}), std::invalid_argument);
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.publish_raw", true)},
+                           {"-r", "/lslidar_point_cloud_raw:=/lslidar_point_cloud"}), std::invalid_argument);
+  EXPECT_THROW(createDriver({rclcpp::Parameter("self_filter.publish_raw", true),
+                            rclcpp::Parameter("self_filter.raw_pointcloud_topic", "/scan_raw")}), std::invalid_argument);
 }
 
 TEST_F(X10Test, DropsDamagedPacketAndReportsTransportFailure) {
@@ -255,6 +475,49 @@ TEST_F(X10Test, FiltersRawDistancesAndStillPublishesSparseSweeps) {
     for (float range : scan.ranges) {
       if (std::isfinite(range)) EXPECT_NEAR(range, 2.3f, 1e-5);
     }
+  }
+}
+
+TEST_F(X10Test, RawPublicationsKeepBothEchoesAndShareFilteredFrameStamps) {
+  const std::vector<rclcpp::Parameter> parameters = {
+    rclcpp::Parameter("self_filter.enabled", true),
+    rclcpp::Parameter("self_filter.laser_to_body_xyz_m", std::vector<double>{0.0, 0.0, 0.0}),
+    rclcpp::Parameter("self_filter.laser_to_body_rpy_rad", std::vector<double>{0.0, 0.0, 0.0}),
+    rclcpp::Parameter("self_filter.body_polygon_xy_m", std::vector<double>{-1.5, -1.5, 1.5, -1.5, 1.5, 1.5, -1.5, 1.5}),
+    rclcpp::Parameter("self_filter.body_z_bounds_m", std::vector<double>{-0.1, 0.1}),
+    rclcpp::Parameter("self_filter.publish_raw", true),
+  };
+  createDriver(parameters);
+  driver->initialize();
+  std::vector<sensor_msgs::msg::LaserScan> raw_scans;
+  std::vector<sensor_msgs::msg::PointCloud2> raw_clouds, filtered_clouds;
+  auto raw_scan_subscription = node->create_subscription<sensor_msgs::msg::LaserScan>(
+      "/scan_raw", 10, [&raw_scans](sensor_msgs::msg::LaserScan::ConstSharedPtr scan) { raw_scans.push_back(*scan); });
+  auto raw_cloud_subscription = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+      "/lslidar_point_cloud_raw", 10, [&raw_clouds](sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud) { raw_clouds.push_back(*cloud); });
+  auto filtered_cloud_subscription = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+      "/lslidar_point_cloud", 10, [&filtered_clouds](sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud) { filtered_clouds.push_back(*cloud); });
+  const auto filtered_scans = collectFrames();
+  ASSERT_EQ(filtered_scans.size(), 3u);
+  ASSERT_EQ(raw_scans.size(), filtered_scans.size());
+  ASSERT_EQ(raw_clouds.size(), filtered_scans.size());
+  ASSERT_EQ(filtered_clouds.size(), filtered_scans.size());
+  for (size_t i = 0; i < filtered_scans.size(); ++i) {
+    EXPECT_EQ(filtered_scans[i].header.stamp, raw_scans[i].header.stamp);
+    EXPECT_EQ(filtered_scans[i].header.stamp, raw_clouds[i].header.stamp);
+    EXPECT_EQ(filtered_scans[i].header.stamp, filtered_clouds[i].header.stamp);
+    EXPECT_FLOAT_EQ(filtered_scans[i].scan_time, raw_scans[i].scan_time);
+    EXPECT_NEAR(raw_scans[i].ranges[405], 1.1f + i * 0.1f, 1e-5);
+    EXPECT_NEAR(filtered_scans[i].ranges[405], 3.2f, 1e-5);
+    EXPECT_GT(raw_clouds[i].width, filtered_clouds[i].width);
+    pcl::PointCloud<pcl::PointXYZI> raw_cloud, filtered_cloud;
+    pcl::fromROSMsg(raw_clouds[i], raw_cloud);
+    pcl::fromROSMsg(filtered_clouds[i], filtered_cloud);
+    EXPECT_TRUE(std::all_of(filtered_cloud.points.begin(), filtered_cloud.points.end(),
+        [](const auto &p) { return std::hypot(p.x, p.y) > 2.0; }));
+    // Raw both-echo output keeps the near returns removed by the synthetic mask.
+    EXPECT_TRUE(std::any_of(raw_cloud.points.begin(), raw_cloud.points.end(),
+        [](const auto &p) { return std::hypot(p.x, p.y) < 1.5; }));
   }
 }
 

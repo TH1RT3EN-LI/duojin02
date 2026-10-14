@@ -14,8 +14,41 @@ LslidarX10Driver::LslidarX10Driver(rclcpp::Node::SharedPtr node)
     frame_id = node_->declare_parameter<std::string>("frame_id", "laser");
     san_topic_ = node_->declare_parameter<std::string>("laserscan_topic", "/scan");
     pointcloud_topic = node_->declare_parameter<std::string>("pointcloud_topic", "/lslidar_point_cloud");
-    min_range = node_->declare_parameter<double>("min_range", 0.3);
+    // N10Plus near-range contract, independent of chassis geometry. A 0.3 m
+    // radius around this offset sensor discards valid points outside the body.
+    min_range = node_->declare_parameter<double>("min_range", 0.02);
     max_range = node_->declare_parameter<double>("max_range", 100.0);
+    SelfFilterConfig self_config;
+    self_config.enabled = node_->declare_parameter<bool>("self_filter.enabled", false);
+    self_config.laser_to_body_xyz_m = node_->declare_parameter<std::vector<double>>(
+        "self_filter.laser_to_body_xyz_m", std::vector<double>{});
+    self_config.laser_to_body_rpy_rad = node_->declare_parameter<std::vector<double>>(
+        "self_filter.laser_to_body_rpy_rad", std::vector<double>{});
+    self_config.body_polygon_xy_m = node_->declare_parameter<std::vector<double>>(
+        "self_filter.body_polygon_xy_m", std::vector<double>{});
+    self_config.body_z_bounds_m = node_->declare_parameter<std::vector<double>>(
+        "self_filter.body_z_bounds_m", std::vector<double>{});
+    self_config.boundary_ambiguity_m = node_->declare_parameter<double>(
+        "self_filter.boundary_ambiguity_m", 0.0);
+    self_filter_ = SelfFilter(self_config);
+    publish_raw_ = node_->declare_parameter<bool>("self_filter.publish_raw", false);
+    raw_scan_topic_ = node_->declare_parameter<std::string>("self_filter.raw_scan_topic", "/scan_raw");
+    raw_pointcloud_topic_ = node_->declare_parameter<std::string>(
+        "self_filter.raw_pointcloud_topic", "/lslidar_point_cloud_raw");
+    if (publish_raw_) {
+        const auto topics = node_->get_node_topics_interface();
+        // Resolve namespace expansion and remaps before comparing. Raw and
+        // filtered messages must never share a destination, even via aliases.
+        const std::array<std::string, 4> resolved{{
+            topics->resolve_topic_name(san_topic_, false),
+            topics->resolve_topic_name(pointcloud_topic, false),
+            topics->resolve_topic_name(raw_scan_topic_, false),
+            topics->resolve_topic_name(raw_pointcloud_topic_, false)}};
+        for (size_t raw = 2; raw < resolved.size(); ++raw)
+            for (size_t other = 0; other < raw; ++other)
+                if (resolved[raw] == resolved[other])
+                    throw std::invalid_argument("self_filter raw topics must resolve to distinct destinations");
+    }
     points.reserve(packet_points_max * 2);
 }
 
@@ -39,6 +72,10 @@ void LslidarX10Driver::initialize() {
 void LslidarX10Driver::createRosIO() {
     pointcloud_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(pointcloud_topic, 10);
     laserscan_pub_ = node_->create_publisher<sensor_msgs::msg::LaserScan>(san_topic_, 10);
+    if (publish_raw_) {
+        raw_pointcloud_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(raw_pointcloud_topic_, 10);
+        raw_laserscan_pub_ = node_->create_publisher<sensor_msgs::msg::LaserScan>(raw_scan_topic_, 10);
+    }
     serial_ = std::make_shared<LSIOSR>(serial_port_);
     data_acquisition_strategy_ = std::make_shared<SerialStrategy>(serial_);
     motor_control_sub_ = node_->create_subscription<std_msgs::msg::Int8>("motor_control", 1,
@@ -135,7 +172,8 @@ bool LslidarX10Driver::poll() {
 }
 
 void LslidarX10Driver::pointcloudToLaserscan(
-    const pcl::PointCloud<pcl::PointXYZI> &cloud, sensor_msgs::msg::LaserScan &scan) const {
+    const pcl::PointCloud<pcl::PointXYZI> &cloud, sensor_msgs::msg::LaserScan &scan,
+    pcl::PointCloud<pcl::PointXYZI> *retained_cloud, bool apply_self_filter) const {
     pcl_conversions::fromPCL(cloud.header, scan.header);
     scan.angle_min = -M_PI;
     const double bin_width = 2.0 * M_PI / points_size;
@@ -145,6 +183,14 @@ void LslidarX10Driver::pointcloudToLaserscan(
     scan.range_max = max_range;
     scan.ranges.assign(points_size, std::numeric_limits<float>::infinity());
     scan.intensities.assign(points_size, std::numeric_limits<float>::quiet_NaN());
+    std::array<bool, points_size> masked_bins{};
+    if (retained_cloud) {
+        retained_cloud->header = cloud.header;
+        retained_cloud->height = 1;
+        retained_cloud->points.clear();
+        retained_cloud->points.reserve(cloud.points.size());
+        retained_cloud->is_dense = cloud.is_dense;
+    }
     // appendPoints already filtered the finite, integer-decoded sensor distances.
     for (const auto &point : cloud.points) {
         const double x = point.x, y = point.y;
@@ -153,11 +199,24 @@ void LslidarX10Driver::pointcloudToLaserscan(
         if (std::abs(angle) >= M_PI) angle = -M_PI;
         const size_t index = std::min(static_cast<size_t>(points_size - 1),
             static_cast<size_t>(std::floor((angle + M_PI) / bin_width)));
+        // Both echoes still exist here. A nearer self return must not hide an
+        // external second echo when the angular bin is reduced to one range.
+        if (apply_self_filter && self_filter_.shouldRemove({point.x, point.y, point.z})) {
+            masked_bins[index] = true;
+            continue;
+        }
+        if (retained_cloud) retained_cloud->points.push_back(point);
         if (range < scan.ranges[index]) {
             scan.ranges[index] = range;
             scan.intensities[index] = point.intensity;
         }
     }
+    for (size_t index = 0; index < points_size; ++index) {
+        // A removed return supplies no evidence of free space behind the robot.
+        if (masked_bins[index] && std::isinf(scan.ranges[index]))
+            scan.ranges[index] = std::numeric_limits<float>::quiet_NaN();
+    }
+    if (retained_cloud) retained_cloud->width = retained_cloud->points.size();
     // Angle-sorted bins do not have reliable per-beam acquisition times.
     scan.time_increment = 0.0f;
 }
@@ -166,14 +225,27 @@ void LslidarX10Driver::publishFrame(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
                                   double frame_time, double frame_duration) {
     const rclcpp::Time stamp(static_cast<int64_t>(frame_time * 1e9));
     auto scan = std::make_unique<sensor_msgs::msg::LaserScan>();
-    pointcloudToLaserscan(*cloud, *scan);
+    pcl::PointCloud<pcl::PointXYZI> filtered_cloud;
+    const bool filter_enabled = self_filter_.enabled();
+    pointcloudToLaserscan(*cloud, *scan, filter_enabled ? &filtered_cloud : nullptr);
     scan->header.stamp = stamp;
     scan->scan_time = static_cast<float>(std::max(0.0, frame_duration));
     laserscan_pub_->publish(std::move(scan));
     auto message = std::make_unique<sensor_msgs::msg::PointCloud2>();
-    pcl::toROSMsg(*cloud, *message);
+    pcl::toROSMsg(filter_enabled ? filtered_cloud : *cloud, *message);
     message->header.stamp = stamp;
     pointcloud_pub_->publish(std::move(message));
+    if (publish_raw_) {
+        auto raw_scan = std::make_unique<sensor_msgs::msg::LaserScan>();
+        pointcloudToLaserscan(*cloud, *raw_scan, nullptr, false);
+        raw_scan->header.stamp = stamp;
+        raw_scan->scan_time = static_cast<float>(std::max(0.0, frame_duration));
+        raw_laserscan_pub_->publish(std::move(raw_scan));
+        auto raw_message = std::make_unique<sensor_msgs::msg::PointCloud2>();
+        pcl::toROSMsg(*cloud, *raw_message);
+        raw_message->header.stamp = stamp;
+        raw_pointcloud_pub_->publish(std::move(raw_message));
+    }
 }
 
 void LslidarX10Driver::motorControl(const std_msgs::msg::Int8::SharedPtr msg) {

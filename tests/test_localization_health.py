@@ -45,7 +45,9 @@ def test_unobserved_unknown_and_invalid_unsampled_ray_cannot_support_pose():
     assert not score(MapEvidence(500,500,.01,(-2.5,-2.5,0),scaled),[2.]*90)['valid']
     values=[2.]*540;values[1]=-math.inf
     assert not score(rings(),values,increment=2*math.pi/540)['valid']
-    values[1]=math.nan
+    values[1]=None
+    assert not score(rings(),values,increment=2*math.pi/540)['valid']
+    values[1]=.1
     assert not score(rings(),values,increment=2*math.pi/540)['valid']
     assert not score(rings(),[2.]*90,increment=0)['valid']
     assert not score(rings(),[2.]*90,minimum=-.1)['valid']
@@ -140,6 +142,41 @@ def test_unknown_beams_do_not_refill_uniform_subset_or_support_wrong_pose():
         v = score(grid,[2.]*45+[math.inf]*45,pose)
         assert not v['valid']
     assert not score(grid,[2.]*44+[math.inf]*46)['valid']
+
+
+def test_self_masked_nan_is_unknown_and_cannot_refill_or_dilute_evidence():
+    grid = rings()
+    v = score(grid, [2.]*45 + [math.nan]*45)
+    assert v['valid'] and v['hits'] == 45 and v['compared'] == 45
+    assert v['unobserved'] == 45 and v['invalid'] == 0 and v['contradictions'] == 0
+    v = score(grid, [math.nan]*90)
+    assert not v['valid'] and v['hits'] == 0 and v['compared'] == 0
+    assert v['unobserved'] == 90 and v['ray_work'] == 0
+    assert not score(grid, [2.]*44 + [math.nan]*46)['valid']
+    # Keep the requested angular roster. Nearby unmasked rays must not replace
+    # masked sampled directions, and an unsampled NaN adds no positive support.
+    rays = [2.]*540
+    rays[1] = math.nan
+    v = score(grid, rays, increment=2*math.pi/540)
+    assert v['valid'] and v['hits'] == 90 and v['compared'] == 90
+    for i in range(0, 540, 6):
+        rays[i] = math.nan
+    v = score(grid, rays, increment=2*math.pi/540)
+    assert not v['valid'] and v['hits'] == 0 and v['compared'] == 0
+    assert v['unobserved'] == 90 and v['ray_work'] == 0
+    v = score(blind_ring(), [2.]*45 + [math.nan]*45)
+    assert not v['valid'] and v['contradictions'] == 45
+    assert v['compared'] == 45 and v['contradiction_fraction'] == 1.
+
+
+def test_sensor_floor_preserves_near_external_endpoints():
+    resolution, size = .01, 100
+    data = [100 if abs(math.hypot(-.5+x*resolution, -.5+y*resolution)-.25) < .015
+            else 0 for y in range(size) for x in range(size)]
+    grid = MapEvidence(size, size, resolution, (-.5, -.5, 0), data)
+    v = score(grid, [.25]*90, minimum=.02)
+    assert v['valid'] and v['hits'] == 90 and v['matched'] == 90
+    assert not score(grid, [.25]*90, minimum=.3)['valid']
 
 
 def test_blind_blocker_requires_positive_cell_interior_not_boundary_contact():
@@ -547,6 +584,25 @@ def test_malformed_duplicate_does_not_inherit_pure_tf_timeout_permission():
     msg.angle_increment = 0.
     methods.on_scan(monitor, msg)
     methods.process_pending(monitor, msg, stamp, .5, 1.1)
+    assert monitor.state.state == 'MISMATCH' and not monitor.state.healthy
+
+
+def test_partial_self_masked_nan_waits_for_exact_tf_without_latching_fault():
+    methods, monitor, msg, stamp = monitor_fixture()
+    msg.ranges[7] = math.nan
+    methods.on_scan(monitor, msg)
+    methods.process_pending(monitor, msg, stamp, .1, .7)
+    assert monitor.pending_tf_wait and monitor.state.state != 'MISMATCH'
+    # The same missing exact transform still expires at the original deadline.
+    methods.process_pending(monitor, msg, stamp, .5, 1.1)
+    assert monitor.pending is None and monitor.state.state == 'PERCEPTION_STALE'
+
+
+def test_partial_self_masking_does_not_excuse_malformed_unsampled_ray():
+    methods, monitor, msg, stamp = monitor_fixture()
+    msg.ranges[7], msg.ranges[8] = math.nan, -math.inf
+    methods.on_scan(monitor, msg)
+    methods.process_pending(monitor, msg, stamp, .1, .7)
     assert monitor.state.state == 'MISMATCH' and not monitor.state.healthy
 
 

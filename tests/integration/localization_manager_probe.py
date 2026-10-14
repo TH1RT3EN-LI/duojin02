@@ -15,6 +15,8 @@ import threading
 import time
 import tty
 
+from chassis_probe import ROOT, component_file, load_profile
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, DurabilityPolicy, qos_profile_sensor_data
@@ -25,8 +27,6 @@ from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
 
-
-ROOT = Path(__file__).resolve().parents[2]
 
 
 class SensorFixture(Node):
@@ -98,7 +98,7 @@ class SensorFixture(Node):
         pose.pose.pose.orientation.w = 1.0
         return pose
 
-    def pump(self, duration, *, scan=True, invalid=False, nav=None, manual=None, pose=False):
+    def pump(self, duration, *, scan=True, invalid=False, masked=False, nav=None, manual=None, pose=False):
         until = time.monotonic()+duration
         while time.monotonic() < until:
             now = time.monotonic()
@@ -113,8 +113,10 @@ class SensorFixture(Node):
                     message.angle_max = -math.pi+539*message.angle_increment
                     message.scan_time = .1
                     message.ranges = [2.0]*540
+                    if masked:
+                        message.ranges = [math.nan]*270 + [2.0]*270
                     if invalid:
-                        message.ranges[7] = math.nan
+                        message.ranges[7] = -math.inf
                     self.scan_pub.publish(message)
                     self.scan_count += 1
                     if pose:
@@ -172,6 +174,7 @@ class SensorFixture(Node):
 
 
 def run(args):
+    load_profile(args.chassis_profile)
     rclpy.init()
     fixture = SensorFixture()
     processes, logs = [], []
@@ -197,13 +200,13 @@ def run(args):
     fixture.master = master
     try:
         manager = start('manager', ['ros2', 'run', 'duojin01_bringup', 'localization_manager',
-            '--ros-args', '--params-file', str(ROOT/'src/duojin01_bringup/config/localization_health.yaml'),
+            '--ros-args', '--params-file', component_file('health', args.chassis_profile),
             '-p', 'use_sim_time:=true'])
         start('mux', ['ros2','run','twist_mux','twist_mux','--ros-args',
-            '--params-file',str(ROOT/'src/duojin01_bringup/config/twist_mux.yaml'),
+            '--params-file',component_file('twist_mux', args.chassis_profile),
             '-r','/cmd_vel_out:=/cmd_vel_requested'])
         start('guard', [str(args.guard_binary),'--ros-args','--params-file',
-            str(ROOT/'src/duojin01_bringup/config/velocity_guard.yaml'), '-p','use_sim_time:=true'])
+            component_file('guard', args.chassis_profile), '-p','use_sim_time:=true'])
         start('driver', [str(args.driver_binary),'--ros-args','-p',f'usart_port_name:={os.ttyname(slave)}',
             '-p','serial_baud_rate:=57600','-p','use_sim_time:=true','-r','/cmd_vel:=/cmd_vel_base'])
         fixture.pump(.3, scan=False, nav=.24)
@@ -213,6 +216,11 @@ def run(args):
         check('fresh_navigation_forwarded', bool(fixture.outputs) and fixture.outputs[-1][1] == .24)
         check('canonical_guard_topic', bool(fixture.base) and fixture.base[-1][1] == .24)
         check('actual_serial_motion', bool(fixture.wire_packets) and fixture.wire_packets[-1][1] == (240,0,0))
+        # Both sampled and unsampled directions are unknown. The 45 remaining
+        # sampled finite returns retain health; unknown rays prove no free space.
+        fixture.pump(.6, masked=True, nav=.24)
+        check('partial_self_mask_retains_supported_health', fixture.status[-1][1]['healthy'] and
+              fixture.wire_packets[-1][1] == (240,0,0))
         fixture.pump(.45)
         check('command_expiry_zero', fixture.outputs[-1][1] == 0)
         count = len(fixture.outputs)
@@ -252,7 +260,16 @@ def run(args):
         check('owner_loss_stops_serial_independently', fixture.wire_packets[-1][1] == (0,0,0))
         start_index = len(fixture.outputs)
         os.killpg(manager.pid, signal.SIGCONT)
-        fixture.pump(1.2)
+        resumed = time.monotonic()
+        # Wait for the actual unchanged evidence window after the paused owner
+        # drains its old scans. A fixed sleep is not proof of requalification.
+        while time.monotonic() - resumed < 5.0:
+            fixture.pump(.15)
+            check('queued_request_stays_zero_during_requalification',
+                  not any(x != 0 for _,x in fixture.outputs[start_index:]))
+            if fixture.status[-1][1]['healthy']:
+                break
+        result['owner_resume_health_wait_s'] = time.monotonic() - resumed
         check('queued_dds_command_never_revives', fixture.status[-1][1]['healthy'] and
               not any(x != 0 for _,x in fixture.outputs[start_index:]))
         fixture.pump(.6, nav=.24)
@@ -279,6 +296,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--chassis-profile', type=Path, default=None)
     parser.add_argument('--guard-binary', type=Path, required=True)
     parser.add_argument('--driver-binary', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)

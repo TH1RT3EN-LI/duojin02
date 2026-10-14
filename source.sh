@@ -33,4 +33,5 @@ fi
 export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-20}"
 export RMW_IMPLEMENTATION="${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}"
 export DUOJIN01_WORKSPACE_ROOT="${DUOJIN01_WORKSPACE_ROOT:-$_duojin01_hardware_root}"
+export DUOJIN_CHASSIS_PROFILE="$_duojin01_hardware_root/src/duojin01_bringup/config/chassis.yaml"
 unset _duojin01_hardware_root

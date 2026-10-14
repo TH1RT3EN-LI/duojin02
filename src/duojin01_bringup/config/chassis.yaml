@@ -1,0 +1,771 @@
+# 唯一底盘配置来源。修改后运行 python3 scripts/chassis_config.py adopt。
+# 派生 ROS 参数只在运行时生成，不维护局部 YAML 或旧版默认配置。
+# 三方向速度均为正的上限幅值，reverse_mps 导出为 vx_min 的负值。
+# 单轴限幅不等于斜向合成速度限幅。
+# 硬件雷达零方向尚未实物校准；simulation.lidar.scan_height_m 是用户指定仿真覆盖。
+schema_version: 1
+motion:
+  forward_mps: 0.5
+  reverse_mps: 0.5
+  lateral_mps: 0.5
+  yaw_radps: 0.65
+  narrow_mps: 0.5
+geometry:
+  body_polygon_xy_m:
+  - 0.213
+  - 0.191465
+  - 0.201465
+  - 0.203
+  - -0.202879
+  - 0.203
+  - -0.214
+  - 0.191879
+  - -0.214
+  - -0.190465
+  - -0.201465
+  - -0.203
+  - 0.202879
+  - -0.203
+  - 0.213
+  - -0.192879
+  body_z_bounds_m:
+  - 0.021
+  - 0.218
+lidar:
+  min_range_m: 0.02
+  max_range_m: 100.0
+  laser_to_body_xyz_m:
+  - 0.0924721442817
+  - -8.97794961929e-06
+  - 0.1302326658155
+  laser_to_body_rpy_rad:
+  - 0.0
+  - 0.0
+  - 0.0
+  crop_enabled: true
+  boundary_ambiguity_m: 0.0
+  publish_raw: true
+  raw_scan_topic: /scan_raw
+  raw_pointcloud_topic: /lslidar_point_cloud_raw
+  driver_parameters:
+    serial_port: /dev/lslidar
+    frame_id: laser
+    laserscan_topic: /scan
+    pointcloud_topic: /lslidar_point_cloud
+    use_sim_time: false
+runtime_environment:
+  OMP_NUM_THREADS: '4'
+  DUOJIN_GPU_COST_KERNEL: interval
+  DUOJIN_GPU_ROLLOUT_THREADS: '32'
+  DUOJIN_GPU_COST_THREADS: '32'
+offline_mapping:
+  map_update_interval: 2.0
+  transform_publish_period: 0.05
+  tf_buffer_duration: 120.0
+  scan_queue_size: 100
+  enable_interactive_mode: false
+components:
+  navigation:
+    amcl:
+      ros__parameters:
+        use_sim_time: false
+        alpha1: 0.1
+        alpha2: 0.1
+        alpha3: 0.1
+        alpha4: 0.1
+        alpha5: 0.1
+        base_frame_id: base_footprint
+        beam_skip_distance: 0.3
+        beam_skip_error_threshold: 0.9
+        beam_skip_threshold: 0.3
+        do_beamskip: false
+        global_frame_id: map
+        lambda_short: 0.1
+        laser_likelihood_max_dist: 2.0
+        laser_max_range: 8.0
+        laser_model_type: likelihood_field_prob
+        max_beams: 120
+        max_particles: 3000
+        min_particles: 700
+        odom_frame_id: odom
+        pf_err: 0.01
+        pf_z: 0.99
+        recovery_alpha_fast: 0.0
+        recovery_alpha_slow: 0.0
+        resample_interval: 1
+        robot_model_type: nav2_amcl::OmniMotionModel
+        save_pose_rate: 0.5
+        sigma_hit: 0.025
+        tf_broadcast: true
+        transform_tolerance: 0.15
+        update_min_a: 0.01
+        update_min_d: 0.01
+        z_hit: 0.85
+        z_max: 0.05
+        z_rand: 0.15
+        z_short: 0.05
+        scan_topic: /scan
+    bt_navigator:
+      ros__parameters:
+        use_sim_time: false
+        default_nav_to_pose_bt_xml: $(find-pkg-share duojin01_bringup)/behavior_trees/navigate_to_pose.xml
+        default_nav_through_poses_bt_xml: $(find-pkg-share duojin01_bringup)/behavior_trees/navigate_through_poses.xml
+        global_frame: map
+        robot_base_frame: base_footprint
+        odom_topic: /odometry/filtered
+        bt_loop_duration: 10
+        default_server_timeout: 20
+        wait_for_service_timeout: 1000
+        plugin_lib_names:
+        - nav2_compute_path_to_pose_action_bt_node
+        - nav2_compute_path_through_poses_action_bt_node
+        - nav2_follow_path_action_bt_node
+        - nav2_wait_action_bt_node
+        - nav2_back_up_action_bt_node
+        - nav2_clear_costmap_service_bt_node
+        - nav2_goal_updated_condition_bt_node
+        - nav2_rate_controller_bt_node
+        - nav2_recovery_node_bt_node
+        - nav2_pipeline_sequence_bt_node
+        - nav2_round_robin_node_bt_node
+        - nav2_remove_passed_goals_action_bt_node
+    bt_navigator_navigate_through_poses_rclcpp_node:
+      ros__parameters:
+        use_sim_time: false
+    bt_navigator_navigate_to_pose_rclcpp_node:
+      ros__parameters:
+        use_sim_time: false
+    controller_server:
+      ros__parameters:
+        use_sim_time: false
+        controller_frequency: 20.0
+        min_x_velocity_threshold: 0.005
+        min_y_velocity_threshold: 0.005
+        min_theta_velocity_threshold: 0.003
+        odom_topic: /odometry/filtered
+        failure_tolerance: 0.3
+        progress_checker_plugin: progress_checker
+        goal_checker_plugins:
+        - general_goal_checker
+        controller_plugins:
+        - FollowPath
+        progress_checker:
+          plugin: nav2_controller::SimpleProgressChecker
+          required_movement_radius: 0.02
+          movement_time_allowance: 20.0
+        general_goal_checker:
+          stateful: false
+          plugin: duojin01_navigation::StableStoppedGoalChecker
+          settle_time: 0.25
+          xy_goal_tolerance: 0.004
+          yaw_goal_tolerance: 0.02
+          trans_stopped_velocity: 0.01
+          rot_stopped_velocity: 0.02
+        FollowPath:
+          plugin: duojin01_navigation::PreciseMPPI
+          time_steps: 56
+          model_dt: 0.05
+          batch_size: 1600
+          vx_std: 0.15
+          vy_std: 0.12
+          wz_std: 0.18
+          iteration_count: 1
+          prune_distance: 1.7
+          transform_tolerance: 0.15
+          temperature: 0.3
+          gamma: 0.015
+          motion_model: Omni
+          visualize: false
+          reset_period: 1.0
+          regenerate_noises: false
+          TrajectoryVisualizer:
+            trajectory_step: 5
+            time_step: 3
+          critics:
+          - ConstraintCritic
+          - CostCritic
+          - GoalCritic
+          - GoalAngleCritic
+          - PathAlignCritic
+          - PathFollowCritic
+          - PathAngleCritic
+          - TwirlingCritic
+          ConstraintCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 4.0
+          GoalCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 8.0
+            threshold_to_consider: 0.8
+          GoalAngleCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 6.0
+            threshold_to_consider: 0.5
+          CostCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 2.0
+            critical_cost: 300.0
+            consider_footprint: true
+            collision_cost: 1000000.0
+            near_goal_distance: 0.3
+            trajectory_point_step: 1
+          PathAlignCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 8.0
+            max_path_occupancy_ratio: 0.05
+            trajectory_point_step: 3
+            threshold_to_consider: 0.5
+            offset_from_furthest: 15
+            use_path_orientations: true
+          PathFollowCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 12.0
+            offset_from_furthest: 12
+            threshold_to_consider: 0.8
+          PathAngleCritic:
+            enabled: false
+            cost_power: 1
+            cost_weight: 3.0
+            offset_from_furthest: 4
+            threshold_to_consider: 0.5
+            max_angle_to_furthest: 1.0
+            mode: 1
+          TwirlingCritic:
+            enabled: true
+            cost_power: 1
+            cost_weight: 3.0
+          compute_backend: cpu
+          sampling_backend: cuda
+          gpu_deadline_ms: 40.0
+          gpu_min_work: 262144
+          gpu_support_points: 4
+          gpu_batch_size: 128
+          gpu_vx_std: 0.35
+          gpu_vy_std: 0.35
+          gpu_wz_std: 0.12
+          gpu_path_weight: 1.5
+          gpu_goal_weight: 24.0
+          gpu_candidate_mode: path_primitives
+          gpu_primitive_fraction: 0.25
+          study_tf_cache: true
+          study_single_snapshot: true
+          study_cpu_sweep_index: true
+    local_costmap:
+      local_costmap:
+        ros__parameters:
+          update_frequency: 10.0
+          publish_frequency: 20.0
+          global_frame: odom
+          robot_base_frame: base_footprint
+          use_sim_time: false
+          rolling_window: true
+          width: 4
+          height: 4
+          resolution: 0.01
+          footprint_padding: 0.008
+          plugins:
+          - static_layer
+          - obstacle_layer
+          - inflation_layer
+          static_layer:
+            plugin: nav2_costmap_2d::StaticLayer
+            map_subscribe_transient_local: true
+          inflation_layer:
+            plugin: duojin01_navigation::StudyExactInflationLayer
+            cost_scaling_factor: 6.0
+            inflation_radius: 0.4
+          obstacle_layer:
+            plugin: nav2_costmap_2d::ObstacleLayer
+            enabled: true
+            observation_sources: scan remembered_scan
+            scan:
+              topic: /scan
+              data_type: LaserScan
+              clearing: true
+              marking: true
+              obstacle_max_range: 5.0
+              obstacle_min_range: 0.0
+              raytrace_max_range: 6.0
+              raytrace_min_range: 0.0
+              inf_is_valid: false
+            remembered_scan:
+              topic: /navigation/obstacle_memory
+              sensor_frame: laser
+              data_type: PointCloud2
+              marking: true
+              clearing: true
+              observation_persistence: 0.0
+              expected_update_rate: 0.2
+              min_obstacle_height: 0.05
+              max_obstacle_height: 2.0
+              obstacle_min_range: 0.0
+              obstacle_max_range: 2.5
+              raytrace_min_range: 0.0
+              raytrace_max_range: 2.5
+          always_send_full_costmap: true
+    global_costmap:
+      global_costmap:
+        ros__parameters:
+          update_frequency: 3.0
+          publish_frequency: 2.0
+          global_frame: map
+          robot_base_frame: base_footprint
+          use_sim_time: false
+          footprint_padding: 0.008
+          resolution: 0.01
+          track_unknown_space: true
+          plugins:
+          - static_layer
+          - obstacle_layer
+          - inflation_layer
+          static_layer:
+            plugin: nav2_costmap_2d::StaticLayer
+            map_subscribe_transient_local: true
+          inflation_layer:
+            plugin: nav2_costmap_2d::InflationLayer
+            cost_scaling_factor: 6.0
+            inflation_radius: 0.4
+          always_send_full_costmap: true
+          obstacle_layer:
+            plugin: nav2_costmap_2d::ObstacleLayer
+            enabled: true
+            observation_sources: scan remembered_scan
+            scan:
+              topic: /scan
+              data_type: LaserScan
+              clearing: true
+              marking: true
+              obstacle_max_range: 5.0
+              obstacle_min_range: 0.0
+              raytrace_max_range: 6.0
+              raytrace_min_range: 0.0
+              inf_is_valid: false
+            remembered_scan:
+              topic: /navigation/obstacle_memory
+              sensor_frame: laser
+              data_type: PointCloud2
+              marking: true
+              clearing: true
+              observation_persistence: 0.0
+              expected_update_rate: 0.2
+              min_obstacle_height: 0.05
+              max_obstacle_height: 2.0
+              obstacle_min_range: 0.0
+              obstacle_max_range: 2.5
+              raytrace_min_range: 0.0
+              raytrace_max_range: 2.5
+    map_server:
+      ros__parameters:
+        use_sim_time: false
+        yaml_filename: ''
+    map_saver:
+      ros__parameters:
+        use_sim_time: false
+        save_map_timeout: 5.0
+        free_thresh_default: 0.196
+        occupied_thresh_default: 0.65
+        map_subscribe_transient_local: true
+    planner_server:
+      ros__parameters:
+        expected_planner_frequency: 1.0
+        use_sim_time: false
+        planner_plugins:
+        - GridBased
+        GridBased:
+          plugin: duojin01_navigation/PreciseLattice
+          tolerance: 0.02
+          allow_unknown: false
+          max_iterations: 1000000
+          max_on_approach_iterations: 1000
+          max_planning_time: 15.0
+          lattice_filepath: ''
+          allow_reverse_expansion: false
+          reverse_penalty: 1.5
+          change_penalty: 0.0
+          non_straight_penalty: 1.1
+          cost_penalty: 3.0
+          rotation_penalty: 5.0
+          retrospective_penalty: 0.015
+          lookup_table_size: 5.0
+          cache_obstacle_heuristic: false
+          analytic_expansion_ratio: 3.5
+          analytic_expansion_max_length: 1.0
+          smooth_path: false
+    behavior_server:
+      ros__parameters:
+        costmap_topic: local_costmap/costmap_raw
+        footprint_topic: local_costmap/published_footprint
+        cycle_frequency: 10.0
+        behavior_plugins:
+        - backup
+        - wait
+        backup:
+          plugin: nav2_behaviors/BackUp
+        wait:
+          plugin: nav2_behaviors/Wait
+        global_frame: odom
+        robot_base_frame: base_footprint
+        transform_tolerance: 0.1
+        use_sim_time: false
+        simulate_ahead_time: 2.0
+    velocity_smoother:
+      ros__parameters:
+        use_sim_time: false
+        smoothing_frequency: 20.0
+        scale_velocities: false
+        feedback: OPEN_LOOP
+        max_accel:
+        - 0.5
+        - 0.5
+        - 0.8
+        max_decel:
+        - -0.4
+        - -0.4
+        - -0.8
+        odom_topic: /odometry/filtered
+        odom_duration: 0.1
+        deadband_velocity:
+        - 0.0
+        - 0.0
+        - 0.0
+        velocity_timeout: 0.25
+  guard:
+    velocity_guard:
+      ros__parameters:
+        use_sim_time: false
+        clearance_margin_m: 0.008
+        range_error_m: 0.015
+        reaction_time_s: 0.2
+        braking_deceleration_mps2: 0.4
+        angular_deceleration_radps2: 0.8
+        scan_timeout_s: 0.3
+        command_timeout_s: 0.25
+        obstacle_memory_radius_m: 2.5
+  base:
+    base_driver:
+      ros__parameters:
+        use_sim_time: false
+        loop_hz: 200
+        command_timeout_s: 0.25
+        odom_x_scale: 1.0
+        odom_y_scale: 1.0
+        odom_z_scale_positive: 1.0
+        odom_z_scale_negative: 1.0
+        imu_yaw_rate_bias: 0.0
+        imu_yaw_rate_variance: 1.0e-06
+        odom_twist_variances_moving:
+        - 0.001
+        - 0.001
+        - 1000000.0
+        - 1000000.0
+        - 1000000.0
+        - 1000.0
+        odom_twist_variances_stopped:
+        - 1.0e-09
+        - 0.001
+        - 1000000.0
+        - 1000000.0
+        - 1000000.0
+        - 1.0e-09
+        usart_port_name: /dev/duojin01_controller
+        serial_baud_rate: 115200
+  ekf:
+    /**:
+      ros__parameters:
+        frequency: 50.0
+        sensor_timeout: 0.2
+        two_d_mode: true
+        map_frame: map
+        odom_frame: odom
+        base_link_frame: base_footprint
+        world_frame: odom
+        publish_tf: true
+        odom0: /odom
+        odom0_queue_size: 10
+        odom0_differential: false
+        odom0_relative: false
+        odom0_config:
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - true
+        - true
+        - false
+        - false
+        - false
+        - true
+        - false
+        - false
+        - false
+        imu0: /imu
+        imu0_queue_size: 50
+        imu0_remove_gravitational_acceleration: true
+        imu0_config:
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - false
+        - true
+        - false
+        - false
+        - false
+  health:
+    localization_manager:
+      ros__parameters:
+        map_cell_convention: amcl_nearest
+        min_hits: 45
+        max_beams: 90
+        max_range: 8.0
+        hit_fraction: 0.75
+        known_fraction: 0.9
+        max_contradiction_fraction: 0.15
+        endpoint_tolerance: 0.12
+        ray_margin: 0.18
+        max_ray_cells: 50000
+        good_scans: 6
+        good_span_s: 0.5
+        bad_scans: 3
+        bad_span_s: 0.2
+        recovery_scans: 15
+        recovery_span_s: 1.4
+        scan_timeout_s: 0.4
+        recovery_max_attempts: 2
+        recovery_attempt_timeout_s: 8.0
+        command_timeout_s: 0.25
+  slam:
+    slam_toolbox:
+      ros__parameters:
+        solver_plugin: solver_plugins::CeresSolver
+        ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+        ceres_preconditioner: SCHUR_JACOBI
+        ceres_trust_strategy: LEVENBERG_MARQUARDT
+        ceres_dogleg_type: TRADITIONAL_DOGLEG
+        ceres_loss_function: None
+        ceres_num_threads: 2
+        odom_frame: odom
+        map_frame: map
+        base_frame: base_footprint
+        scan_topic: /scan
+        use_map_saver: true
+        mode: mapping
+        debug_logging: false
+        throttle_scans: 1
+        transform_publish_period: 0.02
+        map_update_interval: 1.0
+        resolution: 0.01
+        max_laser_range: 8.0
+        minimum_time_interval: 0.05
+        transform_timeout: 0.5
+        tf_buffer_duration: 30.0
+        stack_size_to_use: 100000000
+        enable_interactive_mode: false
+        use_scan_matching: true
+        use_scan_barycenter: false
+        minimum_travel_distance: 0.15
+        minimum_travel_heading: 0.04
+        scan_buffer_size: 20
+        scan_buffer_maximum_scan_distance: 10.0
+        link_match_minimum_response_fine: 0.1
+        link_scan_maximum_distance: 1.5
+        loop_search_maximum_distance: 2.0
+        do_loop_closing: true
+        loop_match_minimum_chain_size: 15
+        loop_match_maximum_variance_coarse: 3.0
+        loop_match_minimum_response_coarse: 0.45
+        loop_match_minimum_response_fine: 0.55
+        correlation_search_space_dimension: 0.3
+        correlation_search_space_resolution: 0.005
+        correlation_search_space_smear_deviation: 0.05
+        loop_search_space_dimension: 2.0
+        loop_search_space_resolution: 0.05
+        loop_search_space_smear_deviation: 0.03
+        distance_variance_penalty: 0.5
+        angle_variance_penalty: 1.0
+        fine_search_angle_offset: 0.001745
+        coarse_search_angle_offset: 0.1745
+        coarse_angle_resolution: 0.01745
+        minimum_angle_penalty: 0.9
+        minimum_distance_penalty: 0.5
+        use_response_expansion: true
+        min_pass_through: 2
+        occupancy_threshold: 0.1
+  twist_mux:
+    twist_mux:
+      ros__parameters:
+        topics:
+          navigation:
+            topic: /cmd_vel
+            timeout: 0.5
+            priority: 80
+          teleop_normal:
+            topic: /cmd_vel_normal
+            timeout: 0.01
+            priority: 60
+          teleop_slow:
+            topic: /cmd_vel_slow
+            timeout: 0.01
+            priority: 50
+  teleop_normal:
+    teleop_normal:
+      ros__parameters:
+        require_enable_button: true
+        enable_button: 5
+        axis_linear:
+          x: 1
+          y: 0
+        scale_linear:
+          x: 0.4
+          y: 0.4
+        axis_angular:
+          yaw: 3
+        scale_angular:
+          yaw: 1.0
+  teleop_slow:
+    teleop_slow:
+      ros__parameters:
+        require_enable_button: true
+        enable_button: 4
+        axis_linear:
+          x: 1
+          y: 0
+        scale_linear:
+          x: 0.15
+          y: 0.15
+        axis_angular:
+          yaw: 3
+        scale_angular:
+          yaw: 0.5
+  foxglove:
+    /**:
+      ros__parameters:
+        port: 8765
+        address: 0.0.0.0
+  recording_qos:
+    /scan:
+      history: keep_last
+      depth: 100
+      reliability: best_effort
+      durability: volatile
+    /tf:
+      history: keep_last
+      depth: 100
+      reliability: reliable
+      durability: volatile
+    /tf_static:
+      history: keep_last
+      depth: 100
+      reliability: reliable
+      durability: transient_local
+  joy_launcher:
+    joy_launcher_node:
+      ros__parameters:
+        bindings:
+        - 3:ros2 launch duojin01_bringup save_map.launch.py
+        hold_bindings:
+        - '3:2.0'
+        trigger_feedback_buttons:
+        - 3
+        success_feedback_buttons:
+        - 3
+        feedback_topic: /joy/set_feedback
+        trigger_feedback_intensity: 0.45
+        trigger_feedback_duration_sec: 0.12
+        success_feedback_intensity: 1.0
+        success_feedback_duration_sec: 0.35
+  joy_axis_selector:
+    joy_axis_selector_node:
+      ros__parameters:
+        dpad_x_axis: 7
+        dpad_y_axis: 6
+        stick_x_axis: 1
+        stick_y_axis: 0
+        deadzone: 0.1
+  joy:
+    joy_node:
+      ros__parameters:
+        use_sim_time: false
+        device_id: 0
+        deadzone: 0.12
+        autorepeat_rate: 20.0
+  keyboard:
+    keyboard_teleop_node:
+      ros__parameters:
+        cmd_vel_topic: /cmd_vel
+        stamped: false
+        frame_id: ''
+        speed: 0.3
+        turn: 0.3
+        max_speed: 0.6
+        max_turn: 0.6
+        speed_step: 0.05
+        turn_step: 0.1
+        publish_rate: 120.0
+        repeat_timeout_sec: 0.5
+        read_poll_timeout: 0.02
+        tty_device_path: ''
+simulation:
+  lidar:
+    scan_height_m: 0.14330766582
+    samples: 540
+    rate_hz: 10.0
+    optical_range_min_m: 0.02
+    optical_range_max_m: 10.0
+    noise_stddev_m: 0.005
+  camera:
+    rate_hz: 15.0
+    width: 640
+    height: 480
+  observer:
+    rate_hz: 15.0
+    width: 1280
+    height: 720
+  base:
+    mode: kinematic
+    command_timeout_s: 0.25
+    wheelbase_m: 0.312755710719
+    track_m: 0.355082035065
+    wheel_radius_m: 0.0503669839553
+  materials:
+    metal:
+      metalness: 0.8
+      roughness: 0.32
+    shell:
+      metalness: 0.05
+      roughness: 0.48
+    arm:
+      metalness: 0.18
+      roughness: 0.35
+    carbon:
+      metalness: 0.0
+      roughness: 0.82
+    wheel_sideplate:
+      metalness: 0.2
+      roughness: 0.32
+    sensor:
+      metalness: 0.05
+      roughness: 0.4
+    battery:
+      metalness: 0.0
+      roughness: 0.65
+    chest:
+      metalness: 0.05
+      roughness: 0.48
+    neck:
+      metalness: 0.05
+      roughness: 0.48
