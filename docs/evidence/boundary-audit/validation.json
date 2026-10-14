@@ -1,0 +1,332 @@
+{
+  "passed": true,
+  "date": "2026-10-14",
+  "baseline": "4dea7435cb9f27c268ea383a48357fea80ab7fae",
+  "scope": "Input admission, asynchronous recovery ownership, truthful startup-only parameters, shutdown and file/result contracts; core algorithms and authored configuration values preserved.",
+  "python_final_runtime": {
+    "passed": 268,
+    "launch_argument_entries_resolved": 12,
+    "returncode": 0
+  },
+  "complete_cpp_test_stage": {
+    "cpu": {
+      "image": "duojin02:boundary-audit-cpu-testing",
+      "image_id": "sha256:99cd3f1912248ff84899b97ff07506ad124316693ba2a5719b2684e8ec3ef5a8",
+      "total": 20,
+      "passed": 19,
+      "skipped": 1,
+      "failed": 0
+    },
+    "gpu": {
+      "image": "duojin02:boundary-audit-gpu-testing",
+      "image_id": "sha256:c40fa1cd323a630b4a7a6170076797a5a3537a1293acf9f2c4ee82162aa8591e",
+      "total": 22,
+      "passed": 22,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "final_installed_runtime": {
+    "cpu": {
+      "image": "duojin02:boundary-audit-cpu",
+      "image_id": "sha256:70ef2215abb2881e630af5142d8c2d3422678f8c66d65a0acdb3bd91d3e51239",
+      "installed_source_config_launch_manifest_matches": 63,
+      "cuda_compiler_absent": true,
+      "geometry": {
+        "comparisons": 14472,
+        "device": "this build has no CUDA backend",
+        "cuda_batches": 0,
+        "boundary_rechecks": 0,
+        "mismatches": 0
+      },
+      "guard_admission_cases_passed": 8,
+      "core_binary_matches_complete_test_stage": {
+        "recovery": true,
+        "base": true,
+        "mppi": true,
+        "lattice": true
+      },
+      "installed_binary_sha256": {
+        "lib/duojin02_base_driver/duojin02_base_driver_node": "6096034a66b1aaca19fbaea5ed424f2ea4a222e14637b24a60eb594bd88efaed",
+        "lib/duojin02_navigation/velocity_guard": "480337d95b6de868ac5213287cb83dc365d0111ebb49a86f5d572cc233570496",
+        "lib/libduojin02_gpu_geometry.so": "4573bfac0d10b9fe659025d0a676651f1fb6e15a3a1d633b376db6fd32bc450c",
+        "lib/libduojin02_recovery_bt_nodes.so": "0e41377fad16338840e2350bf3ac82c6acbd15352973aca85c827f2a0b4ef9b2",
+        "lib/libprecise_lattice.so": "38d2eb1f6b703b04af8bcc9cfd2d3fcc779b873140b5e61e706d587c9cea2b39",
+        "lib/libprecise_mppi.so": "a67f014c222edd5fd4b47e47a7c083a4524e3a8427ba91c7292b738464f72381",
+        "lib/libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "lib/lslidar_driver/lslidar_driver_node": "185f0693351629653280ce5877eddc6462f0f9ab903a4a225c5bcb04e4030e11"
+      }
+    },
+    "gpu": {
+      "image": "duojin02:boundary-audit-gpu",
+      "image_id": "sha256:83822e647f583a17991d646fe56f9082788e7d92c82faa7e77b73e907334d035",
+      "installed_source_config_launch_manifest_matches": 63,
+      "cuda_compiler_absent": true,
+      "geometry": {
+        "comparisons": 14472,
+        "device": "NVIDIA GeForce RTX 5070",
+        "cuda_batches": 470,
+        "boundary_rechecks": 439,
+        "mismatches": 0
+      },
+      "guard_admission_cases_passed": 8,
+      "core_binary_matches_complete_test_stage": {
+        "recovery": true,
+        "base": true,
+        "mppi": true,
+        "lattice": true
+      },
+      "installed_binary_sha256": {
+        "lib/duojin02_base_driver/duojin02_base_driver_node": "6096034a66b1aaca19fbaea5ed424f2ea4a222e14637b24a60eb594bd88efaed",
+        "lib/duojin02_navigation/velocity_guard": "480337d95b6de868ac5213287cb83dc365d0111ebb49a86f5d572cc233570496",
+        "lib/libduojin02_gpu_geometry.so": "fae0b05188d88a065ea8541c69057cf0fdd990a4969166d6cdc4687f6b933a52",
+        "lib/libduojin02_recovery_bt_nodes.so": "0e41377fad16338840e2350bf3ac82c6acbd15352973aca85c827f2a0b4ef9b2",
+        "lib/libprecise_lattice.so": "38d2eb1f6b703b04af8bcc9cfd2d3fcc779b873140b5e61e706d587c9cea2b39",
+        "lib/libprecise_mppi.so": "a67f014c222edd5fd4b47e47a7c083a4524e3a8427ba91c7292b738464f72381",
+        "lib/libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "lib/lslidar_driver/lslidar_driver_node": "185f0693351629653280ce5877eddc6462f0f9ab903a4a225c5bcb04e4030e11"
+      }
+    }
+  },
+  "recovery": {
+    "bt_checks_per_mode": 35,
+    "actual_nav2_cases_per_mode": 19,
+    "additional_async_and_preemption_cases": 6,
+    "server_timeout_ms": 20,
+    "bt_loop_ms": 10,
+    "final_installed_library_sha256": "0e41377fad16338840e2350bf3ac82c6acbd15352973aca85c827f2a0b4ef9b2"
+  },
+  "command_chain_final_runtime": {
+    "total": 62,
+    "map": 3,
+    "localization": 14,
+    "producer_loss": 15,
+    "manual": 30,
+    "passed": true
+  },
+  "parameter_services_final_runtime": {
+    "base_and_guard_constructor_parameters": 26,
+    "base_and_guard_checks": 19,
+    "python_parameters_checked": 23,
+    "lidar_parameters_checked": 6,
+    "runtime_sets_explicitly_rejected": true,
+    "startup_overrides_remain_effective": true
+  },
+  "teleop_signal_and_joy_test_stage": {
+    "image_id": "sha256:99cd3f1912248ff84899b97ff07506ad124316693ba2a5719b2684e8ec3ef5a8",
+    "keyboard_signal_cases": 4,
+    "joy_cases": 6,
+    "final_runtime_module_hashes_verified": true
+  },
+  "lidar": {
+    "gtests_passed": 13,
+    "final_installed_paired_frames": 6,
+    "empty_frames": 2,
+    "expected_disconnect_exit": 1,
+    "forced_cleanup": false
+  },
+  "slam": {
+    "full_script_returncode": 0,
+    "ceres_checks": 21,
+    "recorded_processed_scans": 24,
+    "ekf_processed_scans": 19,
+    "invalid_frames": 0,
+    "queued_after_drain": 0,
+    "normal_reload_exit": 0,
+    "corrupt_graph_outer_exit": 1,
+    "before_corrupt_graph_outer_exit": 0,
+    "phase_qualification": "Full integration previously passed on testing image99cd3f; final launch-only callback was then independently verified via actual installed runtime image8550910f. SLAM/backend algorithms unchanged.",
+    "final_launch_hash_matches_tested_installed_launch": true
+  },
+  "changed_code_sha256": [
+    {
+      "file": "scripts/record_slam.sh",
+      "sha256": "9d30482bfc9af05c99ec19cba09af4f2576ff7a7210d1a0818bde0bd97ba1cb7"
+    },
+    {
+      "file": "scripts/validate_hardware.sh",
+      "sha256": "bde76bf1948b1e236ac1b26c822bfa89680ece58a7e61dc12632fbca89817d25"
+    },
+    {
+      "file": "src/duojin02_base_driver/src/duojin02_base_driver.cpp",
+      "sha256": "2b6a3316040bc78569c9356488c4803068e3680daf58661bba8f9a39b2782194"
+    },
+    {
+      "file": "src/duojin02_bringup/behavior_trees/navigate_through_poses.xml",
+      "sha256": "982f719df9744c7072ac32ee35774962ddd06b4c949820e5b9cce6033358fc11"
+    },
+    {
+      "file": "src/duojin02_bringup/behavior_trees/navigate_to_pose.xml",
+      "sha256": "3fd88ee75b8c23d3db001771a70fb837ce255ff19fd07f1e51638c20204efc1d"
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/localization_monitor.py",
+      "sha256": "7519cfab390bb068d627a553d08bd2e11aba7955d803debfe382ca325a4e3a09"
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/localization_readiness.py",
+      "sha256": "5938084c240a1b8bda6b01ffa08957f28705850be52a437f728c9686684fde34"
+    },
+    {
+      "file": "src/duojin02_bringup/launch/joy_teleop.launch.py",
+      "sha256": "7115515b2dab5838c0b980093d5ba1ee8d12974579429aaed13c2b5fadd139b7"
+    },
+    {
+      "file": "src/duojin02_bringup/launch/save_map.launch.py",
+      "sha256": "9a13b6e7bac40eb4d95769d1c422bc4718454a92044a47661fe3566be9a787ae"
+    },
+    {
+      "file": "src/duojin02_bringup/launch/slam.launch.py",
+      "sha256": "a549d86f6c8ed36235954d8ed84a677d388fdfe4fb2946fd0444bc6cac21d33e"
+    },
+    {
+      "file": "src/duojin02_bringup/package.xml",
+      "sha256": "eed121602f6114a3c1bf231bfb2223b27d88ef2bf71da7743bd055051a5fcfcf"
+    },
+    {
+      "file": "src/duojin02_navigation/CMakeLists.txt",
+      "sha256": "283c2e934155b009f116faff212a56a13513810f14ca8da45b8be82c8f15d91c"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/guard_input_validity.hpp",
+      "sha256": "630259c711dbfe6cc353a0d3fb61ae304a55fd16399cd290b7ae7a9636ab1ff2"
+    },
+    {
+      "file": "src/duojin02_navigation/package.xml",
+      "sha256": "725a0af33dc23db00b5dd992e3d6dcd3dc101605fe9894a8e0bd0f0068d3189b"
+    },
+    {
+      "file": "src/duojin02_navigation/src/recovery_bt_nodes.cpp",
+      "sha256": "00afe9b9ca1ab4cdb048da35429080f768912b243ddf8fd34082ff5cd1d3ddff"
+    },
+    {
+      "file": "src/duojin02_navigation/src/velocity_guard.cpp",
+      "sha256": "c1e54ac22a05a11baa8932e5b0a2432ab7f2e4e4d6fa635cd42dd640a9ce18de"
+    },
+    {
+      "file": "src/duojin02_navigation/test/guard_input_validity_checks.cpp",
+      "sha256": "3bc143fd46e2310727d5b2785a95592d2beaa7147395a7f2d365409c10d3693e"
+    },
+    {
+      "file": "src/duojin02_navigation/test/recovery_bt_checks.cpp",
+      "sha256": "1c30a3712081b1e5888a4260b3d831aa679d9ffab9e0bdc9bd4e217b7547cfcd"
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/replay_tf.py",
+      "sha256": "1c62b32eb9a9249cd059f7a139edd0a170a534625ad5d5c50a1b3e717effe2a1"
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/save_map.py",
+      "sha256": "210df749a9b18c0924b7d3222924252865976368fe9d9b51b584b6acd8a90b24"
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/snapshots.py",
+      "sha256": "7d84d9804ed0b21727ba027b7a9695242947a6187c87bc098a06ba057b4672bc"
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/joy_axis_selector_node.py",
+      "sha256": "130cd6196b8cf146eed266d7af25abfba12fd45d6ff694520efd259af224f2ea"
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/joy_launcher_node.py",
+      "sha256": "5aa74f53eb838d31981b1dec2a251e3d9e69abaf3eb082f9ad1872ce3c056c34"
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py",
+      "sha256": "4b12d88fa443356e754c118ad9e3404d641ed30f53e5bf057a8a883cecd3a6c5"
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_node.py",
+      "sha256": "e7725e6daad17ee06c311731b4c27512525dba354c4baaad5377f5d63b1554a4"
+    },
+    {
+      "file": "src/lslidar_driver/UPSTREAM.md",
+      "sha256": "2c8ee1d460fed24686eda594da641d02ec0260e0584d15d08f3000f036910235"
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/CMakeLists.txt",
+      "sha256": "26ab9db70df1939cfddb043f97f7b58801eb1dd2650a3d031d1658ea04a920f2"
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/package.xml",
+      "sha256": "abb7f03eb4799a62bc367451d314fd88c36aad023f7055e62b9fcd9e7f42443a"
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/src/lslidar_x10_driver.cpp",
+      "sha256": "edc1931e8b08b230d5b56ab32fa4d088489e1db7f97c828960d7c42cb210285f"
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/test/test_x10_driver.cpp",
+      "sha256": "9d455247633f5ec4d73a49a51dfe7ba1bb9713c5368a6278ffc7312771302397"
+    },
+    {
+      "file": "tests/integration/guard_admission_probe.py",
+      "sha256": "fb263687eb34370cffb14af82e01829b8ca870e89ec39f994ea7c20ec0ee63b1"
+    },
+    {
+      "file": "tests/integration/lidar_output_probe.py",
+      "sha256": "b8278ec27bc3422b52ee774ae97e1e55f4b9eb9ff564c1d01a01aefc86a19d3c"
+    },
+    {
+      "file": "tests/integration/map_save_service_probe.py",
+      "sha256": "b3a679802e95b1192b007c858e98c76e7448c67b2ba164462f3d30bf91534b8d"
+    },
+    {
+      "file": "tests/integration/navigation_recovery_probe.py",
+      "sha256": "4488d764695324e361530f5a61986b1fc5118bf722ccd3f1023eb507378daf55"
+    },
+    {
+      "file": "tests/integration/recording_probe.py",
+      "sha256": "f755f881c401b485bd6f17094fb9f2a15a7eb3d39f51292d541c2766b3894842"
+    },
+    {
+      "file": "tests/integration/slam_replay_probe.py",
+      "sha256": "0b6b45de4574877e7714fad679b752b69b0204d2a93344f4c4bceb8ffc8e14b9"
+    },
+    {
+      "file": "tests/integration/startup_parameter_probe.py",
+      "sha256": "36bd90da93c03ef2d30f5bca7ce63c10c3241d8cbd029a6b554e385c54e19e48"
+    },
+    {
+      "file": "tests/test_joy_launcher_inputs.py",
+      "sha256": "a8cd293b58c048100039b229a840f6458af37c1aa81f4cf08201b9b909e28ce0"
+    },
+    {
+      "file": "tests/test_map_snapshot_contract.py",
+      "sha256": "85c08059abdab75fbd742b0bfcabf2868933891e3c37b8920ce337baf7db9b1e"
+    },
+    {
+      "file": "tests/test_record_slam_shell.py",
+      "sha256": "91b10b5273a73f2f57fa2dac9dd25556bc9e32e2d5f91100315aeda66a8300ce"
+    },
+    {
+      "file": "tests/test_slam_workflows.py",
+      "sha256": "e3aa82e3884441ce8baec63660adb83a7132fc833ebc5eaa149b3ad6e53f5257"
+    },
+    {
+      "file": "tests/test_teleop_input_lifecycle.py",
+      "sha256": "b39902883fea669139145e909a36678dca92a44e00f9a5af5800271cbf02e743"
+    }
+  ],
+  "artifact_directory": "/home/th1rt3en/.codex/visualizations/2026/10/14/01a1380c-9518-7301-b2de-434ad530817e/duojin02-next-audit",
+  "evidence_sha256": {
+    "cpp-validation/summary.json": "9023b9869402d4eceedd069d37da960932f1c0268af4db2494f05861b1535ec7",
+    "final-runtime/summary.json": "5e8720605548f9f8a4550d295259563d364b0c4013ec25222430518c9357ebd7",
+    "command-chain-final/summary.json": "e7b59b5335a38aa5b4031dbe209ccde108318df64f69813099757c61fd9d5c43",
+    "slam-final/validation.json": "d4ab03307e86fe1cb2041d4a1283ae97c9dd211990cc80276e270d9ffe339991",
+    "lidar-final/validation.json": "163c92c9d7e6486f19167508cf980d5441c4a7187dc8426bd288285ad42716d6",
+    "runtime-final/startup-parameters/result.json": "187fc6c9283eeebfcf2077e509f48906f7af2ba9d24dbbe93cf0a62098e6c03c",
+    "runtime-final/cpu-manifest.json": "d99a11babc43e7a9d453c8ae72b71c844dbb31091934beae3281be9b27cdbdc8",
+    "runtime-final/gpu-manifest.json": "ea001966afe18d95627c7d1e307a5fbd31685a12ef58c3a2063edf2bb358b793",
+    "runtime-final/validate-hardware.log": "203d92d3396e937f282c818ae108fdea9d7342b5a2190f7daca8b766dcd53cde",
+    "algorithm-preservation.json": "6ceb0dd789bd798ee749d2a265c00968b6394c0ad18373d4baf1428cdd1b640d"
+  },
+  "qualification": [
+    "Previous complete CTest CPU20/GPU22 covers prior testing images. Recovery/base/MPPI/lattice hashes match the final installed binaries. Final GPU geometry is independently checked with actual required CUDA and 14472 comparisons; CPU no-device geometry also passes. Final Guard admission delta is independently exercised by all 8 cases in each final installed runtime. No claim is made that the prior full CTest used the final Guard or final GPU geometry whole-file hash.",
+    "Full SLAM integration and keyboard signal/Joy probes use the recorded test-stage image; final metadata-only processing preservation and installed file hashes bind their unchanged modules to the final runtime. Final SLAM failure callback was independently tested with an installed launch and matches the final runtime launch hash.",
+    "ROS service/action and sensor results use controlled fixtures and PTYs. CUDA kernels were actually exercised on RTX5070. No physical robot motion or Jetson runtime latency was tested."
+  ],
+  "build_input_note": "Unchanged official Dockerfile recipe plus a temporary COPY of the SHA256-verified pinned original SLAM archive; pin, preparation, patch and CUDA recipes unchanged.",
+  "changed_document_relative_links_checked": 92,
+  "regenerable_local_cache_directories_removed": 8
+}

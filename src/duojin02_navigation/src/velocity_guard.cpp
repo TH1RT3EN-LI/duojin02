@@ -21,15 +21,15 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-#include <tf2_ros/message_filter.h>
-#include <tf2_ros/create_timer_ros.h>
 
 using namespace duojin02_navigation;
 using Clock = std::chrono::steady_clock;
 class VelocityGuard : public rclcpp::Node {
  public:
   VelocityGuard():Node("velocity_guard"),buffer_(get_clock()),listener_(buffer_,this,false) {
-    auto flat=declare_parameter<std::vector<double>>("footprint",std::vector<double>{});
+    rcl_interfaces::msg::ParameterDescriptor startup;
+    startup.read_only=true;
+    auto flat=declare_parameter<std::vector<double>>("footprint",std::vector<double>{},startup);
     if (flat.size()<6 || flat.size()%2) throw std::runtime_error("A measured convex CCW footprint is required");
     for (size_t i=0;i<flat.size();i+=2) polygon_.push_back({flat[i],flat[i+1]});
     for(size_t i=0;i<polygon_.size();++i) {
@@ -38,16 +38,16 @@ class VelocityGuard : public rclcpp::Node {
          (b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x)<-1e-10)
         throw std::runtime_error("Footprint must be finite, convex, CCW and have distinct adjacent vertices");
     }
-    margin_=declare_parameter("clearance_margin_m",.008);
-    range_error_=declare_parameter("range_error_m",.008);
-    reaction_=declare_parameter("reaction_time_s",.20);
-    decel_=declare_parameter("braking_deceleration_mps2",.4);
-    angular_decel_=declare_parameter("angular_deceleration_radps2",.8);
-    scan_timeout_=declare_parameter("scan_timeout_s",.30);
-    command_timeout_=declare_parameter("command_timeout_s",.25);
-    odometry_timeout_=declare_parameter("odometry_timeout_s",.20);
-    localization_tf_timeout_=declare_parameter("localization_tf_timeout_s",.50);
-    memory_radius_=declare_parameter("obstacle_memory_radius_m",2.5);
+    margin_=declare_parameter("clearance_margin_m",.008,startup);
+    range_error_=declare_parameter("range_error_m",.008,startup);
+    reaction_=declare_parameter("reaction_time_s",.20,startup);
+    decel_=declare_parameter("braking_deceleration_mps2",.4,startup);
+    angular_decel_=declare_parameter("angular_deceleration_radps2",.8,startup);
+    scan_timeout_=declare_parameter("scan_timeout_s",.30,startup);
+    command_timeout_=declare_parameter("command_timeout_s",.25,startup);
+    odometry_timeout_=declare_parameter("odometry_timeout_s",.20,startup);
+    localization_tf_timeout_=declare_parameter("localization_tf_timeout_s",.50,startup);
+    memory_radius_=declare_parameter("obstacle_memory_radius_m",2.5,startup);
     if (!std::isfinite(margin_+range_error_+decel_+angular_decel_+reaction_+scan_timeout_+command_timeout_+odometry_timeout_+localization_tf_timeout_+memory_radius_) ||
         margin_<0 || range_error_<0 || decel_<=0 || angular_decel_<=0 || reaction_<0 ||
         scan_timeout_<=0 || command_timeout_<=0 || odometry_timeout_<=0 || localization_tf_timeout_<=0 || memory_radius_<=0)
@@ -61,6 +61,7 @@ class VelocityGuard : public rclcpp::Node {
     odom_sub_=create_subscription<nav_msgs::msg::Odometry>("/odometry/filtered",qos,
       [this](nav_msgs::msg::Odometry::SharedPtr m){
         if(m->header.frame_id!="odom" || m->child_frame_id!="base_footprint" ||
+            !validScanStamp(m->header.stamp) || !guardQuaternionValid(m->pose.pose.orientation) ||
             !std::isfinite(m->pose.pose.position.x+m->pose.pose.position.y+
             m->twist.twist.linear.x+m->twist.twist.linear.y+m->twist.twist.angular.z) ||
             std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>odometry_timeout_) {have_odom_=false;return;}
@@ -69,13 +70,8 @@ class VelocityGuard : public rclcpp::Node {
         if(!std::isfinite(pose_.yaw)) {have_odom_=false;return;}
         last_odom_=Clock::now();have_odom_=true;
       });
-    // TF readiness is event driven. Listener and filter callbacks share this
-    // node's single executor, so they cannot race the safety state or timer.
-    buffer_.setCreateTimerInterface(std::make_shared<tf2_ros::CreateTimerROS>(
-      get_node_base_interface(),get_node_timers_interface()));
-    scan_filter_=std::make_unique<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>>(
-      buffer_,"odom",2,get_node_logging_interface(),get_node_clock_interface(),std::chrono::milliseconds(20));
-    scan_filter_->registerCallback([this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){++tf_ready_scans_;scan(m);});
+    // Sensor admission and TF lookup share this node's single executor.
+    // Pending scans are bounded by the same source/receipt freshness contract.
     scan_sub_=create_subscription<sensor_msgs::msg::LaserScan>("/scan",rclcpp::SensorDataQoS(),
       [this](sensor_msgs::msg::LaserScan::ConstSharedPtr m){receiveScan(m);});
     prior_sub_=create_subscription<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(1).transient_local(),
@@ -105,7 +101,7 @@ class VelocityGuard : public rclcpp::Node {
     if (frame=="odom") return {};
     // Humble Buffer's timeout overload requires a dedicated listener even
     // for a zero duration. BufferCore queries the already populated cache
-    // immediately, as required by this single-executor MessageFilter owner.
+    // immediately, as required by this single-executor scan owner.
     auto tf=static_cast<const tf2::BufferCore &>(buffer_).lookupTransform(
       "odom",frame,tf2_ros::fromRclcpp(rclcpp::Time(stamp)));
     Pose pose{tf.transform.translation.x,tf.transform.translation.y,tf2::getYaw(tf.transform.rotation)};
@@ -115,6 +111,7 @@ class VelocityGuard : public rclcpp::Node {
   }
   void invalidScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m) {
     scan_order_.fault(validScanStamp(m->header.stamp) ? scanStampNanoseconds(m->header.stamp) : -1);
+    pending_scans_.clear();
     have_scan_=false;scan_invalid_=true;
     publish({},"scan_invalid",0,Clock::now());
   }
@@ -125,23 +122,31 @@ class VelocityGuard : public rclcpp::Node {
     if(scanValidity(*m)!=ScanValidity::Valid) {invalidScan(m);return;}
     const auto stamp=scanStampNanoseconds(m->header.stamp);
     if(!scan_order_.canAccept(stamp)) return;
-    for(const auto &receipt:scan_receipts_) if(receipt.first==stamp) return;
-    scan_receipts_.emplace_back(stamp,Clock::now());
-    while(scan_receipts_.size()>2) scan_receipts_.pop_front();
-    scan_filter_->add(m);
+    for(const auto &pending:pending_scans_)
+      if(scanStampNanoseconds(pending.first->header.stamp)==stamp) return;
+    pending_scans_.emplace_back(m,Clock::now());
+    processPendingScans();
   }
-  void scan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m) {
-    const auto stamp=scanStampNanoseconds(m->header.stamp);
-    auto receipt=std::find_if(scan_receipts_.begin(),scan_receipts_.end(),
-      [stamp](const auto &entry){return entry.first==stamp;});
-    if(receipt==scan_receipts_.end()) return;
-    const auto received=receipt->second;scan_receipts_.erase(receipt);
-    if(!validScanStamp(m->header.stamp)) {invalidScan(m);return;}
+  void processPendingScans() {
+    for(auto it=pending_scans_.begin();it!=pending_scans_.end();) {
+      const auto &m=it->first;
+      if(age(it->second)>scan_timeout_ ||
+         std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>scan_timeout_ ||
+         !scan_order_.canAccept(scanStampNanoseconds(m->header.stamp))) {
+        it=pending_scans_.erase(it);continue;
+      }
+      if(!static_cast<const tf2::BufferCore &>(buffer_).canTransform(
+          "odom",m->header.frame_id,tf2_ros::fromRclcpp(rclcpp::Time(m->header.stamp)),nullptr) ||
+         (have_anchor_ && !static_cast<const tf2::BufferCore &>(buffer_).canTransform(
+          "odom","map",tf2_ros::fromRclcpp(rclcpp::Time(m->header.stamp)),nullptr))) {
+        ++it;continue;
+      }
+      auto ready=*it;it=pending_scans_.erase(it);
+      ++tf_ready_scans_;scan(ready.first,ready.second);
+    }
+  }
+  void scan(const sensor_msgs::msg::LaserScan::ConstSharedPtr &m,Clock::time_point received) {
     try {
-      if (std::abs((now()-rclcpp::Time(m->header.stamp)).seconds())>scan_timeout_) return;
-      if(scanValidity(*m)!=ScanValidity::Valid) {invalidScan(m);return;}
-      if(age(received)>scan_timeout_) return;
-      if(!scan_order_.canAccept(scanStampNanoseconds(m->header.stamp))) return;
       auto transform_pose=framePose(m->header.frame_id,m->header.stamp);
       // Correct remembered surfaces when localization compensates odometry
       // drift. Fresh observations remain in sensor-time odom coordinates.
@@ -260,6 +265,7 @@ class VelocityGuard : public rclcpp::Node {
     return points;
   }
   void tick() {
+    processPendingScans();
     const auto start=Clock::now();
     geometry_msgs::msg::Twist result;
     std::string reason="clear";
@@ -327,14 +333,13 @@ class VelocityGuard : public rclcpp::Node {
   PriorAssociationCache association_cache_;
   uint64_t prior_epoch_{0},observation_epoch_{0};
   size_t prior_examined_{0},candidate_points_{0},tf_ready_scans_{0};double query_radius_{0};
-  std::deque<std::pair<int64_t,Clock::time_point>> scan_receipts_;
+  std::deque<std::pair<sensor_msgs::msg::LaserScan::ConstSharedPtr,Clock::time_point>> pending_scans_;
   double margin_,range_error_,reaction_,decel_,angular_decel_,scan_timeout_,command_timeout_,odometry_timeout_,localization_tf_timeout_,memory_radius_;
   Clock::time_point last_command_,last_scan_,last_odom_;
   ScanRecoveryOrder scan_order_;
   bool have_command_{false},have_scan_{false},have_odom_{false},have_prior_{false},have_anchor_{false},scan_invalid_{false};
   bool prior_invalid_{false};
   tf2_ros::Buffer buffer_;tf2_ros::TransformListener listener_;
-  std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>> scan_filter_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr output_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr memory_output_;

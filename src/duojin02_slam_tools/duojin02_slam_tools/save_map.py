@@ -12,7 +12,7 @@ from ament_index_python.packages import get_package_prefix, get_package_share_di
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
-from rcl_interfaces.msg import Parameter as ParameterMessage
+from rcl_interfaces.msg import Parameter as ParameterMessage, ParameterDescriptor
 from rcl_interfaces.srv import GetParameters, ListParameters
 from nav_msgs.srv import GetMap
 from slam_toolbox.srv import SaveMap, SerializePoseGraph
@@ -43,10 +43,11 @@ def output_directory(value):
 class SaveMapClient(Node):
     def __init__(self, *, parameter_overrides=None):
         super().__init__("save_map_client_node", parameter_overrides=parameter_overrides)
-        self.map_name = self.declare_parameter("map_name", "auto").value
-        self.output = output_directory(self.declare_parameter("output_dir", "maps").value)
-        self.save_timeout = float(self.declare_parameter("save_timeout", DEFAULT_SAVE_TIMEOUT).value)
-        self.serialize_graph = self.declare_parameter("serialize_graph", True).value
+        descriptor = ParameterDescriptor(read_only=True)
+        self.map_name = self.declare_parameter("map_name", "auto", descriptor).value
+        self.output = output_directory(self.declare_parameter("output_dir", "maps", descriptor).value)
+        self.save_timeout = float(self.declare_parameter("save_timeout", DEFAULT_SAVE_TIMEOUT, descriptor).value)
+        self.serialize_graph = self.declare_parameter("serialize_graph", True, descriptor).value
         if not math.isfinite(self.save_timeout) or self.save_timeout <= 0:
             raise ValueError("save_timeout must be finite and positive")
         self.map_client = self.create_client(SaveMap, "/slam_toolbox/save_map")

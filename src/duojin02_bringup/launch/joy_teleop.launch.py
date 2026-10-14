@@ -57,7 +57,8 @@ def generate_launch_description():
         package="duojin02_teleop",
         executable="joy_launcher_node",
         name="joy_launcher_node",
-        parameters=[joy_launcher_config_path, {"use_sim_time": False}],
+        parameters=[joy_launcher_config_path, os.path.join(bringup_share, "config", "safety.yaml"),
+                    {"use_sim_time": False}],
         output="screen",
     )
     return LaunchDescription(

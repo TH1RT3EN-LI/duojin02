@@ -10,12 +10,14 @@ namespace lslidar_driver {
 
 LslidarX10Driver::LslidarX10Driver(rclcpp::Node::SharedPtr node)
     : node_(std::move(node)), publisher_(std::make_unique<PublicationWorker>()) {
-    serial_port_ = node_->declare_parameter<std::string>("serial_port", "/dev/lslidar");
-    frame_id = node_->declare_parameter<std::string>("frame_id", "laser");
-    san_topic_ = node_->declare_parameter<std::string>("laserscan_topic", "/scan");
-    pointcloud_topic = node_->declare_parameter<std::string>("pointcloud_topic", "/lslidar_point_cloud");
-    min_range = node_->declare_parameter<double>("min_range", 0.3);
-    max_range = node_->declare_parameter<double>("max_range", 100.0);
+    rcl_interfaces::msg::ParameterDescriptor startup_parameter;
+    startup_parameter.read_only = true;
+    serial_port_ = node_->declare_parameter<std::string>("serial_port", "/dev/lslidar", startup_parameter);
+    frame_id = node_->declare_parameter<std::string>("frame_id", "laser", startup_parameter);
+    san_topic_ = node_->declare_parameter<std::string>("laserscan_topic", "/scan", startup_parameter);
+    pointcloud_topic = node_->declare_parameter<std::string>("pointcloud_topic", "/lslidar_point_cloud", startup_parameter);
+    min_range = node_->declare_parameter<double>("min_range", 0.3, startup_parameter);
+    max_range = node_->declare_parameter<double>("max_range", 100.0, startup_parameter);
     points.reserve(packet_points_max * 2);
 }
 

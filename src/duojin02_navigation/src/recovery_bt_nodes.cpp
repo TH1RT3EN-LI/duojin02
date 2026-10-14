@@ -64,7 +64,7 @@ public:
   ~PathNeedsReplan() override {clear();}
 
   static BT::PortsList providedPorts() {
-    return {BT::InputPort<nav_msgs::msg::Path>("path"),
+    return {BT::InputPort<nav_msgs::msg::Path>("path"), BT::OutputPort<nav_msgs::msg::Path>("checked_path"),
       BT::InputPort<std::string>("service_name", std::string("is_path_valid"), "Path-check service"),
       BT::InputPort<std::chrono::milliseconds>("server_timeout")};
   }
@@ -87,20 +87,25 @@ public:
 
   BT::NodeStatus onRunning() override {
     try {
-      nav_msgs::msg::Path current;
-      if (!pending_ || !getInput("path", current) || !usablePath(current) ||
-        !sameGeometry(checked_path_, current) || Clock::now() >= deadline_) {
+      if (!pending_) {
         clear();
         return BT::NodeStatus::FAILURE;
       }
       executor_.spin_some();
-      if (Clock::now() >= deadline_) {clear(); return BT::NodeStatus::FAILURE;}
       if (pending_->wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+        // The deadline bounds further waiting. Consume a queued response first
+        // even if the BT scheduler delivered this poll after that deadline.
+        if (Clock::now() >= deadline_) {clear(); return BT::NodeStatus::FAILURE;}
         return BT::NodeStatus::RUNNING;
       }
       auto response = pending_->get();
+      // Periodic planning may update {path} while this query is pending. The
+      // enclosing goal decorator owns preemption; recovery compares the path
+      // actually rejected by this response, not a later ordinary plan.
+      const bool rejected = response && !response->is_valid;
+      if (rejected) setOutput("checked_path", checked_path_);
       clear();
-      return response && !response->is_valid ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+      return rejected ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
     }
     catch (const std::exception & error) {return failed(error);}
   }

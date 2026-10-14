@@ -18,7 +18,6 @@ DECEL_LIMIT_ANGULAR = 8.0
 
 DEFAULT_PUBLISH_RATE = 120.0
 DEFAULT_REPEAT_TIMEOUT_SEC = 0.50
-DEFAULT_READ_POLL_TIMEOUT_SEC = 0.02
 DEFAULT_TTY_DEVICE_PATH = ''
 
 
@@ -32,7 +31,6 @@ KEYBOARD_TELEOP_PARAMETER_DEFAULTS = {
     'turn_step': DEFAULT_ANGULAR_SPEED_STEP,
     'publish_rate': DEFAULT_PUBLISH_RATE,
     'repeat_timeout_sec': DEFAULT_REPEAT_TIMEOUT_SEC,
-    'read_poll_timeout': DEFAULT_READ_POLL_TIMEOUT_SEC,
     'tty_device_path': DEFAULT_TTY_DEVICE_PATH,
 }
 
@@ -42,7 +40,7 @@ def keyboard_teleop_parameter_defaults() -> dict[str, float | str]:
 
 
 def validate_keyboard_parameters(parameters: dict[str, float | str]) -> None:
-    for name in ('repeat_timeout_sec', 'publish_rate', 'read_poll_timeout'):
+    for name in ('repeat_timeout_sec', 'publish_rate'):
         value = float(parameters[name])
         if not math.isfinite(value) or value <= 0.0:
             raise ValueError(f'{name} must be finite and greater than zero')

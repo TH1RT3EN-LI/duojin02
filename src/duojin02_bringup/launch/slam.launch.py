@@ -14,6 +14,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+def slam_exited(event, context):
+    if event.returncode != 0:
+        raise RuntimeError(f"SLAM backend exited with code {event.returncode}")
+    return [Shutdown(reason="SLAM node exited")]
+
+
 def create_node(context):
     share = Path(get_package_share_directory("slam_toolbox"))
     if not (share / "hardware_build.json").is_file():
@@ -21,7 +27,10 @@ def create_node(context):
     parameters = {"use_sim_time": False}
     graph = LaunchConfiguration("pose_graph").perform(context).strip()
     start = LaunchConfiguration("map_start_pose").perform(context).strip()
-    dock = LaunchConfiguration("start_at_dock").perform(context).lower() == "true"
+    dock_value = LaunchConfiguration("start_at_dock").perform(context).strip().lower()
+    if dock_value not in ("true", "false"):
+        raise ValueError("start_at_dock must be true or false")
+    dock = dock_value == "true"
     if graph:
         prefix = Path(graph).expanduser().resolve()
         if prefix.suffix == ".posegraph":
@@ -32,14 +41,14 @@ def create_node(context):
                 raise ValueError(f"Missing pose graph artifact: {artifact}")
         raster = artifact_path(prefix, ".yaml")
         if raster.exists():
-            validate_map(raster)
+            validate_map(raster, require_graph=True)
         if bool(start) == dock:
             raise ValueError("For continuation, specify either map_start_pose:='[x, y, yaw]' or start_at_dock:=true")
         parameters["map_file_name"] = str(prefix)
         if start:
             pose = yaml.safe_load(start)
             if not isinstance(pose, list) or len(pose) != 3 or not all(
-                isinstance(value, (int, float)) and math.isfinite(value) for value in pose
+                type(value) in (int, float) and math.isfinite(value) for value in pose
             ):
                 raise ValueError("map_start_pose must contain three finite values [x, y, yaw]")
             parameters["map_start_pose"] = [float(value) for value in pose]
@@ -50,7 +59,7 @@ def create_node(context):
     return [Node(package="slam_toolbox", executable="async_slam_toolbox_node",
                  name="slam_toolbox", output="screen",
                  parameters=[LaunchConfiguration("slam_params_file"), parameters],
-                 on_exit=[Shutdown(reason="SLAM node exited")])]
+                 on_exit=slam_exited)]
 
 
 def generate_launch_description():

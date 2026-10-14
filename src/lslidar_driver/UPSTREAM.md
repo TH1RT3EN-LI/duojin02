@@ -17,4 +17,6 @@
 
 原始包改为栈上的 108 字节数组，删除未发布的 lslidar_msgs 包。LaserScan 直接读取本帧 PCL 点云，只为标准 PointCloud2 输出执行一次序列化。采集与发布各用一个工作线程，ROS 回调用单线程执行器；每次发布捕获独立帧和时间，析构时排空发布队列。
 
+六个配置参数 `serial_port`、`frame_id`、`laserscan_topic`、`pointcloud_topic`、`min_range`、`max_range` 只在构造时读取，明确声明为只读。启动覆盖仍有效；运行中 SetParameters 会明确拒绝修改，避免查询值与实际串口、输出或距离筛选不一致。电机控制仍使用原有话题和协议。
+
 串口累积分段输入，保留暂时无数据与设备断开的区分；坏包丢弃，传输失败终止节点。删除按未知型号猜测包长的路径。验证使用构造协议和伪终端，见 `scripts/test_lidar.sh` 与 [精简记录](../../docs/hardware-simplification.md)。实际铭牌、固件和真机采集仍由板端联调确认。

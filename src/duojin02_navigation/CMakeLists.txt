@@ -16,7 +16,6 @@ find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(message_filters REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(nav2_smac_planner REQUIRED)
 find_package(nav2_core REQUIRED)
@@ -56,19 +55,32 @@ pluginlib_export_plugin_description_file(nav2_core planner_plugins.xml)
 install(TARGETS precise_lattice LIBRARY DESTINATION lib)
 add_executable(velocity_guard src/velocity_guard.cpp)
 target_include_directories(velocity_guard PRIVATE include)
-ament_target_dependencies(velocity_guard rclcpp geometry_msgs sensor_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs message_filters)
+ament_target_dependencies(velocity_guard rclcpp geometry_msgs sensor_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs)
 install(TARGETS velocity_guard DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/ DESTINATION include)
 if(BUILD_TESTING)
   find_package(nlohmann_json REQUIRED)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   enable_testing()
+  set(RECOVERY_TEST_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/nav2.yaml")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${RECOVERY_TEST_CONFIG}")
+  execute_process(COMMAND "${Python3_EXECUTABLE}" -c
+    "import sys,yaml; p=yaml.safe_load(open(sys.argv[1]))['bt_navigator']['ros__parameters']; print(p['default_server_timeout'],p['bt_loop_duration'])"
+    "${RECOVERY_TEST_CONFIG}" RESULT_VARIABLE RECOVERY_TEST_CONFIG_RESULT
+    OUTPUT_VARIABLE RECOVERY_TEST_TIMING OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT RECOVERY_TEST_CONFIG_RESULT EQUAL 0 OR NOT RECOVERY_TEST_TIMING MATCHES "^([0-9]+) ([0-9]+)$")
+    message(FATAL_ERROR "Cannot read BT timing from the shipped navigation configuration")
+  endif()
+  set(RECOVERY_TEST_SERVER_TIMEOUT_MS "${CMAKE_MATCH_1}")
+  set(RECOVERY_TEST_TICK_MS "${CMAKE_MATCH_2}")
   add_executable(recovery_bt_checks test/recovery_bt_checks.cpp)
   ament_target_dependencies(recovery_bt_checks rclcpp nav2_msgs nav_msgs behaviortree_cpp_v3)
   target_compile_definitions(recovery_bt_checks PRIVATE
     RECOVERY_BT_LIBRARY="$<TARGET_FILE:duojin02_recovery_bt_nodes>"
     NAV2_BT_LIBRARY_DIRECTORY="${nav2_behavior_tree_DIR}/../../../lib"
-    RECOVERY_BT_TREE_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/behavior_trees")
+    RECOVERY_BT_TREE_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/behavior_trees"
+    RECOVERY_BT_SERVER_TIMEOUT_MS=${RECOVERY_TEST_SERVER_TIMEOUT_MS}
+    RECOVERY_BT_TICK_MS=${RECOVERY_TEST_TICK_MS})
   add_dependencies(recovery_bt_checks duojin02_recovery_bt_nodes)
   target_compile_options(recovery_bt_checks PRIVATE -UNDEBUG)
   add_test(NAME recovery_bt_checks COMMAND recovery_bt_checks)
@@ -100,6 +112,13 @@ if(BUILD_TESTING)
     --json-out "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe.json"
     --log-dir "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe-logs")
   set_tests_properties(guard_association_probe PROPERTIES TIMEOUT 60
+    ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
+  add_test(NAME guard_admission_probe COMMAND ${Python3_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_admission_probe.py"
+    --guard-binary $<TARGET_FILE:velocity_guard>
+    --params-file "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml"
+    --output-dir "${CMAKE_CURRENT_BINARY_DIR}/guard-admission-probe")
+  set_tests_properties(guard_admission_probe PROPERTIES TIMEOUT 40
     ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
   add_executable(guard_query_checks test/guard_query_checks.cpp)
   target_include_directories(guard_query_checks PRIVATE include)

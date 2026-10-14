@@ -1,5 +1,6 @@
 """Verify that recording started after static TF publication still captures that transform."""
 import os
+import json
 import signal
 import subprocess
 import tempfile
@@ -61,8 +62,11 @@ def run():
                         time.sleep(0.05)
                     time.sleep(0.5)
                 finally:
-                    os.killpg(process.pid, signal.SIGINT)
-                    process.wait(timeout=10)
+                    if process.poll() is None:
+                        os.killpg(process.pid, signal.SIGINT)
+                    returncode = process.wait(timeout=10)
+                    assert returncode == 130, f'Recording did not finish after SIGINT: {returncode}'
+                    print(json.dumps({'recording_cleanup': {'returncode': returncode, 'forced': False}}))
             reader = rosbag2_py.SequentialReader()
             reader.open(rosbag2_py.StorageOptions(uri=str(bag), storage_id='sqlite3'),
                         rosbag2_py.ConverterOptions('', ''))
@@ -80,11 +84,14 @@ def run():
             print('late recorder captured transient static TF, live scans and backend provenance; '
                   'unavailable metadata did not delay recording; interruption reports and cleanup: passed')
     finally:
-        executor.shutdown()
+        stopped = executor.shutdown(timeout_sec=5)
         thread.join(timeout=5)
         for node in nodes:
             node.destroy_node()
         rclpy.shutdown()
+        print(json.dumps({'recording_fixture_cleanup': {'executor_stopped': stopped,
+                                                       'worker_stopped': not thread.is_alive()}}))
+        assert stopped and not thread.is_alive(), 'Recording fixture did not finish normally'
 
 
 if __name__ == '__main__':

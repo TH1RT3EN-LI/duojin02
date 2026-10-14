@@ -19,6 +19,8 @@ from std_srvs.srv import Trigger
 from duojin02_slam_tools.snapshots import artifact_path, validate_map
 from duojin02_slam_tools.offline import await_response
 
+ROOT = Path(__file__).resolve().parents[2]
+
 
 def run():
     os.environ['ROS_DOMAIN_ID'] = '92'
@@ -90,13 +92,23 @@ def run():
                                        '--ros-args', '-p', f'output_dir:={output}', '-p', f'map_name:={name}',
                                        '-p', f'save_timeout:={timeout}'],
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=15)
+            def launch_save(name):
+                return subprocess.run(['ros2', 'launch', str(ROOT / 'src/duojin02_bringup/launch/save_map.launch.py'),
+                                       f'output_dir:={output}', f'map_name:={name}', 'save_timeout:=2.0'],
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=15)
             success = save('room.v2')
             assert success.returncode == 0, success.stdout
             validate_map(output / 'room.v2.yaml')
             snapshot = json.loads((output / 'room.v2.snapshot.json').read_text())
             assert snapshot['provenance']['slam_parameters']['map_start_pose'] == [1.0, 2.0, 0.5]
+            launch_success = launch_save('launch_success')
+            assert launch_success.returncode == 0, launch_success.stdout
+            validate_map(output / 'launch_success.yaml')
             assert save('room.v2').returncode != 0, 'existing map overwritten'
             mode[0] = 'graph_failure'
+            launch_failure = launch_save('launch_failure')
+            assert launch_failure.returncode != 0, 'launch reported success after its save client failed'
+            assert not (output / 'launch_failure.yaml').exists(), launch_failure.stdout
             failure = save('failed_graph')
             assert failure.returncode != 0 and not (output / 'failed_graph.yaml').exists(), failure.stdout
             mode[0] = 'raster_failure'
@@ -150,13 +162,16 @@ def run():
                     assert dead.cancelled()
             finally:
                 control.destroy_node()
-            print('map service success, existing-name refusal, graph/raster failures, one save budget, '
+            print('map service/launch success, launch failure status propagation, existing-name refusal, graph/raster failures, one save budget, '
                   'metadata timeout/incomplete warning, delayed/stalled/dead-process phase budgets: passed')
     finally:
-        executor.shutdown()
+        stopped = executor.shutdown(timeout_sec=5)
         thread.join(timeout=5)
         node.destroy_node()
         rclpy.shutdown()
+        print(json.dumps({'map_service_fixture_cleanup': {'executor_stopped': stopped,
+                                                         'worker_stopped': not thread.is_alive()}}))
+        assert stopped and not thread.is_alive(), 'Map service fixture did not finish normally'
 
 
 if __name__ == '__main__':

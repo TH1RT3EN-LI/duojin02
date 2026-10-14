@@ -43,34 +43,36 @@ public:
     Duojin02BaseDriverNode()
         : Node("duojin02_base_driver")
     {
-        usart_port_name_ = this->declare_parameter<std::string>("usart_port_name", "/dev/duojin02_controller");
-        serial_baud_rate_ = this->declare_parameter<int>("serial_baud_rate", 115200);
+        rcl_interfaces::msg::ParameterDescriptor startup_parameter;
+        startup_parameter.read_only = true;
+        usart_port_name_ = this->declare_parameter<std::string>("usart_port_name", "/dev/duojin02_controller", startup_parameter);
+        serial_baud_rate_ = this->declare_parameter<int>("serial_baud_rate", 115200, startup_parameter);
 
-        odom_frame_id_ = this->declare_parameter<std::string>("odom_frame_id", "odom");
-        robot_frame_id_ = this->declare_parameter<std::string>("robot_frame_id", "base_footprint");
-        imu_frame_id_ = this->declare_parameter<std::string>("imu_frame_id", "imu_link");
+        odom_frame_id_ = this->declare_parameter<std::string>("odom_frame_id", "odom", startup_parameter);
+        robot_frame_id_ = this->declare_parameter<std::string>("robot_frame_id", "base_footprint", startup_parameter);
+        imu_frame_id_ = this->declare_parameter<std::string>("imu_frame_id", "imu_link", startup_parameter);
 
         // 用于缩放里程计的尺度
-        odom_x_scale_ = this->declare_parameter<double>("odom_x_scale", 1.0);
-        odom_y_scale_ = this->declare_parameter<double>("odom_y_scale", 1.0);
-        odom_z_scale_positive_ = this->declare_parameter<double>("odom_z_scale_positive", 1.0);
-        odom_z_scale_negative_ = this->declare_parameter<double>("odom_z_scale_negative", 1.0);
+        odom_x_scale_ = this->declare_parameter<double>("odom_x_scale", 1.0, startup_parameter);
+        odom_y_scale_ = this->declare_parameter<double>("odom_y_scale", 1.0, startup_parameter);
+        odom_z_scale_positive_ = this->declare_parameter<double>("odom_z_scale_positive", 1.0, startup_parameter);
+        odom_z_scale_negative_ = this->declare_parameter<double>("odom_z_scale_negative", 1.0, startup_parameter);
 
-        loop_hz_ = this->declare_parameter<int>("loop_hz", 200);
-        command_timeout_s_ = this->declare_parameter<double>("command_timeout_s", 0.25);
+        loop_hz_ = this->declare_parameter<int>("loop_hz", 200, startup_parameter);
+        command_timeout_s_ = this->declare_parameter<double>("command_timeout_s", 0.25, startup_parameter);
         if (!std::isfinite(command_timeout_s_) || command_timeout_s_ <= 0.0)
             throw std::invalid_argument("command_timeout_s must be finite and positive");
         serial_cfg_ = drivers::serial_driver::SerialPortConfig(
             static_cast<uint32_t>(serial_baud_rate_), drivers::serial_driver::FlowControl::NONE,
             drivers::serial_driver::Parity::NONE, drivers::serial_driver::StopBits::ONE);
-        imu_yaw_rate_bias_ = this->declare_parameter<double>("imu_yaw_rate_bias", 0.0);
+        imu_yaw_rate_bias_ = this->declare_parameter<double>("imu_yaw_rate_bias", 0.0, startup_parameter);
         const double imu_yaw_rate_variance =
-            this->declare_parameter<double>("imu_yaw_rate_variance", 1e-6);
-        auto load_twist_variances = [this](const std::string &name,
+            this->declare_parameter<double>("imu_yaw_rate_variance", 1e-6, startup_parameter);
+        auto load_twist_variances = [this, startup_parameter](const std::string &name,
             const std::array<double, 36> &defaults) {
             std::vector<double> diagonal;
             for (size_t axis = 0; axis < 6; ++axis) diagonal.push_back(defaults[axis * 7]);
-            const auto values = this->declare_parameter<std::vector<double>>(name, diagonal);
+            const auto values = this->declare_parameter<std::vector<double>>(name, diagonal, startup_parameter);
             std::array<double, 36> result{};
             for (size_t axis = 0; axis < 6; ++axis) {
                 result[axis * 7] = values.at(axis);

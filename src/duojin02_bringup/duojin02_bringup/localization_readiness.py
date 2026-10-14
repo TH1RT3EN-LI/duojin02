@@ -111,12 +111,13 @@ def main():
     from rclpy.node import Node
     from rclpy.qos import qos_profile_sensor_data
     from rclpy.time import Time
+    from rcl_interfaces.msg import ParameterDescriptor
     from sensor_msgs.msg import LaserScan
     from tf2_ros import Buffer, TransformListener
 
     rclpy.init()
     node=Node('navigation_localization_readiness')
-    timeout=node.declare_parameter('timeout_s',0.0).value
+    timeout=node.declare_parameter('timeout_s',0.0,ParameterDescriptor(read_only=True)).value
     buffer=Buffer();listener=TransformListener(buffer,node)
     limits=safety_defaults()
     scans=ScanReadiness(limits['scan_timeout_s'])

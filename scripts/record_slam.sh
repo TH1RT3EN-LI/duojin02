@@ -14,7 +14,10 @@ if [[ -e "$bag_directory" ]]; then
 fi
 mkdir -p "$(dirname "$bag_directory")"
 configuration_directory="${bag_directory}.configuration"
-mkdir -p "$configuration_directory"
+if ! mkdir "$configuration_directory"; then
+  echo "Recording metadata directory must be new: $configuration_directory" >&2
+  exit 1
+fi
 python3 - "$configuration_directory/slam-build.json" <<'PY'
 import shutil
 import sys

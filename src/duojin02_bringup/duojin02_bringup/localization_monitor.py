@@ -9,6 +9,7 @@ from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, qos_profile_sensor_data
 from rclpy.time import Time
+from rcl_interfaces.msg import ParameterDescriptor
 from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
@@ -24,8 +25,9 @@ def yaw(q):
 class LocalizationMonitor(Node):
     def __init__(self):
         super().__init__('localization_monitor')
+        descriptor = ParameterDescriptor(read_only=True)
         defaults = ScorePolicy()
-        policy = {f.name: self.declare_parameter(f.name, getattr(defaults, f.name)).value
+        policy = {f.name: self.declare_parameter(f.name, getattr(defaults, f.name), descriptor).value
                   for f in fields(defaults)}
         self.policy = ScorePolicy(**policy)
         if not all(math.isfinite(float(value)) for value in policy.values()):
@@ -37,8 +39,8 @@ class LocalizationMonitor(Node):
                 policy['endpoint_tolerance'], policy['max_range']) <= 0 or
                 policy['ray_margin'] < policy['endpoint_tolerance']):
             raise ValueError('Quality work budgets and ranges must be positive; ray margin must cover endpoint tolerance')
-        self.map_frame = self.declare_parameter('map_frame', PARAMETER_DEFAULTS['map_frame']).value
-        self.convention = self.declare_parameter('map_cell_convention', PARAMETER_DEFAULTS['map_cell_convention']).value
+        self.map_frame = self.declare_parameter('map_frame', PARAMETER_DEFAULTS['map_frame'], descriptor).value
+        self.convention = self.declare_parameter('map_cell_convention', PARAMETER_DEFAULTS['map_cell_convention'], descriptor).value
         self.grid, self.pending, self.map_signature = None, None, None
         self.received = self.processed = 0
         self.buffer = Buffer(node=self)

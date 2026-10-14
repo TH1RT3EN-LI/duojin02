@@ -1,0 +1,174 @@
+{
+  "baseline": "4dea7435cb9f27c268ea383a48357fea80ab7fae",
+  "unchanged_files": [
+    {
+      "file": "patches/slam_toolbox/humble-hardware.patch",
+      "sha256": "fe88fb32298e96051b67872eeadef4765f8de7c8acc4ecbf003dade1aa7d6098"
+    },
+    {
+      "file": "src/duojin02_base_driver/src/quaternion_solution.cpp",
+      "sha256": "cbda38a8da86e7a44e944c4fd16a07a553ec2769e7e8900c253df91d2c33fb47"
+    },
+    {
+      "file": "src/duojin02_bringup/config/nav2.yaml",
+      "sha256": "4e098494a99fe39198608d2eee19ae2057d7113058894b45c68ae55f528c5783"
+    },
+    {
+      "file": "src/duojin02_bringup/config/safety.yaml",
+      "sha256": "f16777a693bec9e6c1e1d04a07d04ceeb7ce3fa64be7342e0afa9b377bae56a7"
+    },
+    {
+      "file": "src/duojin02_bringup/config/slam_toolbox.yaml",
+      "sha256": "c38b906b5e98d760454bd69c1260047ea6382cc8b2c7057f24c68b8ede4f7ce8"
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry.cpp",
+      "sha256": "1c59b0bb679bd889d4b7e669f54894532a49d2fd0ad88fb4fe57d8c4d71fa290"
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry.cu",
+      "sha256": "4a5f9308e5ad964087211b450d686ebff40ee65e2dd171ca6511c9e81d019563"
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_checks.cpp",
+      "sha256": "8e2cbb1ef2c32a4656432ebdc20ca24d7a6f0f97550892fd6c4f4a18e5f03653"
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_fault_checks.cu",
+      "sha256": "ecf67f8da4938ab023a62e6403812597472ca8c7ebdffae94f09c046bbc73f04"
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_internal.hpp",
+      "sha256": "b98ce0e0d55edf66bb0769e152eec7d9f018274ca13603753cc25eaec2fe1f25"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/finite_heading.hpp",
+      "sha256": "56d26f4e6e56d5d55488a581a04167100ad2b9f5f484dfeac6f80efa032b6cf3"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/gpu_geometry.hpp",
+      "sha256": "613d1fee6b20ef21c4ed81e201663649af27b47ee9d0b9e094dd7408a58f2c37"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp",
+      "sha256": "c2139001d515e95b838500b36acd72a81f1c16b51d4ddae331bfaa7a06c77921"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/local_grid_snapshot.hpp",
+      "sha256": "1a3a5594cca05fdd85e2f4248c96bb476f2450257e4c77d9addc7c33a434e191"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/path_cleanup.hpp",
+      "sha256": "19cc96a1a1a5c5e5210b890d04a7b2ebcf769d1348253b98d8dfa1588eee29f3"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/path_target.hpp",
+      "sha256": "4522f8cd364c1b2a1111f4627c0fb68e2d0aaf20082415817a7001ba6379bbc6"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/planner_checks.hpp",
+      "sha256": "1ee9eb27acf9f1da2b83156e370421cfbd2da7f140c4faf628be2affe7840603"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp",
+      "sha256": "46250212e82d0488a17d58400f504378010b06787a270df59d629f98ef7e3ef9"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/scan_validity.hpp",
+      "sha256": "d665a8390c287fbc1193137cf69e095e79eaa3ff2cc3ec70308e21ecd8ff049e"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/stable_goal_checker.hpp",
+      "sha256": "08a4c5d1daf96626878555726c11e63a9805bcd31b82fb71a0d8d554dedbbef5"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/sweep.hpp",
+      "sha256": "e28dbbe1049ce7654d91dde6f01908b054b8e7f11880ffbc60c99a8074e6a364"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/tracking.hpp",
+      "sha256": "195b39d48cbd08bac933d4d5f253d837390b5a7f3ba484456d5e76a275029223"
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/velocity_limits.hpp",
+      "sha256": "af96f7ddf55ee04cd77c8566edd8ff5f97b957990d22843c11ec5af678faefa3"
+    },
+    {
+      "file": "src/duojin02_navigation/src/precise_lattice.cpp",
+      "sha256": "d0204ca1958f16af4d40d2569dfc41db170cc3130fc7ffbd12d252488a82e9c4"
+    },
+    {
+      "file": "src/duojin02_navigation/src/precise_mppi.cpp",
+      "sha256": "94aedd34b3b07cd8d38ee0117b782d676b786b620c444a033aaf603e8e9774a7"
+    },
+    {
+      "file": "src/duojin02_navigation/src/stable_goal_checker.cpp",
+      "sha256": "d5125e6f656d91d2fe533beb1c3c6fef6830fa1afbcfb0b801b288b52504a102"
+    }
+  ],
+  "guard_memory_transforms_association_braking_and_scaling_bodies_byte_identical": true,
+  "qualification": "Only input validity/admission, asynchronous recovery ownership, launch results, configuration validation, shutdown and artifact provenance contracts change.",
+  "base_driver_metadata_only": {
+    "base_commit": "4dea7435cb9f27c268ea383a48357fea80ab7fae",
+    "only_constructor_parameter_metadata_changed": true,
+    "all_other_code_and_defaults_byte_identical": true,
+    "constructor_parameters": 15,
+    "source_sha256": "2b6a3316040bc78569c9356488c4803068e3680daf58661bba8f9a39b2782194",
+    "probe_sha256": "36bd90da93c03ef2d30f5bca7ce63c10c3241d8cbd029a6b554e385c54e19e48",
+    "baseline_binary_sha256": {
+      "driver": "0aca84e7b543a5cb2de9fbc4bfb63353beb556cada7940a60cfb739f71639d60",
+      "guard": "a2c2e2e4797f7d84e2eb0749b9f39e2638ef51bc8d8e8d4cbb334f5b0cef71ed"
+    },
+    "baseline": {
+      "driver_runtime_set_false_success_count": 15,
+      "guard_runtime_set_false_success_count": 11,
+      "reported_timeout_before_s": 0.37,
+      "reported_timeout_after_s": 1.5,
+      "actual_wire_timeout_s": 0.3762358310050331,
+      "cleanup": [
+        {
+          "name": "guard",
+          "returncode": 0,
+          "forced": false
+        },
+        {
+          "name": "driver",
+          "returncode": 0,
+          "forced": false
+        }
+      ]
+    },
+    "independent_review": "Startup audit agent confirmed metadata-only diff and evidence/cleanup pass contracts; descriptor count and names now checked to prevent vacuous metadata acceptance"
+  },
+  "keyboard": {
+    "baseline": "4dea743",
+    "samples": 20000,
+    "full_core_source_identical": true,
+    "slew_axis_AST_identical": true,
+    "default_x_y_yaw_speed_keys_stop_flag_trace_identical": true,
+    "trace_sha256": "bfe3e4c8132d639f1280daf121965c1b67d40c68b240b4edf677d49d336d9fc1",
+    "core_sha256": "09ffbdd3efa0fc39e3593c2c6216d2e51a36bc3fc96f38accd8c62be81894a1d"
+  },
+  "guard_original_parameter_defaults_preserved": true,
+  "configuration_values_unchanged": true,
+  "axis_selection_and_replay_filter_functions_AST_identical": true,
+  "guard_scan_math_body_sha256": "3da8d37052bca036db14d3be8cb55521f7b296cbd82b0f6e31b117366678ec14",
+  "additional_startup_metadata_only": [
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/joy_axis_selector_node.py",
+      "whole_module_AST_identical_after_stripping_only_parameter_metadata": true,
+      "sha256": "130cd6196b8cf146eed266d7af25abfba12fd45d6ff694520efd259af224f2ea"
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/replay_tf.py",
+      "whole_module_AST_identical_after_stripping_only_parameter_metadata": true,
+      "sha256": "1c62b32eb9a9249cd059f7a139edd0a170a534625ad5d5c50a1b3e717effe2a1"
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/src/lslidar_x10_driver.cpp",
+      "entire_source_byte_identical_after_stripping_only_parameter_metadata": true,
+      "startup_parameters": 6,
+      "sha256": "edc1931e8b08b230d5b56ab32fa4d088489e1db7f97c828960d7c42cb210285f"
+    }
+  ]
+}

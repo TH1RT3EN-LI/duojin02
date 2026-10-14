@@ -255,14 +255,16 @@ def run(args):
     parameters = config['ros__parameters']
     parameters.update(default_nav_to_pose_bt_xml=str(args.tree_directory / 'navigate_to_pose.xml'),
         default_nav_through_poses_bt_xml=str(args.tree_directory / 'navigate_through_poses.xml'),
-        odom_topic='/odom', default_server_timeout=200, wait_for_service_timeout=2000, bond_heartbeat_period=0.)
+        odom_topic='/odom', bond_heartbeat_period=0.)
     params = args.output_dir / 'navigator.yaml'
     params.write_text(yaml.safe_dump({'bt_navigator': config}))
     log = (args.output_dir / 'navigator.log').open('w')
     process = subprocess.Popen(['ros2', 'run', 'nav2_bt_navigator', 'bt_navigator', '--ros-args', '--params-file', str(params)],
                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     result = {'pass': False, 'ros_domain_id': domain, 'scope': 'stock bt_navigator lifecycle + shipped XML + real DDS/actions; deterministic mocks, no hardware',
-              'fixture_server_timeout_ms': 200, 'cleanup': []}
+              'fixture_server_timeout_ms': parameters['default_server_timeout'],
+              'fixture_bt_loop_ms': parameters['bt_loop_duration'],
+              'fixture_wait_for_service_timeout_ms': parameters['wait_for_service_timeout'], 'cleanup': []}
     try:
         assert fixture.lifecycle.wait_for_service(timeout_sec=8), 'navigator lifecycle service unavailable'
         assert fixture.transition(1) and fixture.transition(3), 'navigator configure/activate failed; inspect navigator.log'

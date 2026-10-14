@@ -1,6 +1,7 @@
 
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
 from sensor_msgs.msg import Joy
 
 
@@ -12,12 +13,13 @@ class JoyAxisSelectorNode(Node):
     """
     def __init__(self):
         super().__init__("joy_axis_selector_node")
+        descriptor = ParameterDescriptor(read_only=True)
         
-        self.declare_parameter('dpad_x_axis', 7)  
-        self.declare_parameter('dpad_y_axis', 6)  
-        self.declare_parameter('stick_x_axis', 1) 
-        self.declare_parameter('stick_y_axis', 0) 
-        self.declare_parameter('deadzone', 0.1)  
+        self.declare_parameter('dpad_x_axis', 7, descriptor)
+        self.declare_parameter('dpad_y_axis', 6, descriptor)
+        self.declare_parameter('stick_x_axis', 1, descriptor)
+        self.declare_parameter('stick_y_axis', 0, descriptor)
+        self.declare_parameter('deadzone', 0.1, descriptor)
         
         self.dpad_x_axis = self.get_parameter('dpad_x_axis').value
         self.dpad_y_axis = self.get_parameter('dpad_y_axis').value

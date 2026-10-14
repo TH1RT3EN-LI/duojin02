@@ -94,14 +94,15 @@ def make_bag(path):
     del writer
 
 
-def reload_graph(prefix, root):
+def reload_graph(prefix, root, launch_file=None):
     os.environ['ROS_DOMAIN_ID'] = '94'
     os.environ['ROS_LOCALHOST_ONLY'] = '1'
     rclpy.init()
     node = Node('pose_graph_reload_probe')
     service = node.create_client(GetMap, '/slam_toolbox/dynamic_map')
     with (root / 'reload.log').open('w') as log:
-        process = subprocess.Popen(['ros2', 'launch', 'duojin02_bringup', 'slam.launch.py',
+        entry = [str(launch_file)] if launch_file else ['duojin02_bringup', 'slam.launch.py']
+        process = subprocess.Popen(['ros2', 'launch', *entry,
                                     f'pose_graph:={prefix}', 'start_at_dock:=true'],
                                    stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         try:
@@ -115,17 +116,22 @@ def reload_graph(prefix, root):
             print(json.dumps({'reload_width': grid.info.width, 'reload_height': grid.info.height,
                               'resolution': grid.info.resolution, 'graph_reloaded': str(prefix)}))
         finally:
-            os.killpg(process.pid, signal.SIGINT)
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGINT)
+            forced = False
             try:
-                process.wait(timeout=10)
+                returncode = process.wait(timeout=10)
             except subprocess.TimeoutExpired:
+                forced = True
                 os.killpg(process.pid, signal.SIGKILL)
-                process.wait()
+                returncode = process.wait(timeout=2)
             node.destroy_node()
             rclpy.shutdown()
+            print(json.dumps({'graph_reload_cleanup': {'returncode': returncode, 'forced': forced}}))
+            assert returncode == 0 and not forced, 'Graph reload did not finish normally'
 
 
-def reject_corrupt_graph(root):
+def reject_corrupt_graph(root, launch_file=None):
     prefix = root / 'corrupt-graph'
     for suffix in ('.posegraph', '.data'):
         original = root / 'maps' / ('rotation_recorded' + suffix)
@@ -133,7 +139,8 @@ def reject_corrupt_graph(root):
     environment = {**os.environ, 'ROS_DOMAIN_ID': '95', 'ROS_LOCALHOST_ONLY': '1'}
     log_path = root / 'corrupt-graph.log'
     with log_path.open('w') as log:
-        process = subprocess.Popen(['ros2', 'launch', 'duojin02_bringup', 'slam.launch.py',
+        entry = [str(launch_file)] if launch_file else ['duojin02_bringup', 'slam.launch.py']
+        process = subprocess.Popen(['ros2', 'launch', *entry,
                                     f'pose_graph:={prefix}', 'start_at_dock:=true'],
                                    env=environment, stdout=log, stderr=subprocess.STDOUT,
                                    start_new_session=True)
@@ -148,7 +155,9 @@ def reject_corrupt_graph(root):
                 process.wait()
             raise AssertionError('SLAM continued running after the requested graph failed to load')
     assert 'Failed to load requested pose graph' in log_path.read_text(), log_path.read_text()
-    print(json.dumps({'corrupt_graph_rejected': str(prefix), 'launch_exited': True}))
+    assert process.returncode != 0, 'SLAM launch reported success after the backend rejected a corrupt graph'
+    print(json.dumps({'corrupt_graph_rejected': str(prefix), 'launch_exited': True,
+                      'returncode': process.returncode, 'forced': False}))
 
 
 def run(root):

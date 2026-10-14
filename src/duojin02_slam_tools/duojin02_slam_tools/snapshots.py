@@ -29,17 +29,17 @@ def artifact_path(prefix, extension):
     return Path(str(prefix) + extension)
 
 
-def validate_map(path, verify_snapshot=True):
+def validate_map(path, verify_snapshot=True, require_graph=False):
     path = Path(path)
     metadata = yaml.safe_load(path.read_text())
     if not isinstance(metadata, dict) or not isinstance(metadata.get("image"), str):
         raise ValueError(f"Invalid map YAML: {path}")
     resolution = metadata.get("resolution")
     origin = metadata.get("origin")
-    if not isinstance(resolution, (int, float)) or not math.isfinite(resolution) or resolution <= 0:
+    if type(resolution) not in (int, float) or not math.isfinite(resolution) or resolution <= 0:
         raise ValueError(f"Invalid map resolution: {path}")
     if not isinstance(origin, list) or len(origin) != 3 or not all(
-        isinstance(value, (int, float)) and math.isfinite(value) for value in origin
+        type(value) in (int, float) and math.isfinite(value) for value in origin
     ):
         raise ValueError(f"Invalid map origin: {path}")
     image = Path(metadata["image"])
@@ -49,13 +49,24 @@ def validate_map(path, verify_snapshot=True):
     manifest_path = path.with_suffix(".snapshot.json")
     if verify_snapshot and manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
-        if manifest.get("schema") != 1:
+        if not isinstance(manifest, dict) or type(manifest.get("schema")) is not int or manifest["schema"] != 1:
             raise ValueError(f"Unsupported map snapshot schema: {manifest_path}")
-        for entry in manifest["files"].values():
+        files = manifest.get("files")
+        if not isinstance(files, dict):
+            raise ValueError(f"Invalid map snapshot file roles: {manifest_path}")
+        required = {"yaml": path, "image": image}
+        if require_graph:
+            required.update(posegraph=path.with_suffix(".posegraph"), data=path.with_suffix(".data"))
+        for role, expected in required.items():
+            entry = files.get(role)
+            if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+                raise ValueError(f"Missing or invalid snapshot role {role}: {manifest_path}")
             artifact = path.parent / entry["name"]
             if artifact.parent.resolve() != path.parent.resolve():
                 raise ValueError("Snapshot artifacts must be in the map directory")
-            if not artifact.is_file() or digest(artifact) != entry["sha256"]:
+            if artifact.resolve() != expected.resolve():
+                raise ValueError(f"Snapshot role {role} does not match the selected map artifact: {expected}")
+            if not artifact.is_file() or digest(artifact) != entry.get("sha256"):
                 raise ValueError(f"Incomplete or modified snapshot artifact: {artifact}")
     return metadata, image.resolve()
 

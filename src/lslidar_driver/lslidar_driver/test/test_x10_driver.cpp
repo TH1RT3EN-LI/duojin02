@@ -9,6 +9,7 @@
 #include <limits>
 #include <poll.h>
 #include <thread>
+#include <rclcpp/parameter_client.hpp>
 #include "lslidar_driver/lslidar_x10_driver.hpp"
 
 using lslidar_driver::Packet;
@@ -104,13 +105,14 @@ class X10Test : public testing::Test {
     p.x = x; p.y = y; p.z = 0.0f; p.intensity = intensity;
     return p;
   }
-  std::vector<sensor_msgs::msg::LaserScan> collectFrames(int angle_offset = 0, bool empty = false) {
+  std::vector<sensor_msgs::msg::LaserScan> collectFrames(int angle_offset = 0, bool empty = false,
+                                                       const std::string &topic = "/scan") {
     std::vector<sensor_msgs::msg::LaserScan> received;
     auto subscription = node->create_subscription<sensor_msgs::msg::LaserScan>(
-        "/scan", 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr scan) { received.push_back(*scan); });
+        topic, 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr scan) { received.push_back(*scan); });
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
-    for (int attempt = 0; attempt < 50 && node->count_subscribers("/scan") == 0; ++attempt) {
+    for (int attempt = 0; attempt < 50 && node->count_subscribers(topic) == 0; ++attempt) {
       executor.spin_some();
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -145,6 +147,80 @@ TEST_F(X10Test, HardwareConfigurationMatchesFixedPacketLayout) {
   EXPECT_EQ(node->get_parameter("laserscan_topic").as_string(), "/scan");
   EXPECT_EQ(node->get_parameter("frame_id").as_string(), "laser");
   EXPECT_FALSE(node->get_parameter("use_sim_time").as_bool());
+}
+
+TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) {
+  const std::vector<rclcpp::Parameter> initial{
+    rclcpp::Parameter("serial_port", "/tmp/lidar-startup-fixture"),
+    rclcpp::Parameter("frame_id", "probe_laser"),
+    rclcpp::Parameter("laserscan_topic", "/probe_scan"),
+    rclcpp::Parameter("pointcloud_topic", "/probe_cloud"),
+    rclcpp::Parameter("min_range", 1.5), rclcpp::Parameter("max_range", 2.5)};
+  createDriver(initial);
+  driver->initialize();
+  auto client_node = std::make_shared<rclcpp::Node>("lidar_parameter_service_probe");
+  auto client = std::make_shared<rclcpp::AsyncParametersClient>(client_node, node->get_fully_qualified_name());
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(node);
+  executor.add_node(client_node);
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(2)));
+  std::vector<std::string> names;
+  std::vector<rclcpp::Parameter> changes;
+  for (const auto &parameter : initial) {
+    names.push_back(parameter.get_name());
+    if (parameter.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
+      changes.emplace_back(parameter.get_name(), parameter.as_string() + "_changed");
+    else changes.emplace_back(parameter.get_name(), parameter.as_double() + .25);
+  }
+  auto before = client->get_parameters(names);
+  ASSERT_EQ(executor.spin_until_future_complete(before, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  const auto values = before.get();
+  ASSERT_EQ(values.size(), initial.size());
+  for (size_t i = 0; i < initial.size(); ++i) {
+    EXPECT_EQ(values[i].get_name(), initial[i].get_name());
+    EXPECT_EQ(values[i].value_to_string(), initial[i].value_to_string());
+  }
+  auto described = client->describe_parameters(names);
+  ASSERT_EQ(executor.spin_until_future_complete(described, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  const auto descriptors = described.get();
+  ASSERT_EQ(descriptors.size(), names.size());
+  for (size_t i = 0; i < names.size(); ++i) {
+    EXPECT_EQ(descriptors[i].name, names[i]);
+    EXPECT_TRUE(descriptors[i].read_only);
+  }
+  auto changed = client->set_parameters(changes);
+  ASSERT_EQ(executor.spin_until_future_complete(changed, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  const auto statuses = changed.get();
+  ASSERT_EQ(statuses.size(), changes.size());
+  for (const auto &status : statuses) {
+    EXPECT_FALSE(status.successful);
+    EXPECT_NE(status.reason.find("read-only"), std::string::npos);
+  }
+  auto atomic = client->set_parameters_atomically(changes);
+  ASSERT_EQ(executor.spin_until_future_complete(atomic, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  EXPECT_FALSE(atomic.get().successful);
+  auto after = client->get_parameters(names);
+  ASSERT_EQ(executor.spin_until_future_complete(after, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  const auto unchanged = after.get();
+  ASSERT_EQ(unchanged.size(), initial.size());
+  for (size_t i = 0; i < initial.size(); ++i) {
+    EXPECT_EQ(unchanged[i].get_name(), initial[i].get_name());
+    EXPECT_EQ(unchanged[i].value_to_string(), initial[i].value_to_string());
+  }
+  EXPECT_EQ(node->count_publishers("/probe_scan"), 1u);
+  EXPECT_EQ(node->count_publishers("/probe_cloud"), 1u);
+  executor.remove_node(node);
+  executor.remove_node(client_node);
+  const auto received = collectFrames(0, false, "/probe_scan");
+  ASSERT_EQ(received.size(), 3u);
+  for (const auto &scan : received) {
+    EXPECT_EQ(scan.header.frame_id, "probe_laser");
+    EXPECT_FLOAT_EQ(scan.range_min, 1.5f);
+    EXPECT_FLOAT_EQ(scan.range_max, 2.5f);
+    EXPECT_TRUE(std::isinf(scan.ranges[270]));
+    EXPECT_TRUE(std::any_of(scan.ranges.begin(), scan.ranges.end(),
+                           [](float value) { return std::abs(value - 2.3f) < 1e-5f; }));
+  }
 }
 
 TEST_F(X10Test, DecodesBothEchoesAcrossZeroAngle) {

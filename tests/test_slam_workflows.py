@@ -37,8 +37,10 @@ def test_complete_snapshot_detects_later_damage_and_never_overwrites(tmp_path):
         with reserve_snapshot(tmp_path, 'room.v2'):
             pass
     (tmp_path / 'room.v2.data').write_bytes(b'damaged')
+    # Raster consumers do not depend on a separately damaged graph artifact.
+    validate_map(saved)
     with pytest.raises(ValueError, match='modified'):
-        validate_map(saved)
+        validate_map(saved, require_graph=True)
 
 
 def test_failed_graph_never_publishes_a_loadable_map(tmp_path):
@@ -122,3 +124,41 @@ def test_continuation_requires_a_real_graph_and_explicit_pose(tmp_path):
         module.create_node(context)
     context.launch_configurations['map_start_pose'] = '[1, 2, 0.5]'
     assert len(module.create_node(context)) == 1
+
+
+@pytest.mark.parametrize('pose', ['[true, 0, 0]', '[0, false, 0]'])
+def test_continuation_rejects_boolean_coordinates(tmp_path, pose):
+    module = load_launch('slam')
+    (tmp_path / 'room.posegraph').write_bytes(b'graph')
+    (tmp_path / 'room.data').write_bytes(b'data')
+    context = LaunchContext()
+    context.launch_configurations.update(pose_graph=str(tmp_path / 'room'), map_start_pose=pose,
+                                         start_at_dock='false', slam_params_file='/tmp/config.yaml')
+    with pytest.raises(ValueError, match='three finite values'):
+        module.create_node(context)
+
+
+@pytest.mark.parametrize('dock', ['invalid', '1', ''])
+def test_continuation_rejects_invalid_dock_selection(dock):
+    context = LaunchContext()
+    context.launch_configurations.update(pose_graph='', map_start_pose='', start_at_dock=dock,
+                                         slam_params_file='/tmp/config.yaml')
+    with pytest.raises(ValueError, match='start_at_dock must be true or false'):
+        load_launch('slam').create_node(context)
+
+
+@pytest.mark.parametrize('pose,dock,expected', [
+    ('[1, -2, 0.5]', 'false', {'map_start_pose': [1.0, -2.0, 0.5]}),
+    ('', 'TRUE', {'map_start_at_dock': True}),
+])
+def test_valid_continuation_preserves_backend_parameters(tmp_path, monkeypatch, pose, dock, expected):
+    module = load_launch('slam')
+    monkeypatch.setattr(module, 'Node', lambda **kwargs: kwargs)
+    prefix = tmp_path / 'room'
+    (tmp_path / 'room.posegraph').write_bytes(b'graph')
+    (tmp_path / 'room.data').write_bytes(b'data')
+    context = LaunchContext()
+    context.launch_configurations.update(pose_graph=str(prefix), map_start_pose=pose, start_at_dock=dock,
+                                         slam_params_file='/tmp/config.yaml')
+    node = module.create_node(context)[0]
+    assert node['parameters'][1] == {'use_sim_time': False, 'map_file_name': str(prefix), **expected}

@@ -19,6 +19,11 @@ inline bool guardPointValid(const Point &point,double bin) {
 inline bool guardPoseValid(const Pose &pose) {
   return std::isfinite(pose.x) && std::isfinite(pose.y) && std::isfinite(pose.yaw);
 }
+template<class Quaternion> bool guardQuaternionValid(const Quaternion &q) {
+  if(!std::isfinite(q.x) || !std::isfinite(q.y) || !std::isfinite(q.z) || !std::isfinite(q.w)) return false;
+  const double norm2=q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w;
+  return std::isfinite(norm2) && norm2>0;
+}
 inline bool guardIndexQueryValid(double x,double y,double radius,double bin,bool roundoff) {
   if(!std::isfinite(radius) || radius<0 || !std::isfinite(x) || !std::isfinite(y)) return false;
   if(roundoff) radius+=1e-8+1e-12*(std::abs(x)+std::abs(y));

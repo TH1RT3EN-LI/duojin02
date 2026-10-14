@@ -2,6 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from tf2_msgs.msg import TFMessage
 from sensor_msgs.msg import LaserScan
@@ -22,7 +23,8 @@ def retained(transforms, odom_source, map_frame="map", odom_frame="odom", base_f
 class ReplayTfFilter(Node):
     def __init__(self):
         super().__init__("replay_tf_filter")
-        self.source = self.declare_parameter("odom_source", "recorded").value
+        descriptor = ParameterDescriptor(read_only=True)
+        self.source = self.declare_parameter("odom_source", "recorded", descriptor).value
         if self.source not in ("recorded", "ekf"):
             raise ValueError("odom_source must be recorded or ekf")
         reliable = QoSProfile(depth=100, reliability=ReliabilityPolicy.RELIABLE)
@@ -31,7 +33,7 @@ class ReplayTfFilter(Node):
         self.dynamic = self.create_publisher(TFMessage, "/tf", reliable)
         self.static = self.create_publisher(TFMessage, "/tf_static", latched)
         self.static_transforms = {}
-        self.scan_start = self.declare_parameter("scan_start_time_ns", 0).value
+        self.scan_start = self.declare_parameter("scan_start_time_ns", 0, descriptor).value
         sensor = QoSProfile(depth=100, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.scan = self.create_publisher(LaserScan, "/scan", reliable)
         self.create_subscription(LaserScan, "/replay/scan_in", self.scan_callback, sensor)

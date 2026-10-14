@@ -16,6 +16,8 @@
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
+constexpr auto query_timeout = std::chrono::milliseconds(RECOVERY_BT_SERVER_TIMEOUT_MS);
+constexpr auto bt_tick = std::chrono::milliseconds(RECOVERY_BT_TICK_MS);
 
 nav_msgs::msg::Path path() {
   nav_msgs::msg::Path result;
@@ -49,11 +51,13 @@ public:
     board->set("plans", board->get<int>("plans") + 1);
     if (replacement_) {
       board->set("replans", board->get<int>("replans") + 1);
+      board->set("replan_pending", true);
+    }
+    if (replacement_ || board->get<bool>("ordinary_path_changed")) {
       auto midpoint = planned_.poses.front();
       midpoint.pose.position.x = target.pose.position.x * .5;
       midpoint.pose.position.y = .2;
       planned_.poses.insert(planned_.poses.begin() + 1, midpoint);
-      board->set("replan_pending", true);
     }
     return onRunning();
   }
@@ -129,8 +133,10 @@ struct Fixture {
   rclcpp::CallbackGroup::SharedPtr server_group;
   rclcpp::executors::MultiThreadedExecutor executor{rclcpp::ExecutorOptions(), 2};
   std::thread worker;
-  std::atomic<bool> valid{false}, delayed{false};
+  std::atomic<bool> valid{false}, delayed{false}, hold_response{false};
   std::atomic<int> requests{0};
+  std::atomic<int> response_work_ms{0};
+  std::atomic<long long> peer_finished_ns{0};
 
   Fixture() {
     const auto scope = "/duojin02_recovery_checks_" + std::to_string(getpid());
@@ -143,9 +149,14 @@ struct Fixture {
         assert(!request->path.poses.empty());
         const bool reply_valid = valid.load();
         const bool reply_delayed = delayed.load();
+        const int work_ms = response_work_ms.load();
         ++requests;
         if (reply_delayed) std::this_thread::sleep_for(500ms);
+        if (work_ms) std::this_thread::sleep_for(std::chrono::milliseconds(work_ms));
+        while (hold_response.load()) std::this_thread::sleep_for(1ms);
         response->is_valid = reply_valid;
+        peer_finished_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+          std::chrono::steady_clock::now().time_since_epoch()).count();
       }, rmw_qos_profile_services_default, server_group);
     executor.add_node(server);
     worker = std::thread([this] {executor.spin();});
@@ -165,7 +176,7 @@ struct Fixture {
   BT::Blackboard::Ptr blackboard() {
     auto result = BT::Blackboard::create();
     result->set("node", client);
-    result->set("server_timeout", 200ms);
+    result->set("server_timeout", query_timeout);
     return result;
   }
   BT::Tree query(const nav_msgs::msg::Path & input, BT::Blackboard::Ptr board = {}) {
@@ -173,7 +184,7 @@ struct Fixture {
     board->set("path", input);
     return factory.createTreeFromText(
       "<root main_tree_to_execute=\"Main\"><BehaviorTree ID=\"Main\">"
-      "<PathNeedsReplan path=\"{path}\"/></BehaviorTree></root>", board);
+      "<PathNeedsReplan path=\"{path}\" checked_path=\"{checked_path}\"/></BehaviorTree></root>", board);
   }
   BT::Tree replacement(const nav_msgs::msg::Path & old_path,
     const nav_msgs::msg::Path & new_path) {
@@ -191,7 +202,7 @@ struct Fixture {
     if (multiple) board->set("goals", std::vector<geometry_msgs::msg::PoseStamped>{path().poses.back(), target});
     else board->set("goal", target);
     for (const auto & name : {"plans", "replans", "planner_halts", "follower_halts", "forced_failures"}) board->set(name, 0);
-    for (const auto & name : {"hold_replan", "replan_pending", "force_failure", "trim_goals"}) board->set(name, false);
+    for (const auto & name : {"hold_replan", "replan_pending", "force_failure", "trim_goals", "ordinary_path_changed"}) board->set(name, false);
     board->set("following_target", -1.);
     return factory.createTreeFromFile(std::string(RECOVERY_BT_TREE_DIRECTORY) +
       (multiple ? "/navigate_through_poses.xml" : "/navigate_to_pose.xml"), board);
@@ -206,7 +217,7 @@ void advance(BT::Tree & tree, Predicate predicate, const char * phase) {
     if (status != BT::NodeStatus::RUNNING) std::cerr << phase << ": " << BT::toStr(status) << std::endl;
     assert(status == BT::NodeStatus::RUNNING);
     assert(std::chrono::steady_clock::now() < deadline);
-    std::this_thread::sleep_for(1ms);
+    std::this_thread::sleep_for(bt_tick);
   }
 }
 
@@ -222,7 +233,7 @@ BT::NodeStatus finish(BT::Tree & tree) {
   do {
     status = tree.tickRoot();
     if (status != BT::NodeStatus::RUNNING) return status;
-    std::this_thread::sleep_for(1ms);
+    std::this_thread::sleep_for(bt_tick);
   } while (std::chrono::steady_clock::now() < deadline);
   assert(false && "Service BT failed to reach a terminal status");
   return BT::NodeStatus::FAILURE;
@@ -313,12 +324,52 @@ int main(int argc, char ** argv) {
     auto contextual = fixture.query(path());
     assert(contextual.tickRoot() == BT::NodeStatus::RUNNING);
     contextual.rootBlackboard()->set("path", changed);
-    assert(finish(contextual) == BT::NodeStatus::FAILURE);
+    assert(finish(contextual) == BT::NodeStatus::SUCCESS);
+    assert(contextual.rootBlackboard()->get<nav_msgs::msg::Path>("checked_path") == original);
     ++checks;
     auto stamp_context = fixture.query(path());
     assert(stamp_context.tickRoot() == BT::NodeStatus::RUNNING);
     stamp_context.rootBlackboard()->set("path", stamp_only);
     assert(finish(stamp_context) == BT::NodeStatus::SUCCESS);
+    ++checks;
+
+    // A reply queued before the deadline must survive an at/after-deadline BT
+    // poll; production uses a 20 ms query budget and a 10 ms tick, not 200 ms.
+    for (const int work_ms : {RECOVERY_BT_SERVER_TIMEOUT_MS * 3 / 5,
+                              RECOVERY_BT_SERVER_TIMEOUT_MS * 9 / 10}) {
+      fixture.response_work_ms = work_ms;
+      fixture.peer_finished_ns = 0;
+      auto queued = fixture.query(path());
+      const auto started = std::chrono::steady_clock::now();
+      assert(queued.tickRoot() == BT::NodeStatus::RUNNING);
+      const auto peer_limit = started + 2s;
+      while (!fixture.peer_finished_ns.load()) {
+        assert(std::chrono::steady_clock::now() < peer_limit);
+        std::this_thread::sleep_for(1ms);
+      }
+      std::this_thread::sleep_until(started + query_timeout);
+      assert(queued.tickRoot() == BT::NodeStatus::SUCCESS);
+      ++checks;
+    }
+    fixture.response_work_ms = RECOVERY_BT_SERVER_TIMEOUT_MS + RECOVERY_BT_TICK_MS;
+    fixture.hold_response = true;
+    fixture.peer_finished_ns = 0;
+    auto expired = fixture.query(path());
+    const auto expiry_start = std::chrono::steady_clock::now();
+    assert(expired.tickRoot() == BT::NodeStatus::RUNNING);
+    std::this_thread::sleep_until(expiry_start + query_timeout);
+    assert(expired.tickRoot() == BT::NodeStatus::FAILURE);
+    fixture.hold_response = false;
+    std::this_thread::sleep_for(query_timeout + bt_tick);
+    const auto expired_requests = fixture.requests.load();
+    assert(fixture.requests.load() == expired_requests);
+    fixture.response_work_ms = 0;
+    fixture.valid = true;
+    // A terminal StatefulActionNode can start a new request on another tick;
+    // the discarded negative reply must not satisfy that new request.
+    assert(finish(expired) == BT::NodeStatus::FAILURE);
+    assert(fixture.requests.load() == expired_requests + 1);
+    fixture.valid = false;
     ++checks;
 
     // The existing server_timeout must still bound I/O when ROS time is paused.
@@ -367,6 +418,22 @@ int main(int argc, char ** argv) {
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 12.);
     advance(pending_plan, [&] {return board->get<double>("following_target") == 12. && board->get<int>("replans") == 2;}, "new goal after replan preemption");
     assert(board->get<nav_msgs::msg::Path>("replacement_path").poses.back().pose.position.x == 12.);
+    ++checks;
+
+    // A normal 1 Hz plan can finish while the recovery plan is pending. The
+    // candidate may equal that new plan and still differ from the rejected one.
+    auto periodic_during_recovery = fixture.navigation();
+    board = periodic_during_recovery.rootBlackboard();
+    board->set("forced_failures", 1);
+    board->set("hold_replan", true);
+    advance(periodic_during_recovery, [&] {return board->get<bool>("replan_pending");}, "recovery plan pending");
+    board->set("ordinary_path_changed", true);
+    advance(periodic_during_recovery, [&] {return board->get<int>("plans") >= 3;}, "ordinary plan during recovery");
+    assert(board->get<nav_msgs::msg::Path>("path").poses.size() == 3);
+    assert(board->get<nav_msgs::msg::Path>("checked_path").poses.size() == 2);
+    board->set("hold_replan", false);
+    advance(periodic_during_recovery, [&] {return board->get<double>("following_target") == 3.;}, "recovery accepts changed checked path");
+    assert(board->get<int>("replans") == 1);
     ++checks;
 
     auto recovered = fixture.navigation();
@@ -418,5 +485,6 @@ int main(int argc, char ** argv) {
     ++checks;
   }
   rclcpp::shutdown();
-  std::cout << "{\"checks\":" << checks << ",\"failed\":0}" << std::endl;
+  std::cout << "{\"checks\":" << checks << ",\"failed\":0,\"server_timeout_ms\":"
+    << query_timeout.count() << ",\"bt_tick_ms\":" << bt_tick.count() << "}" << std::endl;
 }

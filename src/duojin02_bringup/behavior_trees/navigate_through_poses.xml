@@ -14,9 +14,9 @@
       <RecoveryNode number_of_retries="1" name="ReplanRejectedPath">
         <FollowPath path="{path}" controller_id="FollowPath"/>
         <Sequence name="RecoverWithChangedPath">
-          <PathNeedsReplan path="{path}"/>
+          <PathNeedsReplan path="{path}" checked_path="{checked_path}"/>
           <ComputePathThroughPoses goals="{goals}" path="{replacement_path}" planner_id="GridBased"/>
-          <AcceptChangedPath old_path="{path}" new_path="{replacement_path}" path="{path}"/>
+          <AcceptChangedPath old_path="{checked_path}" new_path="{replacement_path}" path="{path}"/>
         </Sequence>
       </RecoveryNode>
       </PipelineSequence>

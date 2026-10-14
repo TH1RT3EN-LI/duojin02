@@ -28,15 +28,16 @@ class Publisher:
         self.commands.append((message.linear.x, message.linear.y, message.angular.z))
 
 
-def load_node(monkeypatch, filename):
+def load_node(monkeypatch, filename, node_class=None):
     monkeypatch.syspath_prepend(str(PACKAGE))
     modules = {
         'geometry_msgs': {'msg': None},
         'geometry_msgs.msg': {'Twist': Twist},
         'rcl_interfaces': {'msg': None},
-        'rcl_interfaces.msg': {},
+        'rcl_interfaces.msg': {'ParameterDescriptor': lambda **kwargs: SimpleNamespace(**kwargs)},
         'rclpy': {'ok': lambda: True},
-        'rclpy.node': {'Node': type('Node', (), {})},
+        'rclpy.node': {'Node': node_class or type('Node', (), {})},
+        'rclpy.signals': {'SignalHandlerOptions': SimpleNamespace(NO=0)},
         'rclpy.exceptions': {'ParameterUninitializedException': type('ParameterError', (Exception,), {})},
         'sensor_msgs': {'msg': None},
         'sensor_msgs.msg': {'Joy': type('Joy', (), {}), 'JoyFeedback': type('JoyFeedback', (), {})},
@@ -121,8 +122,9 @@ def test_publisher_failure_still_attempts_final_zero(monkeypatch):
     def broken_snapshot(**kwargs):
         raise RuntimeError('input snapshot failed')
     monkeypatch.setattr(core, 'snapshot', broken_snapshot)
-    with pytest.raises(RuntimeError, match='input snapshot failed'):
-        thread.run()
+    thread.run()
+    assert isinstance(thread.error, RuntimeError)
+    assert thread.stop_event.is_set()
     assert publisher.commands == [(1.0, 0.0, 0.0), (0.0, 0.0, 0.0)]
 
 
@@ -161,26 +163,27 @@ def test_tty_failure_stops_input_and_restores_terminal(monkeypatch, eof):
     logger = SimpleNamespace(info=lambda message: None, error=errors.append)
     node = SimpleNamespace(get_logger=lambda: logger)
     stop_event = threading.Event()
-    thread = module.TtyKeyboardThread(node, core, stop_event, '/fake/tty', 0.02)
     monkeypatch.setattr(module, 'resolve_tty_device_path', lambda path: path)
     def read(fd, size):
         if eof:
             return b''
         raise OSError('tty disconnected')
     monkeypatch.setattr(module, 'os', SimpleNamespace(
-        O_RDONLY=0, O_NONBLOCK=1, open=lambda *args: 42, read=read, close=closed.append))
+        O_RDONLY=0, O_NONBLOCK=1, O_CLOEXEC=2, O_NOCTTY=4, pipe2=lambda flags: (43, 44),
+        open=lambda *args: 42, read=read, close=closed.append))
     monkeypatch.setattr(module, 'termios', SimpleNamespace(
-        TCSADRAIN=1, tcgetattr=lambda fd: 'settings',
+        TCSANOW=1, tcgetattr=lambda fd: 'settings',
         tcsetattr=lambda *args: restored.append(args)))
     monkeypatch.setattr(module, 'tty', SimpleNamespace(setraw=lambda fd: None))
     monkeypatch.setattr(module, 'select', SimpleNamespace(select=lambda *args: ([42], [], [])))
+    thread = module.TtyKeyboardThread(node, core, stop_event, '/fake/tty')
     thread.run()
     assert stop_event.is_set()
     assert core.status().active_keys == []
     command = core.snapshot()
     assert command.linear_x == command.linear_y == command.angular_z == 0.0
     assert restored == [(42, 1, 'settings')]
-    assert closed == [42]
+    assert closed == [42, 43, 44]
     assert len(errors) == 1
 
 
@@ -228,7 +231,7 @@ def test_x_immediately_before_exit_still_publishes_explicit_zero(monkeypatch):
 
 INVALID_STARTUP_VALUES = [
     (name, value)
-    for name in ('repeat_timeout_sec', 'publish_rate', 'read_poll_timeout')
+    for name in ('repeat_timeout_sec', 'publish_rate')
     for value in (0.0, -1.0, math.nan, math.inf, -math.inf)
 ] + [
     (name, value)
@@ -252,7 +255,7 @@ def test_invalid_startup_never_creates_command_publisher_or_spinner_and_cleans_c
         destroy_node=lambda: state.update(destroyed=True),
     )
     module.rcl_interfaces.msg.ParameterDescriptor = lambda **kwargs: SimpleNamespace(**kwargs)
-    module.rclpy.init = lambda: state.update(context_active=True)
+    module.rclpy.init = lambda **kwargs: state.update(context_active=True)
     module.rclpy.create_node = lambda name: node
     module.rclpy.spin = unexpected_write
     module.rclpy.try_shutdown = lambda: state.update(context_active=False)
@@ -267,12 +270,10 @@ def test_valid_parameter_values_are_not_repaired_or_retuned(monkeypatch):
     module = load_node(monkeypatch, 'keyboard_teleop_node.py')
     parameters = module.keyboard_teleop_parameter_defaults()
     parameters.update(speed=0.0, turn=0.0, max_speed=0.0, max_turn=0.0,
-                      speed_step=0.0, turn_step=0.0, read_poll_timeout=.0001)
+                      speed_step=0.0, turn_step=0.0)
     original = dict(parameters)
     module.validate_keyboard_parameters(parameters)
     assert parameters == original
-    thread = module.TtyKeyboardThread(None, None, threading.Event(), '', parameters['read_poll_timeout'])
-    assert thread.read_poll_timeout == .0001
 
 
 @pytest.mark.parametrize('timeout', [0.0, -1.0, math.nan, math.inf, -math.inf])
@@ -281,7 +282,50 @@ def test_invalid_runtime_expiry_causes_final_zero_instead_of_cached_repetition(m
     core.handle_key_press('w', 100.0)
     thread._publish_if_active(core.snapshot(100.1))
     thread.stale_key_timeout_sec = timeout
-    with pytest.raises(ValueError, match='stale_key_timeout_sec'):
-        thread.run()
+    thread.run()
+    assert isinstance(thread.error, ValueError)
+    assert thread.stop_event.is_set()
     assert publisher.commands == [(1.0, 0.0, 0.0), (0.0, 0.0, 0.0)]
     assert core.status().active_keys == []
+
+
+def test_blocked_tty_is_woken_restored_and_released_without_poll_timeout(monkeypatch):
+    import os
+    import termios
+    module, core, _, _ = make_publisher(monkeypatch)
+    master, slave = os.openpty()
+    before = termios.tcgetattr(slave)
+    attached = threading.Event()
+    node = SimpleNamespace(get_logger=lambda: SimpleNamespace(
+        info=lambda message: attached.set(), error=lambda message: pytest.fail(message)))
+    thread = module.TtyKeyboardThread(node, core, threading.Event(), os.ttyname(slave))
+    try:
+        thread.start()
+        assert attached.wait(timeout=1.0)
+        assert termios.tcgetattr(slave) != before
+        thread.stop()
+        thread.join(timeout=1.0)
+        assert not thread.is_alive()
+        assert termios.tcgetattr(slave) == before
+        assert thread._wake_read is None and thread._wake_write is None
+    finally:
+        thread.stop()
+        thread.join(timeout=1.0)
+        thread.close_wakeup()
+        termios.tcsetattr(slave, termios.TCSANOW, before)
+        os.close(master)
+        os.close(slave)
+
+
+def test_unstarted_tty_wakeup_resources_are_released_idempotently(monkeypatch):
+    module, core, _, _ = make_publisher(monkeypatch)
+    thread = module.TtyKeyboardThread(None, core, threading.Event(), '')
+    descriptors = thread._wake_read, thread._wake_write
+    thread.stop()
+    thread.close_wakeup()
+    thread.stop()
+    thread.close_wakeup()
+    import os
+    for descriptor in descriptors:
+        with pytest.raises(OSError):
+            os.fstat(descriptor)

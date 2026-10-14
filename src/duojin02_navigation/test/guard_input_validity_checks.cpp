@@ -18,6 +18,14 @@ int main() {
   const double nan=std::numeric_limits<double>::quiet_NaN();
   const double inf=std::numeric_limits<double>::infinity();
   Grid good;
+  auto quaternion=good.info.origin.orientation;
+  assert(guardQuaternionValid(quaternion));
+  quaternion.w=-1;assert(guardQuaternionValid(quaternion));
+  quaternion.w=0;assert(!guardQuaternionValid(quaternion));
+  for(double value:{nan,inf,-inf,1e308}) {
+    quaternion=good.info.origin.orientation;quaternion.x=value;
+    assert(!guardQuaternionValid(quaternion));
+  }
   assert(guardGridValid(good));
   assert(guardGridExtentValid(good,{}, {},.10));
   for(double value:{nan,inf,-inf}) {

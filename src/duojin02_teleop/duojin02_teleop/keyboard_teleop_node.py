@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import select
+import signal
 import termios
 import threading
 import time
@@ -9,6 +10,7 @@ import tty
 import geometry_msgs.msg
 import rcl_interfaces.msg
 import rclpy
+from rclpy.signals import SignalHandlerOptions
 
 from duojin02_teleop.keyboard_teleop_core import KeyboardTeleopCore
 from duojin02_teleop.keyboard_teleop_defaults import (
@@ -65,7 +67,7 @@ def resolve_tty_device_path(explicit_device_path: str) -> str:
 
         fd = -1
         try:
-            fd = os.open(candidate, os.O_RDONLY | os.O_NONBLOCK)
+            fd = os.open(candidate, os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY)
             if os.isatty(fd):
                 return candidate
         except OSError:
@@ -90,6 +92,7 @@ class CmdVelPublisherThread(threading.Thread):
         self.period = 1.0 / rate_hz
         self.stale_key_timeout_sec = stale_key_timeout_sec
         self.was_active = False
+        self.error = None
 
     def _publish_command(self, command):
         self.twist.linear.x = command.linear_x
@@ -112,26 +115,52 @@ class CmdVelPublisherThread(threading.Thread):
                 self._publish_if_active(self.core.snapshot(
                     stale_key_timeout_sec=self.stale_key_timeout_sec))
                 self.stop_event.wait(self.period)
+        except Exception as error:
+            self.error = error
+            self.stop_event.set()
         finally:
             self.core.emergency_stop()
             command = self.core.zero_command()
             if self.was_active or command.stop_requested:
-                self._publish_command(command)
-                self.was_active = False
+                try:
+                    self._publish_command(command)
+                    self.was_active = False
+                except Exception as error:
+                    self.error = self.error or error
+                    self.stop_event.set()
 
 
 class TtyKeyboardThread(threading.Thread):
-    def __init__(self, node, core, stop_event, tty_device_path, read_poll_timeout):
+    def __init__(self, node, core, stop_event, tty_device_path):
         super().__init__(daemon=True)
         self.node = node
         self.core = core
         self.stop_event = stop_event
         self.tty_device_path = str(tty_device_path)
-        self.read_poll_timeout = float(read_poll_timeout)
+        self.error = None
+        self._wake_lock = threading.Lock()
+        self._wake_read, self._wake_write = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+
+    def stop(self):
+        self.stop_event.set()
+        with self._wake_lock:
+            if self._wake_write is not None:
+                try:
+                    os.write(self._wake_write, b'\0')
+                except OSError:
+                    pass
+
+    def close_wakeup(self):
+        with self._wake_lock:
+            for attribute in ('_wake_read', '_wake_write'):
+                descriptor = getattr(self, attribute)
+                if descriptor is not None:
+                    setattr(self, attribute, None)
+                    os.close(descriptor)
 
     def _handle_input_char(self, char_code, now):
         if char_code == 3:
-            self.stop_event.set()
+            self.stop()
             return
 
         key = chr(char_code).lower()
@@ -145,15 +174,15 @@ class TtyKeyboardThread(threading.Thread):
 
         try:
             tty_path = resolve_tty_device_path(self.tty_device_path)
-            tty_fd = os.open(tty_path, os.O_RDONLY | os.O_NONBLOCK)
+            tty_fd = os.open(tty_path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY)
             old_termios = termios.tcgetattr(tty_fd)
             tty.setraw(tty_fd)
             self.node.get_logger().info(f'Keyboard tty teleop attached to {tty_path}')
 
             while rclpy.ok() and not self.stop_event.is_set():
-                ready_fds, _, _ = select.select([tty_fd], [], [], self.read_poll_timeout)
-                if not ready_fds:
-                    continue
+                ready_fds, _, _ = select.select([tty_fd, self._wake_read], [], [])
+                if self._wake_read in ready_fds:
+                    break
 
                 try:
                     chunk = os.read(tty_fd, 64)
@@ -168,13 +197,14 @@ class TtyKeyboardThread(threading.Thread):
                     if self.stop_event.is_set():
                         break
         except Exception as exception:
+            self.error = exception
             self.node.get_logger().error(f'TTY keyboard thread failed: {exception}')
             self.stop_event.set()
         finally:
             self.core.emergency_stop(time.monotonic())
             if tty_fd >= 0 and old_termios is not None:
                 try:
-                    termios.tcsetattr(tty_fd, termios.TCSADRAIN, old_termios)
+                    termios.tcsetattr(tty_fd, termios.TCSANOW, old_termios)
                 except OSError:
                     pass
             if tty_fd >= 0:
@@ -182,13 +212,22 @@ class TtyKeyboardThread(threading.Thread):
                     os.close(tty_fd)
                 except OSError:
                     pass
+            self.close_wakeup()
 
 
 def main():
-    rclpy.init()
+    rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
+    signal_requested = False
+    def request_shutdown(signum, frame):
+        nonlocal signal_requested
+        signal_requested = True
+    previous_handlers = {signum: signal.getsignal(signum)
+                         for signum in (signal.SIGINT, signal.SIGTERM)}
+    for signum in previous_handlers:
+        signal.signal(signum, request_shutdown)
     node = None
     core = None
-    spinner = publisher_thread = keyboard_thread = None
+    publisher_thread = keyboard_thread = None
     stop_event = threading.Event()
     try:
         node = rclpy.create_node('keyboard_teleop_node')
@@ -207,7 +246,6 @@ def main():
         cmd_vel_topic = parameters['cmd_vel_topic']
         publish_rate = parameters['publish_rate']
         repeat_timeout_sec = parameters['repeat_timeout_sec']
-        read_poll_timeout = parameters['read_poll_timeout']
         tty_device_path = parameters['tty_device_path']
 
         core = KeyboardTeleopCore(
@@ -235,7 +273,6 @@ def main():
             core=core,
             stop_event=stop_event,
             tty_device_path=tty_device_path,
-            read_poll_timeout=read_poll_timeout,
         )
 
         resolve_tty_device_path(str(tty_device_path))
@@ -246,22 +283,17 @@ def main():
             ACCEL_LIMIT_ANGULAR,
             DECEL_LIMIT_ANGULAR,
         ))
-        print('TTY 模式参数:\t按键超时 %.2f s\t轮询超时 %.3f s' % (
-            float(repeat_timeout_sec),
-            float(read_poll_timeout),
-        ))
+        print('TTY 模式参数:\t按键超时 %.2f s' % float(repeat_timeout_sec))
         print('速度上限:\t线速度 %.2f m/s\t角速度 %.2f rad/s' % (
             float(max_speed),
             float(max_turn),
         ))
         print(vels(float(speed), float(turn)))
-        spinner = threading.Thread(target=rclpy.spin, args=(node,), daemon=True)
-        spinner.start()
         publisher_thread.start()
         keyboard_thread.start()
 
-        while rclpy.ok() and not stop_event.is_set():
-            time.sleep(0.05)
+        while rclpy.ok() and not signal_requested and not stop_event.is_set():
+            rclpy.spin_once(node, timeout_sec=0.05)
     except KeyboardInterrupt:
         pass
     except Exception as exception:
@@ -270,16 +302,23 @@ def main():
         raise
     finally:
         stop_event.set()
+        if keyboard_thread is not None:
+            keyboard_thread.stop()
         if core is not None:
             core.emergency_stop()
         for worker in (keyboard_thread, publisher_thread):
             if worker is not None and worker.is_alive():
-                worker.join(timeout=1.0)
-        rclpy.try_shutdown()
-        if spinner is not None:
-            spinner.join(timeout=1.0)
+                worker.join()
+        if keyboard_thread is not None:
+            keyboard_thread.close_wakeup()
         if node is not None:
             node.destroy_node()
+        rclpy.try_shutdown()
+        for signum, handler in previous_handlers.items():
+            signal.signal(signum, handler)
+    for worker in (keyboard_thread, publisher_thread):
+        if worker is not None and worker.error is not None:
+            raise RuntimeError('Keyboard worker failed') from worker.error
 
 
 if __name__ == '__main__':

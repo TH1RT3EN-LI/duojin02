@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rcl_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
@@ -16,7 +17,7 @@ target_include_directories(lslidar_driver PUBLIC
   $<INSTALL_INTERFACE:include>
   ${PCL_INCLUDE_DIRS})
 target_link_libraries(lslidar_driver ${PCL_LIBRARIES})
-ament_target_dependencies(lslidar_driver rclcpp sensor_msgs std_msgs pcl_conversions)
+ament_target_dependencies(lslidar_driver rclcpp rcl_interfaces sensor_msgs std_msgs pcl_conversions)
 
 add_executable(lslidar_driver_node src/lslidar_driver_node.cpp)
 target_link_libraries(lslidar_driver_node lslidar_driver)
@@ -26,7 +27,7 @@ install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 ament_export_include_directories(include)
 ament_export_libraries(lslidar_driver)
-ament_export_dependencies(rclcpp sensor_msgs std_msgs pcl_conversions PCL)
+ament_export_dependencies(rclcpp rcl_interfaces sensor_msgs std_msgs pcl_conversions PCL)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
