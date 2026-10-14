@@ -1,5 +1,3 @@
-"""Publish a complete map snapshot with the YAML file as the commit marker."""
-
 import fcntl
 import hashlib
 import json
@@ -38,8 +36,10 @@ def validate_map(path, verify_snapshot=True, require_graph=False):
     origin = metadata.get("origin")
     if type(resolution) not in (int, float) or not math.isfinite(resolution) or resolution <= 0:
         raise ValueError(f"Invalid map resolution: {path}")
-    if not isinstance(origin, list) or len(origin) != 3 or not all(
-        type(value) in (int, float) and math.isfinite(value) for value in origin
+    if (
+        not isinstance(origin, list)
+        or len(origin) != 3
+        or not all(type(value) in (int, float) and math.isfinite(value) for value in origin)
     ):
         raise ValueError(f"Invalid map origin: {path}")
     image = Path(metadata["image"])
@@ -49,14 +49,20 @@ def validate_map(path, verify_snapshot=True, require_graph=False):
     manifest_path = path.with_suffix(".snapshot.json")
     if verify_snapshot and manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
-        if not isinstance(manifest, dict) or type(manifest.get("schema")) is not int or manifest["schema"] != 1:
+        if (
+            not isinstance(manifest, dict)
+            or type(manifest.get("schema")) is not int
+            or manifest["schema"] != 1
+        ):
             raise ValueError(f"Unsupported map snapshot schema: {manifest_path}")
         files = manifest.get("files")
         if not isinstance(files, dict):
             raise ValueError(f"Invalid map snapshot file roles: {manifest_path}")
         required = {"yaml": path, "image": image}
         if require_graph:
-            required.update(posegraph=path.with_suffix(".posegraph"), data=path.with_suffix(".data"))
+            required.update(
+                posegraph=path.with_suffix(".posegraph"), data=path.with_suffix(".data")
+            )
         for role, expected in required.items():
             entry = files.get(role)
             if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
@@ -65,7 +71,9 @@ def validate_map(path, verify_snapshot=True, require_graph=False):
             if artifact.parent.resolve() != path.parent.resolve():
                 raise ValueError("Snapshot artifacts must be in the map directory")
             if artifact.resolve() != expected.resolve():
-                raise ValueError(f"Snapshot role {role} does not match the selected map artifact: {expected}")
+                raise ValueError(
+                    f"Snapshot role {role} does not match the selected map artifact: {expected}"
+                )
             if not artifact.is_file() or digest(artifact) != entry.get("sha256"):
                 raise ValueError(f"Incomplete or modified snapshot artifact: {artifact}")
     return metadata, image.resolve()
@@ -85,8 +93,11 @@ def reserve_snapshot(directory, name, *, deadline=None):
                     raise TimeoutError("Another map save is still in progress")
                 time.sleep(min(0.05, max(0.0, deadline - time.monotonic())))
         if name in ("", "auto"):
-            identifiers = [int(path.name.split(".", 1)[0]) for path in directory.iterdir()
-                           if path.name.split(".", 1)[0].isdigit()]
+            identifiers = [
+                int(path.name.split(".", 1)[0])
+                for path in directory.iterdir()
+                if path.name.split(".", 1)[0].isdigit()
+            ]
             name = str(max(identifiers, default=-1) + 1)
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", name):
             raise ValueError("map_name must be a filename without directories")
@@ -96,7 +107,9 @@ def reserve_snapshot(directory, name, *, deadline=None):
             yield Path(temporary) / name, directory / name
 
 
-def commit_snapshot(staged_prefix, final_prefix, provenance, include_graph=True, validate_raster=False):
+def commit_snapshot(
+    staged_prefix, final_prefix, provenance, include_graph=True, validate_raster=False
+):
     staged_prefix, final_prefix = Path(staged_prefix), Path(final_prefix)
     staged_yaml = artifact_path(staged_prefix, ".yaml")
     metadata, image = validate_map(staged_yaml, verify_snapshot=False)
@@ -107,24 +120,36 @@ def commit_snapshot(staged_prefix, final_prefix, provenance, include_graph=True,
     staged_yaml.write_text(yaml.safe_dump(metadata, sort_keys=False))
     files = {"image": image, "yaml": staged_yaml}
     if include_graph:
-        files.update(posegraph=artifact_path(staged_prefix, ".posegraph"),
-                     data=artifact_path(staged_prefix, ".data"))
+        files.update(
+            posegraph=artifact_path(staged_prefix, ".posegraph"),
+            data=artifact_path(staged_prefix, ".data"),
+        )
     for artifact in files.values():
         if not artifact.is_file() or artifact.stat().st_size == 0:
             raise ValueError(f"Map saver did not produce a complete snapshot: {artifact}")
     manifest = {
-        "schema": 1, "map_id": final_prefix.name,
+        "schema": 1,
+        "map_id": final_prefix.name,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "provenance": provenance,
-        "files": {key: {"name": value.name, "bytes": value.stat().st_size,
-                        "sha256": digest(value)} for key, value in files.items()},
+        "files": {
+            key: {
+                "name": value.name,
+                "bytes": value.stat().st_size,
+                "sha256": digest(value),
+            }
+            for key, value in files.items()
+        },
     }
     if raster_validation is not None:
         manifest["raster_validation"] = raster_validation
     manifest_path = artifact_path(staged_prefix, ".snapshot.json")
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-    # Consumers discover *.yaml. Publish it last, after every referenced file is durable.
-    order = [value for key, value in files.items() if key != "yaml"] + [manifest_path, staged_yaml]
+
+    order = [value for key, value in files.items() if key != "yaml"] + [
+        manifest_path,
+        staged_yaml,
+    ]
     published = []
     try:
         for artifact in order:

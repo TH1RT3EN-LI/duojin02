@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Run only in a container with --network none and no device mappings.
 set -eo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$hardware_root/source.sh"
@@ -10,8 +9,8 @@ build_jobs="${BUILD_JOBS:-2}"
 export CMAKE_BUILD_PARALLEL_LEVEL="$build_jobs"
 MAKEFLAGS="-j$build_jobs" colcon --log-base "$test_root/log" build \
   --base-paths "$hardware_root/src/duojin02_navigation" \
-    "$hardware_root/src/duojin02_base_driver" "$hardware_root/src/duojin02_bringup" \
-    "$hardware_root/src/duojin02_teleop" \
+  "$hardware_root/src/duojin02_base_driver" "$hardware_root/src/duojin02_bringup" \
+  "$hardware_root/src/duojin02_teleop" \
   --build-base "$test_root/build" --install-base "$test_root/install" \
   --merge-install --parallel-workers 1 \
   --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF

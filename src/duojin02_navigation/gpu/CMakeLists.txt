@@ -5,30 +5,32 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif()
 
 option(DUOJIN_ENABLE_CUDA "Build GPU geometry when a compatible CUDA compiler is available" ON)
+
 add_library(duojin02_gpu_geometry SHARED geometry.cpp)
-target_include_directories(duojin02_gpu_geometry PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  $<INSTALL_INTERFACE:include>)
+target_include_directories(
+  duojin02_gpu_geometry PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+                               $<INSTALL_INTERFACE:include>)
 target_compile_features(duojin02_gpu_geometry PUBLIC cxx_std_17)
 set(DUOJIN_CUDA_BUILT OFF)
 if(DUOJIN_ENABLE_CUDA)
   include(CheckLanguage)
   check_language(CUDA)
   if(CMAKE_CUDA_COMPILER)
-    # Build scripts may choose additional device architectures. Orin is the
-    # deployment default; CPU-only hosts never need the CUDA toolkit.
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-      set(CMAKE_CUDA_ARCHITECTURES 87 CACHE STRING "CUDA GPU architectures (87: Orin; 120: RTX 50 series)")
+      set(CMAKE_CUDA_ARCHITECTURES
+          87
+          CACHE STRING "CUDA GPU architectures (87: Orin; 120: RTX 50 series)")
     endif()
     enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
     target_sources(duojin02_gpu_geometry PRIVATE geometry.cu)
     target_compile_definitions(duojin02_gpu_geometry PRIVATE DUOJIN_HAS_CUDA=1)
-    target_compile_options(duojin02_gpu_geometry PRIVATE
-      $<$<COMPILE_LANGUAGE:CUDA>:--ftz=false>
-      $<$<COMPILE_LANGUAGE:CUDA>:--prec-div=true>
-      $<$<COMPILE_LANGUAGE:CUDA>:--fmad=false>)
-    set_target_properties(duojin02_gpu_geometry PROPERTIES CUDA_STANDARD 17 CUDA_STANDARD_REQUIRED ON)
+    target_compile_options(
+      duojin02_gpu_geometry
+      PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--ftz=false> $<$<COMPILE_LANGUAGE:CUDA>:--prec-div=true>
+              $<$<COMPILE_LANGUAGE:CUDA>:--fmad=false>)
+    set_target_properties(duojin02_gpu_geometry PROPERTIES CUDA_STANDARD 17 CUDA_STANDARD_REQUIRED
+                                                                            ON)
     target_link_libraries(duojin02_gpu_geometry PRIVATE CUDA::cudart_static)
     set(DUOJIN_CUDA_BUILT ON)
     message(STATUS "duojin02 GPU geometry: CUDA enabled, architectures=${CMAKE_CUDA_ARCHITECTURES}")
@@ -39,6 +41,7 @@ else()
   message(STATUS "duojin02 GPU geometry: DUOJIN_ENABLE_CUDA=OFF; building CPU support")
 endif()
 install(TARGETS duojin02_gpu_geometry LIBRARY DESTINATION lib)
+
 if(BUILD_TESTING)
   add_executable(gpu_geometry_checks geometry_checks.cpp)
   target_link_libraries(gpu_geometry_checks duojin02_gpu_geometry)
@@ -50,13 +53,16 @@ if(BUILD_TESTING)
     add_test(NAME gpu_geometry_cuda_checks COMMAND gpu_geometry_checks --require-cuda)
     set_tests_properties(gpu_geometry_cuda_checks PROPERTIES SKIP_RETURN_CODE 77)
     add_executable(gpu_geometry_fault_checks geometry_fault_checks.cu)
-    target_link_libraries(gpu_geometry_fault_checks PRIVATE duojin02_gpu_geometry CUDA::cudart_static)
+    target_link_libraries(gpu_geometry_fault_checks PRIVATE duojin02_gpu_geometry
+                                                            CUDA::cudart_static)
     target_compile_options(gpu_geometry_fault_checks PRIVATE -UNDEBUG)
-    set_target_properties(gpu_geometry_fault_checks PROPERTIES CUDA_STANDARD 17 CUDA_STANDARD_REQUIRED ON)
+    set_target_properties(gpu_geometry_fault_checks PROPERTIES CUDA_STANDARD 17
+                                                               CUDA_STANDARD_REQUIRED ON)
     add_test(NAME gpu_geometry_fault_checks COMMAND gpu_geometry_fault_checks)
     set_tests_properties(gpu_geometry_fault_checks PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 30)
   endif()
-  add_executable(gpu_geometry_benchmark EXCLUDE_FROM_ALL
+  add_executable(
+    gpu_geometry_benchmark EXCLUDE_FROM_ALL
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../tests/performance/gpu_geometry_benchmark.cpp")
   target_link_libraries(gpu_geometry_benchmark duojin02_gpu_geometry)
 endif()

@@ -33,17 +33,22 @@ nav_msgs::msg::Path path() {
 
 class FakePlanner : public BT::StatefulActionNode {
 public:
-  FakePlanner(const std::string & name, const BT::NodeConfiguration & config)
-  : BT::StatefulActionNode(name, config) {}
+  FakePlanner(const std::string &name, const BT::NodeConfiguration &config)
+      : BT::StatefulActionNode(name, config) {}
+
   static BT::PortsList providedPorts() {
     return {BT::InputPort<geometry_msgs::msg::PoseStamped>("goal"),
-      BT::InputPort<std::vector<geometry_msgs::msg::PoseStamped>>("goals"),
-      BT::InputPort<std::string>("planner_id"), BT::OutputPort<nav_msgs::msg::Path>("path")};
+            BT::InputPort<std::vector<geometry_msgs::msg::PoseStamped>>("goals"),
+            BT::InputPort<std::string>("planner_id"), BT::OutputPort<nav_msgs::msg::Path>("path")};
   }
+
   BT::NodeStatus onStart() override {
     geometry_msgs::msg::PoseStamped target;
     std::vector<geometry_msgs::msg::PoseStamped> targets;
-    if (!getInput("goal", target)) {assert(getInput("goals", targets) && !targets.empty()); target = targets.back();}
+    if (!getInput("goal", target)) {
+      assert(getInput("goals", targets) && !targets.empty());
+      target = targets.back();
+    }
     replacement_ = config().output_ports.at("path") == "{replacement_path}";
     planned_ = path();
     planned_.poses.back() = target;
@@ -61,17 +66,22 @@ public:
     }
     return onRunning();
   }
+
   BT::NodeStatus onRunning() override {
-    if (replacement_ && config().blackboard->get<bool>("hold_replan")) return BT::NodeStatus::RUNNING;
-    if (replacement_) config().blackboard->set("replan_pending", false);
+    if (replacement_ && config().blackboard->get<bool>("hold_replan"))
+      return BT::NodeStatus::RUNNING;
+    if (replacement_)
+      config().blackboard->set("replan_pending", false);
     setOutput("path", planned_);
     return BT::NodeStatus::SUCCESS;
   }
+
   void onHalted() override {
     auto board = config().blackboard;
     board->set("planner_halts", board->get<int>("planner_halts") + 1);
     board->set("replan_pending", false);
   }
+
 private:
   nav_msgs::msg::Path planned_;
   bool replacement_{false};
@@ -79,25 +89,36 @@ private:
 
 class FakeFollower : public BT::StatefulActionNode {
 public:
-  FakeFollower(const std::string & name, const BT::NodeConfiguration & config)
-  : BT::StatefulActionNode(name, config) {}
+  FakeFollower(const std::string &name, const BT::NodeConfiguration &config)
+      : BT::StatefulActionNode(name, config) {}
+
   static BT::PortsList providedPorts() {
-    return {BT::InputPort<nav_msgs::msg::Path>("path"), BT::InputPort<std::string>("controller_id")};
+    return {BT::InputPort<nav_msgs::msg::Path>("path"),
+            BT::InputPort<std::string>("controller_id")};
   }
+
   BT::NodeStatus onStart() override {
     auto board = config().blackboard;
     const auto failures = board->get<int>("forced_failures");
-    if (failures) {board->set("forced_failures", failures - 1); return BT::NodeStatus::FAILURE;}
+    if (failures) {
+      board->set("forced_failures", failures - 1);
+      return BT::NodeStatus::FAILURE;
+    }
     return onRunning();
   }
+
   BT::NodeStatus onRunning() override {
     auto board = config().blackboard;
     nav_msgs::msg::Path current;
     assert(getInput("path", current) && !current.poses.empty());
     board->set("following_target", current.poses.back().pose.position.x);
-    if (board->get<bool>("force_failure")) {board->set("force_failure", false); return BT::NodeStatus::FAILURE;}
+    if (board->get<bool>("force_failure")) {
+      board->set("force_failure", false);
+      return BT::NodeStatus::FAILURE;
+    }
     return BT::NodeStatus::RUNNING;
   }
+
   void onHalted() override {
     auto board = config().blackboard;
     board->set("follower_halts", board->get<int>("follower_halts") + 1);
@@ -106,13 +127,15 @@ public:
 
 class FakeRemovePassedGoals : public BT::SyncActionNode {
 public:
-  FakeRemovePassedGoals(const std::string & name, const BT::NodeConfiguration & config)
-  : BT::SyncActionNode(name, config) {}
+  FakeRemovePassedGoals(const std::string &name, const BT::NodeConfiguration &config)
+      : BT::SyncActionNode(name, config) {}
+
   static BT::PortsList providedPorts() {
     using Goals = std::vector<geometry_msgs::msg::PoseStamped>;
     return {BT::InputPort<Goals>("input_goals"), BT::OutputPort<Goals>("output_goals"),
-      BT::InputPort<double>("radius"), BT::InputPort<std::string>("robot_base_frame")};
+            BT::InputPort<double>("radius"), BT::InputPort<std::string>("robot_base_frame")};
   }
+
   BT::NodeStatus tick() override {
     std::vector<geometry_msgs::msg::PoseStamped> goals;
     assert(getInput("input_goals", goals));
@@ -143,25 +166,32 @@ struct Fixture {
     server = std::make_shared<rclcpp::Node>("server", scope);
     client = std::make_shared<rclcpp::Node>("client", scope);
     server_group = server->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-    service = server->create_service<nav2_msgs::srv::IsPathValid>("is_path_valid",
-      [this](const nav2_msgs::srv::IsPathValid::Request::SharedPtr request,
-             nav2_msgs::srv::IsPathValid::Response::SharedPtr response) {
-        assert(!request->path.poses.empty());
-        const bool reply_valid = valid.load();
-        const bool reply_delayed = delayed.load();
-        const int work_ms = response_work_ms.load();
-        ++requests;
-        if (reply_delayed) std::this_thread::sleep_for(500ms);
-        if (work_ms) std::this_thread::sleep_for(std::chrono::milliseconds(work_ms));
-        while (hold_response.load()) std::this_thread::sleep_for(1ms);
-        response->is_valid = reply_valid;
-        peer_finished_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-          std::chrono::steady_clock::now().time_since_epoch()).count();
-      }, rmw_qos_profile_services_default, server_group);
+    service = server->create_service<nav2_msgs::srv::IsPathValid>(
+        "is_path_valid",
+        [this](const nav2_msgs::srv::IsPathValid::Request::SharedPtr request,
+               nav2_msgs::srv::IsPathValid::Response::SharedPtr response) {
+          assert(!request->path.poses.empty());
+          const bool reply_valid = valid.load();
+          const bool reply_delayed = delayed.load();
+          const int work_ms = response_work_ms.load();
+          ++requests;
+          if (reply_delayed)
+            std::this_thread::sleep_for(500ms);
+          if (work_ms)
+            std::this_thread::sleep_for(std::chrono::milliseconds(work_ms));
+          while (hold_response.load())
+            std::this_thread::sleep_for(1ms);
+          response->is_valid = reply_valid;
+          peer_finished_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                 std::chrono::steady_clock::now().time_since_epoch())
+                                 .count();
+        },
+        rmw_qos_profile_services_default, server_group);
     executor.add_node(server);
-    worker = std::thread([this] {executor.spin();});
+    worker = std::thread([this] { executor.spin(); });
     factory.registerFromPlugin(RECOVERY_BT_LIBRARY);
-    for (const auto & library : {"nav2_recovery_node_bt_node", "nav2_pipeline_sequence_bt_node", "nav2_rate_controller_bt_node"}) {
+    for (const auto &library : {"nav2_recovery_node_bt_node", "nav2_pipeline_sequence_bt_node",
+                                "nav2_rate_controller_bt_node"}) {
       factory.registerFromPlugin(std::string(NAV2_BT_LIBRARY_DIRECTORY) + "/lib" + library + ".so");
     }
     factory.registerNodeType<FakePlanner>("ComputePathToPose");
@@ -169,77 +199,98 @@ struct Fixture {
     factory.registerNodeType<FakeFollower>("FollowPath");
     factory.registerNodeType<FakeRemovePassedGoals>("RemovePassedGoals");
   }
+
   ~Fixture() {
     executor.cancel();
     worker.join();
   }
+
   BT::Blackboard::Ptr blackboard() {
     auto result = BT::Blackboard::create();
     result->set("node", client);
     result->set("server_timeout", query_timeout);
     return result;
   }
-  BT::Tree query(const nav_msgs::msg::Path & input, BT::Blackboard::Ptr board = {}) {
-    if (!board) board = blackboard();
+
+  BT::Tree query(const nav_msgs::msg::Path &input, BT::Blackboard::Ptr board = {}) {
+    if (!board)
+      board = blackboard();
     board->set("path", input);
     return factory.createTreeFromText(
-      "<root main_tree_to_execute=\"Main\"><BehaviorTree ID=\"Main\">"
-      "<PathNeedsReplan path=\"{path}\" checked_path=\"{checked_path}\"/></BehaviorTree></root>", board);
+        "<root main_tree_to_execute=\"Main\"><BehaviorTree ID=\"Main\">"
+        "<PathNeedsReplan path=\"{path}\" checked_path=\"{checked_path}\"/></BehaviorTree></root>",
+        board);
   }
-  BT::Tree replacement(const nav_msgs::msg::Path & old_path,
-    const nav_msgs::msg::Path & new_path) {
+
+  BT::Tree replacement(const nav_msgs::msg::Path &old_path, const nav_msgs::msg::Path &new_path) {
     auto board = blackboard();
     board->set("path", old_path);
     board->set("replacement_path", new_path);
     return factory.createTreeFromText(
-      "<root main_tree_to_execute=\"Main\"><BehaviorTree ID=\"Main\">"
-      "<AcceptChangedPath old_path=\"{path}\" new_path=\"{replacement_path}\" path=\"{path}\"/>"
-      "</BehaviorTree></root>", board);
+        "<root main_tree_to_execute=\"Main\"><BehaviorTree ID=\"Main\">"
+        "<AcceptChangedPath old_path=\"{path}\" new_path=\"{replacement_path}\" path=\"{path}\"/>"
+        "</BehaviorTree></root>",
+        board);
   }
+
   BT::Tree navigation(bool multiple = false) {
     auto board = blackboard();
-    auto target = path().poses.back(); target.pose.position.x = 3.;
-    if (multiple) board->set("goals", std::vector<geometry_msgs::msg::PoseStamped>{path().poses.back(), target});
-    else board->set("goal", target);
-    for (const auto & name : {"plans", "replans", "planner_halts", "follower_halts", "forced_failures"}) board->set(name, 0);
-    for (const auto & name : {"hold_replan", "replan_pending", "force_failure", "trim_goals", "ordinary_path_changed"}) board->set(name, false);
+    auto target = path().poses.back();
+    target.pose.position.x = 3.;
+    if (multiple)
+      board->set("goals",
+                 std::vector<geometry_msgs::msg::PoseStamped>{path().poses.back(), target});
+    else
+      board->set("goal", target);
+    for (const auto &name :
+         {"plans", "replans", "planner_halts", "follower_halts", "forced_failures"})
+      board->set(name, 0);
+    for (const auto &name :
+         {"hold_replan", "replan_pending", "force_failure", "trim_goals", "ordinary_path_changed"})
+      board->set(name, false);
     board->set("following_target", -1.);
-    return factory.createTreeFromFile(std::string(RECOVERY_BT_TREE_DIRECTORY) +
-      (multiple ? "/navigate_through_poses.xml" : "/navigate_to_pose.xml"), board);
+    return factory.createTreeFromFile(
+        std::string(RECOVERY_BT_TREE_DIRECTORY) +
+            (multiple ? "/navigate_through_poses.xml" : "/navigate_to_pose.xml"),
+        board);
   }
 };
 
-template<typename Predicate>
-void advance(BT::Tree & tree, Predicate predicate, const char * phase) {
+template <typename Predicate> void advance(BT::Tree &tree, Predicate predicate, const char *phase) {
   const auto deadline = std::chrono::steady_clock::now() + 2s;
   while (!predicate()) {
     const auto status = tree.tickRoot();
-    if (status != BT::NodeStatus::RUNNING) std::cerr << phase << ": " << BT::toStr(status) << std::endl;
+    if (status != BT::NodeStatus::RUNNING)
+      std::cerr << phase << ": " << BT::toStr(status) << std::endl;
     assert(status == BT::NodeStatus::RUNNING);
     assert(std::chrono::steady_clock::now() < deadline);
     std::this_thread::sleep_for(bt_tick);
   }
 }
 
-void newGoal(BT::Tree & tree, double x, bool multiple = false) {
-  auto target = path().poses.back(); target.pose.position.x = x;
-  if (multiple) tree.rootBlackboard()->set("goals", std::vector<geometry_msgs::msg::PoseStamped>{target});
-  else tree.rootBlackboard()->set("goal", target);
+void newGoal(BT::Tree &tree, double x, bool multiple = false) {
+  auto target = path().poses.back();
+  target.pose.position.x = x;
+  if (multiple)
+    tree.rootBlackboard()->set("goals", std::vector<geometry_msgs::msg::PoseStamped>{target});
+  else
+    tree.rootBlackboard()->set("goal", target);
 }
 
-BT::NodeStatus finish(BT::Tree & tree) {
+BT::NodeStatus finish(BT::Tree &tree) {
   const auto deadline = std::chrono::steady_clock::now() + 2s;
   BT::NodeStatus status;
   do {
     status = tree.tickRoot();
-    if (status != BT::NodeStatus::RUNNING) return status;
+    if (status != BT::NodeStatus::RUNNING)
+      return status;
     std::this_thread::sleep_for(bt_tick);
   } while (std::chrono::steady_clock::now() < deadline);
   assert(false && "Service BT failed to reach a terminal status");
   return BT::NodeStatus::FAILURE;
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   int checks = 0;
   {
@@ -255,13 +306,15 @@ int main(int argc, char ** argv) {
     const auto original = path();
     auto stamp_only = original;
     stamp_only.header.stamp.sec = 42;
-    for (auto & pose : stamp_only.poses) pose.header.stamp.sec = 43;
+    for (auto &pose : stamp_only.poses)
+      pose.header.stamp.sec = 43;
     auto same = fixture.replacement(original, stamp_only);
     assert(finish(same) == BT::NodeStatus::FAILURE);
     assert(same.rootBlackboard()->get<nav_msgs::msg::Path>("path") == original);
     ++checks;
     auto opposite_quaternion = original;
-    for (auto & pose : opposite_quaternion.poses) pose.pose.orientation.w = -1.;
+    for (auto &pose : opposite_quaternion.poses)
+      pose.pose.orientation.w = -1.;
     auto same_rotation = fixture.replacement(original, opposite_quaternion);
     assert(finish(same_rotation) == BT::NodeStatus::FAILURE);
     ++checks;
@@ -279,15 +332,25 @@ int main(int argc, char ** argv) {
     ++checks;
 
     std::vector<nav_msgs::msg::Path> malformed;
-    auto invalid = original; invalid.poses.clear(); malformed.push_back(invalid);
-    invalid = original; invalid.header.frame_id.clear(); malformed.push_back(invalid);
-    invalid = original; invalid.poses[0].header.frame_id = "odom"; malformed.push_back(invalid);
-    invalid = original; invalid.poses[0].pose.position.x = std::numeric_limits<double>::quiet_NaN();
+    auto invalid = original;
+    invalid.poses.clear();
     malformed.push_back(invalid);
-    invalid = original; invalid.poses[0].pose.orientation.w = 0.; malformed.push_back(invalid);
-    invalid = original; invalid.poses[0].pose.orientation.w = std::numeric_limits<double>::infinity();
+    invalid = original;
+    invalid.header.frame_id.clear();
     malformed.push_back(invalid);
-    for (const auto & bad : malformed) {
+    invalid = original;
+    invalid.poses[0].header.frame_id = "odom";
+    malformed.push_back(invalid);
+    invalid = original;
+    invalid.poses[0].pose.position.x = std::numeric_limits<double>::quiet_NaN();
+    malformed.push_back(invalid);
+    invalid = original;
+    invalid.poses[0].pose.orientation.w = 0.;
+    malformed.push_back(invalid);
+    invalid = original;
+    invalid.poses[0].pose.orientation.w = std::numeric_limits<double>::infinity();
+    malformed.push_back(invalid);
+    for (const auto &bad : malformed) {
       const auto before = fixture.requests.load();
       auto no_query = fixture.query(bad);
       assert(finish(no_query) == BT::NodeStatus::FAILURE);
@@ -297,7 +360,7 @@ int main(int argc, char ** argv) {
       assert(no_replace.rootBlackboard()->get<nav_msgs::msg::Path>("path") == original);
       checks += 2;
     }
-    // Repeated poses are legitimate geometry, not grounds for a new heuristic.
+
     auto repeated = original;
     repeated.poses.push_back(repeated.poses.back());
     fixture.valid = false;
@@ -333,10 +396,8 @@ int main(int argc, char ** argv) {
     assert(finish(stamp_context) == BT::NodeStatus::SUCCESS);
     ++checks;
 
-    // A reply queued before the deadline must survive an at/after-deadline BT
-    // poll; production uses a 20 ms query budget and a 10 ms tick, not 200 ms.
-    for (const int work_ms : {RECOVERY_BT_SERVER_TIMEOUT_MS * 3 / 5,
-                              RECOVERY_BT_SERVER_TIMEOUT_MS * 9 / 10}) {
+    for (const int work_ms :
+         {RECOVERY_BT_SERVER_TIMEOUT_MS * 3 / 5, RECOVERY_BT_SERVER_TIMEOUT_MS * 9 / 10}) {
       fixture.response_work_ms = work_ms;
       fixture.peer_finished_ns = 0;
       auto queued = fixture.query(path());
@@ -365,16 +426,15 @@ int main(int argc, char ** argv) {
     assert(fixture.requests.load() == expired_requests);
     fixture.response_work_ms = 0;
     fixture.valid = true;
-    // A terminal StatefulActionNode can start a new request on another tick;
-    // the discarded negative reply must not satisfy that new request.
+
     assert(finish(expired) == BT::NodeStatus::FAILURE);
     assert(fixture.requests.load() == expired_requests + 1);
     fixture.valid = false;
     ++checks;
 
-    // The existing server_timeout must still bound I/O when ROS time is paused.
-    auto paused_node = std::make_shared<rclcpp::Node>("paused", fixture.client->get_namespace(),
-      rclcpp::NodeOptions().parameter_overrides({rclcpp::Parameter("use_sim_time", true)}));
+    auto paused_node = std::make_shared<rclcpp::Node>(
+        "paused", fixture.client->get_namespace(),
+        rclcpp::NodeOptions().parameter_overrides({rclcpp::Parameter("use_sim_time", true)}));
     assert(paused_node->get_clock()->now().nanoseconds() == 0);
     auto paused_board = fixture.blackboard();
     paused_board->set("node", paused_node);
@@ -386,20 +446,24 @@ int main(int argc, char ** argv) {
     std::this_thread::sleep_for(550ms);
     ++checks;
 
-    // Load the shipped XML and stock PipelineSequence / RecoveryNode / rate
-    // plugins; only the hardware-facing planner and follower are fake actions.
     auto pending_query = fixture.navigation();
     auto board = pending_query.rootBlackboard();
     board->set("forced_failures", 1);
     fixture.delayed = true;
     const auto before_query = fixture.requests.load();
-    advance(pending_query, [&] {return fixture.requests.load() > before_query;}, "old query pending");
+    advance(
+        pending_query, [&] { return fixture.requests.load() > before_query; }, "old query pending");
     fixture.delayed = false;
     newGoal(pending_query, 9.);
     board->set("forced_failures", 1);
     assert(pending_query.tickRoot() == BT::NodeStatus::RUNNING);
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 9.);
-    advance(pending_query, [&] {return board->get<double>("following_target") == 9. && board->get<int>("replans") == 1;}, "new goal after query preemption");
+    advance(
+        pending_query,
+        [&] {
+          return board->get<double>("following_target") == 9. && board->get<int>("replans") == 1;
+        },
+        "new goal after query preemption");
     std::this_thread::sleep_for(550ms);
     assert(pending_query.tickRoot() == BT::NodeStatus::RUNNING);
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 9.);
@@ -409,42 +473,61 @@ int main(int argc, char ** argv) {
     board = pending_plan.rootBlackboard();
     board->set("forced_failures", 1);
     board->set("hold_replan", true);
-    advance(pending_plan, [&] {return board->get<bool>("replan_pending");}, "old replan pending");
+    advance(pending_plan, [&] { return board->get<bool>("replan_pending"); }, "old replan pending");
     newGoal(pending_plan, 12.);
     board->set("forced_failures", 1);
     board->set("hold_replan", false);
     assert(pending_plan.tickRoot() == BT::NodeStatus::RUNNING);
     assert(board->get<int>("planner_halts") == 1);
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 12.);
-    advance(pending_plan, [&] {return board->get<double>("following_target") == 12. && board->get<int>("replans") == 2;}, "new goal after replan preemption");
+    advance(
+        pending_plan,
+        [&] {
+          return board->get<double>("following_target") == 12. && board->get<int>("replans") == 2;
+        },
+        "new goal after replan preemption");
     assert(board->get<nav_msgs::msg::Path>("replacement_path").poses.back().pose.position.x == 12.);
     ++checks;
 
-    // A normal 1 Hz plan can finish while the recovery plan is pending. The
-    // candidate may equal that new plan and still differ from the rejected one.
     auto periodic_during_recovery = fixture.navigation();
     board = periodic_during_recovery.rootBlackboard();
     board->set("forced_failures", 1);
     board->set("hold_replan", true);
-    advance(periodic_during_recovery, [&] {return board->get<bool>("replan_pending");}, "recovery plan pending");
+    advance(
+        periodic_during_recovery, [&] { return board->get<bool>("replan_pending"); },
+        "recovery plan pending");
     board->set("ordinary_path_changed", true);
-    advance(periodic_during_recovery, [&] {return board->get<int>("plans") >= 3;}, "ordinary plan during recovery");
+    advance(
+        periodic_during_recovery, [&] { return board->get<int>("plans") >= 3; },
+        "ordinary plan during recovery");
     assert(board->get<nav_msgs::msg::Path>("path").poses.size() == 3);
     assert(board->get<nav_msgs::msg::Path>("checked_path").poses.size() == 2);
     board->set("hold_replan", false);
-    advance(periodic_during_recovery, [&] {return board->get<double>("following_target") == 3.;}, "recovery accepts changed checked path");
+    advance(
+        periodic_during_recovery, [&] { return board->get<double>("following_target") == 3.; },
+        "recovery accepts changed checked path");
     assert(board->get<int>("replans") == 1);
     ++checks;
 
     auto recovered = fixture.navigation();
     board = recovered.rootBlackboard();
     board->set("forced_failures", 1);
-    advance(recovered, [&] {return board->get<double>("following_target") == 3. && board->get<int>("replans") == 1;}, "first goal recovery");
+    advance(
+        recovered,
+        [&] {
+          return board->get<double>("following_target") == 3. && board->get<int>("replans") == 1;
+        },
+        "first goal recovery");
     newGoal(recovered, 15.);
     board->set("forced_failures", 1);
     assert(recovered.tickRoot() == BT::NodeStatus::RUNNING);
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 15.);
-    advance(recovered, [&] {return board->get<double>("following_target") == 15. && board->get<int>("replans") == 2;}, "new goal fresh recovery budget");
+    advance(
+        recovered,
+        [&] {
+          return board->get<double>("following_target") == 15. && board->get<int>("replans") == 2;
+        },
+        "new goal fresh recovery budget");
     board->set("force_failure", true);
     assert(recovered.tickRoot() == BT::NodeStatus::FAILURE);
     ++checks;
@@ -461,7 +544,12 @@ int main(int argc, char ** argv) {
     board->set("forced_failures", 1);
     assert(waypoints.tickRoot() == BT::NodeStatus::RUNNING);
     assert(board->get<nav_msgs::msg::Path>("path").poses.back().pose.position.x == 18.);
-    advance(waypoints, [&] {return board->get<double>("following_target") == 18. && board->get<int>("replans") == 1;}, "external waypoint preemption");
+    advance(
+        waypoints,
+        [&] {
+          return board->get<double>("following_target") == 18. && board->get<int>("replans") == 1;
+        },
+        "external waypoint preemption");
     assert(board->get<int>("follower_halts") == 1);
     ++checks;
 
@@ -485,6 +573,7 @@ int main(int argc, char ** argv) {
     ++checks;
   }
   rclcpp::shutdown();
-  std::cout << "{\"checks\":" << checks << ",\"failed\":0,\"server_timeout_ms\":"
-    << query_timeout.count() << ",\"bt_tick_ms\":" << bt_tick.count() << "}" << std::endl;
+  std::cout << "{\"checks\":" << checks
+            << ",\"failed\":0,\"server_timeout_ms\":" << query_timeout.count()
+            << ",\"bt_tick_ms\":" << bt_tick.count() << "}" << std::endl;
 }

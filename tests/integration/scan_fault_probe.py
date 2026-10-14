@@ -68,8 +68,12 @@ RANGE_MIN = 0.300
 RANGE_MAX = 8.000
 FIRST_FAULTS = ("all_nan", "all_negative_inf", "empty", "all_finite_out_of_range")
 METADATA_FAULTS = (
-    "nan_angle_min", "nan_range_min", "nan_range_max", "zero_angle_increment",
-    "negative_time_increment", "empty_frame",
+    "nan_angle_min",
+    "nan_range_min",
+    "nan_range_max",
+    "zero_angle_increment",
+    "negative_time_increment",
+    "empty_frame",
 )
 
 
@@ -99,17 +103,21 @@ def stamp_ns(stamp):
 
 
 def xyz_points(cloud):
-    """Read the guard's XYZ float32 cloud without a sensor_msgs_py dependency."""
+
     fields = {field.name: field for field in cloud.fields}
-    require(all(name in fields and fields[name].datatype == 7 for name in ("x", "y", "z")),
-            "Obstacle-memory cloud must contain float32 XYZ fields")
+    require(
+        all(name in fields and fields[name].datatype == 7 for name in ("x", "y", "z")),
+        "Obstacle-memory cloud must contain float32 XYZ fields",
+    )
     endian = ">" if cloud.is_bigendian else "<"
     data = bytes(cloud.data)
     for row in range(cloud.height):
         for column in range(cloud.width):
             start = row * cloud.row_step + column * cloud.point_step
-            yield tuple(struct.unpack_from(endian + "f", data, start + fields[name].offset)[0]
-                        for name in ("x", "y", "z"))
+            yield tuple(
+                struct.unpack_from(endian + "f", data, start + fields[name].offset)[0]
+                for name in ("x", "y", "z")
+            )
 
 
 class CaseProbe(Node):
@@ -125,28 +133,51 @@ class CaseProbe(Node):
         qos = QoSProfile(depth=10)
         self.create_subscription(String, self.topic("status"), self.on_status, qos)
         self.create_subscription(Twist, self.topic("guarded"), self.on_output, qos)
-        self.create_subscription(PointCloud2, self.topic("memory"), self.on_cloud,
-                                 qos_profile_sensor_data)
+        self.create_subscription(
+            PointCloud2, self.topic("memory"), self.on_cloud, qos_profile_sensor_data
+        )
         self.command_pub = self.create_publisher(Twist, self.topic("requested"), qos)
         self.odom_pub = self.create_publisher(Odometry, self.topic("odom"), qos)
-        self.scan_pub = self.create_publisher(LaserScan, self.topic("scan"), qos_profile_sensor_data)
+        self.scan_pub = self.create_publisher(
+            LaserScan, self.topic("scan"), qos_profile_sensor_data
+        )
         self.log_path = args.log_dir / (name + ".log")
         self.log = self.log_path.open("w", encoding="utf-8")
         remaps = {
-            "/cmd_vel_requested": "requested", "/cmd_vel_base": "guarded",
-            "/odometry/filtered": "odom", "/scan": "scan",
-            "/navigation/guard_status": "status", "/navigation/obstacle_memory": "memory",
-            "/map": "unused_map", "/local_costmap/costmap": "unused_costmap",
-            "/amcl_pose": "unused_localization", "/tf": "unused_tf", "/tf_static": "unused_tf_static",
+            "/cmd_vel_requested": "requested",
+            "/cmd_vel_base": "guarded",
+            "/odometry/filtered": "odom",
+            "/scan": "scan",
+            "/navigation/guard_status": "status",
+            "/navigation/obstacle_memory": "memory",
+            "/map": "unused_map",
+            "/local_costmap/costmap": "unused_costmap",
+            "/amcl_pose": "unused_localization",
+            "/tf": "unused_tf",
+            "/tf_static": "unused_tf_static",
         }
-        command = [str(args.guard_binary), "--ros-args", "--params-file", str(args.params_file),
-                   "-p", "use_sim_time:=false", "-p", "scan_timeout_s:=0.3",
-                   "-p", "command_timeout_s:=0.25"]
+        command = [
+            str(args.guard_binary),
+            "--ros-args",
+            "--params-file",
+            str(args.params_file),
+            "-p",
+            "use_sim_time:=false",
+            "-p",
+            "scan_timeout_s:=0.3",
+            "-p",
+            "command_timeout_s:=0.25",
+        ]
         for original, suffix in remaps.items():
             command.extend(["-r", original + ":=" + self.topic(suffix)])
         try:
-            self.process = subprocess.Popen(command, stdout=self.log, stderr=subprocess.STDOUT,
-                                            env=os.environ.copy(), start_new_session=True)
+            self.process = subprocess.Popen(
+                command,
+                stdout=self.log,
+                stderr=subprocess.STDOUT,
+                env=os.environ.copy(),
+                start_new_session=True,
+            )
         except BaseException:
             self.log.close()
             self.destroy_node()
@@ -159,10 +190,19 @@ class CaseProbe(Node):
         self.statuses.append((time.monotonic(), json.loads(message.data)))
 
     def on_output(self, message):
-        self.outputs.append((time.monotonic(), {
-            "linear_x": message.linear.x, "linear_y": message.linear.y, "linear_z": message.linear.z,
-            "angular_x": message.angular.x, "angular_y": message.angular.y, "angular_z": message.angular.z,
-        }))
+        self.outputs.append(
+            (
+                time.monotonic(),
+                {
+                    "linear_x": message.linear.x,
+                    "linear_y": message.linear.y,
+                    "linear_z": message.linear.z,
+                    "angular_x": message.angular.x,
+                    "angular_y": message.angular.y,
+                    "angular_z": message.angular.z,
+                },
+            )
+        )
 
     def on_cloud(self, message):
         self.clouds.append((time.monotonic(), message))
@@ -172,13 +212,19 @@ class CaseProbe(Node):
             "topic_prefix": self.prefix,
             "status": self.statuses[-1][1] if self.statuses else None,
             "command": self.outputs[-1][1] if self.outputs else None,
-            "cloud_points": self.clouds[-1][1].width * self.clouds[-1][1].height if self.clouds else None,
+            "cloud_points": (
+                self.clouds[-1][1].width * self.clouds[-1][1].height if self.clouds else None
+            ),
             "guard_log": str(self.log_path),
         }
 
     def check_process(self):
-        require(self.process.poll() is None, "Guard exited during a probe case",
-                returncode=self.process.returncode, **self.snapshot())
+        require(
+            self.process.poll() is None,
+            "Guard exited during a probe case",
+            returncode=self.process.returncode,
+            **self.snapshot(),
+        )
 
     def keepalive(self):
         current = time.monotonic()
@@ -213,13 +259,15 @@ class CaseProbe(Node):
         deadline = time.monotonic() + self.args.discovery_timeout_s
         while time.monotonic() < deadline:
             self.check_process()
-            inputs_ready = all(self.count_subscribers(self.topic(suffix)) > 0
-                               for suffix in ("scan", "requested", "odom"))
-            outputs_ready = all(self.count_publishers(self.topic(suffix)) > 0
-                                for suffix in ("status", "guarded", "memory"))
-            # DDS graph discovery precedes reliable writer/reader delivery.
-            # A real timer status proves the command has arrived before the
-            # fault callback's immediate status can be overwritten by startup.
+            inputs_ready = all(
+                self.count_subscribers(self.topic(suffix)) > 0
+                for suffix in ("scan", "requested", "odom")
+            )
+            outputs_ready = all(
+                self.count_publishers(self.topic(suffix)) > 0
+                for suffix in ("status", "guarded", "memory")
+            )
+
             command_ready = self.statuses and self.statuses[-1][1]["reason"] == "scan_or_tf_stale"
             if inputs_ready and outputs_ready and command_ready:
                 return
@@ -260,8 +308,7 @@ class CaseProbe(Node):
             message.time_increment = -0.001
         elif name == "empty_frame":
             message.header.frame_id = ""
-        # Keep the message's end angle consistent even for an empty scan or a
-        # deliberately invalid angle_min/increment; those cases must fail closed.
+
         message.angle_max = message.angle_min + message.angle_increment * (len(message.ranges) - 1)
         return message
 
@@ -269,35 +316,74 @@ class CaseProbe(Node):
         deadline = since + TICK_S + self.args.timing_tolerance_s
         while time.monotonic() < deadline:
             self.spin()
-            status = next(((stamp, value) for stamp, value in self.statuses
-                           if stamp >= since and reason_predicate(value)), None)
-            output = next(((stamp, value) for stamp, value in self.outputs
-                           if stamp >= since and command_predicate(value)), None)
+            status = next(
+                (
+                    (stamp, value)
+                    for stamp, value in self.statuses
+                    if stamp >= since and reason_predicate(value)
+                ),
+                None,
+            )
+            output = next(
+                (
+                    (stamp, value)
+                    for stamp, value in self.outputs
+                    if stamp >= since and command_predicate(value)
+                ),
+                None,
+            )
             if status is not None and output is not None:
                 return {
                     "status_latency_ms": round((status[0] - since) * 1000, 3),
                     "command_latency_ms": round((output[0] - since) * 1000, 3),
-                    "status": status[1], "command": output[1],
-                    "status_received_at": status[0], "command_received_at": output[0],
+                    "status": status[1],
+                    "command": output[1],
+                    "status_received_at": status[0],
+                    "command_received_at": output[0],
                 }
-        raise ProbeFailure("Expected scan response did not arrive within one tick plus tolerance",
-                           response_bound_ms=(TICK_S + self.args.timing_tolerance_s) * 1000,
-                           elapsed_ms=(time.monotonic() - since) * 1000, **self.snapshot())
+        raise ProbeFailure(
+            "Expected scan response did not arrive within one tick plus tolerance",
+            response_bound_ms=(TICK_S + self.args.timing_tolerance_s) * 1000,
+            elapsed_ms=(time.monotonic() - since) * 1000,
+            **self.snapshot(),
+        )
 
     def invalid_once(self, name):
         self.keepalive()
         since = time.monotonic()
         self.scan_pub.publish(self.fault_scan(name))
-        response = self.response(since, lambda value: value["reason"] == self.args.invalid_reason, zero)
+        response = self.response(
+            since, lambda value: value["reason"] == self.args.invalid_reason, zero
+        )
         self.pump(FAULT_OBSERVATION_S - (time.monotonic() - since))
-        require(self.statuses[-1][1]["reason"] == self.args.invalid_reason and zero(self.outputs[-1][1]),
-                "Invalid scan did not hold a zero command before the old scan could time out",
-                fault=name, observation_ms=FAULT_OBSERVATION_S * 1000, **self.snapshot())
-        require(all(value["reason"] == self.args.invalid_reason for stamp, value in self.statuses
-                    if stamp >= response["status_received_at"]),
-                "Guard left scan_invalid without a new valid scan", fault=name, **self.snapshot())
-        require(all(zero(value) for stamp, value in self.outputs if stamp >= response["command_received_at"]),
-                "A nonzero output followed the invalid-scan stop", fault=name, **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == self.args.invalid_reason
+            and zero(self.outputs[-1][1]),
+            "Invalid scan did not hold a zero command before the old scan could time out",
+            fault=name,
+            observation_ms=FAULT_OBSERVATION_S * 1000,
+            **self.snapshot(),
+        )
+        require(
+            all(
+                value["reason"] == self.args.invalid_reason
+                for stamp, value in self.statuses
+                if stamp >= response["status_received_at"]
+            ),
+            "Guard left scan_invalid without a new valid scan",
+            fault=name,
+            **self.snapshot(),
+        )
+        require(
+            all(
+                zero(value)
+                for stamp, value in self.outputs
+                if stamp >= response["command_received_at"]
+            ),
+            "A nonzero output followed the invalid-scan stop",
+            fault=name,
+            **self.snapshot(),
+        )
         response.pop("status_received_at")
         response.pop("command_received_at")
         response["observation_ms"] = FAULT_OBSERVATION_S * 1000
@@ -309,8 +395,11 @@ class CaseProbe(Node):
         self.scan_pub.publish(self.scan())
         response = self.response(since, lambda value: value["reason"] == "clear", clear_command)
         self.pump(FAULT_OBSERVATION_S - (time.monotonic() - since))
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1]),
-                "One valid scan did not restore normal command flow", **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1]),
+            "One valid scan did not restore normal command flow",
+            **self.snapshot(),
+        )
         response.pop("status_received_at")
         response.pop("command_received_at")
         return response
@@ -319,8 +408,11 @@ class CaseProbe(Node):
         result = {}
         if first_fault:
             result["first_invalid"] = self.invalid_once(name)
-            require(self.statuses[-1][1]["remembered_points"] == 0,
-                    "First invalid scan created obstacle memory", **self.snapshot())
+            require(
+                self.statuses[-1][1]["remembered_points"] == 0,
+                "First invalid scan created obstacle memory",
+                **self.snapshot(),
+            )
         result["good_before_fault"] = self.clear_once()
         result["good_to_invalid_once"] = self.invalid_once(name)
         result["good_recovery_once"] = self.clear_once()
@@ -329,9 +421,13 @@ class CaseProbe(Node):
     def positive_inf_case(self):
         all_inf = lambda: self.scan([math.inf] * BEAM_COUNT)
         self.pump(SCAN_TIMEOUT_S + 0.150, all_inf)
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1])
-                and self.statuses[-1][1]["remembered_points"] == 0,
-                "A fresh first all-positive-Inf scan must permit a clear command", **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "clear"
+            and clear_command(self.outputs[-1][1])
+            and self.statuses[-1][1]["remembered_points"] == 0,
+            "A fresh first all-positive-Inf scan must permit a clear command",
+            **self.snapshot(),
+        )
         fresh_empty = self.snapshot()
         obstacle_ranges = [math.inf] * BEAM_COUNT
         obstacle_ranges[BEAM_COUNT // 2] = 0.350
@@ -339,64 +435,106 @@ class CaseProbe(Node):
         self.scan_pub.publish(self.scan(obstacle_ranges))
         response = self.response(
             since,
-            lambda value: value["reason"] in ("braking_slowdown", "swept_collision", "measured_braking_collision")
+            lambda value: value["reason"]
+            in ("braking_slowdown", "swept_collision", "measured_braking_collision")
             and value["remembered_points"] == 1,
             lambda value: value["linear_x"] < REQUESTED_X - 1e-6,
         )
         self.pump(0.020)
-        require(self.clouds and len(list(xyz_points(self.clouds[-1][1]))) == 1,
-                "Finite near obstacle was not published in memory", **self.snapshot())
+        require(
+            self.clouds and len(list(xyz_points(self.clouds[-1][1]))) == 1,
+            "Finite near obstacle was not published in memory",
+            **self.snapshot(),
+        )
         points_before = list(xyz_points(self.clouds[-1][1]))
         since_inf = time.monotonic()
         self.pump(SCAN_TIMEOUT_S + 0.150, all_inf)
         statuses = [value for stamp, value in self.statuses if stamp >= since_inf]
-        require(statuses and all(value["reason"] not in (self.args.invalid_reason, "scan_or_tf_stale")
-                                 and value["remembered_points"] == 1 for value in statuses),
-                "All-positive-Inf scan must stay fresh without erasing remembered obstacles", **self.snapshot())
-        require(self.outputs[-1][1]["linear_x"] < REQUESTED_X - 1e-6,
-                "No-return Inf erased the braking constraint from a remembered obstacle", **self.snapshot())
+        require(
+            statuses
+            and all(
+                value["reason"] not in (self.args.invalid_reason, "scan_or_tf_stale")
+                and value["remembered_points"] == 1
+                for value in statuses
+            ),
+            "All-positive-Inf scan must stay fresh without erasing remembered obstacles",
+            **self.snapshot(),
+        )
+        require(
+            self.outputs[-1][1]["linear_x"] < REQUESTED_X - 1e-6,
+            "No-return Inf erased the braking constraint from a remembered obstacle",
+            **self.snapshot(),
+        )
         points_after = list(xyz_points(self.clouds[-1][1]))
-        require(points_after == points_before, "Inf rays changed the remembered obstacle", **self.snapshot())
+        require(
+            points_after == points_before,
+            "Inf rays changed the remembered obstacle",
+            **self.snapshot(),
+        )
         response.pop("status_received_at")
         response.pop("command_received_at")
-        return {"fresh_first_all_positive_inf": fresh_empty, "finite_obstacle": response,
-                "positive_inf_after_obstacle": self.snapshot(), "memory_xyz": points_after,
-                "fresh_stream_duration_ms": (SCAN_TIMEOUT_S + 0.150) * 1000}
+        return {
+            "fresh_first_all_positive_inf": fresh_empty,
+            "finite_obstacle": response,
+            "positive_inf_after_obstacle": self.snapshot(),
+            "memory_xyz": points_after,
+            "fresh_stream_duration_ms": (SCAN_TIMEOUT_S + 0.150) * 1000,
+        }
 
     def mixed_case(self):
         ranges = [math.nan if index % 2 else math.inf for index in range(BEAM_COUNT)]
         ranges[BEAM_COUNT // 2] = 1.5
         self.pump(SCAN_TIMEOUT_S + 0.150, lambda: self.scan(ranges))
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1])
-                and self.statuses[-1][1]["remembered_points"] == 1,
-                "Mixed finite/NaN/positive-Inf scan did not retain its valid finite point", **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "clear"
+            and clear_command(self.outputs[-1][1])
+            and self.statuses[-1][1]["remembered_points"] == 1,
+            "Mixed finite/NaN/positive-Inf scan did not retain its valid finite point",
+            **self.snapshot(),
+        )
         points = list(xyz_points(self.clouds[-1][1]))
-        require(len(points) == 1 and abs(points[0][0] - 1.5) < 1e-5
-                and abs(points[0][1]) < 1e-5 and abs(points[0][2]) < 1e-5,
-                "Mixed scan's valid point has the wrong memory coordinates", memory_xyz=points, **self.snapshot())
-        return {"fresh_mixed_scan": self.snapshot(), "memory_xyz": points,
-                "fresh_stream_duration_ms": (SCAN_TIMEOUT_S + 0.150) * 1000}
+        require(
+            len(points) == 1
+            and abs(points[0][0] - 1.5) < 1e-5
+            and abs(points[0][1]) < 1e-5
+            and abs(points[0][2]) < 1e-5,
+            "Mixed scan's valid point has the wrong memory coordinates",
+            memory_xyz=points,
+            **self.snapshot(),
+        )
+        return {
+            "fresh_mixed_scan": self.snapshot(),
+            "memory_xyz": points,
+            "fresh_stream_duration_ms": (SCAN_TIMEOUT_S + 0.150) * 1000,
+        }
 
     def timeout_case(self):
         self.clear_once()
         self.pump(SCAN_TIMEOUT_S + 0.100)
-        require(self.statuses[-1][1]["reason"] == "scan_or_tf_stale" and zero(self.outputs[-1][1]),
-                "A missing scan must retain the separate timeout reason", **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "scan_or_tf_stale" and zero(self.outputs[-1][1]),
+            "A missing scan must retain the separate timeout reason",
+            **self.snapshot(),
+        )
         return {"valid_scan_then_no_scan": self.snapshot(), "good_recovery_once": self.clear_once()}
 
     def fault_barrier_replay_case(self, malformed_stamp=False):
-        # Unlike clear_once()/invalid_once(), do not spend 160 ms at each
-        # stage: the replay must remain fresh under the 300 ms scan timeout.
+
         good = self.scan()
         good_stamp = stamp_ns(good.header.stamp)
         initial_since = time.monotonic()
         self.scan_pub.publish(good)
-        initial = self.response(initial_since, lambda value: value["reason"] == "clear", clear_command)
+        initial = self.response(
+            initial_since, lambda value: value["reason"] == "clear", clear_command
+        )
         deadline = initial_since + TICK_S + self.args.timing_tolerance_s
         while not any(stamp_ns(cloud.header.stamp) == good_stamp for _, cloud in self.clouds):
-            require(time.monotonic() < deadline,
-                    "Initial good scan did not publish its accepted-scan memory before the replay test",
-                    good_stamp_ns=good_stamp, **self.snapshot())
+            require(
+                time.monotonic() < deadline,
+                "Initial good scan did not publish its accepted-scan memory before the replay test",
+                good_stamp_ns=good_stamp,
+                **self.snapshot(),
+            )
             self.spin()
 
         fault = self.scan() if malformed_stamp else self.fault_scan("all_nan")
@@ -405,75 +543,110 @@ class CaseProbe(Node):
             fault.header.stamp.nanosec = 0
         fault_stamp = stamp_ns(fault.header.stamp)
         if not malformed_stamp:
-            require(fault_stamp > good_stamp, "Fault stamp must be strictly newer than the saved good stamp",
-                    good_stamp_ns=good_stamp, fault_stamp_ns=fault_stamp)
+            require(
+                fault_stamp > good_stamp,
+                "Fault stamp must be strictly newer than the saved good stamp",
+                good_stamp_ns=good_stamp,
+                fault_stamp_ns=fault_stamp,
+            )
         expected_barrier_stamp = good_stamp if malformed_stamp else fault_stamp
         fault_since = time.monotonic()
         self.scan_pub.publish(fault)
-        invalid = self.response(fault_since, lambda value: value["reason"] == self.args.invalid_reason, zero)
+        invalid = self.response(
+            fault_since, lambda value: value["reason"] == self.args.invalid_reason, zero
+        )
 
         status_mark = len(self.statuses)
         output_mark = len(self.outputs)
         clouds_before = len(self.clouds)
         old_age_before = (self.get_clock().now().nanoseconds - good_stamp) / 1_000_000_000
-        require(0 <= old_age_before < SCAN_TIMEOUT_S,
-                "Saved good scan must still be fresh when replayed; timeout cannot explain its rejection",
-                old_good_age_s=old_age_before, **self.snapshot())
+        require(
+            0 <= old_age_before < SCAN_TIMEOUT_S,
+            "Saved good scan must still be fresh when replayed; timeout cannot explain its rejection",
+            old_good_age_s=old_age_before,
+            **self.snapshot(),
+        )
         replay_since = time.monotonic()
-        self.scan_pub.publish(good)  # Reuse the exact message, including its original stamp.
+        self.scan_pub.publish(good)
         self.pump(REPLAY_OBSERVATION_S)
         old_age_after = (self.get_clock().now().nanoseconds - good_stamp) / 1_000_000_000
-        require(0 <= old_age_after < SCAN_TIMEOUT_S,
-                "Old-good replay observation exceeded the freshness window",
-                old_good_age_before_s=old_age_before, old_good_age_after_s=old_age_after,
-                **self.snapshot())
+        require(
+            0 <= old_age_after < SCAN_TIMEOUT_S,
+            "Old-good replay observation exceeded the freshness window",
+            old_good_age_before_s=old_age_before,
+            old_good_age_after_s=old_age_after,
+            **self.snapshot(),
+        )
         replay_statuses = self.statuses[status_mark:]
         replay_outputs = self.outputs[output_mark:]
-        require(replay_statuses and replay_outputs,
-                "Replay observation must include new guard ticks", **self.snapshot())
-        require(all(value["reason"] == self.args.invalid_reason for _, value in replay_statuses)
-                and all(zero(value) for _, value in replay_outputs),
-                "Fresh but pre-fault good scan cleared the fault barrier or enabled motion",
-                good_stamp_ns=good_stamp, fault_stamp_ns=fault_stamp, **self.snapshot())
-        # Every accepted scan publishes obstacle_memory just before refreshing
-        # last_scan_. The initial publication was drained above, so any new
-        # memory publication here would reveal acceptance of the replay.
-        require(len(self.clouds) == clouds_before,
-                "Old good scan crossed the acceptance barrier and refreshed scan memory",
-                accepted_scan_clouds_before=clouds_before, accepted_scan_clouds_after=len(self.clouds),
-                good_stamp_ns=good_stamp, fault_stamp_ns=fault_stamp, **self.snapshot())
+        require(
+            replay_statuses and replay_outputs,
+            "Replay observation must include new guard ticks",
+            **self.snapshot(),
+        )
+        require(
+            all(value["reason"] == self.args.invalid_reason for _, value in replay_statuses)
+            and all(zero(value) for _, value in replay_outputs),
+            "Fresh but pre-fault good scan cleared the fault barrier or enabled motion",
+            good_stamp_ns=good_stamp,
+            fault_stamp_ns=fault_stamp,
+            **self.snapshot(),
+        )
+
+        require(
+            len(self.clouds) == clouds_before,
+            "Old good scan crossed the acceptance barrier and refreshed scan memory",
+            accepted_scan_clouds_before=clouds_before,
+            accepted_scan_clouds_after=len(self.clouds),
+            good_stamp_ns=good_stamp,
+            fault_stamp_ns=fault_stamp,
+            **self.snapshot(),
+        )
         replay_snapshot = self.snapshot()
         clouds_after_replay = len(self.clouds)
         replay_elapsed_ms = round((time.monotonic() - replay_since) * 1000, 3)
 
         new_good = self.scan()
         new_stamp = stamp_ns(new_good.header.stamp)
-        require(new_stamp > expected_barrier_stamp and new_stamp > good_stamp,
-                "Recovery scan must have a strictly newer stamp than the effective fault barrier",
-                good_stamp_ns=good_stamp, fault_stamp_ns=fault_stamp, new_good_stamp_ns=new_stamp)
+        require(
+            new_stamp > expected_barrier_stamp and new_stamp > good_stamp,
+            "Recovery scan must have a strictly newer stamp than the effective fault barrier",
+            good_stamp_ns=good_stamp,
+            fault_stamp_ns=fault_stamp,
+            new_good_stamp_ns=new_stamp,
+        )
         recovery_since = time.monotonic()
         self.scan_pub.publish(new_good)
-        recovery = self.response(recovery_since, lambda value: value["reason"] == "clear", clear_command)
+        recovery = self.response(
+            recovery_since, lambda value: value["reason"] == "clear", clear_command
+        )
         self.pump(FAULT_OBSERVATION_S - (time.monotonic() - recovery_since))
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1])
-                and any(stamp_ns(cloud.header.stamp) == new_stamp for _, cloud in self.clouds),
-                "Strictly newer good scan did not restore accepted scan memory and command flow",
-                new_good_stamp_ns=new_stamp, **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "clear"
+            and clear_command(self.outputs[-1][1])
+            and any(stamp_ns(cloud.header.stamp) == new_stamp for _, cloud in self.clouds),
+            "Strictly newer good scan did not restore accepted scan memory and command flow",
+            new_good_stamp_ns=new_stamp,
+            **self.snapshot(),
+        )
         for response in (initial, invalid, recovery):
             response.pop("status_received_at")
             response.pop("command_received_at")
         return {
             "fault_kind": "malformed_stamp_sec_minus_one" if malformed_stamp else "all_nan",
-            "initial_good_once": initial, "invalid_once": invalid,
+            "initial_good_once": initial,
+            "invalid_once": invalid,
             "stamp_ns": {"saved_good": good_stamp, "fault": fault_stamp, "new_good": new_stamp},
             "expected_barrier_stamp_ns": expected_barrier_stamp,
             "latest_accepted_stamp_fallback": malformed_stamp,
             "old_good_replay_once": {
                 "original_stamp_preserved": True,
-                "age_before_s": round(old_age_before, 6), "age_after_s": round(old_age_after, 6),
+                "age_before_s": round(old_age_before, 6),
+                "age_after_s": round(old_age_after, 6),
                 "observation_ms": REPLAY_OBSERVATION_S * 1000,
                 "elapsed_ms": replay_elapsed_ms,
-                "accepted_scan_clouds_before": clouds_before, "accepted_scan_clouds_after": clouds_after_replay,
+                "accepted_scan_clouds_before": clouds_before,
+                "accepted_scan_clouds_after": clouds_after_replay,
                 "state_after_replay": replay_snapshot,
             },
             "strictly_newer_good_recovery_once": recovery,
@@ -484,19 +657,29 @@ class CaseProbe(Node):
         good_stamp = stamp_ns(good.header.stamp)
         published_at = time.monotonic()
         self.scan_pub.publish(good)
-        initial = self.response(published_at, lambda value: value["reason"] == "clear", clear_command)
+        initial = self.response(
+            published_at, lambda value: value["reason"] == "clear", clear_command
+        )
         acceptance_deadline = published_at + TICK_S + self.args.timing_tolerance_s
         accepted_cloud = None
         while accepted_cloud is None:
-            accepted_cloud = next(((received, cloud) for received, cloud in self.clouds
-                                   if stamp_ns(cloud.header.stamp) == good_stamp), None)
+            accepted_cloud = next(
+                (
+                    (received, cloud)
+                    for received, cloud in self.clouds
+                    if stamp_ns(cloud.header.stamp) == good_stamp
+                ),
+                None,
+            )
             if accepted_cloud is None:
-                require(time.monotonic() < acceptance_deadline,
-                        "Initial good scan's accepted memory was not observed within the response bound",
-                        good_stamp_ns=good_stamp, **self.snapshot())
+                require(
+                    time.monotonic() < acceptance_deadline,
+                    "Initial good scan's accepted memory was not observed within the response bound",
+                    good_stamp_ns=good_stamp,
+                    **self.snapshot(),
+                )
                 self.spin()
-        # Reception of this scan's memory cloud is an observable upper bound
-        # on acceptance. The guard refreshes last_scan_ in the same callback.
+
         accepted_observed_at = accepted_cloud[0]
         clouds_before = len(self.clouds)
         duplicate_end = published_at + DUPLICATE_STREAM_END_S
@@ -506,70 +689,121 @@ class CaseProbe(Node):
         last_duplicate_age_s = None
         while time.monotonic() < duplicate_end:
             if time.monotonic() >= next_duplicate:
-                last_duplicate_age_s = (self.get_clock().now().nanoseconds - good_stamp) / 1_000_000_000
-                require(0 <= last_duplicate_age_s < SCAN_TIMEOUT_S,
-                        "Duplicate scan must remain fresh; expiration cannot explain its rejection",
-                        duplicate_age_s=last_duplicate_age_s, **self.snapshot())
+                last_duplicate_age_s = (
+                    self.get_clock().now().nanoseconds - good_stamp
+                ) / 1_000_000_000
+                require(
+                    0 <= last_duplicate_age_s < SCAN_TIMEOUT_S,
+                    "Duplicate scan must remain fresh; expiration cannot explain its rejection",
+                    duplicate_age_s=last_duplicate_age_s,
+                    **self.snapshot(),
+                )
                 last_duplicate_at = time.monotonic()
                 self.scan_pub.publish(good)
                 duplicate_count += 1
                 next_duplicate = last_duplicate_at + KEEPALIVE_S
             self.spin()
-        require(duplicate_count >= 2 and last_duplicate_at is not None,
-                "Duplicate stream must contain multiple repeated good messages", duplicate_count=duplicate_count)
-        require(len(self.clouds) == clouds_before,
-                "Normal duplicate scan was accepted and republished obstacle memory",
-                accepted_scan_clouds_before=clouds_before, accepted_scan_clouds_after=len(self.clouds),
-                duplicate_count=duplicate_count, **self.snapshot())
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1]),
-                "Normal scan must remain clear before its original heartbeat times out", **self.snapshot())
+        require(
+            duplicate_count >= 2 and last_duplicate_at is not None,
+            "Duplicate stream must contain multiple repeated good messages",
+            duplicate_count=duplicate_count,
+        )
+        require(
+            len(self.clouds) == clouds_before,
+            "Normal duplicate scan was accepted and republished obstacle memory",
+            accepted_scan_clouds_before=clouds_before,
+            accepted_scan_clouds_after=len(self.clouds),
+            duplicate_count=duplicate_count,
+            **self.snapshot(),
+        )
+        require(
+            self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1]),
+            "Normal scan must remain clear before its original heartbeat times out",
+            **self.snapshot(),
+        )
 
-        timeout_deadline = accepted_observed_at + SCAN_TIMEOUT_S + TICK_S + self.args.timing_tolerance_s
+        timeout_deadline = (
+            accepted_observed_at + SCAN_TIMEOUT_S + TICK_S + self.args.timing_tolerance_s
+        )
         last_duplicate_earliest_timeout = last_duplicate_at + SCAN_TIMEOUT_S
-        require(timeout_deadline < last_duplicate_earliest_timeout,
-                "Timeout observation must end before last-duplicate heartbeat could expire",
-                timeout_deadline_from_publication_s=timeout_deadline - published_at,
-                last_duplicate_earliest_timeout_from_publication_s=last_duplicate_earliest_timeout - published_at)
+        require(
+            timeout_deadline < last_duplicate_earliest_timeout,
+            "Timeout observation must end before last-duplicate heartbeat could expire",
+            timeout_deadline_from_publication_s=timeout_deadline - published_at,
+            last_duplicate_earliest_timeout_from_publication_s=last_duplicate_earliest_timeout
+            - published_at,
+        )
         waiting_since = time.monotonic()
         stale_status = None
         stopped_command = None
         while time.monotonic() < timeout_deadline:
             self.spin()
-            stale_status = next(((received, value) for received, value in self.statuses
-                                 if received >= waiting_since and value["reason"] == "scan_or_tf_stale"), None)
-            stopped_command = next(((received, value) for received, value in self.outputs
-                                    if received >= waiting_since and zero(value)), None)
+            stale_status = next(
+                (
+                    (received, value)
+                    for received, value in self.statuses
+                    if received >= waiting_since and value["reason"] == "scan_or_tf_stale"
+                ),
+                None,
+            )
+            stopped_command = next(
+                (
+                    (received, value)
+                    for received, value in self.outputs
+                    if received >= waiting_since and zero(value)
+                ),
+                None,
+            )
             if stale_status is not None and stopped_command is not None:
                 break
-        require(stale_status is not None and stopped_command is not None
-                and stale_status[0] <= timeout_deadline and stopped_command[0] <= timeout_deadline,
-                "Duplicates extended the heartbeat beyond the original scan's timeout plus one tick",
-                timeout_bound_ms=(SCAN_TIMEOUT_S + TICK_S + self.args.timing_tolerance_s) * 1000,
-                duplicate_count=duplicate_count, **self.snapshot())
-        require(len(self.clouds) == clouds_before,
-                "A delayed duplicate crossed the accepted scan high-water mark",
-                accepted_scan_clouds_before=clouds_before, accepted_scan_clouds_after=len(self.clouds),
-                **self.snapshot())
+        require(
+            stale_status is not None
+            and stopped_command is not None
+            and stale_status[0] <= timeout_deadline
+            and stopped_command[0] <= timeout_deadline,
+            "Duplicates extended the heartbeat beyond the original scan's timeout plus one tick",
+            timeout_bound_ms=(SCAN_TIMEOUT_S + TICK_S + self.args.timing_tolerance_s) * 1000,
+            duplicate_count=duplicate_count,
+            **self.snapshot(),
+        )
+        require(
+            len(self.clouds) == clouds_before,
+            "A delayed duplicate crossed the accepted scan high-water mark",
+            accepted_scan_clouds_before=clouds_before,
+            accepted_scan_clouds_after=len(self.clouds),
+            **self.snapshot(),
+        )
         clouds_after_duplicates = len(self.clouds)
         stopped_snapshot = self.snapshot()
 
         new_good = self.scan()
         new_stamp = stamp_ns(new_good.header.stamp)
-        require(new_stamp > good_stamp, "Recovery good scan must have a strictly newer stamp",
-                old_good_stamp_ns=good_stamp, new_good_stamp_ns=new_stamp)
+        require(
+            new_stamp > good_stamp,
+            "Recovery good scan must have a strictly newer stamp",
+            old_good_stamp_ns=good_stamp,
+            new_good_stamp_ns=new_stamp,
+        )
         recovery_since = time.monotonic()
         self.scan_pub.publish(new_good)
-        recovery = self.response(recovery_since, lambda value: value["reason"] == "clear", clear_command)
+        recovery = self.response(
+            recovery_since, lambda value: value["reason"] == "clear", clear_command
+        )
         self.pump(FAULT_OBSERVATION_S - (time.monotonic() - recovery_since))
-        require(self.statuses[-1][1]["reason"] == "clear" and clear_command(self.outputs[-1][1])
-                and any(stamp_ns(cloud.header.stamp) == new_stamp for _, cloud in self.clouds),
-                "Fresh newer scan did not recover after the duplicate timeout", **self.snapshot())
+        require(
+            self.statuses[-1][1]["reason"] == "clear"
+            and clear_command(self.outputs[-1][1])
+            and any(stamp_ns(cloud.header.stamp) == new_stamp for _, cloud in self.clouds),
+            "Fresh newer scan did not recover after the duplicate timeout",
+            **self.snapshot(),
+        )
         for response in (initial, recovery):
             response.pop("status_received_at")
             response.pop("command_received_at")
         return {
             "initial_good_once": initial,
-            "old_good_stamp_ns": good_stamp, "new_good_stamp_ns": new_stamp,
+            "old_good_stamp_ns": good_stamp,
+            "new_good_stamp_ns": new_stamp,
             "duplicate_count": duplicate_count,
             "duplicate_interval_ms": KEEPALIVE_S * 1000,
             "duplicate_stream_end_target_ms": DUPLICATE_STREAM_END_S * 1000,
@@ -578,7 +812,9 @@ class CaseProbe(Node):
             "accepted_scan_clouds_before": clouds_before,
             "accepted_scan_clouds_after_duplicates": clouds_after_duplicates,
             "timeout_deadline_ms": round((timeout_deadline - published_at) * 1000, 3),
-            "last_duplicate_earliest_timeout_ms": round((last_duplicate_earliest_timeout - published_at) * 1000, 3),
+            "last_duplicate_earliest_timeout_ms": round(
+                (last_duplicate_earliest_timeout - published_at) * 1000, 3
+            ),
             "stale_status_ms": round((stale_status[0] - published_at) * 1000, 3),
             "zero_command_ms": round((stopped_command[0] - published_at) * 1000, 3),
             "stopped_after_original_heartbeat": stopped_snapshot,
@@ -601,14 +837,20 @@ class CaseProbe(Node):
 
 
 def arguments():
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--guard-binary", type=Path, required=True)
     parser.add_argument("--params-file", type=Path, required=True)
-    parser.add_argument("--domain-id", type=int, default=None,
-                        help="Isolated ROS domain; default random 100..199")
+    parser.add_argument(
+        "--domain-id", type=int, default=None, help="Isolated ROS domain; default random 100..199"
+    )
     parser.add_argument("--json-out", type=Path, default=None)
-    parser.add_argument("--log-dir", type=Path,
-                        default=Path(__file__).resolve().parents[2] / ".cache/scan-fault-probe/logs")
+    parser.add_argument(
+        "--log-dir",
+        type=Path,
+        default=Path(__file__).resolve().parents[2] / ".cache/scan-fault-probe/logs",
+    )
     parser.add_argument("--discovery-timeout-s", type=float, default=8.0)
     parser.add_argument("--timing-tolerance-s", type=float, default=0.030)
     parser.add_argument("--invalid-reason", default="scan_invalid")
@@ -627,7 +869,9 @@ def arguments():
     if args.discovery_timeout_s <= 0 or not math.isfinite(args.discovery_timeout_s):
         parser.error("--discovery-timeout-s must be finite and positive")
     if not 0 <= args.timing_tolerance_s < FAULT_OBSERVATION_S - TICK_S:
-        parser.error("Response tolerance must keep the response bound below the 160 ms observation window")
+        parser.error(
+            "Response tolerance must keep the response bound below the 160 ms observation window"
+        )
     return args
 
 
@@ -637,10 +881,14 @@ def main():
     os.environ["ROS_LOCALHOST_ONLY"] = "1"
     args.log_dir.mkdir(parents=True, exist_ok=True)
     report = {
-        "test": "VelocityGuard_scan_fault_api", "result": "running",
-        "guard_binary": str(args.guard_binary), "params_file": str(args.params_file),
-        "ros_domain_id": args.domain_id, "local_only": True,
-        "scan_timeout_s": SCAN_TIMEOUT_S, "tick_s": TICK_S,
+        "test": "VelocityGuard_scan_fault_api",
+        "result": "running",
+        "guard_binary": str(args.guard_binary),
+        "params_file": str(args.params_file),
+        "ros_domain_id": args.domain_id,
+        "local_only": True,
+        "scan_timeout_s": SCAN_TIMEOUT_S,
+        "tick_s": TICK_S,
         "response_bound_ms": (TICK_S + args.timing_tolerance_s) * 1000,
         "invalid_observation_ms": FAULT_OBSERVATION_S * 1000,
         "boundary": "Synthetic odom-frame scan, no map/prior/TF/device/hardware input; outputs remapped",
@@ -654,10 +902,13 @@ def main():
     try:
         cases = [(name, "fault", True) for name in FIRST_FAULTS]
         cases += [(name, "fault", False) for name in METADATA_FAULTS]
-        cases += [("positive_inf", "positive_inf", False), ("mixed", "mixed", False),
-                  ("valid_scan_timeout", "timeout", False),
-                  ("fault_barrier_old_good_replay", "replay", False),
-                  ("normal_duplicate_timeout", "duplicate", False)]
+        cases += [
+            ("positive_inf", "positive_inf", False),
+            ("mixed", "mixed", False),
+            ("valid_scan_timeout", "timeout", False),
+            ("fault_barrier_old_good_replay", "replay", False),
+            ("normal_duplicate_timeout", "duplicate", False),
+        ]
         for active_name, kind, first_fault in cases:
             print("Running " + active_name, file=sys.stderr, flush=True)
             probe = CaseProbe(active_name, args)
@@ -671,13 +922,21 @@ def main():
                     details = probe.mixed_case()
                 elif kind == "replay":
                     details = probe.fault_barrier_replay_case()
-                    details["malformed_stamp_fallback"] = probe.fault_barrier_replay_case(malformed_stamp=True)
+                    details["malformed_stamp_fallback"] = probe.fault_barrier_replay_case(
+                        malformed_stamp=True
+                    )
                 elif kind == "duplicate":
                     details = probe.normal_duplicate_timeout_case()
                 else:
                     details = probe.timeout_case()
-                report["cases"].append({"case": active_name, "result": "passed",
-                                        "topic_prefix": probe.prefix, "details": details})
+                report["cases"].append(
+                    {
+                        "case": active_name,
+                        "result": "passed",
+                        "topic_prefix": probe.prefix,
+                        "details": details,
+                    }
+                )
             finally:
                 probe.close()
                 probe = None
@@ -686,8 +945,11 @@ def main():
         exit_code = 130 if isinstance(error, KeyboardInterrupt) else 1
         report["result"] = "failed"
         report["failed_case"] = active_name
-        report["failure"] = {"type": type(error).__name__, "message": str(error),
-                             "evidence": getattr(error, "evidence", {})}
+        report["failure"] = {
+            "type": type(error).__name__,
+            "message": str(error),
+            "evidence": getattr(error, "evidence", {}),
+        }
     finally:
         if probe is not None:
             probe.close()

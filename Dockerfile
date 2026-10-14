@@ -40,7 +40,6 @@ COPY scripts/prepare_slam_backend.py /source/scripts/prepare_slam_backend.py
 COPY patches/slam_toolbox /source/patches/slam_toolbox
 RUN python3 /source/scripts/prepare_slam_backend.py --root /source --destination /source/backend/slam_toolbox
 
-# The compiler is a build dependency; deployment links the CUDA runtime statically.
 FROM hardware_dependencies AS cuda_toolkit
 ARG DUOJIN_ENABLE_CUDA=ON
 COPY docker/cuda-toolkit.json /source/docker/cuda-toolkit.json
@@ -106,12 +105,10 @@ WORKDIR /ws
 ENTRYPOINT ["/usr/local/bin/duojin02-entrypoint"]
 CMD ["bash"]
 
-# Offline integration probes compile against the exact patched backend source.
 FROM hardware_runtime AS testing
 COPY --from=slam_source /source/backend/slam_toolbox /opt/duojin02/test_sources/slam_toolbox
 COPY --from=cuda_toolkit /opt/cuda /opt/cuda
 ENV PATH=/opt/cuda/bin:${PATH}
 ENV CUDAToolkit_ROOT=/opt/cuda
 
-# The default deployment image contains installed packages only.
 FROM hardware_runtime AS runtime

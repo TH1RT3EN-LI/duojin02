@@ -1,5 +1,3 @@
-"""Relay only the transforms owned by the selected recorded-data odometry route."""
-
 import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
@@ -8,7 +6,13 @@ from tf2_msgs.msg import TFMessage
 from sensor_msgs.msg import LaserScan
 
 
-def retained(transforms, odom_source, map_frame="map", odom_frame="odom", base_frame="base_footprint"):
+def retained(
+    transforms,
+    odom_source,
+    map_frame="map",
+    odom_frame="odom",
+    base_frame="base_footprint",
+):
     def keep(transform):
         parent = transform.header.frame_id.lstrip("/")
         child = transform.child_frame_id.lstrip("/")
@@ -17,6 +21,7 @@ def retained(transforms, odom_source, map_frame="map", odom_frame="odom", base_f
         if odom_source == "ekf" and child in (odom_frame, base_frame):
             return False
         return True
+
     return [transform for transform in transforms if keep(transform)]
 
 
@@ -28,8 +33,11 @@ class ReplayTfFilter(Node):
         if self.source not in ("recorded", "ekf"):
             raise ValueError("odom_source must be recorded or ekf")
         reliable = QoSProfile(depth=100, reliability=ReliabilityPolicy.RELIABLE)
-        latched = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
-                             durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        latched = QoSProfile(
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
         self.dynamic = self.create_publisher(TFMessage, "/tf", reliable)
         self.static = self.create_publisher(TFMessage, "/tf_static", latched)
         self.static_transforms = {}
@@ -38,7 +46,7 @@ class ReplayTfFilter(Node):
         self.scan = self.create_publisher(LaserScan, "/scan", reliable)
         self.create_subscription(LaserScan, "/replay/scan_in", self.scan_callback, sensor)
         self.create_subscription(TFMessage, "/replay/tf_in", self.dynamic_callback, reliable)
-        # The relay starts before playback, so volatile input also accepts legacy bags.
+
         self.create_subscription(TFMessage, "/replay/tf_static_in", self.static_callback, reliable)
 
     def dynamic_callback(self, message):

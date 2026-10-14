@@ -23,7 +23,6 @@ def generate_launch_description():
     odom0 = LaunchConfiguration("odom0")
     imu0 = LaunchConfiguration("imu0")
 
-
     bringup_share = get_package_share_directory("duojin02_bringup")
     description_share = get_package_share_directory("duojin02_description")
 
@@ -33,7 +32,6 @@ def generate_launch_description():
 
     urdf_file = os.path.join(description_share, "urdf", "duojin02.xacro")
     robot_description = ParameterValue(Command(["xacro", " ", urdf_file]), value_type=str)
-
 
     joint_state_publisher = Node(
         package="joint_state_publisher",
@@ -66,7 +64,6 @@ def generate_launch_description():
         ],
     )
 
-
     foxglove_bridge = Node(
         package="foxglove_bridge",
         executable="foxglove_bridge",
@@ -88,42 +85,47 @@ def generate_launch_description():
     lidar_share = get_package_share_directory("lslidar_driver")
     lslidar_launch = GroupAction(
         scoped=True,
-        actions=[IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(lidar_share, "launch", "lslidar_x10_launch.py")
-            ),
-            launch_arguments={
-                "params_file": os.path.join(lidar_share, "config", "duojin02_n10plus.yaml"),
-                "serial_port": LaunchConfiguration("lidar_serial_port"),
-                "scan_topic": "/scan",
-                "frame_id": "laser",
-            }.items(),
-        )],
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(lidar_share, "launch", "lslidar_x10_launch.py")
+                ),
+                launch_arguments={
+                    "params_file": os.path.join(lidar_share, "config", "duojin02_n10plus.yaml"),
+                    "serial_port": LaunchConfiguration("lidar_serial_port"),
+                    "scan_topic": "/scan",
+                    "frame_id": "laser",
+                }.items(),
+            )
+        ],
         condition=IfCondition(use_lidar),
     )
-    
+
     twist_mux_node = Node(
-            package="twist_mux",
-            executable="twist_mux",
-            name="twist_mux",
-            output="screen",
-            parameters=[mux_parameters(twist_mux_config_path), {"use_sim_time": False}],
-            remappings=[("/cmd_vel_out", "/cmd_vel_requested")],
-        )
+        package="twist_mux",
+        executable="twist_mux",
+        name="twist_mux",
+        output="screen",
+        parameters=[mux_parameters(twist_mux_config_path), {"use_sim_time": False}],
+        remappings=[("/cmd_vel_out", "/cmd_vel_requested")],
+    )
 
     base_driver_node = Node(
-            package="duojin02_base_driver",
-            executable="duojin02_base_driver_node",
-            name="base_driver",
-            output="screen",
-            parameters=[os.path.join(bringup_share, "config", "safety.yaml"),
-                LaunchConfiguration("base_params_file"), {
+        package="duojin02_base_driver",
+        executable="duojin02_base_driver_node",
+        name="base_driver",
+        output="screen",
+        parameters=[
+            os.path.join(bringup_share, "config", "safety.yaml"),
+            LaunchConfiguration("base_params_file"),
+            {
                 "use_sim_time": False,
                 "usart_port_name": base_serial_port,
                 "serial_baud_rate": ParameterValue(base_serial_baudrate, value_type=int),
-            }],
-            remappings=[("/cmd_vel", "/cmd_vel_base")],
-        )
+            },
+        ],
+        remappings=[("/cmd_vel", "/cmd_vel_base")],
+    )
 
     return LaunchDescription(
         [
@@ -132,7 +134,10 @@ def generate_launch_description():
             DeclareLaunchArgument("use_lidar", default_value="true"),
             DeclareLaunchArgument("use_teleop", default_value="true"),
             DeclareLaunchArgument("base_serial_port", default_value="/dev/duojin02_controller"),
-            DeclareLaunchArgument("base_params_file", default_value=os.path.join(bringup_share, "config", "base_driver.yaml")),
+            DeclareLaunchArgument(
+                "base_params_file",
+                default_value=os.path.join(bringup_share, "config", "base_driver.yaml"),
+            ),
             DeclareLaunchArgument("base_serial_baudrate", default_value="115200"),
             DeclareLaunchArgument("lidar_serial_port", default_value="/dev/lslidar"),
             DeclareLaunchArgument("odom0", default_value="/odom"),
@@ -140,8 +145,11 @@ def generate_launch_description():
             DeclareLaunchArgument("publish_robot_model", default_value="true"),
             DeclareLaunchArgument("publish_joint_states", default_value="true"),
             twist_mux_node,
-            IncludeLaunchDescription(PythonLaunchDescriptionSource(
-                os.path.join(bringup_share, "launch", "velocity_guard.launch.py"))),
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(bringup_share, "launch", "velocity_guard.launch.py")
+                )
+            ),
             base_driver_node,
             joint_state_publisher,
             robot_state_publisher,

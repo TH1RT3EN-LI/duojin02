@@ -22,6 +22,7 @@ def remaining(deadline, description):
 
 def await_response(node, future, deadline, description, processes=()):
     import rclpy
+
     try:
         while not future.done():
             if any(process.poll() is not None for process in processes):
@@ -41,23 +42,35 @@ def inspect_bag(path, source, warmup=0.0):
     from tf2_msgs.msg import TFMessage
     from sensor_msgs.msg import LaserScan
     from sensor_msgs.msg import Imu
+
     metadata = yaml.safe_load((path / "metadata.yaml").read_text())["rosbag2_bagfile_information"]
     storage = metadata["storage_identifier"]
     reader = rosbag2_py.SequentialReader()
-    reader.open(rosbag2_py.StorageOptions(uri=str(path), storage_id=storage),
-                rosbag2_py.ConverterOptions("", ""))
+    reader.open(
+        rosbag2_py.StorageOptions(uri=str(path), storage_id=storage),
+        rosbag2_py.ConverterOptions("", ""),
+    )
     topics = {item.name: item.type for item in reader.get_all_topics_and_types()}
-    required = {"/scan": "sensor_msgs/msg/LaserScan", "/tf_static": "tf2_msgs/msg/TFMessage"}
-    required.update({"/tf": "tf2_msgs/msg/TFMessage"} if source == "recorded" else {
-        "/odom": "nav_msgs/msg/Odometry", "/imu": "sensor_msgs/msg/Imu"})
+    required = {
+        "/scan": "sensor_msgs/msg/LaserScan",
+        "/tf_static": "tf2_msgs/msg/TFMessage",
+    }
+    required.update(
+        {"/tf": "tf2_msgs/msg/TFMessage"}
+        if source == "recorded"
+        else {"/odom": "nav_msgs/msg/Odometry", "/imu": "sensor_msgs/msg/Imu"}
+    )
     for name, message_type in required.items():
         if topics.get(name) != message_type:
             raise ValueError(f"Bag requires {name} ({message_type}) for odom_source={source}")
-    count = sum(entry["message_count"] for entry in metadata["topics_with_message_count"]
-                if entry["topic_metadata"]["name"] == "/scan")
+    count = sum(
+        entry["message_count"]
+        for entry in metadata["topics_with_message_count"]
+        if entry["topic_metadata"]["name"] == "/scan"
+    )
     if count < 2:
         raise ValueError("Bag must contain at least two laser scans")
-    # TF topic presence alone does not prove that the sensor can be transformed.
+
     links = set()
     scan_stamps = []
     sensor_frames = set()
@@ -72,30 +85,46 @@ def inspect_bag(path, source, warmup=0.0):
             sensor_frames.add(deserialize_message(payload, Imu).header.frame_id.lstrip("/"))
         if topic == "/tf_static" or (source == "recorded" and topic == "/tf"):
             for transform in deserialize_message(payload, TFMessage).transforms:
-                links.add((transform.header.frame_id.lstrip("/"), transform.child_frame_id.lstrip("/")))
+                links.add(
+                    (
+                        transform.header.frame_id.lstrip("/"),
+                        transform.child_frame_id.lstrip("/"),
+                    )
+                )
     reachable = {"base_footprint"}
     for _ in range(len(links) + 1):
         reachable.update(child for parent, child in links if parent in reachable)
     if not sensor_frames <= reachable:
-        raise ValueError(f"Bag has no base_footprint TF chain to sensors: {sorted(sensor_frames - reachable)}")
+        raise ValueError(
+            f"Bag has no base_footprint TF chain to sensors: {sorted(sensor_frames - reachable)}"
+        )
     if source == "recorded" and ("odom", "base_footprint") not in links:
         raise ValueError("Recorded odometry requires odom -> base_footprint TF")
-    if len(scan_stamps) != count or any(later <= earlier for earlier, later in zip(scan_stamps, scan_stamps[1:])):
+    if len(scan_stamps) != count or any(
+        later <= earlier for earlier, later in zip(scan_stamps, scan_stamps[1:])
+    ):
         raise ValueError("Bag scan timestamps must be strictly increasing and match its metadata")
     start = scan_stamps[0] + int(warmup * 1000000000) if source == "ekf" else 0
     skipped = sum(stamp < start for stamp in scan_stamps)
     if count - skipped < 2:
         raise ValueError("Bag has fewer than two scans after EKF warmup")
-    return {"bag": str(path), "storage_id": storage, "scan_count": count - skipped,
-            "recorded_scan_count": count, "warmup_skipped_scans": skipped, "scan_start_time_ns": start,
-            "odom_source": source, "topics": topics}
+    return {
+        "bag": str(path),
+        "storage_id": storage,
+        "scan_count": count - skipped,
+        "recorded_scan_count": count,
+        "warmup_skipped_scans": skipped,
+        "scan_start_time_ns": start,
+        "odom_source": source,
+        "topics": topics,
+    }
 
 
 def stop_process(process, launch=False):
     if process is None or process.poll() is not None:
         return
     try:
-        # ros2 launch forwards SIGINT itself; signalling its group delivers it twice.
+
         if launch:
             process.send_signal(signal.SIGINT)
         else:
@@ -110,8 +139,7 @@ def stop_process(process, launch=False):
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=5)
     except ProcessLookupError:
-        # The group may exit between poll/wait and any signal. Continue cleaning
-        # the remaining children and ROS resources instead of aborting finally.
+
         return
 
 
@@ -148,7 +176,11 @@ def run(args):
     node = Node("offline_session_controller")
     status_client = node.create_client(Trigger, "/slam_toolbox/processing_status")
     relay_client = node.create_client(GetParameters, "/replay_tf_filter/get_parameters")
-    ekf_client = node.create_client(GetParameters, "/ekf_filter_node/get_parameters") if args.odom_source == "ekf" else None
+    ekf_client = (
+        node.create_client(GetParameters, "/ekf_filter_node/get_parameters")
+        if args.odom_source == "ekf"
+        else None
+    )
     resume_client = node.create_client(Resume, "/rosbag2_player/resume")
     playback_clock = None
     playback_status = None
@@ -166,37 +198,82 @@ def run(args):
 
     try:
         with log.open("w") as stream:
-            command = ["ros2", "launch", "duojin02_bringup", "offline_mapping.launch.py",
-                       f"odom_source:={args.odom_source}", f"scan_start_time_ns:={report['scan_start_time_ns']}"]
+            command = [
+                "ros2",
+                "launch",
+                "duojin02_bringup",
+                "offline_mapping.launch.py",
+                f"odom_source:={args.odom_source}",
+                f"scan_start_time_ns:={report['scan_start_time_ns']}",
+            ]
             if args.slam_params_file:
                 command.append(f"slam_params_file:={args.slam_params_file.resolve()}")
-            launch = subprocess.Popen(command, env=environment, stdout=stream,
-                                      stderr=subprocess.STDOUT, start_new_session=True)
+            launch = subprocess.Popen(
+                command,
+                env=environment,
+                stdout=stream,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
             deadline = time.monotonic() + args.startup_timeout
             while time.monotonic() < deadline:
                 if launch.poll() is not None:
                     raise RuntimeError(f"Offline nodes stopped during startup; see {log}")
-                if (status_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))) and
-                    relay_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))) and
-                    (ekf_client is None or ekf_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))))):
+                if (
+                    status_client.wait_for_service(
+                        timeout_sec=min(0.2, remaining(deadline, "Offline startup"))
+                    )
+                    and relay_client.wait_for_service(
+                        timeout_sec=min(0.2, remaining(deadline, "Offline startup"))
+                    )
+                    and (
+                        ekf_client is None
+                        or ekf_client.wait_for_service(
+                            timeout_sec=min(0.2, remaining(deadline, "Offline startup"))
+                        )
+                    )
+                ):
                     break
             else:
                 raise TimeoutError(f"Offline nodes did not become ready; see {log}")
             topics = ["/scan", "/tf", "/tf_static"]
             topics += ["/odom", "/imu"] if args.odom_source == "ekf" else ["/odometry/filtered"]
             player = subprocess.Popen(
-                ["ros2", "bag", "play", str(bag), "--clock", "100", "--rate", str(args.rate),
-                 "--start-paused", "--disable-keyboard-controls", "--wait-for-all-acked", "2000",
-                 "--topics", *topics, "--remap", "/tf:=/replay/tf_in", "/tf_static:=/replay/tf_static_in",
-                 "/scan:=/replay/scan_in"],
-                env=environment, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
-            # Activate recorded time before TF arrives: its first backward jump
-            # clears TF buffers, including transforms that would otherwise arrive early.
+                [
+                    "ros2",
+                    "bag",
+                    "play",
+                    str(bag),
+                    "--clock",
+                    "100",
+                    "--rate",
+                    str(args.rate),
+                    "--start-paused",
+                    "--disable-keyboard-controls",
+                    "--wait-for-all-acked",
+                    "2000",
+                    "--topics",
+                    *topics,
+                    "--remap",
+                    "/tf:=/replay/tf_in",
+                    "/tf_static:=/replay/tf_static_in",
+                    "/scan:=/replay/scan_in",
+                ],
+                env=environment,
+                stdout=stream,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+
             while time.monotonic() < deadline:
                 if player.poll() is not None or launch.poll() is not None:
-                    raise RuntimeError(f"Offline nodes stopped while initializing recorded time; see {log}")
+                    raise RuntimeError(
+                        f"Offline nodes stopped while initializing recorded time; see {log}"
+                    )
                 rclpy.spin_once(node, timeout_sec=min(0.1, remaining(deadline, "Offline startup")))
-                if playback_clock is not None and resume_client.wait_for_service(timeout_sec=min(0.1, remaining(deadline, "Offline startup"))):
+                if playback_clock is not None and resume_client.wait_for_service(
+                    timeout_sec=min(0.1, remaining(deadline, "Offline startup"))
+                ):
                     current = status(deadline)
                     if current["clock_active"] and current["clock_nanoseconds"] == playback_clock:
                         break
@@ -212,7 +289,10 @@ def run(args):
                     raise TimeoutError(f"Bag playback exceeded its timeout; see {log}")
                 if playback_status is None:
                     playback_status = status_client.call_async(Trigger.Request())
-                rclpy.spin_once(node, timeout_sec=min(0.1, remaining(playback_deadline, "Bag playback")))
+                rclpy.spin_once(
+                    node,
+                    timeout_sec=min(0.1, remaining(playback_deadline, "Bag playback")),
+                )
                 if playback_status.done():
                     if playback_status.exception():
                         raise playback_status.exception()
@@ -230,27 +310,40 @@ def run(args):
                 current = status(deadline)
                 if current["invalid"]:
                     raise RuntimeError(f"Invalid SLAM input: {current}; see {log}")
-                if (current["received"] == report["scan_count"] and
-                    current["queued"] == 0 and not current["processing"] and
-                    current["accepted"] == current["completed"] and current["completed"] >= 2):
+                if (
+                    current["received"] == report["scan_count"]
+                    and current["queued"] == 0
+                    and not current["processing"]
+                    and current["accepted"] == current["completed"]
+                    and current["completed"] >= 2
+                ):
                     break
                 rclpy.spin_once(node, timeout_sec=0.1)
             else:
                 raise TimeoutError(f"SLAM did not drain all recorded scans: {current}; see {log}")
-            save = SaveMapClient(parameter_overrides=[
-                Parameter("output_dir", value=str(output)),
-                Parameter("map_name", value=args.map_name),
-                Parameter("save_timeout", value=args.save_timeout),
-            ])
+            save = SaveMapClient(
+                parameter_overrides=[
+                    Parameter("output_dir", value=str(output)),
+                    Parameter("map_name", value=args.map_name),
+                    Parameter("save_timeout", value=args.save_timeout),
+                ]
+            )
             try:
                 save_result = save.run()
             finally:
                 save.destroy_node()
             if save_result:
-                raise RuntimeError("Snapshot export failed; inspect the save_map_client_node error above")
-            report.update(queue=current, rate=args.rate, domain_id=args.domain_id, clock_primed=True,
-                          backend=json.loads((share / "hardware_build.json").read_text()),
-                          log=str(log))
+                raise RuntimeError(
+                    "Snapshot export failed; inspect the save_map_client_node error above"
+                )
+            report.update(
+                queue=current,
+                rate=args.rate,
+                domain_id=args.domain_id,
+                clock_primed=True,
+                backend=json.loads((share / "hardware_build.json").read_text()),
+                log=str(log),
+            )
             report_file = output / f"offline-session-{os.getpid()}.json"
             report_file.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
             print(json.dumps(report, indent=2))
@@ -271,13 +364,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bag", type=Path)
     parser.add_argument("--odom-source", choices=("recorded", "ekf"), default="recorded")
-    parser.add_argument("--output-dir", type=Path, default=Path(os.environ.get("DUOJIN02_WORKSPACE_ROOT", ".")) / "maps")
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path(os.environ.get("DUOJIN02_WORKSPACE_ROOT", ".")) / "maps",
+    )
     parser.add_argument("--map-name", default="auto")
     parser.add_argument("--slam-params-file", type=Path)
     parser.add_argument("--domain-id", type=int, default=97)
     parser.add_argument("--rate", type=float, default=0.5)
-    parser.add_argument("--ekf-warmup", type=float, default=0.5,
-                        help="Skip this many seconds of scans while replayed odom/IMU initialize EKF; recorded route skips none")
+    parser.add_argument(
+        "--ekf-warmup",
+        type=float,
+        default=0.5,
+        help="Skip this many seconds of scans while replayed odom/IMU initialize EKF; recorded route skips none",
+    )
     parser.add_argument("--startup-timeout", type=float, default=60.0)
     parser.add_argument("--drain-timeout", type=float, default=60.0)
     parser.add_argument("--playback-timeout", type=float, default=3600.0)
@@ -287,7 +388,12 @@ def main():
         parser.error("--rate must be finite and positive")
     if not math.isfinite(args.ekf_warmup) or args.ekf_warmup < 0:
         parser.error("--ekf-warmup must be finite and nonnegative")
-    for field in ("startup_timeout", "drain_timeout", "playback_timeout", "save_timeout"):
+    for field in (
+        "startup_timeout",
+        "drain_timeout",
+        "playback_timeout",
+        "save_timeout",
+    ):
         if not math.isfinite(getattr(args, field)) or getattr(args, field) <= 0:
             parser.error(f"--{field.replace('_', '-')} must be finite and positive")
     try:

@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.18)
 project(duojin02_navigation)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic>")
+
 if(BUILD_TESTING)
   enable_testing()
 endif()
 add_subdirectory(gpu)
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -26,61 +28,94 @@ find_package(nav2_controller REQUIRED)
 find_package(nav2_behavior_tree REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
+
 add_library(duojin02_recovery_bt_nodes SHARED src/recovery_bt_nodes.cpp)
 target_compile_definitions(duojin02_recovery_bt_nodes PRIVATE BT_PLUGIN_EXPORT)
-ament_target_dependencies(duojin02_recovery_bt_nodes
-  nav2_behavior_tree nav2_msgs nav_msgs rclcpp behaviortree_cpp_v3)
+ament_target_dependencies(duojin02_recovery_bt_nodes nav2_behavior_tree nav2_msgs nav_msgs rclcpp
+                          behaviortree_cpp_v3)
 install(TARGETS duojin02_recovery_bt_nodes LIBRARY DESTINATION lib)
+
 add_library(stable_goal_checker SHARED src/stable_goal_checker.cpp)
 target_include_directories(stable_goal_checker PRIVATE include)
 ament_target_dependencies(stable_goal_checker nav2_controller nav2_core pluginlib rcl_interfaces)
 pluginlib_export_plugin_description_file(nav2_core goal_checker_plugins.xml)
 install(TARGETS stable_goal_checker LIBRARY DESTINATION lib)
+
 add_library(precise_mppi SHARED src/precise_mppi.cpp)
 target_link_libraries(precise_mppi duojin02_gpu_geometry)
 set_target_properties(precise_mppi PROPERTIES INSTALL_RPATH "$ORIGIN")
 target_include_directories(precise_mppi PRIVATE include)
-ament_target_dependencies(precise_mppi nav2_mppi_controller nav2_core nav2_costmap_2d pluginlib tf2 tf2_geometry_msgs rcl_interfaces)
+ament_target_dependencies(
+  precise_mppi
+  nav2_mppi_controller
+  nav2_core
+  nav2_costmap_2d
+  pluginlib
+  tf2
+  tf2_geometry_msgs
+  rcl_interfaces)
 pluginlib_export_plugin_description_file(nav2_core controller_plugins.xml)
 install(TARGETS precise_mppi LIBRARY DESTINATION lib)
+
 add_library(precise_lattice SHARED src/precise_lattice.cpp)
 target_include_directories(precise_lattice PRIVATE include ${nav2_smac_planner_INCLUDE_DIRS})
-# Humble exports three planners with duplicate NodeHybrid static objects.
-# Link only the lattice implementation to avoid interposed double destruction.
-find_library(NAV2_LATTICE_LIBRARY NAMES nav2_smac_planner_lattice
+find_library(
+  NAV2_LATTICE_LIBRARY
+  NAMES nav2_smac_planner_lattice
   HINTS "${nav2_smac_planner_DIR}/../../../lib" REQUIRED)
 target_link_libraries(precise_lattice ${NAV2_LATTICE_LIBRARY})
 ament_target_dependencies(precise_lattice nav2_core nav2_costmap_2d pluginlib tf2 tf2_geometry_msgs)
 pluginlib_export_plugin_description_file(nav2_core planner_plugins.xml)
 install(TARGETS precise_lattice LIBRARY DESTINATION lib)
+
 add_executable(velocity_guard src/velocity_guard.cpp)
 target_include_directories(velocity_guard PRIVATE include)
-ament_target_dependencies(velocity_guard rclcpp geometry_msgs sensor_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs)
+ament_target_dependencies(
+  velocity_guard
+  rclcpp
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
+  std_msgs
+  tf2
+  tf2_ros
+  tf2_geometry_msgs)
 install(TARGETS velocity_guard DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/ DESTINATION include)
+
 if(BUILD_TESTING)
   find_package(nlohmann_json REQUIRED)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   enable_testing()
   set(RECOVERY_TEST_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/nav2.yaml")
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${RECOVERY_TEST_CONFIG}")
-  execute_process(COMMAND "${Python3_EXECUTABLE}" -c
-    "import sys,yaml; p=yaml.safe_load(open(sys.argv[1]))['bt_navigator']['ros__parameters']; print(p['default_server_timeout'],p['bt_loop_duration'])"
-    "${RECOVERY_TEST_CONFIG}" RESULT_VARIABLE RECOVERY_TEST_CONFIG_RESULT
-    OUTPUT_VARIABLE RECOVERY_TEST_TIMING OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT RECOVERY_TEST_CONFIG_RESULT EQUAL 0 OR NOT RECOVERY_TEST_TIMING MATCHES "^([0-9]+) ([0-9]+)$")
+  set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS "${RECOVERY_TEST_CONFIG}")
+  execute_process(
+    COMMAND
+      "${Python3_EXECUTABLE}" -c
+      "import sys,yaml; p=yaml.safe_load(open(sys.argv[1]))['bt_navigator']['ros__parameters']; print(p['default_server_timeout'],p['bt_loop_duration'])"
+      "${RECOVERY_TEST_CONFIG}"
+    RESULT_VARIABLE RECOVERY_TEST_CONFIG_RESULT
+    OUTPUT_VARIABLE RECOVERY_TEST_TIMING
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT RECOVERY_TEST_CONFIG_RESULT EQUAL 0 OR NOT RECOVERY_TEST_TIMING MATCHES
+                                                "^([0-9]+) ([0-9]+)$")
     message(FATAL_ERROR "Cannot read BT timing from the shipped navigation configuration")
   endif()
   set(RECOVERY_TEST_SERVER_TIMEOUT_MS "${CMAKE_MATCH_1}")
   set(RECOVERY_TEST_TICK_MS "${CMAKE_MATCH_2}")
   add_executable(recovery_bt_checks test/recovery_bt_checks.cpp)
   ament_target_dependencies(recovery_bt_checks rclcpp nav2_msgs nav_msgs behaviortree_cpp_v3)
-  target_compile_definitions(recovery_bt_checks PRIVATE
-    RECOVERY_BT_LIBRARY="$<TARGET_FILE:duojin02_recovery_bt_nodes>"
-    NAV2_BT_LIBRARY_DIRECTORY="${nav2_behavior_tree_DIR}/../../../lib"
-    RECOVERY_BT_TREE_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/behavior_trees"
-    RECOVERY_BT_SERVER_TIMEOUT_MS=${RECOVERY_TEST_SERVER_TIMEOUT_MS}
-    RECOVERY_BT_TICK_MS=${RECOVERY_TEST_TICK_MS})
+  target_compile_definitions(
+    recovery_bt_checks
+    PRIVATE
+      RECOVERY_BT_LIBRARY="$<TARGET_FILE:duojin02_recovery_bt_nodes>"
+      NAV2_BT_LIBRARY_DIRECTORY="${nav2_behavior_tree_DIR}/../../../lib"
+      RECOVERY_BT_TREE_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/behavior_trees"
+      RECOVERY_BT_SERVER_TIMEOUT_MS=${RECOVERY_TEST_SERVER_TIMEOUT_MS}
+      RECOVERY_BT_TICK_MS=${RECOVERY_TEST_TICK_MS})
   add_dependencies(recovery_bt_checks duojin02_recovery_bt_nodes)
   target_compile_options(recovery_bt_checks PRIVATE -UNDEBUG)
   add_test(NAME recovery_bt_checks COMMAND recovery_bt_checks)
@@ -90,7 +125,7 @@ if(BUILD_TESTING)
   target_compile_options(spatial_index_checks PRIVATE -UNDEBUG)
   add_test(NAME spatial_index_checks COMMAND spatial_index_checks)
   add_executable(spatial_index_benchmark EXCLUDE_FROM_ALL
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/performance/spatial_index_benchmark.cpp")
+                 "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/performance/spatial_index_benchmark.cpp")
   target_include_directories(spatial_index_benchmark PRIVATE include test)
   add_executable(path_target_checks test/path_target_checks.cpp)
   target_include_directories(path_target_checks PRIVATE include)
@@ -98,28 +133,34 @@ if(BUILD_TESTING)
   target_compile_options(path_target_checks PRIVATE -UNDEBUG)
   add_test(NAME path_target_checks COMMAND path_target_checks)
   add_executable(path_target_benchmark EXCLUDE_FROM_ALL
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/performance/path_target_benchmark.cpp")
+                 "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/performance/path_target_benchmark.cpp")
   target_include_directories(path_target_benchmark PRIVATE include test)
   ament_target_dependencies(path_target_benchmark nav_msgs geometry_msgs tf2 tf2_geometry_msgs)
   add_executable(prior_association_checks test/prior_association_checks.cpp)
   target_include_directories(prior_association_checks PRIVATE include)
   target_compile_options(prior_association_checks PRIVATE -UNDEBUG)
   add_test(NAME prior_association_checks COMMAND prior_association_checks)
-  add_test(NAME guard_association_probe COMMAND ${Python3_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_association_probe.py"
-    --guard-binary $<TARGET_FILE:velocity_guard>
-    --params-file "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml"
-    --json-out "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe.json"
-    --log-dir "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe-logs")
-  set_tests_properties(guard_association_probe PROPERTIES TIMEOUT 60
-    ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
-  add_test(NAME guard_admission_probe COMMAND ${Python3_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_admission_probe.py"
-    --guard-binary $<TARGET_FILE:velocity_guard>
-    --params-file "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml"
-    --output-dir "${CMAKE_CURRENT_BINARY_DIR}/guard-admission-probe")
-  set_tests_properties(guard_admission_probe PROPERTIES TIMEOUT 40
-    ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
+  add_test(
+    NAME guard_association_probe
+    COMMAND
+      ${Python3_EXECUTABLE}
+      "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_association_probe.py"
+      --guard-binary $<TARGET_FILE:velocity_guard> --params-file
+      "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml" --json-out
+      "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe.json" --log-dir
+      "${CMAKE_CURRENT_BINARY_DIR}/guard-association-probe-logs")
+  set_tests_properties(guard_association_probe PROPERTIES TIMEOUT 60 ENVIRONMENT
+                                                          "ROS_LOCALHOST_ONLY=1")
+  add_test(
+    NAME guard_admission_probe
+    COMMAND
+      ${Python3_EXECUTABLE}
+      "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/guard_admission_probe.py" --guard-binary
+      $<TARGET_FILE:velocity_guard> --params-file
+      "${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/safety.yaml" --output-dir
+      "${CMAKE_CURRENT_BINARY_DIR}/guard-admission-probe")
+  set_tests_properties(guard_admission_probe PROPERTIES TIMEOUT 40 ENVIRONMENT
+                                                        "ROS_LOCALHOST_ONLY=1")
   add_executable(guard_query_checks test/guard_query_checks.cpp)
   target_include_directories(guard_query_checks PRIVATE include)
   target_compile_options(guard_query_checks PRIVATE -UNDEBUG)
@@ -149,33 +190,55 @@ if(BUILD_TESTING)
   target_compile_options(planner_checks PRIVATE -UNDEBUG)
   add_test(NAME planner_checks COMMAND planner_checks)
   add_executable(precise_lattice_checks test/precise_lattice_checks.cpp)
-  target_include_directories(precise_lattice_checks PRIVATE include ${nav2_smac_planner_INCLUDE_DIRS})
+  target_include_directories(precise_lattice_checks PRIVATE include
+                                                            ${nav2_smac_planner_INCLUDE_DIRS})
   target_link_libraries(precise_lattice_checks ${NAV2_LATTICE_LIBRARY} nlohmann_json::nlohmann_json)
-  ament_target_dependencies(precise_lattice_checks rclcpp rclcpp_lifecycle nav2_core
-    nav2_costmap_2d pluginlib tf2 tf2_geometry_msgs)
+  ament_target_dependencies(
+    precise_lattice_checks
+    rclcpp
+    rclcpp_lifecycle
+    nav2_core
+    nav2_costmap_2d
+    pluginlib
+    tf2
+    tf2_geometry_msgs)
   target_compile_options(precise_lattice_checks PRIVATE -UNDEBUG)
-  target_compile_definitions(precise_lattice_checks PRIVATE
-    PRECISE_LATTICE_FIXTURE_SOURCE="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/lattice_primitives/duojin02_omni_2cm_rich_lattice.json")
+  target_compile_definitions(
+    precise_lattice_checks
+    PRIVATE
+      PRECISE_LATTICE_FIXTURE_SOURCE="${CMAKE_CURRENT_SOURCE_DIR}/../duojin02_bringup/config/lattice_primitives/duojin02_omni_2cm_rich_lattice.json"
+  )
   add_test(NAME precise_lattice_checks COMMAND precise_lattice_checks)
   set_tests_properties(precise_lattice_checks PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
   add_executable(precise_mppi_limit_checks test/precise_mppi_limit_checks.cpp)
   target_link_libraries(precise_mppi_limit_checks duojin02_gpu_geometry)
   target_include_directories(precise_mppi_limit_checks PRIVATE include)
-  ament_target_dependencies(precise_mppi_limit_checks rclcpp rclcpp_lifecycle
-    nav2_mppi_controller nav2_core nav2_controller nav2_costmap_2d pluginlib tf2 tf2_geometry_msgs rcl_interfaces)
+  ament_target_dependencies(
+    precise_mppi_limit_checks
+    rclcpp
+    rclcpp_lifecycle
+    nav2_mppi_controller
+    nav2_core
+    nav2_controller
+    nav2_costmap_2d
+    pluginlib
+    tf2
+    tf2_geometry_msgs
+    rcl_interfaces)
   target_compile_options(precise_mppi_limit_checks PRIVATE -UNDEBUG)
   add_test(NAME precise_mppi_limit_checks COMMAND precise_mppi_limit_checks)
   set_tests_properties(precise_mppi_limit_checks PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
   add_test(NAME precise_mppi_gpu_limit_checks COMMAND precise_mppi_limit_checks --gpu)
-  set_tests_properties(precise_mppi_gpu_limit_checks PROPERTIES
-    SKIP_RETURN_CODE 77 ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
+  set_tests_properties(precise_mppi_gpu_limit_checks PROPERTIES SKIP_RETURN_CODE 77 ENVIRONMENT
+                                                                "ROS_LOCALHOST_ONLY=1")
   add_test(NAME precise_mppi_no_device_checks COMMAND precise_mppi_limit_checks --fallback)
-  set_tests_properties(precise_mppi_no_device_checks PROPERTIES
-    ENVIRONMENT "ROS_LOCALHOST_ONLY=1;CUDA_VISIBLE_DEVICES=")
+  set_tests_properties(precise_mppi_no_device_checks
+                       PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1;CUDA_VISIBLE_DEVICES=")
   add_executable(goal_settling_checks test/goal_settling_checks.cpp)
   target_include_directories(goal_settling_checks PRIVATE include)
   ament_target_dependencies(goal_settling_checks nav2_controller nav2_core rcl_interfaces)
   target_compile_options(goal_settling_checks PRIVATE -UNDEBUG)
   add_test(NAME goal_settling_checks COMMAND goal_settling_checks)
 endif()
+
 ament_package()

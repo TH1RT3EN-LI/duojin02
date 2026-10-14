@@ -1,14 +1,11 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>duojin02_slam_tools</name>
   <version>0.0.0</version>
   <description>SLAM 相关的运行期工具节点</description>
-  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>GPL-3.0-only</license>
-
   <buildtool_depend>ament_cmake</buildtool_depend>
-
   <buildtool_depend>ament_cmake_python</buildtool_depend>
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>rclpy</exec_depend>
@@ -26,10 +23,8 @@
   <exec_depend>rosbag2_storage_default_plugins</exec_depend>
   <depend>slam_toolbox</depend>
   <depend>std_msgs</depend>
-
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-
   <export>
     <build_type>ament_cmake</build_type>
   </export>

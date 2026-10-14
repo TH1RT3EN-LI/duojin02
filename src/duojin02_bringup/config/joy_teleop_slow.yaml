@@ -1,7 +1,7 @@
 teleop_slow:
   ros__parameters:
     require_enable_button: true
-    enable_button: 4 # PS2手柄  LB
+    enable_button: 4
 
     axis_linear:
       x: 1

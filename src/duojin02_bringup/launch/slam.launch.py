@@ -1,5 +1,3 @@
-"""Online mapping and explicit continuation from a paired pose graph."""
-
 import math
 import os
 from pathlib import Path
@@ -23,7 +21,9 @@ def slam_exited(event, context):
 def create_node(context):
     share = Path(get_package_share_directory("slam_toolbox"))
     if not (share / "hardware_build.json").is_file():
-        raise RuntimeError("Build and source the pinned SLAM backend with ./scripts/build_hardware.sh")
+        raise RuntimeError(
+            "Build and source the pinned SLAM backend with ./scripts/build_hardware.sh"
+        )
     parameters = {"use_sim_time": False}
     graph = LaunchConfiguration("pose_graph").perform(context).strip()
     start = LaunchConfiguration("map_start_pose").perform(context).strip()
@@ -43,12 +43,16 @@ def create_node(context):
         if raster.exists():
             validate_map(raster, require_graph=True)
         if bool(start) == dock:
-            raise ValueError("For continuation, specify either map_start_pose:='[x, y, yaw]' or start_at_dock:=true")
+            raise ValueError(
+                "For continuation, specify either map_start_pose:='[x, y, yaw]' or start_at_dock:=true"
+            )
         parameters["map_file_name"] = str(prefix)
         if start:
             pose = yaml.safe_load(start)
-            if not isinstance(pose, list) or len(pose) != 3 or not all(
-                type(value) in (int, float) and math.isfinite(value) for value in pose
+            if (
+                not isinstance(pose, list)
+                or len(pose) != 3
+                or not all(type(value) in (int, float) and math.isfinite(value) for value in pose)
             ):
                 raise ValueError("map_start_pose must contain three finite values [x, y, yaw]")
             parameters["map_start_pose"] = [float(value) for value in pose]
@@ -56,19 +60,42 @@ def create_node(context):
             parameters["map_start_at_dock"] = True
     elif start or dock:
         raise ValueError("pose_graph is required when selecting a continuation pose")
-    return [Node(package="slam_toolbox", executable="async_slam_toolbox_node",
-                 name="slam_toolbox", output="screen",
-                 parameters=[LaunchConfiguration("slam_params_file"), parameters],
-                 on_exit=slam_exited)]
+    return [
+        Node(
+            package="slam_toolbox",
+            executable="async_slam_toolbox_node",
+            name="slam_toolbox",
+            output="screen",
+            parameters=[LaunchConfiguration("slam_params_file"), parameters],
+            on_exit=slam_exited,
+        )
+    ]
 
 
 def generate_launch_description():
     share = get_package_share_directory("duojin02_bringup")
-    return LaunchDescription([
-        middleware(),
-        DeclareLaunchArgument("slam_params_file", default_value=os.path.join(share, "config", "slam_toolbox.yaml")),
-        DeclareLaunchArgument("pose_graph", default_value="", description="Saved graph prefix or .posegraph file"),
-        DeclareLaunchArgument("map_start_pose", default_value="", description="Explicit continuation pose [x, y, yaw]"),
-        DeclareLaunchArgument("start_at_dock", default_value="false", description="Continue at the graph's first scan pose"),
-        OpaqueFunction(function=create_node),
-    ])
+    return LaunchDescription(
+        [
+            middleware(),
+            DeclareLaunchArgument(
+                "slam_params_file",
+                default_value=os.path.join(share, "config", "slam_toolbox.yaml"),
+            ),
+            DeclareLaunchArgument(
+                "pose_graph",
+                default_value="",
+                description="Saved graph prefix or .posegraph file",
+            ),
+            DeclareLaunchArgument(
+                "map_start_pose",
+                default_value="",
+                description="Explicit continuation pose [x, y, yaw]",
+            ),
+            DeclareLaunchArgument(
+                "start_at_dock",
+                default_value="false",
+                description="Continue at the graph's first scan pose",
+            ),
+            OpaqueFunction(function=create_node),
+        ]
+    )

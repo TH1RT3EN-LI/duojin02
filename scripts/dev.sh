@@ -6,7 +6,7 @@ NAME="${NAME:-duojin02_hardware}"
 WS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 GUI="${GUI:-0}"
-GUI_BACKEND="${GUI_BACKEND:-auto}"  # auto | wayland | x11
+GUI_BACKEND="${GUI_BACKEND:-auto}" # auto | wayland | x11
 NET_HOST="${NET_HOST:-1}"
 DETACH="${DETACH:-1}"
 IPC_HOST="${IPC_HOST:-1}"
@@ -38,35 +38,33 @@ fi
 
 if [[ "$GUI" == "1" ]]; then
   case "$GUI_BACKEND" in
-    auto)
-      # Prefer X11/XWayland first: RViz is typically more stable
-      # there than native Wayland inside containers.
-      if [[ "$HAVE_X11" == "1" ]]; then
-        GUI_BACKEND_SELECTED="x11"
-      elif [[ "$HAVE_WAYLAND" == "1" ]]; then
-        GUI_BACKEND_SELECTED="wayland"
-      fi
-      ;;
-    wayland)
-      if [[ "$HAVE_WAYLAND" == "1" ]]; then
-        GUI_BACKEND_SELECTED="wayland"
-      elif [[ "$HAVE_X11" == "1" ]]; then
-        echo "Requested Wayland GUI, but Wayland socket is unavailable. Falling back to X11." >&2
-        GUI_BACKEND_SELECTED="x11"
-      fi
-      ;;
-    x11)
-      if [[ "$HAVE_X11" == "1" ]]; then
-        GUI_BACKEND_SELECTED="x11"
-      elif [[ "$HAVE_WAYLAND" == "1" ]]; then
-        echo "Requested X11 GUI, but DISPLAY/X11 socket is unavailable. Falling back to Wayland." >&2
-        GUI_BACKEND_SELECTED="wayland"
-      fi
-      ;;
-    *)
-      echo "Invalid GUI_BACKEND='$GUI_BACKEND' (expected: auto, wayland, x11)." >&2
-      exit 1
-      ;;
+  auto)
+    if [[ "$HAVE_X11" == "1" ]]; then
+      GUI_BACKEND_SELECTED="x11"
+    elif [[ "$HAVE_WAYLAND" == "1" ]]; then
+      GUI_BACKEND_SELECTED="wayland"
+    fi
+    ;;
+  wayland)
+    if [[ "$HAVE_WAYLAND" == "1" ]]; then
+      GUI_BACKEND_SELECTED="wayland"
+    elif [[ "$HAVE_X11" == "1" ]]; then
+      echo "Requested Wayland GUI, but Wayland socket is unavailable. Falling back to X11." >&2
+      GUI_BACKEND_SELECTED="x11"
+    fi
+    ;;
+  x11)
+    if [[ "$HAVE_X11" == "1" ]]; then
+      GUI_BACKEND_SELECTED="x11"
+    elif [[ "$HAVE_WAYLAND" == "1" ]]; then
+      echo "Requested X11 GUI, but DISPLAY/X11 socket is unavailable. Falling back to Wayland." >&2
+      GUI_BACKEND_SELECTED="wayland"
+    fi
+    ;;
+  *)
+    echo "Invalid GUI_BACKEND='$GUI_BACKEND' (expected: auto, wayland, x11)." >&2
+    exit 1
+    ;;
   esac
 
   if [[ -z "$GUI_BACKEND_SELECTED" ]]; then
@@ -76,7 +74,6 @@ if [[ "$GUI" == "1" ]]; then
     echo "GUI backend: ${GUI_BACKEND_SELECTED}" >&2
   fi
 fi
-
 
 if [[ "$INPUT" == "1" ]] && [[ -d /dev/input ]]; then
   DOCKER_DEV_ARGS+=(--device=/dev/input)
@@ -91,7 +88,6 @@ if [[ "$GPU" == "1" ]]; then
       [[ -n "$gid" ]] && DOCKER_GROUP_ARGS+=(--group-add "$gid")
     done
 
-    # Avoid frequent AMD/Mesa DRM fd warnings in containerized GUI apps.
     if [[ "${AMD_DRI3_FIX:-1}" == "1" ]]; then
       DOCKER_ENV_ARGS+=(-e LIBGL_DRI3_DISABLE=1)
     fi
@@ -108,7 +104,7 @@ if [[ "$GPU" == "1" ]]; then
 fi
 
 if [[ -n "$DEV_LIST" ]]; then
-  IFS=',' read -r -a _devs <<< "$DEV_LIST"
+  IFS=',' read -r -a _devs <<<"$DEV_LIST"
   for d in "${_devs[@]}"; do
     d="$(echo "$d" | xargs)"
     [[ -z "$d" ]] && continue
@@ -121,12 +117,12 @@ if [[ -n "$DEV_LIST" ]]; then
 fi
 
 if [[ -n "$DEV_GLOB" ]]; then
-  IFS=',' read -r -a _globs <<< "$DEV_GLOB"
+  IFS=',' read -r -a _globs <<<"$DEV_GLOB"
   for g in "${_globs[@]}"; do
     g="$(echo "$g" | xargs)"
     [[ -z "$g" ]] && continue
     shopt -s nullglob
-    matches=( $g )
+    matches=($g)
     shopt -u nullglob
     if [[ ${#matches[@]} -eq 0 ]]; then
       echo "No devices match: $g. Connect the hardware or correct DEV_GLOB." >&2
@@ -153,10 +149,10 @@ args=(
   -w /ws
 )
 
-args+=( "${DOCKER_DEV_ARGS[@]}" )
-args+=( "${DOCKER_GROUP_ARGS[@]}" )
-args+=( "${DOCKER_GPU_ARGS[@]}" )
-args+=( "${DOCKER_ENV_ARGS[@]}" )
+args+=("${DOCKER_DEV_ARGS[@]}")
+args+=("${DOCKER_GROUP_ARGS[@]}")
+args+=("${DOCKER_GPU_ARGS[@]}")
+args+=("${DOCKER_ENV_ARGS[@]}")
 
 if [[ "$NET_HOST" == "1" ]]; then
   args+=(--net=host)
@@ -184,14 +180,12 @@ if [[ "$GUI" == "1" ]]; then
     args+=(-e XDG_RUNTIME_DIR="$HOST_XDG_RUNTIME_DIR" -v "$HOST_XDG_RUNTIME_DIR:$HOST_XDG_RUNTIME_DIR:rw")
     args+=(-e QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland;xcb}")
 
-    # Keep X11 fallback available for tools that only support xcb.
     if [[ "$HAVE_X11" == "1" ]]; then
       xhost +si:localuser:root >/dev/null 2>&1 || true
       args+=(-e QT_X11_NO_MITSHM=1)
       args+=(-e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix:rw)
     fi
 
-    # More stable defaults for Qt GUI under Wayland containers.
     if [[ "$WAYLAND_SOFTWARE_GL" == "1" ]]; then
       args+=(-e LIBGL_ALWAYS_SOFTWARE=1)
       args+=(-e MESA_LOADER_DRIVER_OVERRIDE=llvmpipe)

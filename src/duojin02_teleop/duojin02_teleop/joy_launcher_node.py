@@ -11,63 +11,62 @@ from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
 from sensor_msgs.msg import Joy, JoyFeedback
 
+
 class JoyLauncherNode(Node):
     def __init__(self):
         super().__init__("joy_launcher_node")
 
         descriptor = ParameterDescriptor(read_only=True)
-        self.declare_parameter('command_timeout_s', rclpy.Parameter.Type.DOUBLE, descriptor)
-        self.command_timeout_s = self._number('command_timeout_s', positive=True)
-        self.declare_parameter('bindings', rclpy.Parameter.Type.STRING_ARRAY, descriptor)
-        self.declare_parameter('hold_bindings', rclpy.Parameter.Type.STRING_ARRAY, descriptor)
-        self.declare_parameter('default_hold_sec', 0.0, descriptor)
+        self.declare_parameter("command_timeout_s", rclpy.Parameter.Type.DOUBLE, descriptor)
+        self.command_timeout_s = self._number("command_timeout_s", positive=True)
+        self.declare_parameter("bindings", rclpy.Parameter.Type.STRING_ARRAY, descriptor)
+        self.declare_parameter("hold_bindings", rclpy.Parameter.Type.STRING_ARRAY, descriptor)
+        self.declare_parameter("default_hold_sec", 0.0, descriptor)
         self.declare_parameter(
-            'trigger_feedback_buttons',
+            "trigger_feedback_buttons",
             rclpy.Parameter.Type.INTEGER_ARRAY,
             descriptor,
         )
         self.declare_parameter(
-            'success_feedback_buttons',
+            "success_feedback_buttons",
             rclpy.Parameter.Type.INTEGER_ARRAY,
             descriptor,
         )
-        self.declare_parameter('feedback_topic', '/joy/set_feedback', descriptor)
-        self.declare_parameter('trigger_feedback_intensity', 0.45, descriptor)
-        self.declare_parameter('trigger_feedback_duration_sec', 0.15, descriptor)
-        self.declare_parameter('success_feedback_intensity', 1.0, descriptor)
-        self.declare_parameter('success_feedback_duration_sec', 0.35, descriptor)
-        self.declare_parameter('feedback_stop_check_period_sec', 0.02, descriptor)
-        self.declare_parameter('process_poll_period_sec', 0.10, descriptor)
+        self.declare_parameter("feedback_topic", "/joy/set_feedback", descriptor)
+        self.declare_parameter("trigger_feedback_intensity", 0.45, descriptor)
+        self.declare_parameter("trigger_feedback_duration_sec", 0.15, descriptor)
+        self.declare_parameter("success_feedback_intensity", 1.0, descriptor)
+        self.declare_parameter("success_feedback_duration_sec", 0.35, descriptor)
+        self.declare_parameter("feedback_stop_check_period_sec", 0.02, descriptor)
+        self.declare_parameter("process_poll_period_sec", 0.10, descriptor)
 
-        bindings = self._get_string_array('bindings')
-        hold_bindings = self._get_string_array('hold_bindings')
+        bindings = self._get_string_array("bindings")
+        hold_bindings = self._get_string_array("hold_bindings")
 
         self.button_commands = self._parse_button_commands(
             bindings,
-            'bindings',
+            "bindings",
         )
         self.button_hold_secs = self._parse_button_floats(
             hold_bindings,
-            'hold_bindings',
+            "hold_bindings",
         )
-        self.default_hold_sec = self._number('default_hold_sec')
+        self.default_hold_sec = self._number("default_hold_sec")
         if set(self.button_hold_secs) - set(self.button_commands):
-            raise ValueError('hold_bindings must refer to configured bindings')
+            raise ValueError("hold_bindings must refer to configured bindings")
 
-        self.trigger_feedback_buttons = self._parse_button_set(
-            'trigger_feedback_buttons'
-        )
-        self.success_feedback_buttons = self._parse_button_set(
-            'success_feedback_buttons'
-        )
+        self.trigger_feedback_buttons = self._parse_button_set("trigger_feedback_buttons")
+        self.success_feedback_buttons = self._parse_button_set("success_feedback_buttons")
 
-        self.feedback_topic = str(self.get_parameter('feedback_topic').value)
-        self.trigger_feedback_intensity = self._number('trigger_feedback_intensity', maximum=1.0)
-        self.success_feedback_intensity = self._number('success_feedback_intensity', maximum=1.0)
-        self.trigger_feedback_duration_sec = self._number('trigger_feedback_duration_sec')
-        self.success_feedback_duration_sec = self._number('success_feedback_duration_sec')
-        self.feedback_stop_check_period_sec = self._number('feedback_stop_check_period_sec', positive=True)
-        self.process_poll_period_sec = self._number('process_poll_period_sec', positive=True)
+        self.feedback_topic = str(self.get_parameter("feedback_topic").value)
+        self.trigger_feedback_intensity = self._number("trigger_feedback_intensity", maximum=1.0)
+        self.success_feedback_intensity = self._number("success_feedback_intensity", maximum=1.0)
+        self.trigger_feedback_duration_sec = self._number("trigger_feedback_duration_sec")
+        self.success_feedback_duration_sec = self._number("success_feedback_duration_sec")
+        self.feedback_stop_check_period_sec = self._number(
+            "feedback_stop_check_period_sec", positive=True
+        )
+        self.process_poll_period_sec = self._number("process_poll_period_sec", positive=True)
 
         self.prev_buttons = []
         self.running_procs: Dict[int, subprocess.Popen] = {}
@@ -77,7 +76,7 @@ class JoyLauncherNode(Node):
         self.last_joy_stamp_ns = -1
         self.last_joy_receipt = None
 
-        self.create_subscription(Joy, '/joy', self.joy_callback, 10)
+        self.create_subscription(Joy, "/joy", self.joy_callback, 10)
         self.feedback_pub = self.create_publisher(
             JoyFeedback,
             self.feedback_topic,
@@ -107,42 +106,46 @@ class JoyLauncherNode(Node):
         try:
             value = float(self.get_parameter(name).value)
         except (TypeError, ValueError, ParameterUninitializedException) as error:
-            raise ValueError(f'{name} must be supplied with a supported numeric value') from error
-        if (not math.isfinite(value) or value < 0 or (positive and value == 0) or
-                (maximum is not None and value > maximum)):
-            raise ValueError(f'{name} must be finite and in its supported range')
+            raise ValueError(f"{name} must be supplied with a supported numeric value") from error
+        if (
+            not math.isfinite(value)
+            or value < 0
+            or (positive and value == 0)
+            or (maximum is not None and value > maximum)
+        ):
+            raise ValueError(f"{name} must be finite and in its supported range")
         return value
 
     def _parse_button_commands(self, raw_bindings, param_name):
         parsed = {}
         for entry in raw_bindings:
             try:
-                button_str, command = entry.split(':', 1)
+                button_str, command = entry.split(":", 1)
                 button = int(button_str)
                 if button < 0 or button in parsed or not command.strip():
                     raise ValueError()
                 parsed[button] = command
             except ValueError as error:
-                raise ValueError(f'Invalid {param_name} entry {entry!r}') from error
+                raise ValueError(f"Invalid {param_name} entry {entry!r}") from error
         return parsed
 
     def _parse_button_floats(self, raw_bindings, param_name):
         parsed = {}
         for entry in raw_bindings:
             try:
-                button_str, value_str = entry.split(':', 1)
+                button_str, value_str = entry.split(":", 1)
                 button, value = int(button_str), float(value_str)
                 if button < 0 or button in parsed or not math.isfinite(value) or value < 0:
                     raise ValueError()
                 parsed[button] = value
             except ValueError as error:
-                raise ValueError(f'Invalid {param_name} entry {entry!r}') from error
+                raise ValueError(f"Invalid {param_name} entry {entry!r}") from error
         return parsed
 
     def _parse_button_set(self, param_name):
         raw_values = self._get_integer_array(param_name)
         if any(button < 0 for button in raw_values):
-            raise ValueError(f'{param_name} must contain nonnegative button indices')
+            raise ValueError(f"{param_name} must contain nonnegative button indices")
         return set(raw_values)
 
     def _get_string_array(self, param_name):
@@ -174,21 +177,27 @@ class JoyLauncherNode(Node):
             self.prev_buttons[button] = 0
 
     def joy_callback(self, msg: Joy):
-        invalid_buttons = {button for button in self.button_commands
-                           if button >= len(msg.buttons) or msg.buttons[button] not in (0, 1)}
+        invalid_buttons = {
+            button
+            for button in self.button_commands
+            if button >= len(msg.buttons) or msg.buttons[button] not in (0, 1)
+        }
         for button in invalid_buttons:
             self._clear_button(button)
         now = time.monotonic()
         stamp = msg.header.stamp
         stamp_ns = stamp.sec * 1_000_000_000 + stamp.nanosec
-        if (stamp.sec < 0 or not 0 <= stamp.nanosec < 1_000_000_000 or stamp_ns <= 0 or
-                abs(self.get_clock().now().nanoseconds - stamp_ns) >= self.command_timeout_s * 1e9):
+        if (
+            stamp.sec < 0
+            or not 0 <= stamp.nanosec < 1_000_000_000
+            or stamp_ns <= 0
+            or abs(self.get_clock().now().nanoseconds - stamp_ns) >= self.command_timeout_s * 1e9
+        ):
             self._reset_hold_state()
             return
         if stamp_ns <= self.last_joy_stamp_ns:
             return
-        if (self.last_joy_receipt is None or
-                now - self.last_joy_receipt >= self.command_timeout_s):
+        if self.last_joy_receipt is None or now - self.last_joy_receipt >= self.command_timeout_s:
             self._reset_hold_state()
         self.last_joy_stamp_ns, self.last_joy_receipt = stamp_ns, now
 
@@ -213,15 +222,15 @@ class JoyLauncherNode(Node):
 
     def _trigger_button_command(self, btn, cmd, hold_sec, held_sec):
         if btn in self.running_procs and self.running_procs[btn].poll() is None:
-            self.get_logger().info(f'Command for button {btn} is still running; ignoring repeat')
+            self.get_logger().info(f"Command for button {btn} is still running; ignoring repeat")
             return
 
         if hold_sec > 0.0:
             self.get_logger().info(
-                f'Button {btn} long-press {held_sec:.2f}s/{hold_sec:.2f}s -> {cmd}'
+                f"Button {btn} long-press {held_sec:.2f}s/{hold_sec:.2f}s -> {cmd}"
             )
         else:
-            self.get_logger().info(f'Button {btn} pressed -> {cmd}')
+            self.get_logger().info(f"Button {btn} pressed -> {cmd}")
 
         if btn in self.trigger_feedback_buttons:
             self._publish_rumble(
@@ -243,7 +252,7 @@ class JoyLauncherNode(Node):
                 continue
 
             if return_code == 0:
-                self.get_logger().info(f'Command for button {btn} finished successfully')
+                self.get_logger().info(f"Command for button {btn} finished successfully")
                 if btn in self.success_feedback_buttons:
                     self._publish_rumble(
                         self.success_feedback_intensity,
@@ -251,7 +260,7 @@ class JoyLauncherNode(Node):
                     )
             else:
                 self.get_logger().warning(
-                    f'Command for button {btn} exited with code {return_code}'
+                    f"Command for button {btn} exited with code {return_code}"
                 )
 
             self.running_procs.pop(btn, None)
@@ -270,7 +279,7 @@ class JoyLauncherNode(Node):
             return
         except subprocess.TimeoutExpired:
             self.get_logger().warning(
-                f'Process group for button {btn} did not exit after SIGTERM, sending SIGKILL'
+                f"Process group for button {btn} did not exit after SIGTERM, sending SIGKILL"
             )
 
         try:
@@ -281,15 +290,12 @@ class JoyLauncherNode(Node):
         try:
             proc.wait(timeout=1.0)
         except subprocess.TimeoutExpired:
-            self.get_logger().warning(
-                f'Process group for button {btn} still running after SIGKILL'
-            )
+            self.get_logger().warning(f"Process group for button {btn} still running after SIGKILL")
 
     def _publish_rumble(self, intensity, duration_sec):
         if not rclpy.ok():
             return
 
-        # The deployed joy/SDL driver supports the single rumble channel, id 0.
         feedback = JoyFeedback()
         feedback.type = JoyFeedback.TYPE_RUMBLE
         feedback.id = 0

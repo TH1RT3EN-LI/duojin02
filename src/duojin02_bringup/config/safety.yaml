@@ -1,5 +1,3 @@
-# The final guard and serial writer share one command lease. Both checks remain:
-# the writer must still stop when the guard process disappears.
 /**:
   ros__parameters:
     command_timeout_s: 0.25

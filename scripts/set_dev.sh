@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# set_dev.sh
-# 用法：
-#   sudo ./scripts/set_dev.sh /dev/ttyACM0 duojin02_controller "Controller"
-#   sudo ./scripts/set_dev.sh /dev/ttyACM1 lslidar "Lslidar"
 
 set -euo pipefail
 
@@ -38,7 +34,7 @@ ID_SERIAL_SHORT="$(get_prop ID_SERIAL_SHORT)"
 if [[ -z "${ID_VENDOR_ID}" || -z "${ID_MODEL_ID}" || -z "${ID_SERIAL_SHORT}" ]]; then
   attrs="$(udevadm info -a -n "$DEV" 2>/dev/null || true)"
   [[ -z "${ID_VENDOR_ID}" ]] && ID_VENDOR_ID="$(echo "$attrs" | awk -F'=="' '/ATTRS\{idVendor\}==/{gsub(/"/,"",$2); print $2; exit}')"
-  [[ -z "${ID_MODEL_ID}"  ]] && ID_MODEL_ID="$( echo "$attrs" | awk -F'=="' '/ATTRS\{idProduct\}==/{gsub(/"/,"",$2); print $2; exit}')"
+  [[ -z "${ID_MODEL_ID}" ]] && ID_MODEL_ID="$(echo "$attrs" | awk -F'=="' '/ATTRS\{idProduct\}==/{gsub(/"/,"",$2); print $2; exit}')"
   [[ -z "${ID_SERIAL_SHORT}" ]] && ID_SERIAL_SHORT="$(echo "$attrs" | awk -F'=="' '/ATTRS\{serial\}==/{gsub(/"/,"",$2); print $2; exit}')"
 fi
 
@@ -56,13 +52,16 @@ for kv in "${need[@]}"; do
 done
 
 conds=('SUBSYSTEM=="tty"')
-[[ -n "${ID_VENDOR_ID}" ]]        && conds+=("ENV{ID_VENDOR_ID}==\"${ID_VENDOR_ID}\"")
-[[ -n "${ID_MODEL_ID}"  ]]        && conds+=("ENV{ID_MODEL_ID}==\"${ID_MODEL_ID}\"")
-[[ -n "${ID_USB_DRIVER}" ]]       && conds+=("ENV{ID_USB_DRIVER}==\"${ID_USB_DRIVER}\"")
+[[ -n "${ID_VENDOR_ID}" ]] && conds+=("ENV{ID_VENDOR_ID}==\"${ID_VENDOR_ID}\"")
+[[ -n "${ID_MODEL_ID}" ]] && conds+=("ENV{ID_MODEL_ID}==\"${ID_MODEL_ID}\"")
+[[ -n "${ID_USB_DRIVER}" ]] && conds+=("ENV{ID_USB_DRIVER}==\"${ID_USB_DRIVER}\"")
 [[ -n "${ID_USB_INTERFACE_NUM}" ]] && conds+=("ENV{ID_USB_INTERFACE_NUM}==\"${ID_USB_INTERFACE_NUM}\"")
-[[ -n "${ID_SERIAL_SHORT}" ]]     && conds+=("ENV{ID_SERIAL_SHORT}==\"${ID_SERIAL_SHORT}\"")
+[[ -n "${ID_SERIAL_SHORT}" ]] && conds+=("ENV{ID_SERIAL_SHORT}==\"${ID_SERIAL_SHORT}\"")
 
-rule="$(IFS=', '; echo "${conds[*]}, SYMLINK+=\"${LINK}\", GROUP=\"dialout\", MODE=\"0660\"")"
+rule="$(
+  IFS=', '
+  echo "${conds[*]}, SYMLINK+=\"${LINK}\", GROUP=\"dialout\", MODE=\"0660\""
+)"
 
 sudo install -d -m 0755 "$(dirname "$RULES_FILE")"
 if [[ ! -f "$RULES_FILE" ]]; then

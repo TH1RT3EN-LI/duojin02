@@ -2,6 +2,7 @@ import math
 import threading
 import time
 from dataclasses import dataclass, field
+
 from duojin02_teleop.keyboard_teleop_defaults import (
     ACCEL_LIMIT_ANGULAR,
     ACCEL_LIMIT_LINEAR,
@@ -12,19 +13,19 @@ from duojin02_teleop.keyboard_teleop_defaults import (
 
 
 MOVE_BINDINGS = {
-    'w': (1.0, 0.0, 0.0),
-    's': (-1.0, 0.0, 0.0),
-    'a': (0.0, 1.0, 0.0),
-    'd': (0.0, -1.0, 0.0),
-    'q': (0.0, 0.0, 1.0),
-    'e': (0.0, 0.0, -1.0),
+    "w": (1.0, 0.0, 0.0),
+    "s": (-1.0, 0.0, 0.0),
+    "a": (0.0, 1.0, 0.0),
+    "d": (0.0, -1.0, 0.0),
+    "q": (0.0, 0.0, 1.0),
+    "e": (0.0, 0.0, -1.0),
 }
 
 SPEED_BINDINGS = {
-    'i': (1.0, 0.0),
-    'k': (-1.0, 0.0),
-    'o': (0.0, 1.0),
-    'l': (0.0, -1.0),
+    "i": (1.0, 0.0),
+    "k": (-1.0, 0.0),
+    "o": (0.0, 1.0),
+    "l": (0.0, -1.0),
 }
 
 
@@ -89,7 +90,7 @@ class KeyboardTeleopCore:
 
         timestamp = self._coerce_now(now)
         with self._lock:
-            if normalized_key == 'x':
+            if normalized_key == "x":
                 self._clear_move_keys_locked()
                 self._zero_command_locked()
                 self._last_update_time = timestamp
@@ -128,7 +129,7 @@ class KeyboardTeleopCore:
     ) -> TeleopCommand:
         timeout = float(stale_key_timeout_sec)
         if not math.isfinite(timeout) or timeout <= 0.0:
-            raise ValueError('stale_key_timeout_sec must be finite and greater than zero')
+            raise ValueError("stale_key_timeout_sec must be finite and greater than zero")
         timestamp = self._coerce_now(now)
         with self._lock:
             self._expire_stale_locked(timestamp, timeout)
@@ -212,7 +213,11 @@ class KeyboardTeleopCore:
             return None
 
         normalized_key = str(key).lower()
-        if normalized_key == 'x' or normalized_key in MOVE_BINDINGS or normalized_key in SPEED_BINDINGS:
+        if (
+            normalized_key == "x"
+            or normalized_key in MOVE_BINDINGS
+            or normalized_key in SPEED_BINDINGS
+        ):
             return normalized_key
         return None
 
@@ -249,7 +254,9 @@ class KeyboardTeleopCore:
         applied_limit = accel_limit
         if current_value == 0.0:
             applied_limit = accel_limit if math.fabs(target_value) > 0.0 else decel_limit
-        elif (current_value * target_value) < 0.0 or math.fabs(target_value) < math.fabs(current_value):
+        elif (current_value * target_value) < 0.0 or math.fabs(target_value) < math.fabs(
+            current_value
+        ):
             applied_limit = decel_limit
 
         max_delta = applied_limit * delta_time

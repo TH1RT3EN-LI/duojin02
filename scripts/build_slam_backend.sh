@@ -13,4 +13,4 @@ colcon --log-base log/slam_backend build --base-paths "$backend_source" \
   --merge-install --parallel-workers 1 --cmake-force-configure \
   --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF "$@"
 cp "$backend_source/hardware_build.json" install/slam_backend/share/slam_toolbox/
-uname -m > install/slam_backend/.target_architecture
+uname -m >install/slam_backend/.target_architecture

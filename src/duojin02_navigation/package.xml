@@ -1,20 +1,33 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>duojin02_navigation</name><version>0.1.0</version>
+  <name>duojin02_navigation</name>
+  <version>0.1.0</version>
   <description>Sensor and filled-footprint braking sweep validation for navigation and teleoperation.</description>
-  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer><license>GPL-3.0-only</license>
+  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>rclcpp</depend><depend>rclcpp_lifecycle</depend><depend>geometry_msgs</depend><depend>sensor_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>rcl_interfaces</depend>
-  <depend>nav_msgs</depend><depend>std_msgs</depend><depend>tf2</depend><depend>tf2_ros</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
   <depend>tf2_geometry_msgs</depend>
-  <depend>nav2_smac_planner</depend><depend>nav2_core</depend>
-  <depend>nav2_costmap_2d</depend><depend>pluginlib</depend>
+  <depend>nav2_smac_planner</depend>
+  <depend>nav2_core</depend>
+  <depend>nav2_costmap_2d</depend>
+  <depend>pluginlib</depend>
   <depend>nav2_mppi_controller</depend>
   <depend>nav2_controller</depend>
-  <depend>nav2_behavior_tree</depend><depend>nav2_msgs</depend>
+  <depend>nav2_behavior_tree</depend>
+  <depend>nav2_msgs</depend>
   <depend>behaviortree_cpp_v3</depend>
   <test_depend>nlohmann_json</test_depend>
   <test_depend>python3-yaml</test_depend>
-  <export><build_type>ament_cmake</build_type></export>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

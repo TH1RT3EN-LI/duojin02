@@ -11,18 +11,6 @@
 
     publish_tf: true
 
-    # xxxx0_config: [X,      Y,      Z,     # 第一组：位置 (Pose)
-    #               roll,   pitch,  yaw,    # 第二组：姿态 (Orientation)
-    #               vX,     vY,     vZ,     # 第三组：线速度 (Linear Velocity)
-    #               vRoll,  vPitch, vYaw,   # 第四组：角速度 (Angular Velocity)
-    #               aX,     aY,     aZ]     # 第五组：线性加速度 (Acceleration)
-    #
-    # 重要：base_driver 的位姿 (X/Y/yaw) 是对速度 (vX/vY/wz) 的积分，
-    # 两者完全线性相关。若同时融合位姿+速度，EKF 会双重计数，导致：
-    #   - 协方差被人为压低，滤波器对 IMU 修正反应迟钝
-    #   - 里程计尺度被扭曲，点云在 RViz 中跟随车体偏移障碍物
-    # 正确做法：只取速度，由 EKF 内部积分得到位姿估计。
-    
     odom0: /odom
     odom0_queue_size: 10
     odom0_differential: false

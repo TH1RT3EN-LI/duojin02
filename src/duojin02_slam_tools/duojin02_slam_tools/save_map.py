@@ -1,5 +1,3 @@
-"""Bounded ROS service calls for paired raster and pose-graph snapshots."""
-
 import json
 import math
 import os
@@ -34,7 +32,10 @@ def output_directory(value):
             raise ValueError("DUOJIN02_WORKSPACE_ROOT must be absolute")
     else:
         prefix = Path(get_package_prefix("duojin02_slam_tools"))
-        root = next((item.parent for item in (prefix, *prefix.parents) if item.name == "install"), None)
+        root = next(
+            (item.parent for item in (prefix, *prefix.parents) if item.name == "install"),
+            None,
+        )
         if root is None:
             raise ValueError("Set DUOJIN02_WORKSPACE_ROOT or use an absolute output_dir")
     return root / output
@@ -45,8 +46,12 @@ class SaveMapClient(Node):
         super().__init__("save_map_client_node", parameter_overrides=parameter_overrides)
         descriptor = ParameterDescriptor(read_only=True)
         self.map_name = self.declare_parameter("map_name", "auto", descriptor).value
-        self.output = output_directory(self.declare_parameter("output_dir", "maps", descriptor).value)
-        self.save_timeout = float(self.declare_parameter("save_timeout", DEFAULT_SAVE_TIMEOUT, descriptor).value)
+        self.output = output_directory(
+            self.declare_parameter("output_dir", "maps", descriptor).value
+        )
+        self.save_timeout = float(
+            self.declare_parameter("save_timeout", DEFAULT_SAVE_TIMEOUT, descriptor).value
+        )
         self.serialize_graph = self.declare_parameter("serialize_graph", True, descriptor).value
         if not math.isfinite(self.save_timeout) or self.save_timeout <= 0:
             raise ValueError("save_timeout must be finite and positive")
@@ -80,7 +85,10 @@ class SaveMapClient(Node):
 
     def provenance(self):
         share = Path(get_package_share_directory("slam_toolbox"))
-        result = {"algorithm": "slam_toolbox", "version": ET.parse(share / "package.xml").findtext("version")}
+        result = {
+            "algorithm": "slam_toolbox",
+            "version": ET.parse(share / "package.xml").findtext("version"),
+        }
         build = share / "hardware_build.json"
         if build.is_file():
             result["backend_build"] = json.loads(build.read_text())
@@ -97,7 +105,7 @@ class SaveMapClient(Node):
                 name: Parameter.from_parameter_msg(ParameterMessage(name=name, value=value)).value
                 for name, value in zip(listing.result.names, response.values)
             }
-            # Humble exposes numeric ROS parameter arrays as array.array objects.
+
             result["slam_parameters"] = {
                 name: list(value) if isinstance(value, array) else value
                 for name, value in result["slam_parameters"].items()
@@ -111,8 +119,13 @@ class SaveMapClient(Node):
     def run(self):
         self.deadline = time.monotonic() + self.save_timeout
         try:
-            with reserve_snapshot(self.output, self.map_name, deadline=self.deadline) as (pending, final):
-                current = self.call(self.refresh_client, GetMap.Request(), "/slam_toolbox/dynamic_map")
+            with reserve_snapshot(self.output, self.map_name, deadline=self.deadline) as (
+                pending,
+                final,
+            ):
+                current = self.call(
+                    self.refresh_client, GetMap.Request(), "/slam_toolbox/dynamic_map"
+                )
                 if not current.map.info.width or not current.map.info.height:
                     raise RuntimeError("SLAM has not produced a map yet")
                 request = SaveMap.Request()
@@ -123,14 +136,19 @@ class SaveMapClient(Node):
                 if self.serialize_graph:
                     graph_request = SerializePoseGraph.Request()
                     graph_request.filename = str(pending)
-                    response = self.call(self.graph_client, graph_request, "/slam_toolbox/serialize_map")
+                    response = self.call(
+                        self.graph_client, graph_request, "/slam_toolbox/serialize_map"
+                    )
                     if response.result != SerializePoseGraph.Response.RESULT_SUCCESS:
                         raise RuntimeError(f"Pose graph save failed with result {response.result}")
-                # dynamic_map refreshes the published raster after queue drain;
-                # live mapping may still update before SaveMap. Validate the
-                # selected artifact rather than comparing these two responses.
-                saved = commit_snapshot(pending, final, self.provenance(),
-                                        self.serialize_graph, validate_raster=True)
+
+                saved = commit_snapshot(
+                    pending,
+                    final,
+                    self.provenance(),
+                    self.serialize_graph,
+                    validate_raster=True,
+                )
                 self.get_logger().info(f"Saved complete map snapshot: {saved}")
                 return 0
         except Exception as error:

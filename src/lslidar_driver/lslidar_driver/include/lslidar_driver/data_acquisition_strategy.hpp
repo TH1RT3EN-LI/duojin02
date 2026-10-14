@@ -7,21 +7,22 @@
 
 namespace lslidar_driver {
 
-// Transport boundary also used by the offline protocol probes.
 class DataAcquisitionStrategy {
 public:
-    virtual ~DataAcquisitionStrategy() = default;
-    virtual int getPacket(Packet &packet) = 0;
+  virtual ~DataAcquisitionStrategy() = default;
+  virtual int getPacket(Packet &packet) = 0;
 };
 
 class SerialStrategy : public DataAcquisitionStrategy {
 public:
-    explicit SerialStrategy(std::shared_ptr<LSIOSR> serial) : serial_(std::move(serial)) {}
-    int getPacket(Packet &packet) override {
-        return serial_->getSerialData(packet);
-    }
+  explicit SerialStrategy(std::shared_ptr<LSIOSR> serial) : serial_(std::move(serial)) {}
+
+  int getPacket(Packet &packet) override {
+    return serial_->getSerialData(packet);
+  }
+
 private:
-    std::shared_ptr<LSIOSR> serial_;
+  std::shared_ptr<LSIOSR> serial_;
 };
 
-} // namespace lslidar_driver
+}

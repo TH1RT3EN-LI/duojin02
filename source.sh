@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Source this file from a hardware checkout: source ./source.sh
 _duojin02_hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ ! -r /opt/ros/humble/setup.bash ]]; then
   echo "ROS 2 Humble is required; use the hardware Docker image or install Humble on Ubuntu 22.04." >&2

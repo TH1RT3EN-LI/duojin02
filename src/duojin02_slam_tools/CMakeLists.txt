@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(ament_cmake REQUIRED)
+
 find_package(ament_cmake_python REQUIRED)
 
 if(BUILD_TESTING)
@@ -20,7 +21,6 @@ endif()
 
 ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS scripts/save_map_client_node scripts/replay_tf_filter scripts/offline_mapping
-  DESTINATION lib/${PROJECT_NAME}
-)
+        DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

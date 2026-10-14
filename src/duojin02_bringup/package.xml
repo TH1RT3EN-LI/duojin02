@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>duojin02_bringup</name>
   <version>0.0.0</version>
   <description>Real-hardware bringup for Duojin02: serial base, lidar, localization and navigation.</description>
-  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>GPL-3.0-only</license>
-
   <exec_depend>launch</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>rcl_interfaces</exec_depend>
@@ -20,20 +18,16 @@
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
   <exec_depend>xacro</exec_depend>
-
   <exec_depend>duojin02_description</exec_depend>
   <exec_depend>duojin02_base_driver</exec_depend>
   <exec_depend>duojin02_slam_tools</exec_depend>
   <exec_depend>duojin02_teleop</exec_depend>
   <exec_depend>duojin02_navigation</exec_depend>
   <exec_depend>lslidar_driver</exec_depend>
-
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher</exec_depend>
-
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
-
   <exec_depend>nav2_bringup</exec_depend>
   <exec_depend>nav2_mppi_controller</exec_depend>
   <exec_depend>nav2_controller</exec_depend>
@@ -44,16 +38,11 @@
   <exec_depend>nav2_velocity_smoother</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>nav2_map_server</exec_depend>
-
   <exec_depend>joy</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>twist_mux</exec_depend>
-
-
-
   <exec_depend>rviz2</exec_depend>
   <exec_depend>foxglove_bridge</exec_depend>
-
   <export>
     <build_type>ament_python</build_type>
   </export>

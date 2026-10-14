@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Integration probes belong in a container with --network none and no device mappings.
 set -eo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source_arguments=(--root "$hardware_root")

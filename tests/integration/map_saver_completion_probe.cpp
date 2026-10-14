@@ -7,22 +7,22 @@
 #include <rclcpp/rclcpp.hpp>
 #include <slam_toolbox/map_saver.hpp>
 
-// Compile the current prepared MapSaver source. A synchronous exporter fixture
-// isolates response latency from ros2 CLI startup and actual raster generation.
 std::string exporter_command;
+
 extern "C" int system(const char *command) noexcept {
   exporter_command = command;
   return 0;
 }
 
 class MapSaverProbe : public map_saver::MapSaver {
- public:
+public:
   using map_saver::MapSaver::MapSaver;
   using map_saver::MapSaver::saveMapCallback;
 };
 
 void require(bool condition, const char *message) {
-  if (!condition) throw std::runtime_error(message);
+  if (!condition)
+    throw std::runtime_error(message);
 }
 
 int main(int argc, char **argv) {
@@ -47,18 +47,22 @@ int main(int argc, char **argv) {
     request->name.data = "room'name";
     auto began = std::chrono::steady_clock::now();
     require(saver.saveMapCallback(nullptr, request, response), "map export did not complete");
-    const auto milliseconds = std::chrono::duration<double, std::milli>(
-      std::chrono::steady_clock::now() - began).count();
+    const auto milliseconds =
+        std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - began).count();
     require(response->result == response->RESULT_SUCCESS, "successful exporter response lost");
     require(milliseconds < 500, "completed exporter still imposes a fixed wait");
-    require(exporter_command.find("'room'\\''name'") != std::string::npos, "filename quoting changed");
-    require(exporter_command.find("--fmt pgm --mode trinary --free 0.196 --occ 0.65") != std::string::npos,
-      "raster contract changed");
+    require(exporter_command.find("'room'\\''name'") != std::string::npos,
+            "filename quoting changed");
+    require(exporter_command.find("--fmt pgm --mode trinary --free 0.196 --occ 0.65") !=
+                std::string::npos,
+            "raster contract changed");
     request->name.data.clear();
-    require(saver.saveMapCallback(nullptr, request, response), "default-name export did not complete");
+    require(saver.saveMapCallback(nullptr, request, response),
+            "default-name export did not complete");
     require(exporter_command.find(" -f ") == std::string::npos, "default-name branch changed");
     std::cout << "fresh_map_saver=passed; missing_map=passed; raster_contract=passed; "
-      "filename_quoting=passed; completion_ms=" << milliseconds << '\n';
+                 "filename_quoting=passed; completion_ms="
+              << milliseconds << '\n';
     rclcpp::shutdown();
     return 0;
   } catch (const std::exception &error) {

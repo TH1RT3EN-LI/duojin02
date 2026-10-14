@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from ament_index_python.packages import get_package_prefix
+
 from duojin02_slam_tools.snapshots import validate_map
 
 
@@ -22,9 +23,7 @@ def get_workspace_root(package_name: str = _PACKAGE_NAME) -> Path:
         if candidate.name == "install" and candidate.parent != candidate:
             return candidate.parent
 
-    raise RuntimeError(
-        f"Failed to resolve workspace root from package prefix: {package_prefix}"
-    )
+    raise RuntimeError(f"Failed to resolve workspace root from package prefix: {package_prefix}")
 
 
 def get_workspace_maps_dir(package_name: str = _PACKAGE_NAME) -> Path:

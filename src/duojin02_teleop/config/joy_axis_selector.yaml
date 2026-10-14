@@ -1,7 +1,7 @@
 joy_axis_selector_node:
   ros__parameters:
-    dpad_x_axis: 7    # 方向键 左/右 轴
-    dpad_y_axis: 6    # 方向键 上/下 轴
-    stick_x_axis: 1   # 摇杆 X轴
-    stick_y_axis: 0   # 摇杆 Y轴
-    deadzone: 0.1     # 死区阈值
+    dpad_x_axis: 7
+    dpad_y_axis: 6
+    stick_x_axis: 1
+    stick_y_axis: 0
+    deadzone: 0.1

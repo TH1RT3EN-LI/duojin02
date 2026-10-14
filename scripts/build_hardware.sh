@@ -13,4 +13,4 @@ colcon --log-base log/hardware build --base-paths src \
   --build-base build/hardware --install-base install/hardware \
   --symlink-install --parallel-workers "${BUILD_WORKERS:-1}" --cmake-force-configure \
   --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF "$@"
-uname -m > install/hardware/.target_architecture
+uname -m >install/hardware/.target_architecture

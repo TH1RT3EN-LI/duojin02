@@ -3,7 +3,7 @@
   <name>lslidar_driver</name>
   <version>5.1.3</version>
   <description>N10Plus serial protocol, LaserScan and point-cloud output for Duojin02.</description>
-  <maintainer email="jianjiangxie@lslidar.com">lslidar</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>Apache-2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>
@@ -14,5 +14,7 @@
   <build_depend>libpcl-all-dev</build_depend>
   <exec_depend>libpcl-all</exec_depend>
   <test_depend>ament_cmake_gtest</test_depend>
-  <export><build_type>ament_cmake</build_type></export>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

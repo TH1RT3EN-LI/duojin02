@@ -44,7 +44,10 @@ CTRL-C 退出
 
 
 def vels(linear_speed, angular_speed):
-    return '当前速度:\t线速度 %.2f m/s\t角速度 %.2f rad/s' % (linear_speed, angular_speed)
+    return "当前速度:\t线速度 %.2f m/s\t角速度 %.2f rad/s" % (
+        linear_speed,
+        angular_speed,
+    )
 
 
 def resolve_tty_device_path(explicit_device_path: str) -> str:
@@ -57,7 +60,7 @@ def resolve_tty_device_path(explicit_device_path: str) -> str:
     except OSError:
         pass
 
-    candidates.append('/dev/tty')
+    candidates.append("/dev/tty")
 
     seen = set()
     for candidate in candidates:
@@ -79,7 +82,7 @@ def resolve_tty_device_path(explicit_device_path: str) -> str:
                 except OSError:
                     pass
 
-    raise RuntimeError('No interactive tty available')
+    raise RuntimeError("No interactive tty available")
 
 
 class CmdVelPublisherThread(threading.Thread):
@@ -101,10 +104,14 @@ class CmdVelPublisherThread(threading.Thread):
         self.publisher.publish(self.twist)
 
     def _publish_if_active(self, command):
-        # Held opposing keys still mean the operator owns the input, at zero speed.
-        active = bool(command.active_keys) or any((
-            command.linear_x, command.linear_y, command.angular_z,
-        ))
+
+        active = bool(command.active_keys) or any(
+            (
+                command.linear_x,
+                command.linear_y,
+                command.angular_z,
+            )
+        )
         if active or self.was_active or command.stop_requested:
             self._publish_command(command)
         self.was_active = active
@@ -112,8 +119,9 @@ class CmdVelPublisherThread(threading.Thread):
     def run(self):
         try:
             while rclpy.ok() and not self.stop_event.is_set():
-                self._publish_if_active(self.core.snapshot(
-                    stale_key_timeout_sec=self.stale_key_timeout_sec))
+                self._publish_if_active(
+                    self.core.snapshot(stale_key_timeout_sec=self.stale_key_timeout_sec)
+                )
                 self.stop_event.wait(self.period)
         except Exception as error:
             self.error = error
@@ -146,13 +154,13 @@ class TtyKeyboardThread(threading.Thread):
         with self._wake_lock:
             if self._wake_write is not None:
                 try:
-                    os.write(self._wake_write, b'\0')
+                    os.write(self._wake_write, b"\0")
                 except OSError:
                     pass
 
     def close_wakeup(self):
         with self._wake_lock:
-            for attribute in ('_wake_read', '_wake_write'):
+            for attribute in ("_wake_read", "_wake_write"):
                 descriptor = getattr(self, attribute)
                 if descriptor is not None:
                     setattr(self, attribute, None)
@@ -177,7 +185,7 @@ class TtyKeyboardThread(threading.Thread):
             tty_fd = os.open(tty_path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY)
             old_termios = termios.tcgetattr(tty_fd)
             tty.setraw(tty_fd)
-            self.node.get_logger().info(f'Keyboard tty teleop attached to {tty_path}')
+            self.node.get_logger().info(f"Keyboard tty teleop attached to {tty_path}")
 
             while rclpy.ok() and not self.stop_event.is_set():
                 ready_fds, _, _ = select.select([tty_fd, self._wake_read], [], [])
@@ -189,7 +197,7 @@ class TtyKeyboardThread(threading.Thread):
                 except BlockingIOError:
                     continue
                 if not chunk:
-                    raise RuntimeError('Keyboard tty closed')
+                    raise RuntimeError("Keyboard tty closed")
 
                 now = time.monotonic()
                 for char_code in chunk:
@@ -198,7 +206,7 @@ class TtyKeyboardThread(threading.Thread):
                         break
         except Exception as exception:
             self.error = exception
-            self.node.get_logger().error(f'TTY keyboard thread failed: {exception}')
+            self.node.get_logger().error(f"TTY keyboard thread failed: {exception}")
             self.stop_event.set()
         finally:
             self.core.emergency_stop(time.monotonic())
@@ -218,11 +226,14 @@ class TtyKeyboardThread(threading.Thread):
 def main():
     rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
     signal_requested = False
+
     def request_shutdown(signum, frame):
         nonlocal signal_requested
         signal_requested = True
-    previous_handlers = {signum: signal.getsignal(signum)
-                         for signum in (signal.SIGINT, signal.SIGTERM)}
+
+    previous_handlers = {
+        signum: signal.getsignal(signum) for signum in (signal.SIGINT, signal.SIGTERM)
+    }
     for signum in previous_handlers:
         signal.signal(signum, request_shutdown)
     node = None
@@ -230,23 +241,23 @@ def main():
     publisher_thread = keyboard_thread = None
     stop_event = threading.Event()
     try:
-        node = rclpy.create_node('keyboard_teleop_node')
+        node = rclpy.create_node("keyboard_teleop_node")
         read_only_descriptor = rcl_interfaces.msg.ParameterDescriptor(read_only=True)
         parameters = {
             name: node.declare_parameter(name, default, read_only_descriptor).value
             for name, default in keyboard_teleop_parameter_defaults().items()
         }
         validate_keyboard_parameters(parameters)
-        speed = parameters['speed']
-        turn = parameters['turn']
-        max_speed = parameters['max_speed']
-        max_turn = parameters['max_turn']
-        speed_step = parameters['speed_step']
-        turn_step = parameters['turn_step']
-        cmd_vel_topic = parameters['cmd_vel_topic']
-        publish_rate = parameters['publish_rate']
-        repeat_timeout_sec = parameters['repeat_timeout_sec']
-        tty_device_path = parameters['tty_device_path']
+        speed = parameters["speed"]
+        turn = parameters["turn"]
+        max_speed = parameters["max_speed"]
+        max_turn = parameters["max_turn"]
+        speed_step = parameters["speed_step"]
+        turn_step = parameters["turn_step"]
+        cmd_vel_topic = parameters["cmd_vel_topic"]
+        publish_rate = parameters["publish_rate"]
+        repeat_timeout_sec = parameters["repeat_timeout_sec"]
+        tty_device_path = parameters["tty_device_path"]
 
         core = KeyboardTeleopCore(
             linear_speed=float(speed),
@@ -277,17 +288,23 @@ def main():
 
         resolve_tty_device_path(str(tty_device_path))
         print(MSG)
-        print('平滑限制:\t线加速 %.2f m/s²\t线减速 %.2f m/s²\t角加速 %.2f rad/s²\t角减速 %.2f rad/s²' % (
-            ACCEL_LIMIT_LINEAR,
-            DECEL_LIMIT_LINEAR,
-            ACCEL_LIMIT_ANGULAR,
-            DECEL_LIMIT_ANGULAR,
-        ))
-        print('TTY 模式参数:\t按键超时 %.2f s' % float(repeat_timeout_sec))
-        print('速度上限:\t线速度 %.2f m/s\t角速度 %.2f rad/s' % (
-            float(max_speed),
-            float(max_turn),
-        ))
+        print(
+            "平滑限制:\t线加速 %.2f m/s²\t线减速 %.2f m/s²\t角加速 %.2f rad/s²\t角减速 %.2f rad/s²"
+            % (
+                ACCEL_LIMIT_LINEAR,
+                DECEL_LIMIT_LINEAR,
+                ACCEL_LIMIT_ANGULAR,
+                DECEL_LIMIT_ANGULAR,
+            )
+        )
+        print("TTY 模式参数:\t按键超时 %.2f s" % float(repeat_timeout_sec))
+        print(
+            "速度上限:\t线速度 %.2f m/s\t角速度 %.2f rad/s"
+            % (
+                float(max_speed),
+                float(max_turn),
+            )
+        )
         print(vels(float(speed), float(turn)))
         publisher_thread.start()
         keyboard_thread.start()
@@ -298,7 +315,7 @@ def main():
         pass
     except Exception as exception:
         if node is not None:
-            node.get_logger().error(f'Keyboard tty teleop failed: {exception}')
+            node.get_logger().error(f"Keyboard tty teleop failed: {exception}")
         raise
     finally:
         stop_event.set()
@@ -318,8 +335,8 @@ def main():
             signal.signal(signum, handler)
     for worker in (keyboard_thread, publisher_thread):
         if worker is not None and worker.error is not None:
-            raise RuntimeError('Keyboard worker failed') from worker.error
+            raise RuntimeError("Keyboard worker failed") from worker.error
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

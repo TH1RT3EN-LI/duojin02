@@ -1,4 +1,3 @@
-# Jetson Orin Nano 8GB / JetPack 6.2 / Humble: SE2 lattice + MPPI + braking guard.
 amcl:
   ros__parameters:
     use_sim_time: false
@@ -94,7 +93,6 @@ controller_server:
       rot_stopped_velocity: 0.02
     FollowPath:
       plugin: duojin02_navigation::PreciseMPPI
-      # Optional geometry computation only; the MPPI optimizer is unchanged.
       use_gpu: true
       gpu_minimum_work: 262144
       time_steps: 56
@@ -104,7 +102,6 @@ controller_server:
       vy_std: 0.12
       wz_std: 0.18
       vx_max: 0.5
-      # Braking sweep and measured-velocity guard reduce this ceiling as needed.
       narrow_speed_max: 0.5
       vx_min: -0.2
       vy_max: 0.3
@@ -298,8 +295,6 @@ map_saver:
   ros__parameters:
     use_sim_time: false
     save_map_timeout: 5.0
-    # Trinary PGM uses 205 for unknown: 1 - 205/255 = 0.196078...
-    # A threshold of 0.25 reloads these cells as free space.
     free_thresh_default: 0.196
     occupied_thresh_default: 0.65
     map_subscribe_transient_local: true
@@ -325,8 +320,6 @@ planner_server:
       rotation_penalty: 5.0
       retrospective_penalty: 0.015
       lookup_table_size: 5.0
-      # PreciseLattice caches validated paths only for identical costmaps.
-      # Rebuild native cost-to-go data on each fallback, including map resize.
       cache_obstacle_heuristic: false
       analytic_expansion_ratio: 3.5
       analytic_expansion_max_length: 1.0
@@ -336,8 +329,6 @@ velocity_smoother:
     use_sim_time: false
     smoothing_frequency: 20.0
     scale_velocities: false
-    # Command recursion avoids positive wheel-scale bias defeating deceleration.
-    # VelocityGuard still validates measured velocity independently.
     feedback: OPEN_LOOP
     max_velocity:
     - 0.5
@@ -358,11 +349,7 @@ velocity_smoother:
     odom_topic: /odometry/filtered
     odom_duration: 0.1
     deadband_velocity:
-    # Humble applies deadband after acceleration limiting. Keep the final
-    # approach to zero continuous; the stopped goal checker handles settling.
     - 0.0
     - 0.0
     - 0.0
-    # Begin the configured deceleration when the upstream command lease ends.
-    # Continued smoother output must not hide a lost navigation producer.
     velocity_timeout: 0.25

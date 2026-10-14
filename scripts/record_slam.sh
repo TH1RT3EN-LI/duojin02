@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Record live sensor inputs; this script never starts hardware or motion nodes.
 set -eo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [[ $# -ne 1 ]]; then
@@ -36,26 +35,23 @@ cleanup() {
   for pid in "${metadata_pids[@]}"; do
     kill -TERM "$pid" 2>/dev/null || true
   done
-  # Preserve rosbag's normal metadata/database flush; this is not a force-kill
-  # budget for recorded data. Disposable parameter queries can be killed.
   wait "$recorder_pid" 2>/dev/null || true
   for index in "${!metadata_pids[@]}"; do
     wait "${metadata_pids[$index]}" 2>/dev/null || true
     node="${metadata_nodes[$index]}"
     rm -f "$configuration_directory/$node.yaml.pending"
-    echo "Parameter capture interrupted for /$node." >> "$configuration_directory/$node.error.log"
+    echo "Parameter capture interrupted for /$node." >>"$configuration_directory/$node.error.log"
   done
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-# Metadata must not postpone sensor recording. All queries share this window.
 metadata_timeout=15
 metadata_nodes=(base_driver lslidar_driver_node ekf_filter_node slam_toolbox)
 for node in "${metadata_nodes[@]}"; do
   timeout --kill-after=1s "${metadata_timeout}s" ros2 param dump "/$node" \
-    > "$configuration_directory/$node.yaml.pending" \
-    2> "$configuration_directory/$node.error.log" &
+    >"$configuration_directory/$node.yaml.pending" \
+    2>"$configuration_directory/$node.error.log" &
   metadata_pids+=("$!")
 done
 for index in "${!metadata_nodes[@]}"; do
@@ -64,7 +60,7 @@ for index in "${!metadata_nodes[@]}"; do
     mv "$configuration_directory/$node.yaml.pending" "$configuration_directory/$node.yaml"
   else
     rm -f "$configuration_directory/$node.yaml.pending"
-    echo "Parameter capture failed or exceeded the shared metadata window." >> "$configuration_directory/$node.error.log"
+    echo "Parameter capture failed or exceeded the shared metadata window." >>"$configuration_directory/$node.error.log"
     echo "Parameters unavailable for /$node; see $configuration_directory/$node.error.log." >&2
   fi
   unset 'metadata_pids[index]'

@@ -11,16 +11,16 @@ if [[ -n "${PLATFORM:-}" ]]; then
   fi
 fi
 supplied_arguments=("$@")
-for ((argument_index=0; argument_index<${#supplied_arguments[@]}; argument_index++)); do
+for ((argument_index = 0; argument_index < ${#supplied_arguments[@]}; argument_index++)); do
   case "${supplied_arguments[argument_index]}" in
-    --target)
-      if [[ -z "${IMAGE:-}" && $((argument_index+1)) -lt ${#supplied_arguments[@]} ]]; then
-        image="${image}-${supplied_arguments[argument_index+1]}"
-      fi
-      ;;
-    --target=*)
-      if [[ -z "${IMAGE:-}" ]]; then image="${image}-${supplied_arguments[argument_index]#--target=}"; fi
-      ;;
+  --target)
+    if [[ -z "${IMAGE:-}" && $((argument_index + 1)) -lt ${#supplied_arguments[@]} ]]; then
+      image="${image}-${supplied_arguments[argument_index+1]}"
+    fi
+    ;;
+  --target=*)
+    if [[ -z "${IMAGE:-}" ]]; then image="${image}-${supplied_arguments[argument_index]#--target=}"; fi
+    ;;
   esac
 done
 for proxy_variable in HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy; do

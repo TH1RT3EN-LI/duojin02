@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "date": "2026-10-14",
+  "baseline": "4464dbf96592ab248ed029a8657e8b91427e43a2",
+  "scope": "Style, explanatory-comment reduction, formatting and requested maintainer identity only. No product functionality, algorithms, interfaces, parameter values, evaluation order, abstractions or module/file moves changed.",
+  "project_maintainer": {
+    "name": "李天顺",
+    "email": "litianshun.cn@gmail.com",
+    "ros_manifests": [
+      "src/duojin02_base_driver/package.xml",
+      "src/duojin02_bringup/package.xml",
+      "src/duojin02_description/package.xml",
+      "src/duojin02_navigation/package.xml",
+      "src/duojin02_slam_tools/package.xml",
+      "src/duojin02_teleop/package.xml",
+      "src/lslidar_driver/lslidar_driver/package.xml"
+    ],
+    "python_setup_manifests": 3,
+    "upstream_copyright_and_license_preserved": true
+  },
+  "format": {
+    "passed": true,
+    "black_python_files": 84,
+    "clang_cpp_cuda_files": 59,
+    "cmake_files": 6,
+    "shfmt_shell_files": 14,
+    "shell_syntax_files": 14,
+    "rules": [
+      "LF",
+      "nonempty file final newline",
+      "no trailing whitespace",
+      "Python 4 spaces",
+      "C++/CUDA/CMake/XML/shell 2 spaces",
+      "100 column target without splitting runtime strings or heredocs"
+    ]
+  },
+  "semantic_equivalence": {
+    "changed_active_files": 177,
+    "counts": {
+      "docker": 1,
+      "shell": 9,
+      "python": 82,
+      "cmake": 6,
+      "cpp": 59,
+      "xml": 9,
+      "yaml": 11
+    },
+    "qualification": "Python non-runtime docstrings intentionally removed. Requested maintainer metadata and two whitespace-independent static test matchers are explicit exceptions. Product interfaces, statements, literal values, evaluation order and configuration values unchanged; no new abstractions or file moves.",
+    "full_record": "semantic-equivalence.json"
+  },
+  "python": {
+    "passed": 268,
+    "launch_argument_entries_resolved": 12,
+    "environment": "final installed CPU runtime plus readonly current-source tests"
+  },
+  "cpp": {
+    "cpu": {
+      "total": 20,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 1
+    },
+    "gpu": {
+      "total": 22,
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "runtime": {
+    "cpu": {
+      "image": "duojin02:style-cleanup-cpu",
+      "image_id": "sha256:4fce3b4d94e7d57a217e15f17cc79116821adfcf2292e1dfa6128682684056b8",
+      "matching_installed_source_and_configuration_files": 63,
+      "cuda_compiler_absent": true,
+      "geometry": {
+        "comparisons": 14472,
+        "device": "this build has no CUDA backend",
+        "cuda_batches": 0,
+        "boundary_rechecks": 0,
+        "mismatches": 0
+      },
+      "mapped_geometry_library": {
+        "path": "/opt/duojin02/install/lib/libduojin02_gpu_geometry.so",
+        "sha256": "4573bfac0d10b9fe659025d0a676651f1fb6e15a3a1d633b376db6fd32bc450c"
+      },
+      "installed_binary_sha256": {
+        "lib/duojin02_base_driver/duojin02_base_driver_node": "edfaf46b4b7b1a03453d609f7aad102810fbdaea7e73467990fa63ed45c86e7d",
+        "lib/duojin02_navigation/velocity_guard": "4f1eebabed0f405f3dac5ff30290748a91fd3c5c56f2fa570abd2553460a9f1c",
+        "lib/libduojin02_gpu_geometry.so": "4573bfac0d10b9fe659025d0a676651f1fb6e15a3a1d633b376db6fd32bc450c",
+        "lib/libduojin02_recovery_bt_nodes.so": "a34bd437355bbf8cbe811ac1b204a29c16696ea145dde1657d98c6e6686e9b01",
+        "lib/libprecise_lattice.so": "2c3aee0108ef6551b00b62bea242dbf3660e817eb89f370a9a724e1bd1c0f336",
+        "lib/libprecise_mppi.so": "b6fcae124ba1db2dc70b73d490d6cf5b7f7ff1633754b897e1972a3b31923aa5",
+        "lib/libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "lib/lslidar_driver/lslidar_driver_node": "318205aa311073505d2d12bdca55e0bbac6dae37b95589027c04a9c03277e5a1"
+      }
+    },
+    "gpu": {
+      "image": "duojin02:style-cleanup-gpu",
+      "image_id": "sha256:f8931db1d677f77569ff2348cacd01c962d7686bfd47e4e360bce5266773392c",
+      "matching_installed_source_and_configuration_files": 63,
+      "cuda_compiler_absent": true,
+      "geometry": {
+        "comparisons": 14472,
+        "device": "NVIDIA GeForce RTX 5070",
+        "cuda_batches": 470,
+        "boundary_rechecks": 439,
+        "mismatches": 0
+      },
+      "mapped_geometry_library": {
+        "path": "/opt/duojin02/install/lib/libduojin02_gpu_geometry.so",
+        "sha256": "28bda8006dc1326a33ed12b067b87a118ef628e452c08713977a64cddef6e522"
+      },
+      "installed_binary_sha256": {
+        "lib/duojin02_base_driver/duojin02_base_driver_node": "edfaf46b4b7b1a03453d609f7aad102810fbdaea7e73467990fa63ed45c86e7d",
+        "lib/duojin02_navigation/velocity_guard": "4f1eebabed0f405f3dac5ff30290748a91fd3c5c56f2fa570abd2553460a9f1c",
+        "lib/libduojin02_gpu_geometry.so": "28bda8006dc1326a33ed12b067b87a118ef628e452c08713977a64cddef6e522",
+        "lib/libduojin02_recovery_bt_nodes.so": "a34bd437355bbf8cbe811ac1b204a29c16696ea145dde1657d98c6e6686e9b01",
+        "lib/libprecise_lattice.so": "2c3aee0108ef6551b00b62bea242dbf3660e817eb89f370a9a724e1bd1c0f336",
+        "lib/libprecise_mppi.so": "b6fcae124ba1db2dc70b73d490d6cf5b7f7ff1633754b897e1972a3b31923aa5",
+        "lib/libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "lib/lslidar_driver/lslidar_driver_node": "318205aa311073505d2d12bdca55e0bbac6dae37b95589027c04a9c03277e5a1"
+      }
+    }
+  },
+  "test_only_change": "Two existing Guard source-contract assertions allow whitespace between the same C++ type, topic, qos and call tokens. No added tests or weakened product assertions.",
+  "license_patch_cuda_lock_unchanged": true,
+  "artifact_directory": "/home/th1rt3en/.codex/visualizations/2026/10/14/01a1380c-9518-7301-b2de-434ad530817e/duojin02-style-cleanup",
+  "evidence_sha256": {
+    "semantic-equivalence.json": "619f117e865c09a523795d7af467bb49564585791710cb0bd4aa5532ac062d64",
+    "format-check.json": "07c10a882c8a8b17256fb73ad8764042afb85584e4a60e26b179aa969ad1ed56",
+    "cpp-validation/summary.json": "a935d572a1a2d53ea50caa8d44071c0c06cdd284cd031d0dff6572ea3aedf349",
+    "final-runtime-geometry/summary.json": "d19fe94e43ee65d60820a2bf283b390df725be5d08e7bb295fe6e132d9448c38",
+    "runtime/validate-hardware.log": "15232d346475edf7e8459b1532373afcb4400b8e694a9c07ceebc17e30125819",
+    "runtime/cpu-manifest.json": "4ce1e33edc2bfe2e232a817b28fbce46e9109f9090651f527a1c4681d9f24a95",
+    "runtime/gpu-manifest.json": "f1577200a8a7480897b173484950b5815cc5f75e1b6693f92ff622140625745f",
+    "build-reuse.json": "c3cb6a3c9c16f0c4d398ee2a38e1317213eafb624f478292b9e543e49260323d"
+  },
+  "local_build_reuse": {
+    "pinned_archive_verified": true,
+    "cuda_toolkit_lock_sha256": "cae64d81e47e8eacc53f55e99ac6a5cd98639dac16e0905c6c4f0093773add48",
+    "compiler_image": "duojin02:boundary-audit-gpu-testing",
+    "production_Dockerfile_only_comment_changes": true,
+    "local_build_variation": "CPU supplies verified pinned source archive. GPU additionally reuses an already validated compiler matching the unchanged lock, avoiding redownload; runtime images exclude the SDK."
+  },
+  "qualification": [
+    "Tests use isolated ROS fixtures, PTY-free CTest sensor inputs and actual RTX5070 CUDA. No physical robot devices were mapped or motion performed.",
+    "Existing full CTests were rebuilt from current source using the verified dependency/compiler images. Final slim runtime installed geometry was tested separately; no claim of identical build and installed ELF bytes.",
+    "Pinned SLAM patch, runtime CLI strings, heredocs, parameter values and frozen experiment artifacts remain unchanged; a full navigation/SLAM workflow was not repeated for this style-only change."
+  ]
+}

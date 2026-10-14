@@ -9,12 +9,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
     bringup_share = get_package_share_directory("duojin02_bringup")
     teleop_share = get_package_share_directory("duojin02_teleop")
-    
+
     joy_launcher_config_path = os.path.join(teleop_share, "config", "joy_launcher.yaml")
     joy_axis_selector_config_path = os.path.join(teleop_share, "config", "joy_axis_selector.yaml")
     joy_teleop_normal_config_path = os.path.join(bringup_share, "config", "joy_teleop_normal.yaml")
     joy_teleop_slow_config_path = os.path.join(bringup_share, "config", "joy_teleop_slow.yaml")
-
 
     joy = Node(
         package="joy",
@@ -28,9 +27,9 @@ def generate_launch_description():
                 "autorepeat_rate": 20.0,
             }
         ],
-        remappings=[("/joy", "/joy_raw")],  
+        remappings=[("/joy", "/joy_raw")],
     )
-    
+
     joy_axis_selector = Node(
         package="duojin02_teleop",
         executable="joy_axis_selector_node",
@@ -57,8 +56,11 @@ def generate_launch_description():
         package="duojin02_teleop",
         executable="joy_launcher_node",
         name="joy_launcher_node",
-        parameters=[joy_launcher_config_path, os.path.join(bringup_share, "config", "safety.yaml"),
-                    {"use_sim_time": False}],
+        parameters=[
+            joy_launcher_config_path,
+            os.path.join(bringup_share, "config", "safety.yaml"),
+            {"use_sim_time": False},
+        ],
         output="screen",
     )
     return LaunchDescription(

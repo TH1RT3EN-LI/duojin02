@@ -1,4 +1,3 @@
-"""Wait for a usable live scan and localization before starting navigation."""
 import math
 import time
 
@@ -6,20 +5,19 @@ from duojin02_bringup.safety_profile import safety_defaults
 
 
 class ScanReadiness:
-    """Hold one fresh scan while its exact transform catches up."""
     def __init__(self, scan_timeout_s=None):
-        self.timeout_s = (safety_defaults()['scan_timeout_s']
-                          if scan_timeout_s is None else scan_timeout_s)
+        self.timeout_s = (
+            safety_defaults()["scan_timeout_s"] if scan_timeout_s is None else scan_timeout_s
+        )
         if not math.isfinite(self.timeout_s) or self.timeout_s <= 0:
-            raise ValueError('scan_timeout_s must be finite and positive')
+            raise ValueError("scan_timeout_s must be finite and positive")
         self.timeout_ns = self.timeout_s * 1_000_000_000
         self.pending = None
         self.last_seen_ns = -1
         self.last_clock_ns = None
 
     def check_time(self, now_ns, wall):
-        valid = (isinstance(now_ns, int) and now_ns > 0 and
-                 math.isfinite(wall))
+        valid = isinstance(now_ns, int) and now_ns > 0 and math.isfinite(wall)
         if not valid:
             self.pending = None
             return False
@@ -33,31 +31,48 @@ class ScanReadiness:
     def stamp_ns(scan):
         try:
             s = scan.header.stamp
-            if (not isinstance(s.sec, int) or not isinstance(s.nanosec, int) or
-                    s.sec < 0 or not 0 <= s.nanosec < 1_000_000_000):
+            if (
+                not isinstance(s.sec, int)
+                or not isinstance(s.nanosec, int)
+                or s.sec < 0
+                or not 0 <= s.nanosec < 1_000_000_000
+            ):
                 return None
-            value = s.sec*1_000_000_000+s.nanosec
-            # Time(0) requests the latest transform rather than this sensor time.
+            value = s.sec * 1_000_000_000 + s.nanosec
+
             return value if value > 0 else None
         except (AttributeError, TypeError):
             return None
 
     @staticmethod
     def usable(scan):
-        # Same scan-liveness contract as the downstream velocity guard:
-        # +Inf is a legal no return; -Inf and wholly unusable rays fail closed.
+
         try:
-            if (not scan.header.frame_id or not scan.ranges or
-                not all(math.isfinite(v) for v in
-                        (scan.angle_min, scan.angle_max, scan.angle_increment,
-                         scan.range_min, scan.range_max, scan.time_increment,
-                         scan.scan_time)) or scan.angle_increment == 0 or
-                scan.range_min < 0 or scan.range_max <= scan.range_min or
-                scan.time_increment < 0 or scan.scan_time < 0):
+            if (
+                not scan.header.frame_id
+                or not scan.ranges
+                or not all(
+                    math.isfinite(v)
+                    for v in (
+                        scan.angle_min,
+                        scan.angle_max,
+                        scan.angle_increment,
+                        scan.range_min,
+                        scan.range_max,
+                        scan.time_increment,
+                        scan.scan_time,
+                    )
+                )
+                or scan.angle_increment == 0
+                or scan.range_min < 0
+                or scan.range_max <= scan.range_min
+                or scan.time_increment < 0
+                or scan.scan_time < 0
+            ):
                 return False
-            last_angle = scan.angle_min+scan.angle_increment*(len(scan.ranges)-1)
-            tolerance = max(1e-5, abs(scan.angle_increment)*1e-3)
-            if not math.isfinite(last_angle) or abs(last_angle-scan.angle_max) > tolerance:
+            last_angle = scan.angle_min + scan.angle_increment * (len(scan.ranges) - 1)
+            tolerance = max(1e-5, abs(scan.angle_increment) * 1e-3)
+            if not math.isfinite(last_angle) or abs(last_angle - scan.angle_max) > tolerance:
                 return False
             usable = False
             for ray in scan.ranges:
@@ -76,11 +91,9 @@ class ScanReadiness:
         if not clock_valid:
             return
         stamp = self.stamp_ns(scan)
-        if (stamp is None or not self.usable(scan) or
-                abs(now_ns-stamp) >= self.timeout_ns):
-            # Invalid data clears the pending observation; replaying its stamp
-            # cannot revive an older scan or renew the receipt watchdog.
-            if stamp is not None and abs(now_ns-stamp) < self.timeout_ns:
+        if stamp is None or not self.usable(scan) or abs(now_ns - stamp) >= self.timeout_ns:
+
+            if stamp is not None and abs(now_ns - stamp) < self.timeout_ns:
                 self.last_seen_ns = max(self.last_seen_ns, stamp)
             self.pending = None
             return
@@ -91,7 +104,7 @@ class ScanReadiness:
             self.pending = (scan, stamp, wall)
 
     def fresh(self, stamp, receipt, now_ns, wall):
-        return abs(now_ns-stamp) < self.timeout_ns and 0 <= wall-receipt < self.timeout_s
+        return abs(now_ns - stamp) < self.timeout_ns and 0 <= wall - receipt < self.timeout_s
 
     def poll(self, now_ns, wall, exact_tf_ready):
         if not self.check_time(now_ns, wall) or self.pending is None:
@@ -116,31 +129,46 @@ def main():
     from tf2_ros import Buffer, TransformListener
 
     rclpy.init()
-    node=Node('navigation_localization_readiness')
-    timeout=node.declare_parameter('timeout_s',0.0,ParameterDescriptor(read_only=True)).value
-    buffer=Buffer();listener=TransformListener(buffer,node)
-    limits=safety_defaults()
-    scans=ScanReadiness(limits['scan_timeout_s'])
-    subscription=node.create_subscription(LaserScan,'/scan',
-        lambda m:scans.receive(m,node.get_clock().now().nanoseconds,time.monotonic()),
-        qos_profile_sensor_data)
+    node = Node("navigation_localization_readiness")
+    timeout = node.declare_parameter("timeout_s", 0.0, ParameterDescriptor(read_only=True)).value
+    buffer = Buffer()
+    listener = TransformListener(buffer, node)
+    limits = safety_defaults()
+    scans = ScanReadiness(limits["scan_timeout_s"])
+    subscription = node.create_subscription(
+        LaserScan,
+        "/scan",
+        lambda m: scans.receive(m, node.get_clock().now().nanoseconds, time.monotonic()),
+        qos_profile_sensor_data,
+    )
+
     def exact_tf_ready(scan):
-        stamp=Time.from_msg(scan.header.stamp)
-        if not buffer.can_transform('odom',scan.header.frame_id,stamp):
+        stamp = Time.from_msg(scan.header.stamp)
+        if not buffer.can_transform("odom", scan.header.frame_id, stamp):
             return False
-        if not buffer.can_transform('map','base_footprint',Time()):
+        if not buffer.can_transform("map", "base_footprint", Time()):
             return False
-        tf=buffer.lookup_transform('map','base_footprint',Time())
-        return abs((node.get_clock().now()-Time.from_msg(tf.header.stamp)).nanoseconds)<limits['localization_tf_timeout_s']*1_000_000_000
+        tf = buffer.lookup_transform("map", "base_footprint", Time())
+        return (
+            abs((node.get_clock().now() - Time.from_msg(tf.header.stamp)).nanoseconds)
+            < limits["localization_tf_timeout_s"] * 1_000_000_000
+        )
 
-    start=time.monotonic();ready=False
-    node.get_logger().info('Waiting for live scan and map localization; fixed maps require an initial pose.')
-    while rclpy.ok() and (timeout<=0 or time.monotonic()-start<timeout):
-        rclpy.spin_once(node,timeout_sec=.05)
-        if scans.poll(node.get_clock().now().nanoseconds,time.monotonic(),exact_tf_ready):
-            ready=True;break
-    node.destroy_node();rclpy.try_shutdown()
-    if not ready:raise RuntimeError('Navigation localization readiness interrupted or timed out')
+    start = time.monotonic()
+    ready = False
+    node.get_logger().info(
+        "Waiting for live scan and map localization; fixed maps require an initial pose."
+    )
+    while rclpy.ok() and (timeout <= 0 or time.monotonic() - start < timeout):
+        rclpy.spin_once(node, timeout_sec=0.05)
+        if scans.poll(node.get_clock().now().nanoseconds, time.monotonic(), exact_tf_ready):
+            ready = True
+            break
+    node.destroy_node()
+    rclpy.try_shutdown()
+    if not ready:
+        raise RuntimeError("Navigation localization readiness interrupted or timed out")
 
 
-if __name__=='__main__':main()
+if __name__ == "__main__":
+    main()

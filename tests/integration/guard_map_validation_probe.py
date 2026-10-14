@@ -21,24 +21,28 @@ from scan_fault_probe import CaseProbe, clear_command, require, zero
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--guard-binary', type=Path, required=True)
-    parser.add_argument('--params-file', type=Path, required=True)
-    parser.add_argument('--json-out', type=Path, required=True)
-    parser.add_argument('--log-dir', type=Path, required=True)
+    parser.add_argument("--guard-binary", type=Path, required=True)
+    parser.add_argument("--params-file", type=Path, required=True)
+    parser.add_argument("--json-out", type=Path, required=True)
+    parser.add_argument("--log-dir", type=Path, required=True)
     args = parser.parse_args()
     args.discovery_timeout_s = 8.0
     args.log_dir.mkdir(parents=True, exist_ok=True)
-    report = {'test': 'guard_map_input_validation', 'result': 'running',
-              'ros_domain_id': configure_isolation(), 'cases': []}
+    report = {
+        "test": "guard_map_input_validation",
+        "result": "running",
+        "ros_domain_id": configure_isolation(),
+        "cases": [],
+    }
     probe = None
     exit_code = 0
     rclpy.init(args=[])
     try:
-        probe = CaseProbe('grid_validation', args)
+        probe = CaseProbe("grid_validation", args)
         probe.wait_ready()
         qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
-        publisher = probe.create_publisher(OccupancyGrid, probe.topic('unused_map'), qos)
-        tf_publisher = probe.create_publisher(TFMessage, probe.topic('unused_tf'), 10)
+        publisher = probe.create_publisher(OccupancyGrid, probe.topic("unused_map"), qos)
+        tf_publisher = probe.create_publisher(TFMessage, probe.topic("unused_tf"), 10)
 
         def pump(duration):
             deadline = time.monotonic() + duration
@@ -47,60 +51,66 @@ def main():
                 if time.monotonic() >= next_sample:
                     transform = TransformStamped()
                     transform.header.stamp = probe.get_clock().now().to_msg()
-                    transform.header.frame_id, transform.child_frame_id = 'odom', 'map'
+                    transform.header.frame_id, transform.child_frame_id = "odom", "map"
                     transform.transform.rotation.w = 1.0
                     tf_publisher.publish(TFMessage(transforms=[transform]))
                     probe.scan_pub.publish(probe.scan())
-                    next_sample = time.monotonic() + .02
+                    next_sample = time.monotonic() + 0.02
                 probe.spin()
 
         deadline = time.monotonic() + args.discovery_timeout_s
         while not all(pub.get_subscription_count() for pub in [publisher, tf_publisher]):
-            require(time.monotonic() < deadline, 'Grid/TF discovery timed out', **probe.snapshot())
-            pump(.02)
+            require(time.monotonic() < deadline, "Grid/TF discovery timed out", **probe.snapshot())
+            pump(0.02)
 
         def observe(name, publisher, message, reason, stopped):
             message.header.stamp = probe.get_clock().now().to_msg()
             publisher.publish(message)
-            pump(.15)
+            pump(0.15)
             command_valid = zero if stopped else clear_command
-            require(probe.statuses[-1][1]['reason'] == reason and
-                    command_valid(probe.outputs[-1][1]),
-                    'Grid transition did not produce the expected guard state',
-                    case=name, expected_reason=reason, **probe.snapshot())
-            report['cases'].append({'case': name, 'result': 'passed', **probe.snapshot()})
+            require(
+                probe.statuses[-1][1]["reason"] == reason and command_valid(probe.outputs[-1][1]),
+                "Grid transition did not produce the expected guard state",
+                case=name,
+                expected_reason=reason,
+                **probe.snapshot(),
+            )
+            report["cases"].append({"case": name, "result": "passed", **probe.snapshot()})
 
         valid = OccupancyGrid()
-        valid.header.frame_id = 'map'
+        valid.header.frame_id = "map"
         valid.info.width = valid.info.height = 1
-        valid.info.resolution = .01
+        valid.info.resolution = 0.01
         valid.info.origin.orientation.w = 1.0
         valid.data = [0]
         invalid = deepcopy(valid)
         invalid.info.origin.position.x = math.nan
-        observe('map_valid_before_fault', publisher, valid, 'clear', False)
-        observe('map_invalid_origin_stops', publisher, invalid, 'map_invalid', True)
-        observe('map_original_valid_grid_recovers', publisher, valid, 'clear', False)
-        report['result'] = 'passed'
+        observe("map_valid_before_fault", publisher, valid, "clear", False)
+        observe("map_invalid_origin_stops", publisher, invalid, "map_invalid", True)
+        observe("map_original_valid_grid_recovers", publisher, valid, "clear", False)
+        report["result"] = "passed"
     except BaseException as error:
         exit_code = 130 if isinstance(error, KeyboardInterrupt) else 1
-        report['result'] = 'failed'
-        report['failure'] = {'type': type(error).__name__, 'message': str(error),
-                             'evidence': getattr(error, 'evidence', {})}
+        report["result"] = "failed"
+        report["failure"] = {
+            "type": type(error).__name__,
+            "message": str(error),
+            "evidence": getattr(error, "evidence", {}),
+        }
     finally:
         if probe is not None:
             probe.close()
-            report['cleanup'] = {'guard_returncode': probe.process.returncode}
+            report["cleanup"] = {"guard_returncode": probe.process.returncode}
             if probe.process.returncode != 0:
-                report['result'] = 'failed'
+                report["result"] = "failed"
                 exit_code = 1
         rclpy.try_shutdown()
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
-    body = json.dumps(report, indent=2, allow_nan=False) + '\n'
+    body = json.dumps(report, indent=2, allow_nan=False) + "\n"
     args.json_out.write_text(body)
     print(body)
     return exit_code
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

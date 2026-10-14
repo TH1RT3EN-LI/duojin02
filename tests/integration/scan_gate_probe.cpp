@@ -5,33 +5,41 @@
 #include <rclcpp/rclcpp.hpp>
 #include <slam_toolbox/slam_toolbox_common.hpp>
 
-// Exercise the installed library without starting sensor or map threads.
 class ScanGateProbe : public slam_toolbox::SlamToolbox {
- public:
+public:
   using slam_toolbox::SlamToolbox::SlamToolbox;
-  void initialize() { setParams(); }
+
+  void initialize() {
+    setParams();
+  }
+
   void minimumDistance(double value) {
     smapper_->getMapper()->setParamMinimumTravelDistance(value);
   }
+
   bool accepts(double x, double y, double yaw, double timestamp) {
     auto scan = std::make_shared<sensor_msgs::msg::LaserScan>();
     scan->header.stamp = rclcpp::Time(static_cast<int64_t>(timestamp * 1e9));
     const bool result = shouldProcessScan(scan, karto::Pose2(x, y, yaw));
     return result;
   }
- protected:
+
+protected:
   void laserCallback(sensor_msgs::msg::LaserScan::ConstSharedPtr) override {}
 };
 
 void require(bool condition, const char *description) {
-  if (!condition) throw std::runtime_error(description);
+  if (!condition)
+    throw std::runtime_error(description);
 }
+
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   try {
     rclcpp::NodeOptions options;
     options.parameter_overrides({rclcpp::Parameter("minimum_time_interval", 0.05),
-      rclcpp::Parameter("minimum_travel_distance", 0.1), rclcpp::Parameter("minimum_travel_heading", 0.1)});
+                                 rclcpp::Parameter("minimum_travel_distance", 0.1),
+                                 rclcpp::Parameter("minimum_travel_heading", 0.1)});
     auto probe = std::make_shared<ScanGateProbe>(options);
     probe->initialize();
     require(probe->accepts(0, 0, 0, 1), "first scan");

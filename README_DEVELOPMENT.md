@@ -2,6 +2,8 @@
 
 平台为 Jetson Orin Nano、Ubuntu 22.04、ROS 2 Humble；统一硬件为麦克纳姆底盘、IMU、N10Plus 串口雷达。本文描述当前开发工作树的模块和接口；构建、设备命名、启动见 [主 README](README.MD)，版本及证据状态见 [文档索引](docs/README.md)。6 个自研 ROS 包统一使用 `duojin02_*`，第三方雷达包保持 `lslidar_driver`。
 
+项目维护署名为李天顺（litianshun.cn@gmail.com）。代码通过命名和结构表达行为，常规实现不保留逐行解释注释；第三方版权、许可证、实际 CLI 文案和执行指令保留。格式由 [.editorconfig](.editorconfig)、[.clang-format](.clang-format)、[pyproject.toml](pyproject.toml) 和 [.cmake-format.json](.cmake-format.json) 维护：LF 换行，Python 四空格，其他语言两空格，目标行宽 100；运行时字符串和 heredoc 不为排版改写。本轮风格整理的等价证明见 [验证记录](docs/evidence/style-cleanup/validation.json)。
+
 ## 模块
 
 | 包（共 7 个） | 职责 |

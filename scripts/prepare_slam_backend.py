@@ -14,12 +14,17 @@ from pathlib import Path
 
 
 def apply_patch(directory, patch, *arguments, check=True):
-    # A cache nested in the project must not inherit its Git path prefix.
+
     environment = dict(os.environ, GIT_CEILING_DIRECTORIES=str(directory.parent))
     for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE"):
         environment.pop(name, None)
-    result = subprocess.run(["git", "apply", "--no-index", *arguments, str(patch)],
-                            cwd=directory, env=environment, capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "apply", "--no-index", *arguments, str(patch)],
+        cwd=directory,
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
     if check and result.returncode:
         raise RuntimeError(f"SLAM patch verification failed: {result.stderr.strip()}")
     return result
@@ -31,15 +36,24 @@ def prepare(root: Path, destination: Path) -> Path:
     patch = patch_dir / source["patch"]
     provenance = {**source, "patch_sha256": hashlib.sha256(patch.read_bytes()).hexdigest()}
     marker = destination / "hardware_build.json"
-    if (marker.is_file() and json.loads(marker.read_text()) == provenance and
-        apply_patch(destination, patch, "--reverse", "--check", check=False).returncode == 0):
+    if (
+        marker.is_file()
+        and json.loads(marker.read_text()) == provenance
+        and apply_patch(destination, patch, "--reverse", "--check", check=False).returncode == 0
+    ):
         return destination
 
     destination.parent.mkdir(parents=True, exist_ok=True)
     archive = destination.parent / f"slam_toolbox-{source['commit']}.tar.gz"
-    if not archive.is_file() or hashlib.sha256(archive.read_bytes()).hexdigest() != source["archive_sha256"]:
+    if (
+        not archive.is_file()
+        or hashlib.sha256(archive.read_bytes()).hexdigest() != source["archive_sha256"]
+    ):
         partial = archive.with_suffix(".download")
-        with urllib.request.urlopen(source["archive_url"], timeout=120) as response, partial.open("wb") as output:
+        with (
+            urllib.request.urlopen(source["archive_url"], timeout=120) as response,
+            partial.open("wb") as output,
+        ):
             shutil.copyfileobj(response, output)
         if hashlib.sha256(partial.read_bytes()).hexdigest() != source["archive_sha256"]:
             partial.unlink()

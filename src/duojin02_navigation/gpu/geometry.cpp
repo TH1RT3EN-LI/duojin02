@@ -1,5 +1,3 @@
-// Geometry-only extraction from duojin02-gpu, commit 38be60d; the geometry
-// implementation is unchanged in the frozen Orin v4 source. See README.md.
 #include "geometry_internal.hpp"
 #include <chrono>
 #include <cmath>
@@ -20,15 +18,21 @@ struct GeometryCompute::Impl {
   uint64_t epoch{0};
   std::unique_ptr<CudaExecutor> cuda;
   std::string reason;
+
   explicit Impl(GeometryOptions o) : options(o) {
-    if (o.use_gpu) cuda = makeCudaExecutor(reason);
-    else reason = "use_gpu=false";
+    if (o.use_gpu)
+      cuda = makeCudaExecutor(reason);
+    else
+      reason = "use_gpu=false";
   }
 };
+
 GeometryCompute::GeometryCompute(GeometryOptions options) : impl_(new Impl(options)) {}
+
 GeometryCompute::~GeometryCompute() = default;
 GeometryCompute::GeometryCompute(GeometryCompute &&) noexcept = default;
 GeometryCompute &GeometryCompute::operator=(GeometryCompute &&) noexcept = default;
+
 void GeometryCompute::setScene(const Polygon &polygon, const std::vector<Point> &points) {
   if (polygon.size() < 3 || polygon.size() > 64)
     throw ComputeFailure("Invalid GPU geometry footprint size");
@@ -51,10 +55,13 @@ void GeometryCompute::setScene(const Polygon &polygon, const std::vector<Point> 
   impl_->points = &points;
   ++impl_->epoch;
 }
+
 GeometryResult GeometryCompute::evaluate(const std::vector<Pose> &poses, double margin) {
   const auto begin = std::chrono::steady_clock::now();
-  if (!impl_->polygon || !impl_->points) throw ComputeFailure("Geometry scene not set");
-  if (!std::isfinite(margin) || margin < 0) throw ComputeFailure("Invalid geometry margin");
+  if (!impl_->polygon || !impl_->points)
+    throw ComputeFailure("Geometry scene not set");
+  if (!std::isfinite(margin) || margin < 0)
+    throw ComputeFailure("Invalid geometry margin");
   for (const auto &p : poses)
     if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.yaw))
       throw ComputeFailure("Invalid query pose");
@@ -65,19 +72,22 @@ GeometryResult GeometryCompute::evaluate(const std::vector<Pose> &poses, double 
   if (willUseCuda(poses.size())) {
     std::vector<PoseFrame> frames;
     frames.reserve(poses.size());
-    for (const auto &p : poses) frames.push_back({p.x, p.y, std::cos(p.yaw), std::sin(p.yaw)});
+    for (const auto &p : poses)
+      frames.push_back({p.x, p.y, std::cos(p.yaw), std::sin(p.yaw)});
     std::vector<DeviceGeometryResult> raw;
     try {
       raw = impl_->cuda->geometry(polygon, points, impl_->epoch, frames, margin);
-    } catch (const std::exception &e) { throw ComputeFailure(e.what()); }
-    if (raw.size() != poses.size()) throw ComputeFailure("CUDA result cardinality mismatch");
+    } catch (const std::exception &e) {
+      throw ComputeFailure(e.what());
+    }
+    if (raw.size() != poses.size())
+      throw ComputeFailure("CUDA result cardinality mismatch");
     for (size_t i = 0; i < poses.size(); ++i) {
-      // Device hypot may differ from the host at a floating-point boundary.
-      // Keep the original complete CPU predicate authoritative for such rows.
       if (raw[i].uncertain) {
         result.collisions[i] = collision(poses[i], polygon, points, margin);
         ++impl_->stats.boundary_rechecks;
-      } else result.collisions[i] = raw[i].collision != 0;
+      } else
+        result.collisions[i] = raw[i].collision != 0;
     }
     result.used_cuda = true;
     ++impl_->stats.cuda_batches;
@@ -86,15 +96,26 @@ GeometryResult GeometryCompute::evaluate(const std::vector<Pose> &poses, double 
       result.collisions[i] = collision(poses[i], polygon, points, margin);
     ++impl_->stats.cpu_batches;
   }
-  impl_->stats.last_wall_ms = std::chrono::duration<double, std::milli>(
-    std::chrono::steady_clock::now() - begin).count();
+  impl_->stats.last_wall_ms =
+      std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - begin).count();
   return result;
 }
-bool GeometryCompute::available() const { return impl_->cuda != nullptr; }
+
+bool GeometryCompute::available() const {
+  return impl_->cuda != nullptr;
+}
+
 bool GeometryCompute::willUseCuda(size_t pose_count) const {
   return impl_->cuda && impl_->points && pose_count && !impl_->points->empty() &&
-    static_cast<long double>(pose_count) * impl_->points->size() >= impl_->options.minimum_work;
+         static_cast<long double>(pose_count) * impl_->points->size() >=
+             impl_->options.minimum_work;
 }
-std::string GeometryCompute::deviceName() const { return impl_->cuda ? impl_->cuda->name() : impl_->reason; }
-const GeometryStatistics &GeometryCompute::statistics() const { return impl_->stats; }
+
+std::string GeometryCompute::deviceName() const {
+  return impl_->cuda ? impl_->cuda->name() : impl_->reason;
+}
+
+const GeometryStatistics &GeometryCompute::statistics() const {
+  return impl_->stats;
+}
 }

@@ -1,21 +1,18 @@
-<!-- Existing periodic planning and controller algorithms are retained.
-     Recovery needs an explicit negative path-check response and a changed plan.
-     Service failures are not interpreted as obstacle evidence. -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
     <RestartOnGoalUpdate goal="{goal}">
       <PipelineSequence name="NavigateWithReplanning">
-      <RateController hz="1.0">
-        <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
-      </RateController>
-      <RecoveryNode number_of_retries="1" name="ReplanRejectedPath">
-        <FollowPath path="{path}" controller_id="FollowPath"/>
-        <Sequence name="RecoverWithChangedPath">
-          <PathNeedsReplan path="{path}" checked_path="{checked_path}"/>
-          <ComputePathToPose goal="{goal}" path="{replacement_path}" planner_id="GridBased"/>
-          <AcceptChangedPath old_path="{checked_path}" new_path="{replacement_path}" path="{path}"/>
-        </Sequence>
-      </RecoveryNode>
+        <RateController hz="1.0">
+          <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased" />
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="ReplanRejectedPath">
+          <FollowPath path="{path}" controller_id="FollowPath" />
+          <Sequence name="RecoverWithChangedPath">
+            <PathNeedsReplan path="{path}" checked_path="{checked_path}" />
+            <ComputePathToPose goal="{goal}" path="{replacement_path}" planner_id="GridBased" />
+            <AcceptChangedPath old_path="{checked_path}" new_path="{replacement_path}" path="{path}" />
+          </Sequence>
+        </RecoveryNode>
       </PipelineSequence>
     </RestartOnGoalUpdate>
   </BehaviorTree>

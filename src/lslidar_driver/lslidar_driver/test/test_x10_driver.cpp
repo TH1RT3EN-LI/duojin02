@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Offline protocol and ROS-output tests; no physical device is opened.
+
 #include <gtest/gtest.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -31,34 +31,39 @@ Packet makePacket(int start_angle, int end_angle, int background_distance = 1000
   const int interval = (end_angle - start_angle + 36000) % 36000;
   for (int group = 0; group < 16; ++group) {
     const int angle = (start_angle + interval * group / 15) % 36000;
-    const int distance = background_distance && angle >= 8900 && angle <= 9100 ? 2300 : background_distance;
+    const int distance =
+        background_distance && angle >= 8900 && angle <= 9100 ? 2300 : background_distance;
     write16(7 + group * 6, distance);
     packet[9 + group * 6] = 41;
     write16(10 + group * 6, background_distance ? 3200 : 0);
     packet[12 + group * 6] = 72;
   }
   uint8_t checksum = 0;
-  for (size_t i = 0; i < 107; ++i) checksum += packet[i];
+  for (size_t i = 0; i < 107; ++i)
+    checksum += packet[i];
   packet[107] = checksum;
   return packet;
 }
 
 class PacketSource : public lslidar_driver::DataAcquisitionStrategy {
- public:
+public:
   std::vector<Packet> packets;
   size_t next = 0;
+
   int getPacket(Packet &packet) override {
-    if (next >= packets.size()) return -1;
+    if (next >= packets.size())
+      return -1;
     packet = std::move(packets[next++]);
     return 108;
   }
 };
 
 class OfflineX10Driver : public LslidarX10Driver {
- public:
+public:
   using LslidarX10Driver::LslidarX10Driver;
   using LslidarX10Driver::pointcloudToLaserscan;
   int io_created = 0;
+
   void createRosIO() override {
     ++io_created;
     pointcloud_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(pointcloud_topic, 10);
@@ -67,13 +72,17 @@ class OfflineX10Driver : public LslidarX10Driver {
 };
 
 class X10Test : public testing::Test {
- protected:
+protected:
   static void SetUpTestSuite() {
     int argc = 0;
     char **argv = nullptr;
     rclcpp::init(argc, argv);
   }
-  static void TearDownTestSuite() { rclcpp::shutdown(); }
+
+  static void TearDownTestSuite() {
+    rclcpp::shutdown();
+  }
+
   void createDriver(const std::vector<rclcpp::Parameter> &overrides = {}) {
     driver.reset();
     node.reset();
@@ -83,14 +92,17 @@ class X10Test : public testing::Test {
     node = std::make_shared<rclcpp::Node>("lslidar_driver_node", options);
     driver.reset(new OfflineX10Driver(node));
   }
+
   void SetUp() override {
     createDriver();
     driver->initialize();
   }
+
   void TearDown() override {
     driver.reset();
     node.reset();
   }
+
   pcl::PointCloud<pcl::PointXYZI> cloud(const std::vector<pcl::PointXYZI> &points) {
     pcl::PointCloud<pcl::PointXYZI> source;
     source.points.assign(points.begin(), points.end());
@@ -100,16 +112,23 @@ class X10Test : public testing::Test {
     source.header.stamp = 123400000;
     return source;
   }
+
   pcl::PointXYZI point(float x, float y, float intensity) {
     pcl::PointXYZI p;
-    p.x = x; p.y = y; p.z = 0.0f; p.intensity = intensity;
+    p.x = x;
+    p.y = y;
+    p.z = 0.0f;
+    p.intensity = intensity;
     return p;
   }
+
   std::vector<sensor_msgs::msg::LaserScan> collectFrames(int angle_offset = 0, bool empty = false,
-                                                       const std::string &topic = "/scan") {
+                                                         const std::string &topic = "/scan") {
     std::vector<sensor_msgs::msg::LaserScan> received;
     auto subscription = node->create_subscription<sensor_msgs::msg::LaserScan>(
-        topic, 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr scan) { received.push_back(*scan); });
+        topic, 10, [&received](sensor_msgs::msg::LaserScan::ConstSharedPtr scan) {
+          received.push_back(*scan);
+        });
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
     for (int attempt = 0; attempt < 50 && node->count_subscribers(topic) == 0; ++attempt) {
@@ -119,11 +138,14 @@ class X10Test : public testing::Test {
     auto source = std::make_shared<PacketSource>();
     for (int turn = 0; turn < 4; ++turn) {
       for (int group = 0; group < 24; ++group) {
-        source->packets.push_back(makePacket(angle_offset + group * 1500, angle_offset + (group + 1) * 1500, empty ? 0 : 1000 + turn * 100));
+        source->packets.push_back(makePacket(angle_offset + group * 1500,
+                                             angle_offset + (group + 1) * 1500,
+                                             empty ? 0 : 1000 + turn * 100));
       }
     }
     driver->data_acquisition_strategy_ = source;
-    for (int packet = 0; packet < 96; ++packet) EXPECT_TRUE(driver->poll());
+    for (int packet = 0; packet < 96; ++packet)
+      EXPECT_TRUE(driver->poll());
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
     while (received.size() < 3 && std::chrono::steady_clock::now() < deadline) {
       executor.spin_some();
@@ -132,6 +154,7 @@ class X10Test : public testing::Test {
     executor.spin_some();
     return received;
   }
+
   rclcpp::Node::SharedPtr node;
   std::unique_ptr<OfflineX10Driver> driver;
 };
@@ -151,15 +174,17 @@ TEST_F(X10Test, HardwareConfigurationMatchesFixedPacketLayout) {
 
 TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) {
   const std::vector<rclcpp::Parameter> initial{
-    rclcpp::Parameter("serial_port", "/tmp/lidar-startup-fixture"),
-    rclcpp::Parameter("frame_id", "probe_laser"),
-    rclcpp::Parameter("laserscan_topic", "/probe_scan"),
-    rclcpp::Parameter("pointcloud_topic", "/probe_cloud"),
-    rclcpp::Parameter("min_range", 1.5), rclcpp::Parameter("max_range", 2.5)};
+      rclcpp::Parameter("serial_port", "/tmp/lidar-startup-fixture"),
+      rclcpp::Parameter("frame_id", "probe_laser"),
+      rclcpp::Parameter("laserscan_topic", "/probe_scan"),
+      rclcpp::Parameter("pointcloud_topic", "/probe_cloud"),
+      rclcpp::Parameter("min_range", 1.5),
+      rclcpp::Parameter("max_range", 2.5)};
   createDriver(initial);
   driver->initialize();
   auto client_node = std::make_shared<rclcpp::Node>("lidar_parameter_service_probe");
-  auto client = std::make_shared<rclcpp::AsyncParametersClient>(client_node, node->get_fully_qualified_name());
+  auto client = std::make_shared<rclcpp::AsyncParametersClient>(client_node,
+                                                                node->get_fully_qualified_name());
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(node);
   executor.add_node(client_node);
@@ -170,10 +195,12 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     names.push_back(parameter.get_name());
     if (parameter.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
       changes.emplace_back(parameter.get_name(), parameter.as_string() + "_changed");
-    else changes.emplace_back(parameter.get_name(), parameter.as_double() + .25);
+    else
+      changes.emplace_back(parameter.get_name(), parameter.as_double() + .25);
   }
   auto before = client->get_parameters(names);
-  ASSERT_EQ(executor.spin_until_future_complete(before, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(executor.spin_until_future_complete(before, std::chrono::seconds(2)),
+            rclcpp::FutureReturnCode::SUCCESS);
   const auto values = before.get();
   ASSERT_EQ(values.size(), initial.size());
   for (size_t i = 0; i < initial.size(); ++i) {
@@ -181,7 +208,8 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     EXPECT_EQ(values[i].value_to_string(), initial[i].value_to_string());
   }
   auto described = client->describe_parameters(names);
-  ASSERT_EQ(executor.spin_until_future_complete(described, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(executor.spin_until_future_complete(described, std::chrono::seconds(2)),
+            rclcpp::FutureReturnCode::SUCCESS);
   const auto descriptors = described.get();
   ASSERT_EQ(descriptors.size(), names.size());
   for (size_t i = 0; i < names.size(); ++i) {
@@ -189,7 +217,8 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     EXPECT_TRUE(descriptors[i].read_only);
   }
   auto changed = client->set_parameters(changes);
-  ASSERT_EQ(executor.spin_until_future_complete(changed, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(executor.spin_until_future_complete(changed, std::chrono::seconds(2)),
+            rclcpp::FutureReturnCode::SUCCESS);
   const auto statuses = changed.get();
   ASSERT_EQ(statuses.size(), changes.size());
   for (const auto &status : statuses) {
@@ -197,10 +226,12 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     EXPECT_NE(status.reason.find("read-only"), std::string::npos);
   }
   auto atomic = client->set_parameters_atomically(changes);
-  ASSERT_EQ(executor.spin_until_future_complete(atomic, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(executor.spin_until_future_complete(atomic, std::chrono::seconds(2)),
+            rclcpp::FutureReturnCode::SUCCESS);
   EXPECT_FALSE(atomic.get().successful);
   auto after = client->get_parameters(names);
-  ASSERT_EQ(executor.spin_until_future_complete(after, std::chrono::seconds(2)), rclcpp::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(executor.spin_until_future_complete(after, std::chrono::seconds(2)),
+            rclcpp::FutureReturnCode::SUCCESS);
   const auto unchanged = after.get();
   ASSERT_EQ(unchanged.size(), initial.size());
   for (size_t i = 0; i < initial.size(); ++i) {
@@ -219,7 +250,7 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     EXPECT_FLOAT_EQ(scan.range_max, 2.5f);
     EXPECT_TRUE(std::isinf(scan.ranges[270]));
     EXPECT_TRUE(std::any_of(scan.ranges.begin(), scan.ranges.end(),
-                           [](float value) { return std::abs(value - 2.3f) < 1e-5f; }));
+                            [](float value) { return std::abs(value - 2.3f) < 1e-5f; }));
   }
 }
 
@@ -249,8 +280,7 @@ TEST_F(X10Test, RejectsCorruptedAndTruncatedPackets) {
 }
 
 TEST_F(X10Test, KeepsNearestEchoAndConsistentScanGeometry) {
-  auto input = cloud({point(2, 0, 72), point(1, 0, 41), point(-1, 0, 11),
-                      point(-1, -0.0f, 12)});
+  auto input = cloud({point(2, 0, 72), point(1, 0, 41), point(-1, 0, 11), point(-1, -0.0f, 12)});
   sensor_msgs::msg::LaserScan scan;
   driver->pointcloudToLaserscan(input, scan);
   ASSERT_EQ(scan.ranges.size(), 540u);
@@ -289,7 +319,7 @@ TEST_F(X10Test, PublishesCompleteFramesWithRobotAngleConvention) {
       has_clockwise_target |= std::abs(scan.ranges[index] - 2.3f) < 1e-5;
     }
     EXPECT_TRUE(has_clockwise_target);
-    // The initial partial revolution is discarded before the first zero crossing.
+
     EXPECT_NEAR(scan.ranges[405], 1.1f + i * 0.1f, 1e-5);
     if (i > 0) {
       EXPECT_GT(rclcpp::Time(scan.header.stamp).nanoseconds(),
@@ -312,7 +342,7 @@ TEST_F(X10Test, PublishesEmptySweepsInsteadOfLeavingStaleScanData) {
   for (const auto &scan : received) {
     ASSERT_EQ(scan.ranges.size(), 540u);
     EXPECT_TRUE(std::all_of(scan.ranges.begin(), scan.ranges.end(),
-                           [](float range) { return std::isinf(range); }));
+                            [](float range) { return std::isinf(range); }));
   }
 }
 
@@ -325,11 +355,12 @@ TEST_F(X10Test, FiltersRawDistancesAndStillPublishesSparseSweeps) {
     EXPECT_TRUE(std::isinf(scan.ranges[270]));
     EXPECT_TRUE(std::isinf(scan.ranges[405]));
     const auto valid = std::count_if(scan.ranges.begin(), scan.ranges.end(),
-                                   [](float range) { return std::isfinite(range); });
+                                     [](float range) { return std::isfinite(range); });
     EXPECT_GT(valid, 0);
     EXPECT_LT(valid, 50);
     for (float range : scan.ranges) {
-      if (std::isfinite(range)) EXPECT_NEAR(range, 2.3f, 1e-5);
+      if (std::isfinite(range))
+        EXPECT_NEAR(range, 2.3f, 1e-5);
     }
   }
 }
@@ -359,7 +390,8 @@ TEST_F(X10Test, MotorCommandsUseFixedProtocolAndResumeAcquisition) {
     EXPECT_EQ(bytes[185], value);
     EXPECT_EQ(bytes[186], 0xFA);
     EXPECT_EQ(bytes[187], 0xFB);
-    if (value == 0) EXPECT_TRUE(actual.poll());
+    if (value == 0)
+      EXPECT_TRUE(actual.poll());
   }
   auto source = std::make_shared<PacketSource>();
   source->packets.push_back(makePacket(0, 1500));
@@ -378,7 +410,8 @@ TEST(PublicationWorkerTest, DrainsFramesInAcquisitionOrderAtDestruction) {
     }
   }
   ASSERT_EQ(completed.size(), 1000u);
-  for (int index = 0; index < 1000; ++index) EXPECT_EQ(completed[index], index);
+  for (int index = 0; index < 1000; ++index)
+    EXPECT_EQ(completed[index], index);
 }
 
 TEST_F(X10Test, ReassemblesFragmentedSerialPacketAndReportsDisconnect) {
@@ -390,11 +423,13 @@ TEST_F(X10Test, ReassemblesFragmentedSerialPacketAndReportsDisconnect) {
   lslidar_driver::LSIOSR serial(ptsname(master));
   std::thread writer([master, &expected]() {
     const uint8_t noise = 0x42;
-    if (write(master, &noise, 1) != 1) return;
+    if (write(master, &noise, 1) != 1)
+      return;
     for (size_t offset = 0; offset < 108;) {
       const size_t chunk = std::min<size_t>(7, 108 - offset);
       const ssize_t written = write(master, expected.data() + offset, chunk);
-      if (written <= 0) return;
+      if (written <= 0)
+        return;
       offset += written;
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -410,4 +445,4 @@ TEST_F(X10Test, ReassemblesFragmentedSerialPacketAndReportsDisconnect) {
   close(master);
   EXPECT_EQ(serial.getSerialData(packet), -1);
 }
-}  // namespace
+}

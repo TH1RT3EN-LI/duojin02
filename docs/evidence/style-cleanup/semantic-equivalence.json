@@ -1,0 +1,1091 @@
+{
+  "passed": true,
+  "baseline": "4464dbf96592ab248ed029a8657e8b91427e43a2",
+  "changed_active_files": 177,
+  "counts": {
+    "docker": 1,
+    "shell": 9,
+    "python": 82,
+    "cmake": 6,
+    "cpp": 59,
+    "xml": 9,
+    "yaml": 11
+  },
+  "records": [
+    {
+      "file": "Dockerfile",
+      "before_sha256": "9ebcbda946a5dcf5cdc7cb154db9820a50bdb77b81c3f25fd7dd04f3723bc08b",
+      "after_sha256": "02392a1f78e3336cc332360a6c38cff8d2be4fd3271135afd51d0038d73f7141",
+      "docker_execution_text_equal": true
+    },
+    {
+      "file": "scripts/build_hardware.sh",
+      "before_sha256": "cdb8905a4c13cd18e7aaabed2b74779a1132fa4270f5af781582cda28674d47b",
+      "after_sha256": "483df69b784a6d1313d98f4f486e6c539ca588177bb7dce1a217a46c6e85bc08",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/build_image.sh",
+      "before_sha256": "1b027791ca3adc250b4f43b207ec90db0a527e15f9aa2df5375f61e6ef8bf1b4",
+      "after_sha256": "c7dccd0c7e2064cf4fd7dd2e17456a952085aab492b9ec994a06c0bf6aea144a",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/build_slam_backend.sh",
+      "before_sha256": "a7270eda78384c1513188d1e72ae9dc8997fa01a65c14a5a62f7f38ca8a49bd8",
+      "after_sha256": "48d4f369ad82899c5d7c23a5f4b662cf9c67a3b185bba4e0551b72eeec3573e3",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/dev.sh",
+      "before_sha256": "f703bc14984b32a0ed9e68071e31f8a35a90cf40d57e834438a9ab3049d2191f",
+      "after_sha256": "37fe824eebd2aaad2c31b76efbb6f782b075798373d3cfea5bf2db7788be16bd",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/fix_humble_cmake.py",
+      "before_sha256": "93e732449401eba0b3a2a80046a746aa4ece15d914c8fd7ab8638c8e82d29b8f",
+      "after_sha256": "a665ddb9575b025787d42e9fe4df53010111453605c382ad8539b4575bc94285",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/prepare_cuda_toolkit.py",
+      "before_sha256": "c3cb036d27710aa5fc96abcadb4f345fcd15a2fd6dd70347c9709cbd5f481f98",
+      "after_sha256": "8f5f9ab7fa17a260ffd52d783a8faa2d67497e593c79614e8d2ce15e609433ca",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/prepare_slam_backend.py",
+      "before_sha256": "f1f8783ef0c4cd7c0818b0360fca2bc49fef89f6bccc6cc5b1c4a242810b9afe",
+      "after_sha256": "0e249a0c5ce6664ab871cded0f079727ca9d78a03855b9b5fe2ac836278719e0",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/profile_navigation.py",
+      "before_sha256": "c3a3ff99d56c8caca21e1101d59aab6c542761cbe582f0bcd6d62b3d218a8862",
+      "after_sha256": "0caf7f144f37e7fb9c5de6d4e5f8dc95212bb9398c68c73c91d7ee2968f4bfa8",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/record_slam.sh",
+      "before_sha256": "9d30482bfc9af05c99ec19cba09af4f2576ff7a7210d1a0818bde0bd97ba1cb7",
+      "after_sha256": "34dc30cec25b80bcb922ec731a032fdaacbe3e34d1efe79eed1ed1367eccdc00",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/render_chassis_preview.py",
+      "before_sha256": "7aa63f05fc32f7258ad81881f1b0cde80e690f6a592005808cc489c12bb805dc",
+      "after_sha256": "9f2f3a7223c9a4e9f850fad76e85e315a1d54242a48e13a1d58a6f20890a5459",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/set_dev.sh",
+      "before_sha256": "8814b194aa33cf7bc3c1a152a9c2abbbfd2589ce6b90268acce77e942474b01a",
+      "after_sha256": "0a9142c6bf672e2b905f3b58767aa99722a6721661dda321a2aa2f1a40fd5199",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/test_navigation.sh",
+      "before_sha256": "7513a89559bdf75431d1d005354e4f8d4cf895dcc5fdb22e03061270982bff9a",
+      "after_sha256": "68144817004e33426cb2732ddffe9a5682bfbd6251bd654154cbe308399f738c",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/test_slam.sh",
+      "before_sha256": "a52cb64f3cc4011fb18a1f98cb8799b5077224829108d964755b291aea99362e",
+      "after_sha256": "ded5968bd729ba065c7f58d377e543e2e2a7dc47a83b95ee27599e8b351d69f8",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "scripts/update_chassis_model.py",
+      "before_sha256": "066b40b8641955105ef5585ea8568733f663f59ad348a78ebc22e764b5454648",
+      "after_sha256": "bdb1b44a1beb9b3a88751a0ab7a9a6a2f1cb3f3296a27ecca5451805b7c0fcc4",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "source.sh",
+      "before_sha256": "35ce1df01a32349b0fd4e83e9da9d1661e1b1c57c1adf116e0b7cee1b8e91135",
+      "after_sha256": "4b02038135fdc6827e5dafbbacc6bd6e7b888fe3549b44bfd527c217ec56328a",
+      "shell_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/CMakeLists.txt",
+      "before_sha256": "a3b1ac1127545f0a9cf68988c011e9a649ed70a0f1a8d1acae9f69fba2b5b04f",
+      "after_sha256": "fff8ab6556e246064986169cfd4b3c88ea2f7022ed163ebd3f129ba5fffe507d",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/include/duojin02_base_driver/driver_types.hpp",
+      "before_sha256": "d27b10b2f7a6c8f50a3708dd9b40393835bfd59db2beb7775660d775de703727",
+      "after_sha256": "d4b7503370ea988ba0bdbf57f3b92f568589e25f92a925c1f8dc49d6eead9fa5",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/include/duojin02_base_driver/quaternion_solution.hpp",
+      "before_sha256": "005dabe87de196cc01b899e4a23c82db75577de8b0bc065426157b531ae1ad36",
+      "after_sha256": "73f462b6906daaae18ba9c6ca3f192d7e1e85743ba9065becc06d7fa8cc7e8c8",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/package.xml",
+      "before_sha256": "e618d6f739e930cfdf27c4e9ecb08c19946bf32979d68f0b43ac7d65f26201e9",
+      "after_sha256": "d1ac90b8ffe532190d5cd41b911e5089fda39c372b3e27ed8d74c6e8c8bf76e9",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/src/duojin02_base_driver.cpp",
+      "before_sha256": "2b6a3316040bc78569c9356488c4803068e3680daf58661bba8f9a39b2782194",
+      "after_sha256": "2cb18d85cf7a8619c5c305e62d73951a38b38968497e23b379d88f7ba74384b8",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_base_driver/src/quaternion_solution.cpp",
+      "before_sha256": "cbda38a8da86e7a44e944c4fd16a07a553ec2769e7e8900c253df91d2c33fb47",
+      "after_sha256": "5808e3d4a4bfee5558b5e8aae37cf55de98bf2c066452729fe7b17b92dd5e357",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/behavior_trees/navigate_through_poses.xml",
+      "before_sha256": "982f719df9744c7072ac32ee35774962ddd06b4c949820e5b9cce6033358fc11",
+      "after_sha256": "48c7bb56d57e88043c1dc420fead2d18dcf331e6782001db2620f51f607cbc8d",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/behavior_trees/navigate_to_pose.xml",
+      "before_sha256": "3fd88ee75b8c23d3db001771a70fb837ce255ff19fd07f1e51638c20204efc1d",
+      "after_sha256": "80aa2cc49821b63cd5b92d3c2d61993fe3deae741a509ce0baaa4f1c8145fc93",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/base_driver.yaml",
+      "before_sha256": "9217c4e8dfb250017c138d2ec06f8884a97f8e64b29372b456b9b9d04624d742",
+      "after_sha256": "54dc55f5199e25ae52b552706081556b73249947362388efcf06e3f07943a0bb",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/ekf.yaml",
+      "before_sha256": "10d67777ac7a6b201907a6f67bc31f46336a03b468dad91756cc096fe3e9ca42",
+      "after_sha256": "0c34c490488bfcd5efaf4a72b49ca879c3e7b33d4964991a25624f26846cb5d2",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/foxglove/bridge.yaml",
+      "before_sha256": "80c2bad498a11717243766ba3e87d29b4dc3438b6de59dd4d3b55cd1970d6051",
+      "after_sha256": "b8ab8cc5c9065da25a1570ba1b7348b6e29bd927385b97c4b3317b2d26868622",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/joy_teleop_normal.yaml",
+      "before_sha256": "27774a965c945dcf2ff393d2453475347bb030c8b23aec5bd84304826e7b7746",
+      "after_sha256": "de83a49d5b26032866452527f3426fb9e7c8178582b3f3f4360131fef4eb1a83",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/joy_teleop_slow.yaml",
+      "before_sha256": "5e02643fc3c4a5674d8d0f5d24f6a9c11ba2c3d2dcd21e00889ce58b6dd60daa",
+      "after_sha256": "5f3bbf2459d44e2adfe8362f6e680f7ca9576346d782770843d98d132d9bdf9b",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/localization_monitor.yaml",
+      "before_sha256": "f98c5c396e47fa5380997bf38d7c70d7655fd2d5daa7dfdbe4f500c73de299f6",
+      "after_sha256": "a6bc63b25e6b206641527497f33d50cad4c7bd4f45d8d384f6b5e87fe1ecd80e",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/nav2.yaml",
+      "before_sha256": "4e098494a99fe39198608d2eee19ae2057d7113058894b45c68ae55f528c5783",
+      "after_sha256": "46d54e892d642da7e9dbb794d9c3ba7ab629a288f679763c1a47ec878c5a4956",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/safety.yaml",
+      "before_sha256": "f16777a693bec9e6c1e1d04a07d04ceeb7ce3fa64be7342e0afa9b377bae56a7",
+      "after_sha256": "33e73bbaf1afca8be6cf66e4293dae7271e817cb4d96a6f6ad0b5c353c8ae973",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/config/slam_toolbox.yaml",
+      "before_sha256": "c38b906b5e98d760454bd69c1260047ea6382cc8b2c7057f24c68b8ede4f7ce8",
+      "after_sha256": "d180e0730538486afb88bfce0af87a08e105d4f8ac4d9269d0436c52fa605aeb",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/gpu_profile.py",
+      "before_sha256": "bf6e012e87939d83a69c58f75c0452b29f56234204f7d29251890d2c35e19363",
+      "after_sha256": "cf1631a7478559ab6c8a94a3d3866d4576060bf647bd838906b6a19272a6190c",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/lattice.py",
+      "before_sha256": "20901adae9d8b60db18e2324557db0dba72060abc1ce4f63402b27cb7f76905f",
+      "after_sha256": "f0cca5dee37f45957faee0fe2b1a210f0cabdc21e27854ab7799c59dfdcfa98f",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/localization_monitor.py",
+      "before_sha256": "7519cfab390bb068d627a553d08bd2e11aba7955d803debfe382ca325a4e3a09",
+      "after_sha256": "23f3e866f6fa59dee0e5520b05d2819a2af0454e393633e876f64fb27bef86c2",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/localization_quality.py",
+      "before_sha256": "8a99f8046a036e39ca0d0a4db29ee9afc247dfea5a21d7766ff78189d06fac9e",
+      "after_sha256": "fad677fd353a97e48e2ef5d628a526198d9051289a7e0f5bd652dd6dca27711b",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/localization_readiness.py",
+      "before_sha256": "5938084c240a1b8bda6b01ffa08957f28705850be52a437f728c9686684fde34",
+      "after_sha256": "b289a9b943ae3925f0d85870272dfdef7a45031782f9e58bda9a15077df1ffaf",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/map_paths.py",
+      "before_sha256": "a576258d249a33f14aa42d9cd5bf50f1e6a332a00984a1b6fded11908e3943a1",
+      "after_sha256": "69fbf945cc1bda9dd9f3b346f42a3a7144390c08cf3a489d1d021ed541e61318",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/middleware.py",
+      "before_sha256": "f8969ea8cc74119c5cf9c95f3f1570282e1ac9cfcaded79681dbc7e75bbf79ed",
+      "after_sha256": "e609d32c6821ddad384e1312c7d53cd955a289f3b84d1977f538444a085df578",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/navigation_stack.py",
+      "before_sha256": "af6c8a145f27e5af78d044027272e449792a310aea46d577ec430c31320e9cea",
+      "after_sha256": "86685ece41f6bcde8d24631102e1dfaeb6152ffea3062810c1e8b1df7e0bf5d9",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/online_profile.py",
+      "before_sha256": "7b669cf39b8699a61852dabde493ae12beaa6c93c3d10caca628ca8d33132dcd",
+      "after_sha256": "3e17e0ba2f1d425cf66b48d13e96923003c08a7e8f1b3bb053d609b8a1276c69",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/duojin02_bringup/safety_profile.py",
+      "before_sha256": "f70cad13c747e0417459a622e8f31424a32f56af9b237a6288709ba6a41dd28c",
+      "after_sha256": "dc00e104fb7947bba33e00eebbde760b743a03089dadb1dffa8945b346e36e5b",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/base.launch.py",
+      "before_sha256": "45a2143d2b48c3520bdf65e9a391386de0f6e4b24f892346b4804670dbb29029",
+      "after_sha256": "5c6606909440797256c23d8f3a5409852e4757261890c2ffc0149434b4c18af7",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/joy_teleop.launch.py",
+      "before_sha256": "7115515b2dab5838c0b980093d5ba1ee8d12974579429aaed13c2b5fadd139b7",
+      "after_sha256": "ced40f4c38c6eeba4cba0f1156d59157bc7326ed4ad4b1a25137338d98b5d852",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/mapping.launch.py",
+      "before_sha256": "c86600fa2cf384603d8301b68dec515180182b99b720d6adb2d53798b7ed6895",
+      "after_sha256": "9c7bc6276f87cb1a21a634f4af2af13e0c849f15f3481e6422898d7ebf646f5c",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/nav2.launch.py",
+      "before_sha256": "2525a371196e45fc165491b37685a0320a7c5edb2cb1f58af01a4866a55fcf31",
+      "after_sha256": "c2f89d549287103c8e96834f5f350014806e06fe472bab75077286f67b8151c9",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/navigation.launch.py",
+      "before_sha256": "e9a4bdc0becc68e0ce7c56d0b60c526c088a577a59ac5162f60e5c434b6f0885",
+      "after_sha256": "8d71074f7a39b2fa963129dbe8652d7ed7892be550975d36f4afe9523e91a4c4",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/navigation_stack.launch.py",
+      "before_sha256": "0fc6c43a75ebcef21058e4c70913f58462caef84a7456c52b7e6df94ec10ff1a",
+      "after_sha256": "7a848b603b13b84c987a6dbc2dc3c1240eb86ecaeac3b2b3d0d8ad9b662a3eac",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/offline_mapping.launch.py",
+      "before_sha256": "e58f9478e08a2afd9c7259e9f5ad051b21ecc0bec0c68db9c1460c374cb9bbeb",
+      "after_sha256": "0961090949ff1b974a5a601c2138eb80f8a338c88cb954adbe2da680b0cfb447",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/online_navigation.launch.py",
+      "before_sha256": "f05b9de8d1956aa97216ce5fa406056a490be806f9f8f77aa81fd4a77f86d6d7",
+      "after_sha256": "b849cb80211f30cba7cc17e19aef4e7238779e9c1a630893f371ff6971019951",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/save_map.launch.py",
+      "before_sha256": "9a13b6e7bac40eb4d95769d1c422bc4718454a92044a47661fe3566be9a787ae",
+      "after_sha256": "f8995cdbfb43c84353491f846360cd4d8842dd1f93dbf40737ad923ca7a3d08e",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/slam.launch.py",
+      "before_sha256": "a549d86f6c8ed36235954d8ed84a677d388fdfe4fb2946fd0444bc6cac21d33e",
+      "after_sha256": "b1000304d6d1da219c332d1a8e6da2a97dcbdc4971d3854341c313bef45c7788",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/launch/velocity_guard.launch.py",
+      "before_sha256": "12dd72d5a5ab513c78e496c2164e9189aec4937c053353baff41eac69d521ab9",
+      "after_sha256": "432a9cb0eff17f9fd90d5355817f1f6f066230f060b5a7cdc0be2e0ac41c2de2",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/package.xml",
+      "before_sha256": "eed121602f6114a3c1bf231bfb2223b27d88ef2bf71da7743bd055051a5fcfcf",
+      "after_sha256": "6b4c2f40474c988805fd8ae0141c3f9cc7992b641f164fe414c29dbf6d0ef4ae",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_bringup/setup.py",
+      "before_sha256": "5c5f665b36583992ac3b2e539ae8b411c79b8441d7ac9f5e131d2e801b8d58ef",
+      "after_sha256": "2c52b5e17515a43936a4a8357fd997edf71842403eeab32785fa33f0cf316884",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_description/package.xml",
+      "before_sha256": "544a61e151fd8926a72265a296cf53ae5495230b9119580d50d09f77ba238e50",
+      "after_sha256": "32080066b1b7104fde1f8df23bfecedc1b0e14333c180d735d08669bddcf1740",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_description/setup.py",
+      "before_sha256": "7443d82ddb602280fef09e00ebf868b15259a63d1897bb77c441f46c94132acf",
+      "after_sha256": "a67f038e73b032a1fa00978e3e19f42a9f365aedbb0ef25f3331402068e68a03",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/CMakeLists.txt",
+      "before_sha256": "283c2e934155b009f116faff212a56a13513810f14ca8da45b8be82c8f15d91c",
+      "after_sha256": "9f9f22c89bd5e60d69c6c1f762ba3985418b52b8d9271d7fe3501327723a964e",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/CMakeLists.txt",
+      "before_sha256": "9e2e90bc6264fda05a842291739fd51774eea705084f9b059873f33633395472",
+      "after_sha256": "c30508c956dc519a0fd2b50393b6bd66dcefd9e83b0c7ab382e272e1bf507631",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry.cpp",
+      "before_sha256": "1c59b0bb679bd889d4b7e669f54894532a49d2fd0ad88fb4fe57d8c4d71fa290",
+      "after_sha256": "b60d2dd0078e02cb32451c832fc76db0a571cdf717ae8482fd8dd4c7a977022e",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry.cu",
+      "before_sha256": "4a5f9308e5ad964087211b450d686ebff40ee65e2dd171ca6511c9e81d019563",
+      "after_sha256": "f33d6e9a7032871b31f09a6aa566c7b4a5bb4548d54e8647f9a286ab510424bd",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_checks.cpp",
+      "before_sha256": "8e2cbb1ef2c32a4656432ebdc20ca24d7a6f0f97550892fd6c4f4a18e5f03653",
+      "after_sha256": "fd7f25d48dacfff8a379e2211c129b29e17276b1ce1ac83edd48a6b8ec1719ae",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_fault_checks.cu",
+      "before_sha256": "ecf67f8da4938ab023a62e6403812597472ca8c7ebdffae94f09c046bbc73f04",
+      "after_sha256": "80e225692da434bb880cfd18bb5b924d85f14636be594f2a958b17d8d4aee3dc",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/gpu/geometry_internal.hpp",
+      "before_sha256": "b98ce0e0d55edf66bb0769e152eec7d9f018274ca13603753cc25eaec2fe1f25",
+      "after_sha256": "f33b2c9a4bfff6f79dd163b95c9fd203bc84a03b6328999c6dc61772528caddf",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/finite_heading.hpp",
+      "before_sha256": "56d26f4e6e56d5d55488a581a04167100ad2b9f5f484dfeac6f80efa032b6cf3",
+      "after_sha256": "417a798462da93d06868e30c6f9cae5e1e9521f8ab10b8c021f219b2dcf8e158",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/gpu_geometry.hpp",
+      "before_sha256": "613d1fee6b20ef21c4ed81e201663649af27b47ee9d0b9e094dd7408a58f2c37",
+      "after_sha256": "26877fc006e41def05637b3d36f318cd5ba103163f59c3a09873050d02f87549",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/guard_input_validity.hpp",
+      "before_sha256": "630259c711dbfe6cc353a0d3fb61ae304a55fd16399cd290b7ae7a9636ab1ff2",
+      "after_sha256": "a2430dcc13f440817fa073df5370cce7e54c21ce97c73ddf55edc9ab59f82794",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp",
+      "before_sha256": "c2139001d515e95b838500b36acd72a81f1c16b51d4ddae331bfaa7a06c77921",
+      "after_sha256": "2855aa130600a723f90db25a6c10b108629cc540fa16c7313c2e5fe6e8aa0adf",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/local_grid_snapshot.hpp",
+      "before_sha256": "1a3a5594cca05fdd85e2f4248c96bb476f2450257e4c77d9addc7c33a434e191",
+      "after_sha256": "dad85c819944dc7e2e238283c70dd2095746097c7edaaaf94d93e4d430bbc3e7",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/path_cleanup.hpp",
+      "before_sha256": "19cc96a1a1a5c5e5210b890d04a7b2ebcf769d1348253b98d8dfa1588eee29f3",
+      "after_sha256": "24976d4b9b3211b9e59719e76dcba48e075e376dfd7849d68d6fe424b1fae235",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/path_target.hpp",
+      "before_sha256": "4522f8cd364c1b2a1111f4627c0fb68e2d0aaf20082415817a7001ba6379bbc6",
+      "after_sha256": "a75446d5eb6c73e41d9e56b8c29565884bcedf50af16cf6b13046dd5f1aae0e6",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/planner_checks.hpp",
+      "before_sha256": "1ee9eb27acf9f1da2b83156e370421cfbd2da7f140c4faf628be2affe7840603",
+      "after_sha256": "a3ed9d703e60c357b9961b854b3ed055f127ca5d963479a7231808ccbbd68d39",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp",
+      "before_sha256": "46250212e82d0488a17d58400f504378010b06787a270df59d629f98ef7e3ef9",
+      "after_sha256": "11217dd18c48fdcdf7b84338c3104e83f36c2be13bcd0d5aa470479b69fb7e62",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/scan_validity.hpp",
+      "before_sha256": "d665a8390c287fbc1193137cf69e095e79eaa3ff2cc3ec70308e21ecd8ff049e",
+      "after_sha256": "b50bd0a8cdbb8df6a79099044a43d2a188d31fa11ea2b4d8b2b90253f950cd10",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/stable_goal_checker.hpp",
+      "before_sha256": "08a4c5d1daf96626878555726c11e63a9805bcd31b82fb71a0d8d554dedbbef5",
+      "after_sha256": "53f3f4500573183af149e9b19aaf3f40db8c0aa8f853fdab5e6b472bc80b1291",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/sweep.hpp",
+      "before_sha256": "e28dbbe1049ce7654d91dde6f01908b054b8e7f11880ffbc60c99a8074e6a364",
+      "after_sha256": "2480617ed10f116cd9d6c4fa872781eba996159c5fb320c3ace7c2586f98d1d9",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/tracking.hpp",
+      "before_sha256": "195b39d48cbd08bac933d4d5f253d837390b5a7f3ba484456d5e76a275029223",
+      "after_sha256": "6a8df47b9d017ba6ee55fe7d2b34e1e1a2a381e6bfdf12b31e0a65077efd41c1",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/include/duojin02_navigation/velocity_limits.hpp",
+      "before_sha256": "af96f7ddf55ee04cd77c8566edd8ff5f97b957990d22843c11ec5af678faefa3",
+      "after_sha256": "870008af6a838e44cff201d63b226c78ec40f4bab06d9beb787d677fa9df50a2",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/package.xml",
+      "before_sha256": "725a0af33dc23db00b5dd992e3d6dcd3dc101605fe9894a8e0bd0f0068d3189b",
+      "after_sha256": "a62fcfedb13b48e7118c97607834c0d432819ae965aea30c5c62dbf9e4129c88",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/src/precise_lattice.cpp",
+      "before_sha256": "d0204ca1958f16af4d40d2569dfc41db170cc3130fc7ffbd12d252488a82e9c4",
+      "after_sha256": "7575271340a54dfc7617362d9c07675ef57dfc4001bbe93ba4caf0efd78fd417",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/src/precise_mppi.cpp",
+      "before_sha256": "94aedd34b3b07cd8d38ee0117b782d676b786b620c444a033aaf603e8e9774a7",
+      "after_sha256": "774fdabacf273077c123bb7cb99d02f3619b6c15698c901da6b83debab91761a",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/src/recovery_bt_nodes.cpp",
+      "before_sha256": "00afe9b9ca1ab4cdb048da35429080f768912b243ddf8fd34082ff5cd1d3ddff",
+      "after_sha256": "6a8a7c0f70523743a54cf96b4b45a121ddc9c5250f44c2ae9259427e10500f57",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/src/stable_goal_checker.cpp",
+      "before_sha256": "d5125e6f656d91d2fe533beb1c3c6fef6830fa1afbcfb0b801b288b52504a102",
+      "after_sha256": "6f01e687a862cce4bc020fddac63ec2676f109ac13442f0aa888410910b33c5f",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/src/velocity_guard.cpp",
+      "before_sha256": "c1e54ac22a05a11baa8932e5b0a2432ab7f2e4e4d6fa635cd42dd640a9ce18de",
+      "after_sha256": "28285137c32ab8bd59ce82deaa6f39546a460be94c3d7318d9ca019ec135788a",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/geometry_checks.cpp",
+      "before_sha256": "9d2bf134c7d7796dc72add8324ded97c4e9c76e743f736ae1c9d2dd6d9207d07",
+      "after_sha256": "143848ef96d1b3a4f7c356be705ec0866a39052763f26abcec2a93127eaeb7a0",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/goal_settling_checks.cpp",
+      "before_sha256": "004f13d51a5fc75b70f899cb85ffe7fc5ddf7cd1c1f5c78ce8686ab9902b075e",
+      "after_sha256": "304db3872349b385d4b17faa198aed2081eea44429dd1aff9c17bd64c3b9f287",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/guard_input_validity_checks.cpp",
+      "before_sha256": "3bc143fd46e2310727d5b2785a95592d2beaa7147395a7f2d365409c10d3693e",
+      "after_sha256": "5ed6129d78525064fe507502fd299056a4059b695b6c97db9deac1c79c884f3f",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/guard_query_checks.cpp",
+      "before_sha256": "d7b70e2dcb5f2ac539775da7529b3f9a56843b8a864a8d6eb53ca683175fb1f2",
+      "after_sha256": "9ef51888905c5f7c27afd1d6f3e35eb06139cabd109ed8d3afcfab10801f590e",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/path_target_checks.cpp",
+      "before_sha256": "ba453ba3585af9a694e3b1cd4c7b655e697bd454b9a8efb6e4d989845a54ed05",
+      "after_sha256": "6ec8af3d310611d0c0709a7556c59416b798c4c2fabcf5b7d2d95946022f767d",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/path_target_reference.hpp",
+      "before_sha256": "2f46af2db6447fdc30abadbe2d53d9d44bdfb6172c9d673de4b298e0f8b5bec7",
+      "after_sha256": "8c88cf56512a372b4a95288fe2c2f79f7c5950bb3974f8a95539f47ab11fc742",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/planner_checks.cpp",
+      "before_sha256": "b6bdd1c661965cdc9d2c84ea54db892231c09c9e292b2b0d814f16724fc7222a",
+      "after_sha256": "6127c35fb7ad9b2f0a65f9af89ce1ba0fc49678ec4d097e716f5abaac85cfad7",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/precise_lattice_checks.cpp",
+      "before_sha256": "9d711526f562bd3bfec169b90753d1eb811c0cfb336bfb613d4a84829ea331ec",
+      "after_sha256": "62c7dade5b461d7e1382a3e70cf2d69c65c88fc2df1c9f1fe24f1ad57756722d",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/precise_mppi_limit_checks.cpp",
+      "before_sha256": "c9af941f7e2c42332aaf9fffed82564201bfa95a2396ba7c94456734c5d78f84",
+      "after_sha256": "8ac981405619d7f2434df0f5399bfae48e6b4ef446da0f4e5b566d207daa5c94",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/prior_association_checks.cpp",
+      "before_sha256": "7c55c1420a5003c61bb24725a85adbfca87a8030fb3e0b32e2fa41e639b6f655",
+      "after_sha256": "11d7ccdbb7057b57d382f67cc655753d13030366d9fe2a949d84d66fdabaa9d5",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/recovery_bt_checks.cpp",
+      "before_sha256": "1c30a3712081b1e5888a4260b3d831aa679d9ffab9e0bdc9bd4e217b7547cfcd",
+      "after_sha256": "c74ede50f2716dc451e5f2a271036953521e386d85b1250ab7358e62d2001663",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/scan_validity_checks.cpp",
+      "before_sha256": "528ef817d4e265bc78833e8f3b845d9d77449000c90d85ee794d9ee64941444b",
+      "after_sha256": "62a285046ff9ebb48e30b508a449e4c5bee8e89991887588227dd4e3544d6788",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/spatial_index_checks.cpp",
+      "before_sha256": "bdeb235ccdd7af85f2a4da0d41813e28c05545039e34295a2feb6db4b93df537",
+      "after_sha256": "88e186183519ccf4f827cb2e7ff933b80c78bce1f178859e50a0423a44ab24bb",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/spatial_index_reference.hpp",
+      "before_sha256": "7dcb6271d22e096da042d464b837f214e82da8084f4df9106485060696843bb0",
+      "after_sha256": "f0fbf1463485ff159ba7c2a2bdf73f427e23f098b4617b41b3e0b28d72e0ec49",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/tracking_checks.cpp",
+      "before_sha256": "cb9c82bc4d050ef9d99e98b287822df39d086d34bc50bef142b02bd8e1f31312",
+      "after_sha256": "c556c6b32ebf6d985aa6fe5099a48e1fc0aa4c68a6570bb25f1fc282aaba1e01",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_navigation/test/velocity_limit_checks.cpp",
+      "before_sha256": "d949eab8b7ba0d73b3097695e68eb7fc2bd620d972dc03b02c9bc3903e84f124",
+      "after_sha256": "a10377b0ae5db8dcf47cbe6646a10cb9bff91869ae5904c4e2f4dffe09c70a83",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/CMakeLists.txt",
+      "before_sha256": "3706886571cda8d837b7a985bd35ffa1c4270e8b9b3f92ef4d9fc04020e15270",
+      "after_sha256": "b3bce39f92d0ef81c5a3e23090f0587553cf9d93bd1f7cfdd165d2e5b14ae21f",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/__init__.py",
+      "before_sha256": "e310ee8bb90a1701178c561a2f9a5675cd7f7eb20b2fd47ce02d7f427d93ccaf",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/offline.py",
+      "before_sha256": "6c0ee110e28f3f22cc7c0aa57d9509b7e90184c89c67d3de856e049b6d8280ff",
+      "after_sha256": "4c9b515c0e6e6c442e325d98acec4dbb7fdb53b759de6f655abd5ed29ae3ab11",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/raster.py",
+      "before_sha256": "515bb8a15a32720053e1ab94005b5d3a3af47173c0410681fc5b92e587ee587e",
+      "after_sha256": "81bceb8209439e4b079c61c90daa78279a093db1c62718075f8cb67364272758",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/replay_tf.py",
+      "before_sha256": "1c62b32eb9a9249cd059f7a139edd0a170a534625ad5d5c50a1b3e717effe2a1",
+      "after_sha256": "a4906fead34dfa6a606d2314fd2bf26952f16c990ca2fb086dcd2cce5d48e97d",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/save_map.py",
+      "before_sha256": "210df749a9b18c0924b7d3222924252865976368fe9d9b51b584b6acd8a90b24",
+      "after_sha256": "fe465495535ed994d72f945bd3b1a53d5bcae18e74f7d88e8ed45b14c8a79f91",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/duojin02_slam_tools/snapshots.py",
+      "before_sha256": "7d84d9804ed0b21727ba027b7a9695242947a6187c87bc098a06ba057b4672bc",
+      "after_sha256": "ea6dd27af2e5ec5bd76f5fe9cf63e83c2d2f0fe8d462f67cb6b9b2a900a95f40",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_slam_tools/package.xml",
+      "before_sha256": "66ad6f380821817fe50629afc334719492a4918e0e20776951a694b56251eb48",
+      "after_sha256": "8f5d3ac872f464cb0b2ab50cf35204c10e503f1967f5945aa60c5dff6ed5fc94",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/config/joy_axis_selector.yaml",
+      "before_sha256": "640898b6272afade4f4ffeba0cacfca1171fdba01d087806e04cd80a023b07fa",
+      "after_sha256": "22b6278e980f0bb941920de3910194df341583cfdfbfc4f8a4e538aa1aeecded",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/config/joy_launcher.yaml",
+      "before_sha256": "e498a1357968f1ca6e972826e1bd0558e796ed523a274a7ad2f7e4a986dbeb18",
+      "after_sha256": "c271902f81c951d1e995a3f833c428f10947b516019d479bb87a8359c633cc53",
+      "yaml_values_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/joy_axis_selector_node.py",
+      "before_sha256": "130cd6196b8cf146eed266d7af25abfba12fd45d6ff694520efd259af224f2ea",
+      "after_sha256": "6e613a1370b716628e35ab1811581ec23a03334d1231e84cc565c60ee687cf61",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/joy_launcher_node.py",
+      "before_sha256": "5aa74f53eb838d31981b1dec2a251e3d9e69abaf3eb082f9ad1872ce3c056c34",
+      "after_sha256": "0cd813a51698358063cbded2db5044d5548b7d036668cc1ce692782e18de88ad",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_core.py",
+      "before_sha256": "09ffbdd3efa0fc39e3593c2c6216d2e51a36bc3fc96f38accd8c62be81894a1d",
+      "after_sha256": "59b2205f6aa6148c2a178118d53cf13749de45546e1051d097b288ed2058cc24",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py",
+      "before_sha256": "4b12d88fa443356e754c118ad9e3404d641ed30f53e5bf057a8a883cecd3a6c5",
+      "after_sha256": "03a11177d13f33d1d24404e11ffa7c4c5f903679859ed6bcc3539004fe1bb3e2",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_node.py",
+      "before_sha256": "e7725e6daad17ee06c311731b4c27512525dba354c4baaad5377f5d63b1554a4",
+      "after_sha256": "eca3d29ee37b561dff514d17163a81619bd6cc38760eb58c85eb7863a9f42983",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/package.xml",
+      "before_sha256": "baed9c1767d0befd3d6976130deb02bc8b8bedb2992df2c5f2a8e0bd43bf6293",
+      "after_sha256": "73385a233ded793fecb7346da62f43034b97366249f5c115cf77827798907f38",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/setup.py",
+      "before_sha256": "337772a13f086648717818178c5358150a795b0aa9a8d91e96d2c4f0863f68fd",
+      "after_sha256": "0ada5cef7783bb9bf9a31e23b6bcdf7b18383fcf91e0e8aae712fb5739021138",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/duojin02_teleop/test/test_keyboard_teleop_core.py",
+      "before_sha256": "6d6e3892a417d4135eb1ee4d7604e62f1dcb958c56363609cce0e2e89219fc06",
+      "after_sha256": "fcd8c0024fc79bf0abb49909afbdc726265a7f23499da8c04ff4b89c92e74f9a",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/CMakeLists.txt",
+      "before_sha256": "26ab9db70df1939cfddb043f97f7b58801eb1dd2650a3d031d1658ea04a920f2",
+      "after_sha256": "81600450897ea0fc646dd27ab185deb324ad6fe475b3cfb2e39766dcadeade23",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/include/lslidar_driver/data_acquisition_strategy.hpp",
+      "before_sha256": "eba662389818bbe00ddd50c1496e5bad2417b347fdf572de12ce308f973d2b3a",
+      "after_sha256": "d91a61d41dda6346a16a5d3a60fe56a2e1f50cf78a56a6bfc84da4e32a654d76",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/include/lslidar_driver/lsiosr.hpp",
+      "before_sha256": "21026f69ef6d5316fdf4b91f0693788cdd6af4a39c2706e0ff46d6a38d03ea37",
+      "after_sha256": "88cb4fa280ce815505247343ec695d012a3189feb4ac06fbf0b7b9704145aa4b",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/include/lslidar_driver/lslidar_x10_driver.hpp",
+      "before_sha256": "031f0e91f662f4d96887ccc809ab83bd64e5395137b6cc5ad41da81767d7231d",
+      "after_sha256": "aae0e56c345f37e70abcaba0c47a5312db66837c5fa5b8e4c36a9f54f6fb9955",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/include/lslidar_driver/publication_worker.hpp",
+      "before_sha256": "cc1f9eb6cbba9c4591d141ecc1532c21dfbe8f0a8cef83ea35503ffb42d249de",
+      "after_sha256": "18aa07e9554eeda9057c13509328c33fc9e668c222fd12c5789c6d9894a15e09",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/launch/lslidar_x10_launch.py",
+      "before_sha256": "2c58d2c84b1668fa99829dd40d87c84777651128e833471d54f0203283d8fb47",
+      "after_sha256": "4282e7efee0c164bda6c215738276e15486ee1075520fffdefae4ddcd5909f26",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/package.xml",
+      "before_sha256": "abb7f03eb4799a62bc367451d314fd88c36aad023f7055e62b9fcd9e7f42443a",
+      "after_sha256": "794d74fd302212737c1c2ba04a1be241a83a7f15a624dfb9f4414ac511f51f94",
+      "allowed_metadata_change": "李天顺 / litianshun.cn@gmail.com",
+      "xml_elements_attributes_values_order_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/src/lsiosr.cpp",
+      "before_sha256": "97e43dd6b310040d0e39b46c89761842f2f8a75a6a3304fb7afdd3b1ba06bd99",
+      "after_sha256": "73ae28893093ef6befaf00db5f1d017d599bb6b4d608a3da6a5c3a6a0ebf763a",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/src/lslidar_driver_node.cpp",
+      "before_sha256": "239d09a8471b9a6f48fe18c734c564b94f625d0535f4362cb7caabc7e3a851f4",
+      "after_sha256": "481da3d5b639402fc58d83dbfa2153c3c5a9384389efe101b8339bc8d7a4d582",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/src/lslidar_x10_driver.cpp",
+      "before_sha256": "edc1931e8b08b230d5b56ab32fa4d088489e1db7f97c828960d7c42cb210285f",
+      "after_sha256": "e17c99f23879e17890c66cc177bf33258775ebb600603a8797493c0577cd2692",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "src/lslidar_driver/lslidar_driver/test/test_x10_driver.cpp",
+      "before_sha256": "9d455247633f5ec4d73a49a51dfe7ba1bb9713c5368a6278ffc7312771302397",
+      "after_sha256": "452f935f428e98809ab8787be789164fda79249f8ddbb5cb49c1b86202c85597",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/integration/CMakeLists.txt",
+      "before_sha256": "2c6aea5a081b71962d6b3a1c91b91f0ccac4373990a9850490cf968ba67e0cb8",
+      "after_sha256": "f70e2935d62a8781728814d88f68a3a4bed4f4391cddf88e99545d2f01f75cbe",
+      "cmake_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/integration/base_feedback_probe.py",
+      "before_sha256": "5056dfd95c4f62f527651aaf71ce28011fc9aab24de54fa0aa01f8c998e61379",
+      "after_sha256": "dc855d3a93e071083ca8eb06681b09aec852e848c7ea333c47954e7422b8ee00",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/ceres_anchor_probe.cpp",
+      "before_sha256": "049e2e77bfa557b95f23a6911d9feb6af72713d298bd33679bc959da442db90e",
+      "after_sha256": "639f19356fe151d6562fd7b2dc955e9cc699082c8995dfdbc563b296a2353281",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/integration/guard_admission_probe.py",
+      "before_sha256": "fb263687eb34370cffb14af82e01829b8ca870e89ec39f994ea7c20ec0ee63b1",
+      "after_sha256": "509b443d943347e8f4c57575cc807a58ff2450c6e6968d23e09bc591ce8cf92e",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/guard_association_probe.py",
+      "before_sha256": "5bef38bf6967b17e917adc756df029cfedd2ea0727e3d76facebd3626df8ebdc",
+      "after_sha256": "599369498cdd4b8edaa3dbfb0726e2d267eb0e83ccb3daf9bc9ac7836830ccc0",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/guard_map_validation_probe.py",
+      "before_sha256": "be9b2e4c878d8fac6b89fca9734a2cbf1580b697f5971979e7b2cedb01e9b4bc",
+      "after_sha256": "960b9a1fc180143127757777c28c03a081668d67f1a189050d96feb000ed15d6",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/guard_tf_probe.py",
+      "before_sha256": "38734bb0669dccb0c2dd7ff5c67e0fcb0937ba396a5bea32a37e8aa93b6d9cfb",
+      "after_sha256": "c52a3626192dc5c41fbef20ed1554d79c701e2280abbbf0439a3060f36c99670",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/lidar_output_probe.py",
+      "before_sha256": "b8278ec27bc3422b52ee774ae97e1e55f4b9eb9ff564c1d01a01aefc86a19d3c",
+      "after_sha256": "69c7579b4f56357cf2109190be73d643468141f3a8e1969ddc03289b26992fd0",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/localization_monitor_probe.py",
+      "before_sha256": "7aa383d22a9abeffd46a4718b7be8cb801bd92b281ea178da3fa63303f7e0b78",
+      "after_sha256": "660b142f383e9141848614818f131f7af1d8cb11c7d6ed1f653dc49d3fea5d08",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/manual_arbitration_probe.py",
+      "before_sha256": "72fa8b242902361d2b625f102c3cd660cfefcf90299b124c96d18aaea2858374",
+      "after_sha256": "ec6107575516a7616890d8bc94d0885aadcaa6895e104e698470b6253adf0224",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/map_save_service_probe.py",
+      "before_sha256": "b3a679802e95b1192b007c858e98c76e7448c67b2ba164462f3d30bf91534b8d",
+      "after_sha256": "7cf90f23d2da09f2868c82a2591ebbdad14870b81cd59c2d8e395e26c6d3a9b3",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/map_saver_completion_probe.cpp",
+      "before_sha256": "7332bb0d68a26c9133f83f8e9749070d4873a9a74b5fd8361a0155a47676459a",
+      "after_sha256": "3bd8e6d7f0caf0f2a996727d071717053ecb1c25f949e5f11f485588f992fd1e",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/integration/navigation_command_timeout_probe.py",
+      "before_sha256": "9b77e8d668da7525e847daa956a35ae83176317ad6a9e0135793f2bd33685d12",
+      "after_sha256": "a8b5f8967221eeb17e188ea99f2b393c5d8e009213d220d6dfc491f7d9c055a6",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/navigation_probe_fixture.py",
+      "before_sha256": "5757628ada20d257a7ffc5ba086e54b26b13d3a3f05d9be08bf4275cbd647f98",
+      "after_sha256": "7dbb75d2949b9991bc804526e6a1142b7f8c0e260083fe196a1660fb59b4f540",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/navigation_recovery_probe.py",
+      "before_sha256": "4488d764695324e361530f5a61986b1fc5118bf722ccd3f1023eb507378daf55",
+      "after_sha256": "44f7fcd71a15e24c30e4c59162dccac2ef7d64c43622fbf82fe5de53c41255de",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/prior_index_probe.py",
+      "before_sha256": "f37b611a0ae9f06cbbae4faee3fa6ea7a3cde910d9d1f6f226aa3b25e5ecc1d6",
+      "after_sha256": "c52a4483e6eff61b60cf4a85883c6baa72b4442269eae277c692b8ca8a0f3591",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/recording_probe.py",
+      "before_sha256": "f755f881c401b485bd6f17094fb9f2a15a7eb3d39f51292d541c2766b3894842",
+      "after_sha256": "b379751134bb2f7bb701d279e23d111d863e994340e1124176705a0205d4e037",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/ros_isolation.py",
+      "before_sha256": "de864ab7c24502ba74972f3617a5db5ea12efd497e025ae69b55fb7a0b767a2c",
+      "after_sha256": "b6eea1bc30d3bb3ede5245b4773cb73f308522e8515efe92475e1343c8fdaefa",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/scan_fault_probe.py",
+      "before_sha256": "209b8114a8a2f059787bdcbb67c87ba5f13819e8ee41a103a9e44f4050858e93",
+      "after_sha256": "a87bda6caf86f3c79daa3a4c146e3593ef851602ab27d88569d86ca986a7afe2",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/scan_gate_probe.cpp",
+      "before_sha256": "49690d573a3edc5e10bd015860767ccb08fdd443259451405b5b2e137525fc98",
+      "after_sha256": "00e748f212945e5ab6b5f6a900dc76e23ce60407597c5378ef51a06d53215c79",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/integration/slam_replay_probe.py",
+      "before_sha256": "0b6b45de4574877e7714fad679b752b69b0204d2a93344f4c4bceb8ffc8e14b9",
+      "after_sha256": "2981388171918ad28618791a09c1b1cae8e0eefb7cdf4c7ed86ffbb9fa3c3dce",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/slam_test_source.py",
+      "before_sha256": "910acffecc6bef1ad4b2ca5d123f3034bbccc45299aed042e76e545db3b82748",
+      "after_sha256": "0e05ff6c66ea186a7b5ec9bce5bef4af1108e854a5c80cbfb6ceaa88317e904c",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/startup_parameter_probe.py",
+      "before_sha256": "36bd90da93c03ef2d30f5bca7ce63c10c3241d8cbd029a6b554e385c54e19e48",
+      "after_sha256": "5e7f757d5d44c17934bb29b2edb09fa176fed790974f0ab0ed4cce787dc8a8b1",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/velocity_guard_probe.py",
+      "before_sha256": "401ef18cebfa1d1f674a335dbc4e04fac4fc71717f9ef593793db0d249500c55",
+      "after_sha256": "ad5293cc9198fbb64c0119b26e32a2368caa506d859e0df1644548ac7f389191",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/integration/velocity_smoother_probe.py",
+      "before_sha256": "a5e61340a94b293ca46f85991a7e8fc9f7e5ab8677603fef9dd2ec97360298bf",
+      "after_sha256": "a22c5373c0759e479f58d334be2ef75b7422507fc8dcbe24779994daa151bf11",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/performance/gpu_geometry_benchmark.cpp",
+      "before_sha256": "695ef376ae29f43a4053078611b610f414eaffdd062444c913469017e5d2a12f",
+      "after_sha256": "5bce15bdac041a1bdf74cb0857322c1a7236c246e2a0855fa3478f759e3b0169",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/performance/path_target_benchmark.cpp",
+      "before_sha256": "c9c7a2515e471b6bcd62b64245712b84ffb849342ab015abc83249165d7a0322",
+      "after_sha256": "cfe4ee965aa0d827d45d032eedfc18a2625b572a734ed2de51c3229973a95065",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/performance/prior_association_benchmark.cpp",
+      "before_sha256": "2836ef8adb3b8d890cca9e85ed10783173dfc92e67599585b89d88686d6e5969",
+      "after_sha256": "8931b4376a962da340b8fb98117e2a4e66485dc6114ac3edc82deeb83bb6d02d",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/performance/spatial_index_benchmark.cpp",
+      "before_sha256": "f9d1c748a52876ac7cd611e44f22fa55143daa8a98c09864ac591387cf9645a5",
+      "after_sha256": "4faa3424cf018175a2b1be26ee008c60ff4a5f56c377fd0c3cda1eed637bd7ef",
+      "cpp_noncomment_tokens_equal": true
+    },
+    {
+      "file": "tests/test_chassis_geometry.py",
+      "before_sha256": "5589d18d2a8e64579097c83f1f3accd56df8fd06f926bfe32868a0cbd3c8a153",
+      "after_sha256": "3f63cbc3d458100a93342d7343d94178f7a40a0d5e567240b879a05f6eab5b66",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_cuda_toolkit_preparation.py",
+      "before_sha256": "423cec4ebaa96ce961e63553f0eda9c843003e602e07f7747e321d27c34fa661",
+      "after_sha256": "91b9fa2244254ab8e73be5d85abf3ae37d3a6c0d3a64c25c288ecd1fb3d673d5",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_gpu_profile.py",
+      "before_sha256": "c66d71f0c8d0750ad34edf47209889b5cff93c5a5dadcb318b85ec0998a7bfa9",
+      "after_sha256": "a5a0d6a43f88e33355591e102c3928130449e848e6aea998044eddf1b1ef6969",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_hardware_boundary.py",
+      "before_sha256": "1818bf682aafbe80d4a5ea42fcdb12fe5c9602fc6e08ba18d261252d1e6e07c0",
+      "after_sha256": "cb7c5d805d1e733421316c5275d0929e7bffc6fbb976a34abe9d7d901e3b2fd8",
+      "test_only_exception": "Two existing source-contract assertions accept formatting whitespace; types, topics, qos and call shape retained.",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_integration_isolation.py",
+      "before_sha256": "597ed001ec95d6499a602ced4af15db46120de39894117f3c2ec51084dede208",
+      "after_sha256": "3ce93916a86d6163875173170b6421f730383a09978c727087cbaca15a2eac86",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_joy_launcher_inputs.py",
+      "before_sha256": "a8cd293b58c048100039b229a840f6458af37c1aa81f4cf08201b9b909e28ce0",
+      "after_sha256": "4b92535c48fbaa9f51dfc4fd0b91fc4a4908035dd599f45ffe31bfd28a8d5b05",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_lattice_resolution.py",
+      "before_sha256": "2bc9d1d48c2b906563ed2d5ba56a124b0e10957aa5dcf66c71d79253ddbd7d5e",
+      "after_sha256": "697dd2fcf39393532c664513b2d9bcb98989b180f266762bb75224d51c2f447e",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_localization_quality.py",
+      "before_sha256": "a300d6f0ba7f948da9a1226de7565a4b0d5b15830e699f0d47dbb474fa6f0df3",
+      "after_sha256": "377260e89654572ff1c160e753ee976f4e697da753c615592318f96e81496ec7",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_localization_readiness.py",
+      "before_sha256": "b568671349092c30951c8580476f6140b289ab04ceee8dea99729ac8ac3081bb",
+      "after_sha256": "58b5b172b38dd1ccddb6892424b29c62138251fe255d0856dca1a5b4deff9783",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_map_snapshot_contract.py",
+      "before_sha256": "85c08059abdab75fbd742b0bfcabf2868933891e3c37b8920ce337baf7db9b1e",
+      "after_sha256": "73c1e2d44358e9939558a987f3fe447a5110709405a95540f3ade40bb9160141",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_online_profile.py",
+      "before_sha256": "b558dd542508e502465e57c32552873ef4b1ba6e356bd5f032b33b4328796b69",
+      "after_sha256": "7f38ae949771290a37aa1d3930cd27cc52fc754a99587ee83ed9bd81f76f9f8e",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_record_slam_shell.py",
+      "before_sha256": "91b10b5273a73f2f57fa2dac9dd25556bc9e32e2d5f91100315aeda66a8300ce",
+      "after_sha256": "f3e1052da9711d4962eb20a6c021f78dc54586ec0c7e3be0318fae8e9ada9272",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_slam_backend_preparation.py",
+      "before_sha256": "7f4c9941ad171faecd44c22c1a6f4ed3da7138e6219fbdbb55cb308d022178e9",
+      "after_sha256": "7252ec7b7b58b15cde1c4ae5c7f91bc0a0ee2a78cb3df87cd86470dc6c0870f2",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_slam_process_cleanup.py",
+      "before_sha256": "7fb7d02877df0d0a66231c078b7fea402ad933c818d5aa9884ea1ffd5ccaf35d",
+      "after_sha256": "ec73739bb754af537b237d93e1c3338c84d1b13b6b469184e7cc3f2ed52f7193",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_slam_raster.py",
+      "before_sha256": "9282d37de13a0316fd54eab38b25cbbfb2172b477e4887c7d9e3ee2100a97154",
+      "after_sha256": "6e9e50e7463c08f407e4493c0d95701491588ada26d2282c05cc1e91eaf95449",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_slam_test_source.py",
+      "before_sha256": "6989c996a862f1b872e9e6cff48048331795bcc2bdf5d941e69a1ce1f2497c57",
+      "after_sha256": "78a318e0ccf34be6289795c43cb989af2f293ac28fe76cc5b9e7693d45301320",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_slam_workflows.py",
+      "before_sha256": "e3aa82e3884441ce8baec63660adb83a7132fc833ebc5eaa149b3ad6e53f5257",
+      "after_sha256": "ac47fa59c7705d0d021c07c032de3b1781ad258fb80f15ac56a80b3b2f745c57",
+      "python_execution_ast_equal": true
+    },
+    {
+      "file": "tests/test_teleop_input_lifecycle.py",
+      "before_sha256": "b39902883fea669139145e909a36678dca92a44e00f9a5af5800271cbf02e743",
+      "after_sha256": "601ca9f95f88fde82ad35d7afac9fdb1d16469d33c6942a5bbc7517ac1edde8f",
+      "python_execution_ast_equal": true
+    }
+  ],
+  "unchanged_licenses_pinned_patch_and_cuda_lock": true,
+  "qualification": "Python non-runtime docstrings intentionally removed. Requested maintainer metadata and two whitespace-independent static test matchers are explicit exceptions. Product interfaces, statements, literal values, evaluation order and configuration values unchanged; no new abstractions or file moves."
+}

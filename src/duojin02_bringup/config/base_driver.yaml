@@ -6,7 +6,6 @@ base_driver:
     odom_y_scale: 1.0
     odom_z_scale_positive: 1.0
     odom_z_scale_negative: 1.0
-    # Preserve existing weighting until noise and gyro bias are measured on the robot.
     imu_yaw_rate_bias: 0.0
     imu_yaw_rate_variance: 0.000001
     odom_twist_variances_moving: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]

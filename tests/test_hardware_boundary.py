@@ -1,5 +1,3 @@
-"""Contracts keeping the hardware branch independent of simulation."""
-
 import ast
 import importlib.util
 import re
@@ -15,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BRINGUP = ROOT / "src/duojin02_bringup"
 sys.path.insert(0, str(BRINGUP))
 FORBIDDEN = re.compile(
-    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin02_(?:camera|mission|msgs)|lslidar_msgs|duojin02_(?:sim|controller_emulator|gz|safety_watchdog)")
+    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin02_(?:camera|mission|msgs)|lslidar_msgs|duojin02_(?:sim|controller_emulator|gz|safety_watchdog)"
+)
 
 
 def load_launch(name):
@@ -34,8 +33,14 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         assert not FORBIDDEN.search(name), name
         packages[name] = tree
     assert set(packages) == {
-        "duojin02_base_driver", "duojin02_bringup", "duojin02_description",
-        "duojin02_slam_tools", "duojin02_teleop", "duojin02_navigation", "lslidar_driver"}
+        "duojin02_base_driver",
+        "duojin02_bringup",
+        "duojin02_description",
+        "duojin02_slam_tools",
+        "duojin02_teleop",
+        "duojin02_navigation",
+        "lslidar_driver",
+    }
     for name, tree in packages.items():
         for element in tree:
             if element.tag.endswith("depend"):
@@ -64,20 +69,34 @@ def test_all_hardware_configuration_clocks_are_real():
         elif isinstance(value, list):
             for item in value:
                 check(item, path)
+
     for path in (BRINGUP / "config").rglob("*.yaml"):
         check(yaml.safe_load(path.read_text()), path)
 
 
-@pytest.mark.parametrize("name", [
-    "base", "mapping", "navigation", "nav2", "slam",
-    "save_map", "joy_teleop", "online_navigation", "velocity_guard", "navigation_stack",
-])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "base",
+        "mapping",
+        "navigation",
+        "nav2",
+        "slam",
+        "save_map",
+        "joy_teleop",
+        "online_navigation",
+        "velocity_guard",
+        "navigation_stack",
+    ],
+)
 def test_launches_resolve_without_simulation_clock_arguments(name, monkeypatch):
     from launch.actions import DeclareLaunchArgument
+
     monkeypatch.setenv("USE_SIM_TIME", "true")
     description = load_launch(name).generate_launch_description()
-    arguments = [action.name for action in description.entities
-                 if isinstance(action, DeclareLaunchArgument)]
+    arguments = [
+        action.name for action in description.entities if isinstance(action, DeclareLaunchArgument)
+    ]
     assert "use_sim_time" not in arguments
     tree = ast.parse((BRINGUP / "launch" / f"{name}.launch.py").read_text())
     for node in ast.walk(tree):
@@ -93,6 +112,7 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     from launch import LaunchContext
     from launch.actions import GroupAction, IncludeLaunchDescription
     from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
+
     monkeypatch.setenv("USE_SIM_TIME", "true")
     map_file = tmp_path / "0.yaml"
     map_file.write_text("image: 0.pgm\nresolution: 0.05\norigin: [0, 0, 0]\n")
@@ -100,28 +120,45 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     context = LaunchContext()
     context.launch_configurations["map"] = str(map_file)
     actions = load_launch("nav2")._create_nav_actions(
-        context, get_package_share_directory("nav2_bringup"))
-    grouped_actions = [entity for action in actions if isinstance(action, GroupAction)
-                       for entity in action.get_sub_entities()]
-    include = next(action for action in grouped_actions
-                   if isinstance(action, IncludeLaunchDescription))
-    assert perform_substitutions(
-        context, normalize_to_list_of_substitutions(
-            dict(include.launch_arguments)["use_sim_time"])) == "false"
-    assert "initial_pose_publisher" not in (
-        BRINGUP / "launch/nav2.launch.py").read_text()
+        context, get_package_share_directory("nav2_bringup")
+    )
+    grouped_actions = [
+        entity
+        for action in actions
+        if isinstance(action, GroupAction)
+        for entity in action.get_sub_entities()
+    ]
+    include = next(
+        action for action in grouped_actions if isinstance(action, IncludeLaunchDescription)
+    )
+    assert (
+        perform_substitutions(
+            context,
+            normalize_to_list_of_substitutions(dict(include.launch_arguments)["use_sim_time"]),
+        )
+        == "false"
+    )
+    assert "initial_pose_publisher" not in (BRINGUP / "launch/nav2.launch.py").read_text()
 
 
 def test_command_sources_reach_base_through_validated_velocity_arbitration():
     config = yaml.safe_load((BRINGUP / "config/twist_mux.yaml").read_text())
     parameters = config["twist_mux"]["ros__parameters"]
     assert {entry["topic"] for entry in parameters["topics"].values()} == {
-        "/cmd_vel", "/cmd_vel_keyboard", "/cmd_vel_normal", "/cmd_vel_slow"}
+        "/cmd_vel",
+        "/cmd_vel_keyboard",
+        "/cmd_vel_normal",
+        "/cmd_vel_slow",
+    }
     assert not parameters.get("locks")
     nodes = {}
     tree = ast.parse((BRINGUP / "launch/base.launch.py").read_text())
     for node in ast.walk(tree):
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Node":
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "Node"
+        ):
             fields = {item.arg: item.value for item in node.keywords}
             package = ast.literal_eval(fields["package"])
             if "remappings" in fields:
@@ -129,13 +166,18 @@ def test_command_sources_reach_base_through_validated_velocity_arbitration():
     output_topic = nodes["twist_mux"]["/cmd_vel_out"]
     assert output_topic == "/cmd_vel_requested"
     guard_source = (ROOT / "src/duojin02_navigation/src/velocity_guard.cpp").read_text()
-    assert 'Twist>("/cmd_vel_requested",qos,' in guard_source
-    assert f'Twist>("{nodes["duojin02_base_driver"]["/cmd_vel"]}",qos)' in guard_source
+    assert re.search(r'Twist\s*>\s*\(\s*"/cmd_vel_requested"\s*,\s*qos\s*,', guard_source)
+    assert re.search(
+        rf'Twist\s*>\s*\(\s*"{re.escape(nodes["duojin02_base_driver"]["/cmd_vel"])}"\s*,\s*qos\s*\)',
+        guard_source,
+    )
     assert output_topic not in {entry["topic"] for entry in parameters["topics"].values()}
 
 
 def test_removed_modules_leave_no_launch_or_configuration_references():
-    removed = re.compile(r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop|duojin02_camera|duojin02_mission|gcode|calibration_file|lidar_model")
+    removed = re.compile(
+        r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop|duojin02_camera|duojin02_mission|gcode|calibration_file|lidar_model"
+    )
     for directory in (BRINGUP / "launch", BRINGUP / "config"):
         for path in directory.rglob("*"):
             if path.is_file() and path.suffix in {".py", ".yaml", ".rviz", ".json"}:
@@ -144,8 +186,8 @@ def test_removed_modules_leave_no_launch_or_configuration_references():
 
 def test_generated_urdf_contains_only_hardware_geometry():
     import xacro
-    document = xacro.process_file(
-        str(ROOT / "src/duojin02_description/urdf/duojin02.xacro"))
+
+    document = xacro.process_file(str(ROOT / "src/duojin02_description/urdf/duojin02.xacro"))
     robot = ET.fromstring(document.toxml())
     assert not robot.findall(".//gazebo")
     assert not robot.findall(".//plugin")
@@ -163,11 +205,14 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
     from launch import LaunchContext
     from launch.actions import GroupAction, IncludeLaunchDescription
     from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
+
     module = load_launch("base")
     lidar_share = ROOT / "src/lslidar_driver/lslidar_driver"
-    shares = {"lslidar_driver": lidar_share,
-              "duojin02_description": ROOT / "src/duojin02_description",
-              "duojin02_bringup": BRINGUP}
+    shares = {
+        "lslidar_driver": lidar_share,
+        "duojin02_description": ROOT / "src/duojin02_description",
+        "duojin02_bringup": BRINGUP,
+    }
     monkeypatch.setattr(module, "get_package_share_directory", lambda name: str(shares[name]))
     description = module.generate_launch_description()
     groups = [item for item in description.entities if isinstance(item, GroupAction)]
@@ -176,24 +221,29 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
     include = next(item for item in children if isinstance(item, IncludeLaunchDescription))
     context = LaunchContext()
     context.launch_configurations.update(
-        params_file="/ws/config/nav2.yaml", lidar_serial_port="/dev/test_lidar")
+        params_file="/ws/config/nav2.yaml", lidar_serial_port="/dev/test_lidar"
+    )
     include.launch_description_source.get_launch_description(context)
     path = include.launch_description_source.location
     assert Path(path) == lidar_share / "launch/lslidar_x10_launch.py"
-    values = {name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
-              for name, value in include.launch_arguments}
+    values = {
+        name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
+        for name, value in include.launch_arguments
+    }
     assert values["params_file"] == str(lidar_share / "config/duojin02_n10plus.yaml")
     assert values["serial_port"] == "/dev/test_lidar"
     assert values["frame_id"] == "laser"
     assert values["scan_topic"] == "/scan"
-    # Exercise the group's configuration stack without executing any node actions.
+
     for action in groups[0].execute(context):
         if action is include:
             context.launch_configurations["params_file"] = values["params_file"]
         else:
             action.execute(context)
     assert context.launch_configurations["params_file"] == "/ws/config/nav2.yaml"
-    configuration = yaml.safe_load(Path(values["params_file"]).read_text())["lslidar_driver_node"]["ros__parameters"]
+    configuration = yaml.safe_load(Path(values["params_file"]).read_text())["lslidar_driver_node"][
+        "ros__parameters"
+    ]
     assert configuration["use_sim_time"] is False
     assert not (lidar_share / "src/lslidar_driver.cc").exists()
     assert not (lidar_share / "params/lsx10.yaml").exists()
@@ -201,11 +251,14 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
 
 def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, monkeypatch):
     from duojin02_bringup import map_paths
+
     monkeypatch.setenv("DUOJIN02_WORKSPACE_ROOT", str(tmp_path))
     (tmp_path / "maps").mkdir()
     (tmp_path / "maps/test.pgm").write_bytes(b"P5\n1 1\n255\n\xff")
     for name in ("2", "12", "5"):
-        (tmp_path / "maps" / f"{name}.yaml").write_text("image: test.pgm\nresolution: 0.05\norigin: [0, 0, 0]\n")
+        (tmp_path / "maps" / f"{name}.yaml").write_text(
+            "image: test.pgm\nresolution: 0.05\norigin: [0, 0, 0]\n"
+        )
     assert map_paths.get_workspace_root() == tmp_path
     assert map_paths.pick_latest_map_yaml() == str(tmp_path / "maps/12.yaml")
     assert map_paths.resolve_map_yaml("maps/5.yaml") == str(tmp_path / "maps/5.yaml")
@@ -214,10 +267,13 @@ def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, m
         map_paths.get_workspace_root()
 
 
-@pytest.mark.parametrize("selected,expected", [(None, "rmw_cyclonedds_cpp"), ("rmw_fastrtps_cpp", "rmw_fastrtps_cpp")])
+@pytest.mark.parametrize(
+    "selected,expected", [(None, "rmw_cyclonedds_cpp"), ("rmw_fastrtps_cpp", "rmw_fastrtps_cpp")]
+)
 def test_middleware_default_preserves_explicit_deployment_choice(monkeypatch, selected, expected):
     from launch import LaunchContext
     from duojin02_bringup.middleware import middleware
+
     if selected is None:
         monkeypatch.delenv("RMW_IMPLEMENTATION", raising=False)
     else:
