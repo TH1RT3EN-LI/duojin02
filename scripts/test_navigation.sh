@@ -11,6 +11,7 @@ export CMAKE_BUILD_PARALLEL_LEVEL="$build_jobs"
 MAKEFLAGS="-j$build_jobs" colcon --log-base "$test_root/log" build \
   --base-paths "$hardware_root/src/duojin02_navigation" \
     "$hardware_root/src/duojin02_base_driver" "$hardware_root/src/duojin02_bringup" \
+    "$hardware_root/src/duojin02_teleop" \
   --build-base "$test_root/build" --install-base "$test_root/install" \
   --merge-install --parallel-workers 1 \
   --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
@@ -30,4 +31,10 @@ python3 "$hardware_root/tests/integration/localization_monitor_probe.py" \
 python3 "$hardware_root/tests/integration/navigation_command_timeout_probe.py" \
   "${probe_arguments[@]}" --params "$hardware_root/src/duojin02_bringup/config/nav2.yaml" \
   --candidate --output-dir "$probe_directory/command-timeout"
+python3 "$hardware_root/tests/integration/manual_arbitration_probe.py" \
+  "${probe_arguments[@]}" --output-dir "$probe_directory/manual-arbitration"
+python3 "$hardware_root/tests/integration/navigation_recovery_probe.py" \
+  --params-file "$hardware_root/src/duojin02_bringup/config/nav2.yaml" \
+  --tree-directory "$hardware_root/src/duojin02_bringup/behavior_trees" \
+  --output-dir "$probe_directory/navigation-recovery"
 echo "Navigation command-chain checks passed; evidence: $probe_directory"

@@ -15,17 +15,27 @@
 | 串口故障 / 重连 | 清除运动指令；完整零帧写入成功后才宣布就绪，只接受之后的新请求 |
 | 真实 CUDA 运行错误 | 控制器拒绝本次请求，执行器故障锁存；重新配置前不再使用故障执行器 |
 
-制动使用填充足迹、激光距离误差、盲区障碍记忆与静态先验，保留原 `brakingSweep` 数学。Guard 的输入有效期与底盘的输出有效期覆盖不同进程故障，不能删除其一。它们共用 [safety.yaml](../src/duojin02_bringup/config/safety.yaml) 的 `/**.ros__parameters.command_timeout_s`，默认 0.25 s。生产底盘 launch 必须同时加载该文件与底盘反馈配置。
+制动使用填充足迹、激光距离误差、盲区障碍记忆与静态先验，保留原 `brakingSweep` 数学。Guard 的输入有效期与底盘的输出有效期覆盖不同进程故障，不能删除其一。mux 的所有来源租期、Guard 与底盘的命令有效期共用 [safety.yaml](../src/duojin02_bringup/config/safety.yaml) 的 `/**.ros__parameters.command_timeout_s`，默认 0.25 s。生产底盘 launch 同时加载该文件与底盘反馈配置，并由启动层把同一租期派生给 mux 每个来源；`twist_mux.yaml` 只维护话题与优先级。
 
 同文件维护原有激光 0.30 s、里程计 0.20 s、地图 TF 0.50 s 上限，以及足迹、余量、反应时间与制动减速度。此次没有凭经验重调这些物理与时效参数。它们仍需按实测发布间隔、调度延迟、速度与制动能力标定；超时是输出零速度的触发条件，不是物理停稳时间。
 
-平滑器的 `velocity_timeout` 与减速度仍在 [nav2.yaml](../src/duojin02_bringup/config/nav2.yaml)，表达上游指令中断后的原减速行为；mux 的超时只用于输入仲裁，不作为制动时间保证。
+平滑器的 `velocity_timeout` 与减速度仍在 [nav2.yaml](../src/duojin02_bringup/config/nav2.yaml)，表达上游指令中断后的原减速行为；mux 的租期用于输入仲裁，不作为制动时间保证。
+
+## 手动接管与任务边界
+
+按住手柄使能键或持续输入键盘运动键时，遥控覆盖导航。键盘使用独立 `/cmd_vel_keyboard`，闲置不发送零速度；相反方向键同时按住时仍保持手动零速接管。输入结束只发送一次零速度，租期到期后交回新的导航速度。`X` 只归零当前键盘来源，不能锁住所有来源。
+
+接管不暂停导航 Action 或其进度超时。结束后仅仍在运行的目标能继续，失败、取消或完成的目标不会被自动重放。恢复需要当前路径明确无效且获得不同的有效替代路径，不能靠无证据的后退 / 等待来兜底。启动与恢复流程见 [运行机制](runtime-mechanisms.md)。
+
+重复超时、发布频率及键盘轮询时间必须为正有限值；速度、步长与上限必须有限且非负。非法配置在任何键盘指令写出前失败，运行时非法过期时间也不能把旧非零输入无限续期。
 
 ## 删除的逻辑
 
 - 局部 costmap 回输到 Guard：该图已由静态图、激光和 Guard 自己的障碍记忆生成，固定图模式下它还会在未参与制动查询时触发全局停车。Nav2 自己的 costmap 继续使用。
 - AMCL 协方差自动膨胀制动障碍、额外 5 mm 余量与爬行速度规则：删除第二套质量 / 余量阈值，只使用配置的核心制动包络。
 - 固定图健康停车状态机、评分等待窗口、失配锁存、定制恢复重试与速度中继：保留几何质量评分作为报警，恢复使用 AMCL 原生接口。
+- 无路径失效证据的自动后退、Wait 与无条件重试：不再启动 `behavior_server`；恢复仅检查当前路径并接受不同的有效替代路径。
+- 键盘的禁用闲置看门狗、重复按键集合、松键兼容接口、垂向零状态及 stamped 输出分支：只保留 TTY 按键独立过期和当前 Twist 输入契约。
 - GPU 40 ms 软期限：未标定的耗时阈值不能中断驱动阻塞，删除耗时停车与事件轮询。计算耗时仍可记录；控制产出断流由共同速度链路处理。
 
 Nav2 MPPI 优化器、PreciseLattice、目标选择、轨迹排名、CPU / CUDA 碰撞数学和持续停稳判据不因本轮精简改变。
@@ -36,4 +46,4 @@ Nav2 MPPI 优化器、PreciseLattice、目标选择、轨迹排名、CPU / CUDA 
 
 本地检查使用隔离 ROS 合成输入、PTY 串口及真实 CUDA API 故障，方法见 [导航验证](navigation-validation.md)。它们证明软件触发与命令输出，不证明实物制动距离。
 
-2026-10-14 本轮检查：136 项 Python、12 个 launch 入口、CPU 17 项 CTest（另 1 项 CUDA 专项跳过）、真实 GPU 20 项 CTest 通过。质量与指令断流两组链路探针共 29 项通过；安装版 CUDA 与 CPU 比较 14,472 次无差异。非默认共享超时通过实际参数服务核对，核心算法保留检查通过。详见 [验证记录](evidence/safety-cleanup/validation.json) 与 [算法保留证明](evidence/safety-cleanup/algorithm-preservation.json)。
+2026-10-14 首轮停车保护精简的冻结检查：136 项 Python、12 个 launch 入口、CPU 17 项 CTest（另 1 项 CUDA 专项跳过）、真实 GPU 20 项 CTest 通过。质量与指令断流两组链路探针共 29 项通过；安装版 CUDA 与 CPU 比较 14,472 次无差异。非默认共享超时通过实际参数服务核对，核心算法保留检查通过。详见 [验证记录](evidence/safety-cleanup/validation.json) 与 [算法保留证明](evidence/safety-cleanup/algorithm-preservation.json)。这组计数描述该冻结阶段，后续接管、恢复与 I/O 精简的当前契约见 [运行机制](runtime-mechanisms.md)。

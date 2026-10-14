@@ -75,16 +75,18 @@ def test_gpu_switch_rejects_ambiguous_choices(value):
         parse_use_gpu(value)
 
 
-def test_yaml_switch_is_boolean_and_missing_switch_uses_shipped_default(tmp_path):
+def test_selected_yaml_switch_must_be_an_explicit_boolean(tmp_path):
     assert configured_use_gpu(CONFIG) is True
     path, data = selected_profile(tmp_path, 'false')
     with pytest.raises(ValueError, match='YAML boolean'):
         configured_use_gpu(path)
     del data['controller_server']['ros__parameters']['FollowPath']['use_gpu']
     path.write_text(yaml.safe_dump(data))
-    assert configured_use_gpu(path) == configured_use_gpu(CONFIG)
+    with pytest.raises(ValueError, match='YAML boolean'):
+        configured_use_gpu(path)
     context = LaunchContext()
-    assert GpuDefault(str(path)).perform(context) == 'true'
+    with pytest.raises(ValueError, match='YAML boolean'):
+        GpuDefault(str(path)).perform(context)
 
 
 def test_fixed_navigation_passes_choice_through_both_includes(tmp_path, monkeypatch):

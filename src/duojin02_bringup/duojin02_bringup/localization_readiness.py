@@ -1,45 +1,33 @@
-"""Wait for distinct live scans and localization before starting navigation."""
-from collections import deque
+"""Wait for a usable live scan and localization before starting navigation."""
 import math
 import time
 
+from duojin02_bringup.safety_profile import safety_defaults
+
 
 class ScanReadiness:
-    """Give a new scan bounded time to receive its exact transform.
-
-    A transient TF miss is pending evidence, not a failed observation. Source
-    age and a steady-clock watchdog bound that wait. Stamp high-water marks
-    survive faults so duplicate / replayed scans cannot rebuild readiness.
-    """
-    def __init__(self, max_pending=8):
-        if max_pending < 1:
-            raise ValueError('max_pending must be positive')
-        self.max_pending = max_pending
-        self.pending = deque()
-        self.counted = 0
+    """Hold one fresh scan while its exact transform catches up."""
+    def __init__(self, scan_timeout_s=None):
+        self.timeout_s = (safety_defaults()['scan_timeout_s']
+                          if scan_timeout_s is None else scan_timeout_s)
+        if not math.isfinite(self.timeout_s) or self.timeout_s <= 0:
+            raise ValueError('scan_timeout_s must be finite and positive')
+        self.timeout_ns = self.timeout_s * 1_000_000_000
+        self.pending = None
         self.last_seen_ns = -1
         self.last_clock_ns = None
-        self.last_wall = None
-        self.last_input_wall = None
-        self.last_count_clock_ns = -1
-
-    def reset(self, now_ns):
-        self.pending.clear()
-        self.counted = 0
-        self.last_input_wall = None
-        self.last_count_clock_ns = now_ns
 
     def check_time(self, now_ns, wall):
         valid = (isinstance(now_ns, int) and now_ns > 0 and
                  math.isfinite(wall))
-        if (not valid or
-            self.last_clock_ns is not None and now_ns < self.last_clock_ns or
-            self.last_wall is not None and wall < self.last_wall):
-            self.reset(now_ns)
-        self.last_clock_ns, self.last_wall = now_ns, wall
-        if self.last_input_wall is not None and wall-self.last_input_wall >= .3:
-            self.reset(now_ns)
-        return valid
+        if not valid:
+            self.pending = None
+            return False
+        if self.last_clock_ns is not None and now_ns < self.last_clock_ns:
+            self.pending = None
+            self.last_seen_ns = -1
+        self.last_clock_ns = now_ns
+        return True
 
     @staticmethod
     def stamp_ns(scan):
@@ -85,47 +73,37 @@ class ScanReadiness:
 
     def receive(self, scan, now_ns, wall):
         clock_valid = self.check_time(now_ns, wall)
+        if not clock_valid:
+            return
         stamp = self.stamp_ns(scan)
-        if (not clock_valid or stamp is None or not self.usable(scan) or
-                abs(now_ns-stamp) >= 300_000_000):
-            # A malformed scan cannot bridge two qualifying runs. A valid
-            # timestamp near current time also forms a replay barrier.
-            if stamp is not None and abs(now_ns-stamp) < 300_000_000:
+        if (stamp is None or not self.usable(scan) or
+                abs(now_ns-stamp) >= self.timeout_ns):
+            # Invalid data clears the pending observation; replaying its stamp
+            # cannot revive an older scan or renew the receipt watchdog.
+            if stamp is not None and abs(now_ns-stamp) < self.timeout_ns:
                 self.last_seen_ns = max(self.last_seen_ns, stamp)
-            self.reset(now_ns)
+            self.pending = None
             return
         if stamp <= self.last_seen_ns:
             return
         self.last_seen_ns = stamp
-        if len(self.pending) >= self.max_pending:
-            self.reset(now_ns)
-        self.pending.append((scan, stamp, wall))
-        self.last_input_wall = wall
+        if self.pending is None or not self.fresh(self.pending[1], self.pending[2], now_ns, wall):
+            self.pending = (scan, stamp, wall)
+
+    def fresh(self, stamp, receipt, now_ns, wall):
+        return abs(now_ns-stamp) < self.timeout_ns and 0 <= wall-receipt < self.timeout_s
 
     def poll(self, now_ns, wall, exact_tf_ready):
-        if not self.check_time(now_ns, wall):
+        if not self.check_time(now_ns, wall) or self.pending is None:
             return False
-        for _, stamp, receipt in self.pending:
-            if abs(now_ns-stamp) >= 300_000_000 or wall-receipt >= .3:
-                self.reset(now_ns)
-                return False
-        while self.pending:
-            scan, _, _ = self.pending[0]
-            # Paused ROS time cannot qualify a stream of future-stamped data.
-            if now_ns <= self.last_count_clock_ns:
-                break
-            try:
-                valid = exact_tf_ready(scan)
-            except Exception:
-                valid = False
-            if not valid:
-                break
-            self.pending.popleft()
-            self.counted += 1
-            self.last_count_clock_ns = now_ns
-            if self.counted >= 3:
-                return True
-        return False
+        scan, stamp, receipt = self.pending
+        if not self.fresh(stamp, receipt, now_ns, wall):
+            self.pending = None
+            return False
+        try:
+            return bool(exact_tf_ready(scan))
+        except Exception:
+            return False
 
 
 def main():
@@ -140,7 +118,8 @@ def main():
     node=Node('navigation_localization_readiness')
     timeout=node.declare_parameter('timeout_s',0.0).value
     buffer=Buffer();listener=TransformListener(buffer,node)
-    scans=ScanReadiness()
+    limits=safety_defaults()
+    scans=ScanReadiness(limits['scan_timeout_s'])
     subscription=node.create_subscription(LaserScan,'/scan',
         lambda m:scans.receive(m,node.get_clock().now().nanoseconds,time.monotonic()),
         qos_profile_sensor_data)
@@ -151,7 +130,7 @@ def main():
         if not buffer.can_transform('map','base_footprint',Time()):
             return False
         tf=buffer.lookup_transform('map','base_footprint',Time())
-        return abs((node.get_clock().now()-Time.from_msg(tf.header.stamp)).nanoseconds)<350_000_000
+        return abs((node.get_clock().now()-Time.from_msg(tf.header.stamp)).nanoseconds)<limits['localization_tf_timeout_s']*1_000_000_000
 
     start=time.monotonic();ready=False
     node.get_logger().info('Waiting for live scan and map localization; fixed maps require an initial pose.')

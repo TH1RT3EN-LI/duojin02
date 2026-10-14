@@ -116,7 +116,7 @@ def test_command_sources_reach_base_through_validated_velocity_arbitration():
     config = yaml.safe_load((BRINGUP / "config/twist_mux.yaml").read_text())
     parameters = config["twist_mux"]["ros__parameters"]
     assert {entry["topic"] for entry in parameters["topics"].values()} == {
-        "/cmd_vel", "/cmd_vel_normal", "/cmd_vel_slow"}
+        "/cmd_vel", "/cmd_vel_keyboard", "/cmd_vel_normal", "/cmd_vel_slow"}
     assert not parameters.get("locks")
     nodes = {}
     tree = ast.parse((BRINGUP / "launch/base.launch.py").read_text())

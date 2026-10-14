@@ -16,6 +16,7 @@ cmake -S tests/integration -B "$test_root" -DPREPARED_SLAM_SOURCE="$prepared_sou
 cmake --build "$test_root" -j"${BUILD_JOBS:-2}"
 python3 tests/integration/ros_isolation.py "$test_root/scan_gate_probe"
 python3 tests/integration/ros_isolation.py "$test_root/ceres_anchor_probe"
+python3 tests/integration/ros_isolation.py "$test_root/map_saver_completion_probe"
 python3 tests/integration/base_feedback_probe.py
 python3 tests/integration/map_save_service_probe.py
 python3 tests/integration/recording_probe.py

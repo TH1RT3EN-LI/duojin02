@@ -58,22 +58,26 @@ int main(int argc,char **argv) {
     const double my=-s*(robot.x-map_pose.x)+c*(robot.y-map_pose.y);
     const auto wall_start=std::chrono::steady_clock::now();const double cpu_start=cpuNs();
     std::vector<Point> output=scan;
-    const double radius=guardQueryRadius(polygon,{.25,.10,.1},{.3,0,.2},.008,.2,.4,prior_index.maxRadius(),.025,2.5);
 #ifdef DUOJIN_ASSOCIATION_CACHE_BENCH
-    cache.begin(prior.size(),{1,observation_epoch,map_pose,.025,.008});
+    const double radius=guardQueryRadius(polygon,{.25,.10,.1},{.3,0,.2},.008,.2,.4,prior_index.maxRadius(),2.5);
+#else
+    const double radius=guardQueryRadius(polygon,{.25,.10,.1},{.3,0,.2},.008,.2,.4,prior_index.maxRadius(),0,2.5);
+#endif
+#ifdef DUOJIN_ASSOCIATION_CACHE_BENCH
+    cache.begin(prior.size(),{1,observation_epoch,map_pose,.008});
     prior_index.forEachNearIndexed(prior,mx,my,radius,[&](const Point &q,size_t index) {
 #else
     prior_index.forEachNear(prior,mx,my,radius,[&](const Point &q) {
 #endif
       Point p{map_pose.x+c*q.x-s*q.y,map_pose.y+s*q.x+c*q.y,q.radius};
       if(std::hypot(p.x-robot.x,p.y-robot.y)>2.5) return;
-      const double association=p.radius+std::min(.10,.025)+.008+.015;
+      const double association=p.radius+.008+.015;
 #ifdef DUOJIN_ASSOCIATION_CACHE_BENCH
       const bool matched=cache.match(index,[&](){return observed_index.hasWithin(scan,p,association);});
 #else
       const bool matched=observed_index.hasWithin(scan,p,association);
 #endif
-      if(!matched) {p.radius+=.025;output.push_back(p);}
+      if(!matched) {output.push_back(p);}
       if(cycle>=warmup) {++queries;matched_count+=matched;}
     });
     const double cpu_elapsed=cpuNs()-cpu_start;

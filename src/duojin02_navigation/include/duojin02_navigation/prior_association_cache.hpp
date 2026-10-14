@@ -11,7 +11,7 @@ namespace duojin02_navigation {
 struct PriorAssociationContext {
   uint64_t map_epoch{0}, observation_epoch{0};
   Pose map_pose;
-  double localization_margin{0}, range_error{0};
+  double range_error{0};
 };
 class PriorAssociationCache {
  public:
@@ -43,7 +43,7 @@ class PriorAssociationCache {
     return a.map_epoch==b.map_epoch && a.observation_epoch==b.observation_epoch &&
       sameBits(a.map_pose.x,b.map_pose.x) && sameBits(a.map_pose.y,b.map_pose.y) &&
       sameBits(a.map_pose.yaw,b.map_pose.yaw) &&
-      sameBits(a.localization_margin,b.localization_margin) && sameBits(a.range_error,b.range_error);
+      sameBits(a.range_error,b.range_error);
   }
   PriorAssociationContext context_;
   bool have_context_{false};uint32_t generation_{0};

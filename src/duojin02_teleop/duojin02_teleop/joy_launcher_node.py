@@ -188,6 +188,10 @@ class JoyLauncherNode(Node):
         self.prev_buttons = list(msg.buttons)
 
     def _trigger_button_command(self, btn, cmd, hold_sec, held_sec):
+        if btn in self.running_procs and self.running_procs[btn].poll() is None:
+            self.get_logger().info(f'Command for button {btn} is still running; ignoring repeat')
+            return
+
         if hold_sec > 0.0:
             self.get_logger().info(
                 f'Button {btn} long-press {held_sec:.2f}s/{hold_sec:.2f}s -> {cmd}'
@@ -200,10 +204,6 @@ class JoyLauncherNode(Node):
                 self.trigger_feedback_intensity,
                 self.trigger_feedback_duration_sec,
             )
-
-        if btn in self.running_procs and self.running_procs[btn].poll() is None:
-            self.get_logger().info(f'Killing previous process for button {btn}')
-            self._stop_process_tree(btn, self.running_procs[btn])
 
         self.running_procs[btn] = subprocess.Popen(
             ["bash", "-lc", cmd],

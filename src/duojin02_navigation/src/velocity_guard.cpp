@@ -240,11 +240,11 @@ class VelocityGuard : public rclcpp::Node {
     const double mx=c*(pose_.x-map_pose.x)+s*(pose_.y-map_pose.y);
     const double my=-s*(pose_.x-map_pose.x)+c*(pose_.y-map_pose.y);
     query_radius_=guardQueryRadius(polygon_,actual_,requested,margin_,reaction_,decel_,
-      prior_index_.maxRadius(),0,memory_radius_);
+      prior_index_.maxRadius(),memory_radius_);
     if(!guardIndexQueryValid(mx,my,query_radius_,prior_index_bin_,true))
       throw tf2::TransformException("Invalid prior index query coordinates");
     association_cache_.begin(prior_points_.size(),
-      {prior_epoch_,observation_epoch_,map_pose,0,range_error_});
+      {prior_epoch_,observation_epoch_,map_pose,range_error_});
     prior_examined_=prior_index_.forEachNearIndexed(prior_points_,mx,my,query_radius_,[&](const Point &q,size_t index) {
         Point p{map_pose.x+c*q.x-s*q.y,map_pose.y+s*q.x+c*q.y,q.radius};
         if(std::hypot(p.x-pose_.x,p.y-pose_.y)>memory_radius_) return;

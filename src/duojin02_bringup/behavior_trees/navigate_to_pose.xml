@@ -1,38 +1,22 @@
-<!-- Derived from Nav2 Humble, Apache-2.0. 360-degree lidar and Omni tracking
-     do not require a blind 90-degree spin to recover in a narrow passage. -->
-
-<!--
-  This Behavior Tree replans the global path periodically at 1 Hz and it also has
-  recovery actions specific to planning / control as well as general system issues.
-  This will be continuous if a kinematically valid planner is selected.
--->
+<!-- Existing periodic planning and controller algorithms are retained.
+     Recovery needs an explicit negative path-check response and a changed plan.
+     Service failures are not interpreted as obstacle evidence. -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
-    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+    <RestartOnGoalUpdate goal="{goal}">
       <PipelineSequence name="NavigateWithReplanning">
-        <RateController hz="1.0">
-          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
-            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
-            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
-          </RecoveryNode>
-        </RateController>
-        <RecoveryNode number_of_retries="1" name="FollowPath">
-          <FollowPath path="{path}" controller_id="FollowPath"/>
-          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
-        </RecoveryNode>
+      <RateController hz="1.0">
+        <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+      </RateController>
+      <RecoveryNode number_of_retries="1" name="ReplanRejectedPath">
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+        <Sequence name="RecoverWithChangedPath">
+          <PathNeedsReplan path="{path}"/>
+          <ComputePathToPose goal="{goal}" path="{replacement_path}" planner_id="GridBased"/>
+          <AcceptChangedPath old_path="{path}" new_path="{replacement_path}" path="{path}"/>
+        </Sequence>
+      </RecoveryNode>
       </PipelineSequence>
-      <ReactiveFallback name="RecoveryFallback">
-        <GoalUpdated/>
-        <RoundRobin name="RecoveryActions">
-          <Sequence name="ClearingActions">
-            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
-            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
-          </Sequence>
-          
-          <BackUp backup_dist="0.30" backup_speed="0.05"/>
-          <Wait wait_duration="1"/>
-        </RoundRobin>
-      </ReactiveFallback>
-    </RecoveryNode>
+    </RestartOnGoalUpdate>
   </BehaviorTree>
 </root>

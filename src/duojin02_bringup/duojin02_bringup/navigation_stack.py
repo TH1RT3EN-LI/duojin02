@@ -2,7 +2,7 @@
 from launch_ros.actions import Node
 
 
-NAVIGATION_NODES = ['controller_server', 'planner_server', 'behavior_server',
+NAVIGATION_NODES = ['controller_server', 'planner_server',
                     'bt_navigator', 'velocity_smoother']
 
 
@@ -10,7 +10,6 @@ def navigation_actions(parameters, use_sim_time, autostart, log_level, output_to
     actions = []
     for package, name in [('nav2_controller', 'controller_server'),
                           ('nav2_planner', 'planner_server'),
-                          ('nav2_behaviors', 'behavior_server'),
                           ('nav2_bt_navigator', 'bt_navigator'),
                           ('nav2_velocity_smoother', 'velocity_smoother')]:
         remappings = [('cmd_vel', '/cmd_vel_nav')]

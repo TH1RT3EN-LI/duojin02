@@ -7,18 +7,17 @@ from duojin02_teleop.keyboard_teleop_defaults import (
     ACCEL_LIMIT_LINEAR,
     DECEL_LIMIT_ANGULAR,
     DECEL_LIMIT_LINEAR,
-    DEFAULT_IDLE_TIMEOUT_SEC,
+    DEFAULT_REPEAT_TIMEOUT_SEC,
 )
 
 
 MOVE_BINDINGS = {
-    'w': (1.0, 0.0, 0.0, 0.0),
-    's': (-1.0, 0.0, 0.0, 0.0),
-    'a': (0.0, 1.0, 0.0, 0.0),
-    'd': (0.0, -1.0, 0.0, 0.0),
-    'q': (0.0, 0.0, 0.0, 1.0),
-    'e': (0.0, 0.0, 0.0, -1.0),
-    'x': (0.0, 0.0, 0.0, 0.0),
+    'w': (1.0, 0.0, 0.0),
+    's': (-1.0, 0.0, 0.0),
+    'a': (0.0, 1.0, 0.0),
+    'd': (0.0, -1.0, 0.0),
+    'q': (0.0, 0.0, 1.0),
+    'e': (0.0, 0.0, -1.0),
 }
 
 SPEED_BINDINGS = {
@@ -33,11 +32,11 @@ SPEED_BINDINGS = {
 class TeleopCommand:
     linear_x: float = 0.0
     linear_y: float = 0.0
-    linear_z: float = 0.0
     angular_z: float = 0.0
     linear_speed: float = 0.0
     angular_speed: float = 0.0
     active_keys: list[str] = field(default_factory=list)
+    stop_requested: bool = False
 
 
 @dataclass(frozen=True)
@@ -60,10 +59,8 @@ class KeyboardTeleopCore:
         decel_limit_linear: float = DECEL_LIMIT_LINEAR,
         accel_limit_angular: float = ACCEL_LIMIT_ANGULAR,
         decel_limit_angular: float = DECEL_LIMIT_ANGULAR,
-        idle_timeout_sec: float = DEFAULT_IDLE_TIMEOUT_SEC,
     ) -> None:
         self._lock = threading.Lock()
-        self._pressed_move_keys: set[str] = set()
         self._move_key_last_seen: dict[str, float] = {}
 
         self._max_linear_speed = self._coerce_max_speed(max_linear_speed)
@@ -77,14 +74,12 @@ class KeyboardTeleopCore:
         self._decel_limit_linear = max(1e-6, float(decel_limit_linear))
         self._accel_limit_angular = max(1e-6, float(accel_limit_angular))
         self._decel_limit_angular = max(1e-6, float(decel_limit_angular))
-        self._idle_timeout_sec = max(0.0, float(idle_timeout_sec))
 
         self._current_linear_x = 0.0
         self._current_linear_y = 0.0
-        self._current_linear_z = 0.0
         self._current_angular_z = 0.0
 
-        self._last_input_time = time.monotonic()
+        self._stop_requested = False
         self._last_update_time: float | None = None
 
     def handle_key_press(self, key: str, now: float | None = None) -> bool:
@@ -94,16 +89,14 @@ class KeyboardTeleopCore:
 
         timestamp = self._coerce_now(now)
         with self._lock:
-            self._last_input_time = timestamp
-
             if normalized_key == 'x':
                 self._clear_move_keys_locked()
                 self._zero_command_locked()
                 self._last_update_time = timestamp
+                self._stop_requested = True
                 return True
 
             if normalized_key in MOVE_BINDINGS:
-                self._pressed_move_keys.add(normalized_key)
                 self._move_key_last_seen[normalized_key] = timestamp
                 return True
 
@@ -121,57 +114,28 @@ class KeyboardTeleopCore:
 
         return False
 
-    def handle_key_release(self, key: str, now: float | None = None) -> bool:
-        normalized_key = self._normalize_key(key)
-        if normalized_key is None or normalized_key not in MOVE_BINDINGS:
-            return False
-
-        timestamp = self._coerce_now(now)
-        with self._lock:
-            self._last_input_time = timestamp
-            if normalized_key != 'x':
-                self._pressed_move_keys.discard(normalized_key)
-                self._move_key_last_seen.pop(normalized_key, None)
-        return True
-
-    def clear_move_keys(self, now: float | None = None) -> None:
-        timestamp = self._coerce_now(now)
-        with self._lock:
-            self._clear_move_keys_locked()
-            self._last_input_time = timestamp
-
     def emergency_stop(self, now: float | None = None) -> None:
         timestamp = self._coerce_now(now)
         with self._lock:
             self._clear_move_keys_locked()
             self._zero_command_locked()
-            self._last_input_time = timestamp
             self._last_update_time = timestamp
-
-    def expire_stale_move_keys(self, stale_after_sec: float, now: float | None = None) -> None:
-        timeout_sec = max(0.0, float(stale_after_sec))
-        timestamp = self._coerce_now(now)
-        with self._lock:
-            self._expire_stale_locked(timestamp, timeout_sec)
 
     def snapshot(
         self,
         now: float | None = None,
-        stale_key_timeout_sec: float | None = None,
+        stale_key_timeout_sec: float = DEFAULT_REPEAT_TIMEOUT_SEC,
     ) -> TeleopCommand:
+        timeout = float(stale_key_timeout_sec)
+        if not math.isfinite(timeout) or timeout <= 0.0:
+            raise ValueError('stale_key_timeout_sec must be finite and greater than zero')
         timestamp = self._coerce_now(now)
         with self._lock:
-            if stale_key_timeout_sec is not None:
-                self._expire_stale_locked(timestamp, max(0.0, float(stale_key_timeout_sec)))
+            self._expire_stale_locked(timestamp, timeout)
 
-            idle_elapsed = timestamp - self._last_input_time
-            if self._idle_timeout_sec > 0.0 and idle_elapsed > self._idle_timeout_sec:
-                self._clear_move_keys_locked()
-
-            target_linear_x, target_linear_y, target_linear_z, target_angular_z = self._target_vector_locked()
+            target_linear_x, target_linear_y, target_angular_z = self._target_vector_locked()
             target_linear_x *= self._linear_speed
             target_linear_y *= self._linear_speed
-            target_linear_z *= self._linear_speed
             target_angular_z *= self._angular_speed
 
             if self._last_update_time is None:
@@ -193,13 +157,6 @@ class KeyboardTeleopCore:
                 self._accel_limit_linear,
                 self._decel_limit_linear,
             )
-            self._current_linear_z = self._slew_axis(
-                self._current_linear_z,
-                target_linear_z,
-                delta_time,
-                self._accel_limit_linear,
-                self._decel_limit_linear,
-            )
             self._current_angular_z = self._slew_axis(
                 self._current_angular_z,
                 target_angular_z,
@@ -209,14 +166,16 @@ class KeyboardTeleopCore:
             )
             self._last_update_time = timestamp
 
+            stop_requested = self._stop_requested
+            self._stop_requested = False
             return TeleopCommand(
                 linear_x=self._current_linear_x,
                 linear_y=self._current_linear_y,
-                linear_z=self._current_linear_z,
                 angular_z=self._current_angular_z,
                 linear_speed=self._linear_speed,
                 angular_speed=self._angular_speed,
-                active_keys=self._sorted_keys(self._pressed_move_keys),
+                active_keys=sorted(self._move_key_last_seen),
+                stop_requested=stop_requested,
             )
 
     def status(self) -> KeyboardTeleopStatus:
@@ -224,26 +183,23 @@ class KeyboardTeleopCore:
             return KeyboardTeleopStatus(
                 linear_speed=self._linear_speed,
                 angular_speed=self._angular_speed,
-                active_keys=self._sorted_keys(self._pressed_move_keys),
+                active_keys=sorted(self._move_key_last_seen),
             )
 
     def zero_command(self) -> TeleopCommand:
         with self._lock:
             self._zero_command_locked()
+            stop_requested = self._stop_requested
+            self._stop_requested = False
             return TeleopCommand(
                 linear_x=0.0,
                 linear_y=0.0,
-                linear_z=0.0,
                 angular_z=0.0,
                 linear_speed=self._linear_speed,
                 angular_speed=self._angular_speed,
-                active_keys=self._sorted_keys(self._pressed_move_keys),
+                active_keys=sorted(self._move_key_last_seen),
+                stop_requested=stop_requested,
             )
-
-    @staticmethod
-    def is_move_key(key: str) -> bool:
-        normalized_key = KeyboardTeleopCore._normalize_key(key)
-        return normalized_key in MOVE_BINDINGS if normalized_key is not None else False
 
     @staticmethod
     def is_speed_key(key: str) -> bool:
@@ -256,7 +212,7 @@ class KeyboardTeleopCore:
             return None
 
         normalized_key = str(key).lower()
-        if normalized_key in MOVE_BINDINGS or normalized_key in SPEED_BINDINGS:
+        if normalized_key == 'x' or normalized_key in MOVE_BINDINGS or normalized_key in SPEED_BINDINGS:
             return normalized_key
         return None
 
@@ -303,13 +259,11 @@ class KeyboardTeleopCore:
         return current_value + math.copysign(max_delta, delta_value)
 
     def _clear_move_keys_locked(self) -> None:
-        self._pressed_move_keys.clear()
         self._move_key_last_seen.clear()
 
     def _zero_command_locked(self) -> None:
         self._current_linear_x = 0.0
         self._current_linear_y = 0.0
-        self._current_linear_z = 0.0
         self._current_angular_z = 0.0
 
     def _expire_stale_locked(self, now: float, timeout_sec: float) -> None:
@@ -319,29 +273,21 @@ class KeyboardTeleopCore:
             if (now - seen_at) > timeout_sec
         ]
         for key_name in stale_keys:
-            self._pressed_move_keys.discard(key_name)
             self._move_key_last_seen.pop(key_name, None)
 
-    def _target_vector_locked(self) -> tuple[float, float, float, float]:
+    def _target_vector_locked(self) -> tuple[float, float, float]:
         target_linear_x = 0.0
         target_linear_y = 0.0
-        target_linear_z = 0.0
         target_angular_z = 0.0
 
-        for key_name in self._pressed_move_keys:
-            move_linear_x, move_linear_y, move_linear_z, move_angular_z = MOVE_BINDINGS[key_name]
+        for key_name in self._move_key_last_seen:
+            move_linear_x, move_linear_y, move_angular_z = MOVE_BINDINGS[key_name]
             target_linear_x += move_linear_x
             target_linear_y += move_linear_y
-            target_linear_z += move_linear_z
             target_angular_z += move_angular_z
 
         return (
             max(-1.0, min(1.0, target_linear_x)),
             max(-1.0, min(1.0, target_linear_y)),
-            max(-1.0, min(1.0, target_linear_z)),
             max(-1.0, min(1.0, target_angular_z)),
         )
-
-    @staticmethod
-    def _sorted_keys(keys: set[str]) -> list[str]:
-        return sorted(keys)

@@ -19,7 +19,9 @@ def run():
     os.environ['ROS_DOMAIN_ID'] = '93'
     os.environ['ROS_LOCALHOST_ONLY'] = '1'
     rclpy.init()
-    nodes = [Node(name) for name in ('base_driver', 'lslidar_driver_node', 'ekf_filter_node', 'slam_toolbox')]
+    # Unavailable metadata services must not delay sensor recording.
+    nodes = [Node(name, start_parameter_services=False)
+             for name in ('base_driver', 'lslidar_driver_node', 'ekf_filter_node', 'slam_toolbox')]
     publisher = nodes[0]
     qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                      reliability=ReliabilityPolicy.RELIABLE)
@@ -44,10 +46,12 @@ def run():
                 process = subprocess.Popen(['./scripts/record_slam.sh', str(bag)], stdout=log,
                                            stderr=subprocess.STDOUT, start_new_session=True)
                 try:
+                    began = time.monotonic()
                     deadline = time.monotonic() + 25
                     while scan.get_subscription_count() == 0 and time.monotonic() < deadline:
                         time.sleep(0.1)
                     assert scan.get_subscription_count(), (Path(folder) / 'record.log').read_text()
+                    assert time.monotonic() - began < 8, 'metadata delayed sensor recording'
                     for _ in range(12):
                         message = LaserScan()
                         message.header.frame_id = 'laser'
@@ -69,7 +73,12 @@ def run():
             assert topics.count('/scan') >= 10, topics
             assert topics.count('/tf_static') >= 1, topics
             assert (Path(str(bag) + '.configuration') / 'slam-build.json').is_file()
-            print('late recorder captured transient static TF, live scans and backend provenance: passed')
+            configuration = Path(str(bag) + '.configuration')
+            assert not list(configuration.glob('*.pending')), 'interrupted metadata left as a pending success'
+            for name in ('base_driver', 'lslidar_driver_node', 'ekf_filter_node', 'slam_toolbox'):
+                assert (configuration / f'{name}.error.log').read_text(), 'missing metadata failure report'
+            print('late recorder captured transient static TF, live scans and backend provenance; '
+                  'unavailable metadata did not delay recording; interruption reports and cleanup: passed')
     finally:
         executor.shutdown()
         thread.join(timeout=5)

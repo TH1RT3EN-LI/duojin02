@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -66,7 +67,7 @@ def test_io_failure_rolls_back_partial_publication(tmp_path, monkeypatch):
 def test_snapshot_lock_bounds_concurrent_writers(tmp_path):
     with reserve_snapshot(tmp_path, 'auto'):
         with pytest.raises(TimeoutError):
-            with reserve_snapshot(tmp_path, 'auto', timeout=0.05):
+            with reserve_snapshot(tmp_path, 'auto', deadline=time.monotonic() + 0.05):
                 pass
 
 

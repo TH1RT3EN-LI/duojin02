@@ -17,35 +17,34 @@ int main() {
     const double my=-s*(pose.x-map_tf.x)+c*(pose.y-map_tf.y);
     Velocity measured{velocity(rng),velocity(rng),velocity(rng)*2};
     Velocity requested{velocity(rng),velocity(rng),velocity(rng)*2};
-    // Occupied cell extents and localization uncertainty are part of the bound.
+    // Complete occupied cell extents are part of the query bound.
     const double cell_radius=trial%3==0 ? .06 : .007071067812;
-    const double uncertainty=trial%4==0 ? .3 : .025;
     std::vector<Point> map_points,full,pruned;
     for(int i=0;i<80;++i) {
       Point point{pose.x+coordinate(rng),pose.y+coordinate(rng),cell_radius};
       if(std::hypot(point.x-pose.x,point.y-pose.y)>2.5) continue;
       const double dx=point.x-map_tf.x,dy=point.y-map_tf.y;
       map_points.push_back({c*dx+s*dy,-s*dx+c*dy,cell_radius});
-      point.radius+=uncertainty;full.push_back(point);
+      full.push_back(point);
     }
     SpatialPointIndex index(.10);index.rebuild(map_points);
     const double radius=guardQueryRadius(polygon,measured,requested,.008,.20,.4,
-      index.maxRadius(),uncertainty,2.5);
-    index.forEachNear(map_points,mx,my,radius,[&](const Point &q){auto p=transform(q,map_tf);p.radius+=uncertainty;pruned.push_back(p);});
-    auto compare=[&](Velocity v,double reserve) {
-      const bool original=brakingSweep(pose,v,polygon,full,.008+reserve,.20,.4,.8);
-      const bool optimized=brakingSweep(pose,v,polygon,pruned,.008+reserve,.20,.4,.8);
+      index.maxRadius(),2.5);
+    index.forEachNear(map_points,mx,my,radius,[&](const Point &q){pruned.push_back(transform(q,map_tf));});
+    auto compare=[&](Velocity v) {
+      const bool original=brakingSweep(pose,v,polygon,full,.008,.20,.4,.8);
+      const bool optimized=brakingSweep(pose,v,polygon,pruned,.008,.20,.4,.8);
       assert(original==optimized);original ? ++blocked : ++clear;++compared;
     };
-    compare(measured,0);
+    compare(measured);
     for(double scale:{1.,.8,.6,.4,.25,.15,.08,.04}) {
       Velocity v{requested.x*scale,requested.y*scale,requested.yaw*scale};
-      compare(v,0);compare(v,.005);
+      compare(v);
       for(double f:{.25,.5,.75})
-        compare({measured.x+f*(v.x-measured.x),measured.y+f*(v.y-measured.y),measured.yaw+f*(v.yaw-measured.yaw)},0);
+        compare({measured.x+f*(v.x-measured.x),measured.y+f*(v.y-measured.y),measured.yaw+f*(v.yaw-measured.yaw)});
     }
   }
-  assert(clear>0 && blocked>0 && compared==2624);
+  assert(clear>0 && blocked>0 && compared==2112);
   // Original scan association predicate, including negative tile boundaries.
   std::vector<Point> scan{{-.1,-.05,0},{.2,.1,.08},{-.05,0,.03}};
   SpatialPointIndex observed(.05);observed.rebuild(scan);
@@ -56,7 +55,7 @@ int main() {
   }
   // A newly rebuilt map must not retain occupied cells from the previous map.
   observed.rebuild({});assert(!observed.hasWithin({},scan[0],.1));
-  assert(guardQueryRadius(polygon,{4,3,2},{0,0,0},.008,.2,.4,.01,10,2.5)==2.5);
+  assert(guardQueryRadius(polygon,{4,3,2},{0,0,0},.008,.2,.4,.01,2.5)==2.5);
   LocalGridSnapshot grid;grid.width=17;grid.height=11;grid.resolution=.01;
   grid.origin_x=-.17;grid.origin_y=-.11;grid.data.resize(grid.width*grid.height);
   for(size_t i=0;i<grid.data.size();++i) grid.data[i]=i%5==0 ? 255 : i%3==0 ? 120 : 0;

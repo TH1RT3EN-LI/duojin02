@@ -61,19 +61,18 @@ def validate_map(path, verify_snapshot=True):
 
 
 @contextmanager
-def reserve_snapshot(directory, name, timeout=30.0):
+def reserve_snapshot(directory, name, *, deadline=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / ".save-map.lock").open("a") as lock:
-        deadline = time.monotonic() + timeout
         while True:
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 break
             except BlockingIOError:
-                if time.monotonic() >= deadline:
+                if deadline is None or time.monotonic() >= deadline:
                     raise TimeoutError("Another map save is still in progress")
-                time.sleep(0.05)
+                time.sleep(min(0.05, max(0.0, deadline - time.monotonic())))
         if name in ("", "auto"):
             identifiers = [int(path.name.split(".", 1)[0]) for path in directory.iterdir()
                            if path.name.split(".", 1)[0].isdigit()]

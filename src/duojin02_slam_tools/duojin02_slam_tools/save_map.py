@@ -3,6 +3,7 @@
 import json
 import math
 import os
+import time
 import xml.etree.ElementTree as ET
 from array import array
 from pathlib import Path
@@ -17,6 +18,9 @@ from nav_msgs.srv import GetMap
 from slam_toolbox.srv import SaveMap, SerializePoseGraph
 
 from .snapshots import commit_snapshot, reserve_snapshot
+
+
+DEFAULT_SAVE_TIMEOUT = 30.0
 
 
 def output_directory(value):
@@ -37,21 +41,30 @@ def output_directory(value):
 
 
 class SaveMapClient(Node):
-    def __init__(self):
-        super().__init__("save_map_client_node")
+    def __init__(self, *, parameter_overrides=None):
+        super().__init__("save_map_client_node", parameter_overrides=parameter_overrides)
         self.map_name = self.declare_parameter("map_name", "auto").value
         self.output = output_directory(self.declare_parameter("output_dir", "maps").value)
-        self.wait_timeout = float(self.declare_parameter("wait_timeout", 30.0).value)
-        self.response_timeout = float(self.declare_parameter("response_timeout", 30.0).value)
+        self.save_timeout = float(self.declare_parameter("save_timeout", DEFAULT_SAVE_TIMEOUT).value)
         self.serialize_graph = self.declare_parameter("serialize_graph", True).value
-        if not all(math.isfinite(value) and value > 0 for value in (self.wait_timeout, self.response_timeout)):
-            raise ValueError("Service timeouts must be positive")
+        if not math.isfinite(self.save_timeout) or self.save_timeout <= 0:
+            raise ValueError("save_timeout must be finite and positive")
         self.map_client = self.create_client(SaveMap, "/slam_toolbox/save_map")
         self.refresh_client = self.create_client(GetMap, "/slam_toolbox/dynamic_map")
         self.graph_client = self.create_client(SerializePoseGraph, "/slam_toolbox/serialize_map")
 
+    def remaining(self):
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Map save budget exhausted")
+        return remaining
+
     def await_response(self, future, description):
-        rclpy.spin_until_future_complete(self, future, timeout_sec=self.response_timeout)
+        try:
+            rclpy.spin_until_future_complete(self, future, timeout_sec=self.remaining())
+        except Exception:
+            future.cancel()
+            raise
         if not future.done():
             future.cancel()
             raise TimeoutError(f"Timed out waiting for {description}")
@@ -60,7 +73,7 @@ class SaveMapClient(Node):
         return future.result()
 
     def call(self, client, request, description):
-        if not client.wait_for_service(timeout_sec=self.wait_timeout):
+        if not client.wait_for_service(timeout_sec=self.remaining()):
             raise TimeoutError(f"Service unavailable: {description}")
         return self.await_response(client.call_async(request), description)
 
@@ -72,24 +85,32 @@ class SaveMapClient(Node):
             result["backend_build"] = json.loads(build.read_text())
         names_client = self.create_client(ListParameters, "/slam_toolbox/list_parameters")
         values_client = self.create_client(GetParameters, "/slam_toolbox/get_parameters")
-        listing = self.call(names_client, ListParameters.Request(), "SLAM parameter names")
-        request = GetParameters.Request()
-        request.names = listing.result.names
-        response = self.call(values_client, request, "SLAM parameters")
-        result["slam_parameters"] = {
-            name: Parameter.from_parameter_msg(ParameterMessage(name=name, value=value)).value
-            for name, value in zip(listing.result.names, response.values)
-        }
-        # Humble exposes numeric ROS parameter arrays as array.array objects.
-        result["slam_parameters"] = {
-            name: list(value) if isinstance(value, array) else value
-            for name, value in result["slam_parameters"].items()
-        }
+        try:
+            listing = self.call(names_client, ListParameters.Request(), "SLAM parameter names")
+            request = GetParameters.Request()
+            request.names = listing.result.names
+            response = self.call(values_client, request, "SLAM parameters")
+            if len(response.values) != len(request.names):
+                raise RuntimeError("SLAM parameter response is incomplete")
+            result["slam_parameters"] = {
+                name: Parameter.from_parameter_msg(ParameterMessage(name=name, value=value)).value
+                for name, value in zip(listing.result.names, response.values)
+            }
+            # Humble exposes numeric ROS parameter arrays as array.array objects.
+            result["slam_parameters"] = {
+                name: list(value) if isinstance(value, array) else value
+                for name, value in result["slam_parameters"].items()
+            }
+        except Exception as error:
+            warning = f"Runtime SLAM parameters unavailable: {error}"
+            result["warnings"] = [warning]
+            self.get_logger().warning(warning)
         return result
 
     def run(self):
+        self.deadline = time.monotonic() + self.save_timeout
         try:
-            with reserve_snapshot(self.output, self.map_name, self.wait_timeout) as (pending, final):
+            with reserve_snapshot(self.output, self.map_name, deadline=self.deadline) as (pending, final):
                 current = self.call(self.refresh_client, GetMap.Request(), "/slam_toolbox/dynamic_map")
                 if not current.map.info.width or not current.map.info.height:
                     raise RuntimeError("SLAM has not produced a map yet")
@@ -104,8 +125,9 @@ class SaveMapClient(Node):
                     response = self.call(self.graph_client, graph_request, "/slam_toolbox/serialize_map")
                     if response.result != SerializePoseGraph.Response.RESULT_SUCCESS:
                         raise RuntimeError(f"Pose graph save failed with result {response.result}")
-                # Validate the selected saved raster. dynamic_map is only a
-                # readiness check: ongoing mapping may update before SaveMap.
+                # dynamic_map refreshes the published raster after queue drain;
+                # live mapping may still update before SaveMap. Validate the
+                # selected artifact rather than comparing these two responses.
                 saved = commit_snapshot(pending, final, self.provenance(),
                                         self.serialize_graph, validate_raster=True)
                 self.get_logger().info(f"Saved complete map snapshot: {saved}")

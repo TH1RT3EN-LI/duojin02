@@ -3,6 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from duojin02_bringup.middleware import middleware
+from duojin02_bringup.safety_profile import mux_parameters
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -106,7 +107,7 @@ def generate_launch_description():
             executable="twist_mux",
             name="twist_mux",
             output="screen",
-            parameters=[twist_mux_config_path, {"use_sim_time": False}],
+            parameters=[mux_parameters(twist_mux_config_path), {"use_sim_time": False}],
             remappings=[("/cmd_vel_out", "/cmd_vel_requested")],
         )
 

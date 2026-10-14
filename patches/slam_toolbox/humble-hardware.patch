@@ -292,6 +292,14 @@ diff --git a/src/map_saver.cpp b/src/map_saver.cpp
      if (rc == 0) {
        response->result = response->RESULT_SUCCESS;
      } else {
+@@ -83,7 +100,6 @@
+     }
+   }
+ 
+-  rclcpp::sleep_for(std::chrono::seconds(1));
+   return true;
+ }
+ 
 diff --git a/src/slam_toolbox_common.cpp b/src/slam_toolbox_common.cpp
 index 77ac6b1..d24226d 100644
 --- a/src/slam_toolbox_common.cpp

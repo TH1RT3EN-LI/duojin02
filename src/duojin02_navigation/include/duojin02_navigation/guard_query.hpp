@@ -6,15 +6,16 @@
 namespace duojin02_navigation {
 // A speed norm bounds every scaled request and convex measured/requested
 // transition. The discrete sweep advances before braking: allow two 20ms
-// steps beyond reaction, plus its <=2mm interpolation and 5mm reserve.
+// steps beyond reaction and its <=2mm interpolation. Additional query padding
+// only widens candidate selection; it is not another collision margin.
 inline double guardQueryRadius(const Polygon &polygon,const Velocity &measured,
     const Velocity &requested,double margin,double reaction,double deceleration,
-    double cell_radius,double localization_margin,double memory_radius) {
+    double cell_radius,double memory_radius) {
   double footprint_radius=0;
   for(const auto &p:polygon) footprint_radius=std::max(footprint_radius,std::hypot(p.x,p.y));
   const double speed=std::max(std::hypot(measured.x,measured.y),std::hypot(requested.x,requested.y));
   const double radius=footprint_radius+speed*(reaction+.04)+speed*speed/(2*deceleration)
-    +margin+.005+.002+cell_radius+localization_margin;
+    +margin+.005+.002+cell_radius;
   return std::isfinite(radius) ? std::min(memory_radius,radius) : memory_radius;
 }
 

@@ -22,17 +22,10 @@ def parse_use_gpu(value):
 
 
 def configured_use_gpu(source_file):
-    """Read the selected profile, with the shipped profile as the sole default."""
+    """Read the explicit boolean from the selected navigation profile."""
     data = yaml.safe_load(Path(source_file).read_text())
     follow = data['controller_server']['ros__parameters']['FollowPath']
-    if 'use_gpu' not in follow:
-        default_file = Path(__file__).resolve().parents[1] / 'config/nav2.yaml'
-        if not default_file.is_file():
-            from ament_index_python.packages import get_package_share_directory
-            default_file = Path(get_package_share_directory('duojin02_bringup')) / 'config/nav2.yaml'
-        data = yaml.safe_load(default_file.read_text())
-        follow = data['controller_server']['ros__parameters']['FollowPath']
-    if type(follow['use_gpu']) is not bool:
+    if type(follow.get('use_gpu')) is not bool:
         raise ValueError('FollowPath.use_gpu must be a YAML boolean')
     return follow['use_gpu']
 

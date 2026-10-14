@@ -12,19 +12,19 @@
 | `duojin02_bringup` | 启动、EKF、速度仲裁、定位质量诊断、建图与 Nav2 |
 | `duojin02_slam_tools` | 地图快照、位姿图保存、离线建图和 TF 过滤 |
 | `duojin02_teleop` | 键盘遥控；手柄使用 bringup 的 Joy 配置 |
-| `duojin02_navigation` | PreciseLattice、PreciseMPPI、可选 CUDA 几何查询、持续停稳判据和 VelocityGuard |
+| `duojin02_navigation` | PreciseLattice、PreciseMPPI、可选 CUDA 几何查询、持续停稳判据、路径证据恢复节点和 VelocityGuard |
 
 相机、机械臂、AprilTag、任务包装及相关自定义消息已移除。导航使用标准 Nav2 Action；外部 ROS 依赖由 rosdep 安装，SLAM Toolbox 使用固定源码和项目补丁覆盖层。
 
 ## 指令所有权与接口
 
-当前 Nav2 栈包含规划、控制、BackUp/Wait 行为、BT 导航和速度平滑 **5 个服务节点**；这不是整个 ROS 图的节点数或进程数。固定图另外有 map server、AMCL 和只提供诊断的 `localization_monitor`；在线 SLAM 路线由 SLAM Toolbox 提供地图与定位。
+当前 Nav2 栈包含规划、控制、BT 导航和速度平滑 **4 个服务节点**；这不是整个 ROS 图的节点数或进程数。固定图另外有 map server、AMCL 和只提供诊断的 `localization_monitor`；在线 SLAM 路线由 SLAM Toolbox 提供地图与定位。不启动 `behavior_server`。控制失败后，只有当前路径检查明确返回无效、且规划得到几何不同的有效替代路径时才重试一次；未知结果或相同路径直接终止该恢复。新目标会清理旧请求与恢复上下文。
 
 ```mermaid
 flowchart LR
     N[Nav2] -->|/cmd_vel_nav| S[velocity_smoother]
     S -->|/cmd_vel| M[twist_mux]
-    K[键盘 /cmd_vel] --> M
+    K[键盘 /cmd_vel_keyboard] --> M
     J[手柄 /cmd_vel_normal 或 /cmd_vel_slow] --> M
     M -->|/cmd_vel_requested| G[VelocityGuard]
     G -->|/cmd_vel_base| B[串口底盘驱动]
@@ -35,7 +35,8 @@ flowchart LR
 | 接口 | 类型 | 用途 |
 | --- | --- | --- |
 | `/cmd_vel_nav` | `geometry_msgs/msg/Twist` | Nav2 原始请求，进入速度平滑器 |
-| `/cmd_vel` | `geometry_msgs/msg/Twist` | 平滑后的导航或键盘输入，进入 mux |
+| `/cmd_vel` | `geometry_msgs/msg/Twist` | 平滑后的导航输入，进入 mux |
+| `/cmd_vel_keyboard` | `geometry_msgs/msg/Twist` | 独立键盘输入，闲置不发布；进入 mux |
 | `/cmd_vel_normal`、`/cmd_vel_slow` | `geometry_msgs/msg/Twist` | 手柄两档输入 |
 | `/cmd_vel_requested` | `geometry_msgs/msg/Twist` | mux 仲裁结果，进入保护 |
 | `/cmd_vel_base` | `geometry_msgs/msg/Twist` | 保护后的底盘请求 |
@@ -50,9 +51,11 @@ flowchart LR
 | `/localization/status` | `std_msgs/msg/String`（JSON） | 固定图扫描 / 地图一致性诊断，不控制运动 |
 | `/reinitialize_global_localization` | `std_srvs/srv/Empty` | AMCL 原生全局重定位 |
 
-固定图需要真实初值、新鲜扫描与 map TF，再激活导航。扫描 / 地图一致性只用于报警，操作见 [定位质量诊断](docs/localization-health.md)。真机用系统时钟；只有独立离线回放消费者用 `/clock`。
+仲裁优先级为键盘、手柄正常档、手柄慢速档、导航。按住有效遥控输入覆盖导航；结束只发一次零速度，租期到期后接受新的导航速度。键盘相反方向键同时按住时仍保持手动零速接管，`X` 只归零本来源。mux 不缓存或重发导航 Action；只有仍在运行的目标可继续，失败目标需要用户重发。详见 [运行机制](docs/runtime-mechanisms.md)。
 
-速度源断流后，平滑器按 `nav2.yaml` 的超时与减速度制动。Guard 和底盘分别检查输入有效期，共用 `safety.yaml` 的 `command_timeout_s`；后者覆盖 Guard 退出或卡住。串口断开会清除当前指令，重连成功发送零帧后才接收新请求，不重放旧请求。这些机制不能替代下位机独立通信超时，也不证明实物停车时间。
+固定图需要真实初值；就绪节点保留单个新鲜扫描候选，等待该时间戳的 scan → odom TF，并检查新鲜 map → base_footprint TF，再激活导航。扫描 / 地图一致性只用于报警，操作见 [定位质量诊断](docs/localization-health.md)。真机用系统时钟；只有独立离线回放消费者用 `/clock`。
+
+速度源断流后，平滑器按 `nav2.yaml` 的超时与减速度制动。mux 各来源租期、Guard 输入有效期与底盘输出有效期统一来自 `safety.yaml` 的 `command_timeout_s`；底盘检查覆盖 Guard 退出或卡住。mux 的有效租期由启动层派生，不在 `twist_mux.yaml` 另存超时。串口断开会清除当前指令，重连成功发送零帧后才接收新请求，不重放旧请求。这些机制不能替代下位机独立通信超时，也不证明实物停车时间。
 
 ## 配置与模型边界
 
@@ -63,14 +66,16 @@ flowchart LR
 | CAD 安装几何、坐标基准 | [chassis_geometry.xacro](src/duojin02_description/urdf/chassis_geometry.xacro)、[测量报告](docs/chassis/README.md) |
 | 当前足迹、padding、控制与规划参数 | [nav2.yaml](src/duojin02_bringup/config/nav2.yaml)，历史报告数值不覆盖它 |
 | 固定图质量报警与地图语义 | [localization_monitor.yaml](src/duojin02_bringup/config/localization_monitor.yaml)、[诊断说明](docs/localization-health.md) |
-| 制动、输入时效与最终指令有效期 | [safety.yaml](src/duojin02_bringup/config/safety.yaml)，Guard 与底盘共用一份命令超时 |
+| 制动、输入时效与命令租期 | [safety.yaml](src/duojin02_bringup/config/safety.yaml)，mux 各来源、Guard 与底盘共用 `command_timeout_s` |
+| 速度来源与优先级 | [twist_mux.yaml](src/duojin02_bringup/config/twist_mux.yaml)，超时由启动层从 `safety.yaml` 派生 |
 | SLAM 后端参数 | [slam_toolbox.yaml](src/duojin02_bringup/config/slam_toolbox.yaml)；在线地图分辨率由所选配置统一派生 |
 | 键盘遥控默认值 | [keyboard_teleop_defaults.py](src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py)，节点和控制核心共同读取 |
 | 手柄输入与速度档位 | `duojin02_teleop/config/joy_*.yaml` 与 `duojin02_bringup/config/joy_teleop_*.yaml`，分别维护输入映射与档位 |
+| 地图保存等待预算 | [save_map.py](src/duojin02_slam_tools/duojin02_slam_tools/save_map.py) 的 `DEFAULT_SAVE_TIMEOUT`；在线 `save_timeout` 与离线 `--save-timeout` 共用该默认值 |
 
 GPU 开关 `FollowPath.use_gpu` 与几何工作量参数只维护在 `nav2.yaml`；导航 launch 从所选文件读取默认值，显式 `use_gpu` 仅覆写这一项。计算耗时仅记录，真实 CUDA 错误仍拒绝本次请求。两种模式使用同一优化器，CPU 分支、clearance 排名与最终制动检查保持原有流程。详见 [GPU / CPU 统一入口](docs/gpu-cpu.md)。
 
-定位质量模型及监视器的默认值只从 `localization_monitor.yaml` 读取；键盘默认值只在 defaults 模块维护。Launch 选择 / 转发配置，不另存质量阈值或在线地图分辨率。ROS 参数覆盖可用于当次实验，经过验证的持久修改回写上表入口。
+定位质量模型及监视器的默认值只从 `localization_monitor.yaml` 读取；键盘默认值只在 defaults 模块维护。键盘的重复超时、发布频率和轮询时间必须为正有限值；速度、步长与上限必须有限且非负，非法配置在创建指令发布器之前报错。Launch 选择 / 转发配置，不另存质量阈值或在线地图分辨率。ROS 参数覆盖可用于当次实验，经过验证的持久修改回写上表入口。
 
 Nav2 控制器的搜索限速与平滑器的输出约束都在 `nav2.yaml`，仍分别表达两个模块的约束。采样频率、平滑频率、保护余量和 costmap padding 同样有独立语义，不能因为数值相同就绑定。生产 YAML 不使用 Humble 原生解析器不支持的 alias。模型测量、参数默认值与离线实验夹具各自有明确维护位置，不把冻结证据当作另一套生产配置。
 

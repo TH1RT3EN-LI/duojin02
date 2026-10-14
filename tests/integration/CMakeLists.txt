@@ -42,3 +42,9 @@ target_include_directories(ceres_anchor_probe BEFORE PRIVATE
 ament_target_dependencies(ceres_anchor_probe rclcpp slam_toolbox std_srvs pluginlib
   tf2_ros tf2_geometry_msgs nav_msgs sensor_msgs visualization_msgs)
 target_link_libraries(ceres_anchor_probe ${KARTO_LIBRARY} Ceres::ceres Boost::serialization Boost::thread TBB::tbb)
+add_executable(map_saver_completion_probe map_saver_completion_probe.cpp
+  "${PREPARED_SLAM_SOURCE}/src/map_saver.cpp")
+target_include_directories(map_saver_completion_probe BEFORE PRIVATE
+  "${PREPARED_SLAM_SOURCE}/include")
+ament_target_dependencies(map_saver_completion_probe rclcpp slam_toolbox std_srvs
+  tf2_ros tf2_geometry_msgs nav_msgs sensor_msgs visualization_msgs)

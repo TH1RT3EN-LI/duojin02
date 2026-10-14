@@ -1,0 +1,161 @@
+{
+  "passed": true,
+  "date": "2026-10-14",
+  "baseline": "7f626b44e807ce01eeeafd9e986b7e8c1ec8e870",
+  "scope": "Current-source runtime mechanism simplification, fixed optimizer/controller/braking math, evidence-based BT recovery, and fresh CPU/GPU runtime builds.",
+  "python": {
+    "passed": 217,
+    "launch_entries_resolved": 12
+  },
+  "cpp": {
+    "cpu": {
+      "total": 19,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 1
+    },
+    "gpu": {
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "command_chain_checks": {
+    "map_validity": 3,
+    "localization": 14,
+    "producer_loss": 15,
+    "manual_arbitration": 30,
+    "total": 62
+  },
+  "recovery": {
+    "actual_nav2_cases": 19,
+    "bt_checks_per_mode": 31,
+    "late_old_reply_ignored": true,
+    "through_pose_trim_does_not_restart_control": true,
+    "normal_cleanup": true,
+    "installed_plugin_sha256": "0076087ec4b8a12bede6bb6838889128700403256e7bc7bce609056ca2caf15d"
+  },
+  "shared_command_lease": {
+    "pass": true,
+    "scope": "installed base.launch.py with no lidar/joy/model, PTY only",
+    "authored_lease_s": 0.41,
+    "effective": {
+      "twist_mux": {
+        "topics.navigation.timeout": 0.41,
+        "topics.keyboard.timeout": 0.41,
+        "topics.teleop_normal.timeout": 0.41,
+        "topics.teleop_slow.timeout": 0.41
+      },
+      "velocity_guard": {
+        "command_timeout_s": 0.41
+      },
+      "base_driver": {
+        "command_timeout_s": 0.41
+      }
+    },
+    "cleanup": {
+      "launch_returncode": 0
+    }
+  },
+  "slam": {
+    "integration_script_passed": true,
+    "recorded_and_ekf_completed_frames": [
+      19,
+      24
+    ],
+    "invalid_frames": 0,
+    "queued_after_drain": 0,
+    "map_graph_save_reload_and_corrupt_graph_rejection": true,
+    "new_patch_sha256": "fe88fb32298e96051b67872eeadef4765f8de7c8acc4ecbf003dade1aa7d6098",
+    "map_saver_completion_without_fixed_sleep": true
+  },
+  "installed_runtime": {
+    "cpu": {
+      "image": "duojin02:runtime-cleanup-cpu",
+      "image_id": "sha256:76302243d393fc623623f8f2f1b9d39c46ab5e16a67b42627aef001e4d0c78d4",
+      "size_bytes": 1591329091,
+      "matching_installed_python_config_launch_tree_files": 49,
+      "geometry_comparisons": 14472,
+      "libraries": {
+        "libprecise_mppi.so": "a67f014c222edd5fd4b47e47a7c083a4524e3a8427ba91c7292b738464f72381",
+        "libduojin02_recovery_bt_nodes.so": "0076087ec4b8a12bede6bb6838889128700403256e7bc7bce609056ca2caf15d",
+        "libprecise_lattice.so": "38d2eb1f6b703b04af8bcc9cfd2d3fcc779b873140b5e61e706d587c9cea2b39",
+        "libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "libduojin02_gpu_geometry.so": "4573bfac0d10b9fe659025d0a676651f1fb6e15a3a1d633b376db6fd32bc450c"
+      }
+    },
+    "gpu": {
+      "image": "duojin02:runtime-cleanup-gpu",
+      "image_id": "sha256:b9543238d81ffb35b312765fa96629474f0ed8c8722113ea052a5f263db6c836",
+      "size_bytes": 1591669264,
+      "matching_installed_python_config_launch_tree_files": 49,
+      "geometry_comparisons": 14472,
+      "libraries": {
+        "libprecise_mppi.so": "a67f014c222edd5fd4b47e47a7c083a4524e3a8427ba91c7292b738464f72381",
+        "libduojin02_recovery_bt_nodes.so": "0076087ec4b8a12bede6bb6838889128700403256e7bc7bce609056ca2caf15d",
+        "libprecise_lattice.so": "38d2eb1f6b703b04af8bcc9cfd2d3fcc779b873140b5e61e706d587c9cea2b39",
+        "libstable_goal_checker.so": "da42f791f543c4f372c27fccbdb57156a3c6aad6c826a66f06006015b51970e6",
+        "libduojin02_gpu_geometry.so": "fae0b05188d88a065ea8541c69057cf0fdd990a4969166d6cdc4687f6b933a52"
+      }
+    }
+  },
+  "document_relative_links_checked": 215,
+  "changed_source_sha256": {
+    "src/duojin02_bringup/duojin02_bringup/safety_profile.py": "f70cad13c747e0417459a622e8f31424a32f56af9b237a6288709ba6a41dd28c",
+    "src/duojin02_navigation/src/recovery_bt_nodes.cpp": "31684402df805bd99f2f092d07705e554726b2eacb0cb0951f66c77de19750d0",
+    "src/duojin02_navigation/test/recovery_bt_checks.cpp": "637343a9ee66b68a40db029f00774464d0f9c3354de42474d74c4ea68f9717e5",
+    "tests/integration/manual_arbitration_probe.py": "72fa8b242902361d2b625f102c3cd660cfefcf90299b124c96d18aaea2858374",
+    "tests/integration/map_saver_completion_probe.cpp": "7332bb0d68a26c9133f83f8e9749070d4873a9a74b5fd8361a0155a47676459a",
+    "tests/integration/navigation_recovery_probe.py": "5c7661fdc63e1329470a6293b66ab1ee68607b991c5dda3c25ab34122f8a55e6",
+    "tests/test_slam_process_cleanup.py": "7fb7d02877df0d0a66231c078b7fea402ad933c818d5aa9884ea1ffd5ccaf35d",
+    "tests/test_teleop_input_lifecycle.py": "4a0d6b16e334d7d43c56a2f71f09b5fe80c0b5ed25efd296e18529a3d4329bf1",
+    "patches/slam_toolbox/humble-hardware.patch": "fe88fb32298e96051b67872eeadef4765f8de7c8acc4ecbf003dade1aa7d6098",
+    "scripts/record_slam.sh": "e68d19a9c301fa077a6900547c40c597e05e3d4c82b6be555448658142874bb0",
+    "scripts/test_navigation.sh": "7513a89559bdf75431d1d005354e4f8d4cf895dcc5fdb22e03061270982bff9a",
+    "scripts/test_slam.sh": "a52cb64f3cc4011fb18a1f98cb8799b5077224829108d964755b291aea99362e",
+    "src/duojin02_bringup/behavior_trees/navigate_through_poses.xml": "ae98f6d9932961f22a9cbc4ee004c0b6d65e282a8ac110f1bc3c7bcf869b89a3",
+    "src/duojin02_bringup/behavior_trees/navigate_to_pose.xml": "706a24648e7580b0773b5c2e302536a705fbef120cd334407b8ea84b6b899037",
+    "src/duojin02_bringup/config/nav2.yaml": "4e098494a99fe39198608d2eee19ae2057d7113058894b45c68ae55f528c5783",
+    "src/duojin02_bringup/config/twist_mux.yaml": "8c403b7f7cff80c388cad59d78546e629da0d296c53b48f4ad7799afa6b0e513",
+    "src/duojin02_bringup/duojin02_bringup/gpu_profile.py": "bf6e012e87939d83a69c58f75c0452b29f56234204f7d29251890d2c35e19363",
+    "src/duojin02_bringup/duojin02_bringup/localization_readiness.py": "9064df9ea24b3330e1bbb083109c5221ed0f0301171d09f34fbe756c328e5349",
+    "src/duojin02_bringup/duojin02_bringup/navigation_stack.py": "af6c8a145f27e5af78d044027272e449792a310aea46d577ec430c31320e9cea",
+    "src/duojin02_bringup/launch/base.launch.py": "45a2143d2b48c3520bdf65e9a391386de0f6e4b24f892346b4804670dbb29029",
+    "src/duojin02_bringup/launch/save_map.launch.py": "325ccf81ed7013249216e16c61c0c3ca6bf114d7fd2b7365a102910d852c062f",
+    "src/duojin02_bringup/package.xml": "84cffe3548fe4c7b09171b718d96c83ac6fddee14b47adb63ca2a7dde09f85ef",
+    "src/duojin02_navigation/CMakeLists.txt": "3d858c786ac8d6b2286b52b1919f0e6a60ce1c51164adde644efa8632d4c551c",
+    "src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp": "c2139001d515e95b838500b36acd72a81f1c16b51d4ddae331bfaa7a06c77921",
+    "src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp": "46250212e82d0488a17d58400f504378010b06787a270df59d629f98ef7e3ef9",
+    "src/duojin02_navigation/package.xml": "ba01872c1e1ccd25a98e6b7b6ff2fb99b0a4864dc4cad98f7d75a87343d7c8ab",
+    "src/duojin02_navigation/src/velocity_guard.cpp": "3dce01e817808d355aaeebc1ee18dcf47240fdf8449c36a6fffb8c01f1c9dffd",
+    "src/duojin02_navigation/test/guard_query_checks.cpp": "d7b70e2dcb5f2ac539775da7529b3f9a56843b8a864a8d6eb53ca683175fb1f2",
+    "src/duojin02_navigation/test/prior_association_checks.cpp": "7c55c1420a5003c61bb24725a85adbfca87a8030fb3e0b32e2fa41e639b6f655",
+    "src/duojin02_slam_tools/duojin02_slam_tools/offline.py": "6c0ee110e28f3f22cc7c0aa57d9509b7e90184c89c67d3de856e049b6d8280ff",
+    "src/duojin02_slam_tools/duojin02_slam_tools/save_map.py": "3d598667fbdc8dd00aff9f7cd54747aa828de42ace70ba615d74b9071becef5e",
+    "src/duojin02_slam_tools/duojin02_slam_tools/snapshots.py": "cb9eacbbfa500788072fd001d270c5bf273717400d54b4c6dd9d98caf2b0ccc4",
+    "src/duojin02_teleop/duojin02_teleop/joy_launcher_node.py": "735239d091b9bae5901c383a4cfb15b44c1334a402e0f63e7d855dcbb2815bf6",
+    "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_core.py": "09ffbdd3efa0fc39e3593c2c6216d2e51a36bc3fc96f38accd8c62be81894a1d",
+    "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py": "b496e1d8ac8d64806c6a06bb8f3b56dc85b6870bd2316b1baf1b169c15326728",
+    "src/duojin02_teleop/duojin02_teleop/keyboard_teleop_node.py": "47878ff7d48ad74fd83aff57afde385631bd5387edb6c198bfbde650d429f4d0",
+    "src/duojin02_teleop/test/test_keyboard_teleop_core.py": "6d6e3892a417d4135eb1ee4d7604e62f1dcb958c56363609cce0e2e89219fc06",
+    "tests/integration/CMakeLists.txt": "2c6aea5a081b71962d6b3a1c91b91f0ccac4373990a9850490cf968ba67e0cb8",
+    "tests/integration/localization_monitor_probe.py": "7aa383d22a9abeffd46a4718b7be8cb801bd92b281ea178da3fa63303f7e0b78",
+    "tests/integration/map_save_service_probe.py": "3154795729d749a3736c185d38a080751051d22ce7aee88ad6facd97679054da",
+    "tests/integration/navigation_command_timeout_probe.py": "9b77e8d668da7525e847daa956a35ae83176317ad6a9e0135793f2bd33685d12",
+    "tests/integration/recording_probe.py": "5c106fd6ef45c8b95576bfaff09850e6196af5cc9f558850fa460c22e9288b01",
+    "tests/performance/prior_association_benchmark.cpp": "2836ef8adb3b8d890cca9e85ed10783173dfc92e67599585b89d88686d6e5969",
+    "tests/test_gpu_profile.py": "c66d71f0c8d0750ad34edf47209889b5cff93c5a5dadcb318b85ec0998a7bfa9",
+    "tests/test_hardware_boundary.py": "1818bf682aafbe80d4a5ea42fcdb12fe5c9602fc6e08ba18d261252d1e6e07c0",
+    "tests/test_localization_readiness.py": "b568671349092c30951c8580476f6140b289ab04ceee8dea99729ac8ac3081bb",
+    "tests/test_slam_workflows.py": "6eab3f908eda72bf5c5ad1c03e7663a657cd5cde5ff1e3b63a14261993ee8b11"
+  },
+  "artifact_directory": "/home/th1rt3en/.codex/visualizations/2026/10/14/01a1380c-9518-7301-b2de-434ad530817e/duojin02-runtime-cleanup",
+  "qualification": [
+    "ROS service/action outcomes use deterministic fixtures, and serial transport uses a PTY; no physical robot motion was tested.",
+    "Real CUDA kernels and fault behavior were tested on RTX 5070; this does not establish Jetson runtime latency.",
+    "Manual input expiry resumes only an active navigation action; it does not pause progress checks or replay aborted goals.",
+    "Client save deadlines bound waiting and cannot preempt backend writes."
+  ],
+  "build_input_note": "An unchanged official Dockerfile recipe plus one temporary COPY supplied the SHA256-verified pinned original SLAM source archive after transient network download failure. Source preparation, patch verification, source pin and SDK recipes were unchanged."
+}

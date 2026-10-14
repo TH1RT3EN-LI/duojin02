@@ -13,6 +13,28 @@ from pathlib import Path
 import yaml
 
 
+def remaining(deadline, description):
+    value = deadline - time.monotonic()
+    if value <= 0:
+        raise TimeoutError(f"{description} exceeded its timeout")
+    return value
+
+
+def await_response(node, future, deadline, description, processes=()):
+    import rclpy
+    try:
+        while not future.done():
+            if any(process.poll() is not None for process in processes):
+                raise RuntimeError(f"Offline process stopped while waiting for {description}")
+            rclpy.spin_once(node, timeout_sec=min(0.1, remaining(deadline, description)))
+        if future.exception():
+            raise future.exception()
+        return future.result()
+    except Exception:
+        future.cancel()
+        raise
+
+
 def inspect_bag(path, source, warmup=0.0):
     import rosbag2_py
     from rclpy.serialization import deserialize_message
@@ -72,31 +94,38 @@ def inspect_bag(path, source, warmup=0.0):
 def stop_process(process, launch=False):
     if process is None or process.poll() is not None:
         return
-    # ros2 launch forwards SIGINT itself; signalling its group delivers it twice.
-    if launch:
-        process.send_signal(signal.SIGINT)
-    else:
-        os.killpg(process.pid, signal.SIGINT)
     try:
-        process.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        os.killpg(process.pid, signal.SIGTERM)
+        # ros2 launch forwards SIGINT itself; signalling its group delivers it twice.
+        if launch:
+            process.send_signal(signal.SIGINT)
+        else:
+            os.killpg(process.pid, signal.SIGINT)
         try:
-            process.wait(timeout=5)
+            process.wait(timeout=10)
         except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
-            process.wait(timeout=5)
+            os.killpg(process.pid, signal.SIGTERM)
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.wait(timeout=5)
+    except ProcessLookupError:
+        # The group may exit between poll/wait and any signal. Continue cleaning
+        # the remaining children and ROS resources instead of aborting finally.
+        return
 
 
 def run(args):
     from ament_index_python.packages import get_package_share_directory
     import rclpy
     from rclpy.node import Node
+    from rclpy.parameter import Parameter
     from rclpy.qos import qos_profile_sensor_data
     from rcl_interfaces.srv import GetParameters
     from rosbag2_interfaces.srv import Resume
     from rosgraph_msgs.msg import Clock
     from std_srvs.srv import Trigger
+    from .save_map import SaveMapClient
 
     bag = args.bag.expanduser().resolve()
     report = inspect_bag(bag, args.odom_source, args.ekf_warmup)
@@ -114,7 +143,7 @@ def run(args):
     output = args.output_dir.expanduser().resolve()
     output.mkdir(parents=True, exist_ok=True)
     log = output / f".offline-session-{os.getpid()}.log"
-    launch = player = save = None
+    launch = player = None
     rclpy.init(args=[])
     node = Node("offline_session_controller")
     status_client = node.create_client(Trigger, "/slam_toolbox/processing_status")
@@ -122,6 +151,7 @@ def run(args):
     ekf_client = node.create_client(GetParameters, "/ekf_filter_node/get_parameters") if args.odom_source == "ekf" else None
     resume_client = node.create_client(Resume, "/rosbag2_player/resume")
     playback_clock = None
+    playback_status = None
 
     def clock_callback(message):
         nonlocal playback_clock
@@ -129,13 +159,10 @@ def run(args):
 
     node.create_subscription(Clock, "/clock", clock_callback, qos_profile_sensor_data)
 
-    def status():
+    def status(deadline):
         future = status_client.call_async(Trigger.Request())
-        rclpy.spin_until_future_complete(node, future, timeout_sec=2.0)
-        if not future.done() or future.exception():
-            future.cancel()
-            raise RuntimeError("SLAM queue status did not respond")
-        return json.loads(future.result().message)
+        response = await_response(node, future, deadline, "SLAM queue status", (launch,))
+        return json.loads(response.message)
 
     try:
         with log.open("w") as stream:
@@ -149,9 +176,9 @@ def run(args):
             while time.monotonic() < deadline:
                 if launch.poll() is not None:
                     raise RuntimeError(f"Offline nodes stopped during startup; see {log}")
-                if (status_client.wait_for_service(timeout_sec=0.2) and
-                    relay_client.wait_for_service(timeout_sec=0.2) and
-                    (ekf_client is None or ekf_client.wait_for_service(timeout_sec=0.2))):
+                if (status_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))) and
+                    relay_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))) and
+                    (ekf_client is None or ekf_client.wait_for_service(timeout_sec=min(0.2, remaining(deadline, "Offline startup"))))):
                     break
             else:
                 raise TimeoutError(f"Offline nodes did not become ready; see {log}")
@@ -165,37 +192,42 @@ def run(args):
                 env=environment, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
             # Activate recorded time before TF arrives: its first backward jump
             # clears TF buffers, including transforms that would otherwise arrive early.
-            deadline = time.monotonic() + args.startup_timeout
             while time.monotonic() < deadline:
                 if player.poll() is not None or launch.poll() is not None:
                     raise RuntimeError(f"Offline nodes stopped while initializing recorded time; see {log}")
-                rclpy.spin_once(node, timeout_sec=0.1)
-                if playback_clock is not None and resume_client.wait_for_service(timeout_sec=0.1):
-                    current = status()
+                rclpy.spin_once(node, timeout_sec=min(0.1, remaining(deadline, "Offline startup")))
+                if playback_clock is not None and resume_client.wait_for_service(timeout_sec=min(0.1, remaining(deadline, "Offline startup"))):
+                    current = status(deadline)
                     if current["clock_active"] and current["clock_nanoseconds"] == playback_clock:
                         break
             else:
                 raise TimeoutError(f"SLAM did not activate the recorded clock; see {log}")
             future = resume_client.call_async(Resume.Request())
-            rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
-            if not future.done() or future.exception():
-                future.cancel()
-                raise TimeoutError(f"Bag player did not resume; see {log}")
+            await_response(node, future, deadline, "Bag player resume", (launch, player))
             playback_deadline = time.monotonic() + args.playback_timeout
             while player.poll() is None:
                 if launch.poll() is not None:
                     raise RuntimeError(f"Offline nodes stopped during playback; see {log}")
                 if time.monotonic() >= playback_deadline:
                     raise TimeoutError(f"Bag playback exceeded its timeout; see {log}")
-                current = status()
-                if current["invalid"]:
-                    raise RuntimeError(f"SLAM rejected invalid inputs: {current}; see {log}")
-                rclpy.spin_once(node, timeout_sec=0.1)
+                if playback_status is None:
+                    playback_status = status_client.call_async(Trigger.Request())
+                rclpy.spin_once(node, timeout_sec=min(0.1, remaining(playback_deadline, "Bag playback")))
+                if playback_status.done():
+                    if playback_status.exception():
+                        raise playback_status.exception()
+                    current = json.loads(playback_status.result().message)
+                    playback_status = None
+                    if current["invalid"]:
+                        raise RuntimeError(f"SLAM rejected invalid inputs: {current}; see {log}")
+            if playback_status is not None:
+                playback_status.cancel()
+                playback_status = None
             if player.returncode:
                 raise RuntimeError(f"Bag player exited with {player.returncode}; see {log}")
             deadline = time.monotonic() + args.drain_timeout
             while time.monotonic() < deadline:
-                current = status()
+                current = status(deadline)
                 if current["invalid"]:
                     raise RuntimeError(f"Invalid SLAM input: {current}; see {log}")
                 if (current["received"] == report["scan_count"] and
@@ -205,16 +237,17 @@ def run(args):
                 rclpy.spin_once(node, timeout_sec=0.1)
             else:
                 raise TimeoutError(f"SLAM did not drain all recorded scans: {current}; see {log}")
-            save = subprocess.Popen(
-                ["ros2", "run", "duojin02_slam_tools", "save_map_client_node", "--ros-args",
-                 "-p", f"output_dir:={output}", "-p", f"map_name:={args.map_name}",
-                 "-p", f"wait_timeout:={args.save_timeout}",
-                 "-p", f"response_timeout:={args.save_timeout}"],
-                env=environment, stdout=stream, stderr=subprocess.STDOUT,
-                start_new_session=True)
-            save.wait(timeout=args.save_timeout * 10 + 10)
-            if save.returncode:
-                raise RuntimeError(f"Snapshot export failed; see {log}")
+            save = SaveMapClient(parameter_overrides=[
+                Parameter("output_dir", value=str(output)),
+                Parameter("map_name", value=args.map_name),
+                Parameter("save_timeout", value=args.save_timeout),
+            ])
+            try:
+                save_result = save.run()
+            finally:
+                save.destroy_node()
+            if save_result:
+                raise RuntimeError("Snapshot export failed; inspect the save_map_client_node error above")
             report.update(queue=current, rate=args.rate, domain_id=args.domain_id, clock_primed=True,
                           backend=json.loads((share / "hardware_build.json").read_text()),
                           log=str(log))
@@ -223,7 +256,8 @@ def run(args):
             print(json.dumps(report, indent=2))
             return 0
     finally:
-        stop_process(save)
+        if playback_status is not None:
+            playback_status.cancel()
         stop_process(player)
         stop_process(launch, launch=True)
         node.destroy_node()
@@ -232,6 +266,8 @@ def run(args):
 
 
 def main():
+    from .save_map import DEFAULT_SAVE_TIMEOUT
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bag", type=Path)
     parser.add_argument("--odom-source", choices=("recorded", "ekf"), default="recorded")
@@ -245,7 +281,7 @@ def main():
     parser.add_argument("--startup-timeout", type=float, default=60.0)
     parser.add_argument("--drain-timeout", type=float, default=60.0)
     parser.add_argument("--playback-timeout", type=float, default=3600.0)
-    parser.add_argument("--save-timeout", type=float, default=30.0)
+    parser.add_argument("--save-timeout", type=float, default=DEFAULT_SAVE_TIMEOUT)
     args = parser.parse_args()
     if not math.isfinite(args.rate) or args.rate <= 0:
         parser.error("--rate must be finite and positive")

@@ -10,10 +10,12 @@ from pathlib import Path
 import signal
 import subprocess
 import tty
+import yaml
 
 import rclpy
 
 from navigation_probe_fixture import ROOT, SensorFixture
+from duojin02_bringup.safety_profile import mux_parameters
 from ros_isolation import configure_isolation
 
 
@@ -39,6 +41,9 @@ def run(args):
         result['checks'].append(name)
 
     args.output_dir.mkdir(parents=True, exist_ok=False)
+    mux_file = args.output_dir/'mux.yaml'
+    mux_file.write_text(yaml.safe_dump({'twist_mux': {'ros__parameters': mux_parameters(
+        ROOT/'src/duojin02_bringup/config/twist_mux.yaml')}}))
     master, slave = os.openpty()
     tty.setraw(slave)
     os.set_blocking(master, False)
@@ -49,7 +54,7 @@ def run(args):
             '--ros-args', '--params-file', str(ROOT/'src/duojin02_bringup/config/localization_monitor.yaml'),
             '-p', 'use_sim_time:=true'])
         start('mux', ['ros2','run','twist_mux','twist_mux','--ros-args',
-            '--params-file',str(ROOT/'src/duojin02_bringup/config/twist_mux.yaml'),
+            '--params-file',str(mux_file),
             '-r','/cmd_vel_out:=/cmd_vel_requested'])
         # Node-scoped override wins over the hardware YAML clock setting.
         start('guard', [str(args.guard_binary),'--ros-args','--params-file', safety, '-p','velocity_guard:use_sim_time:=true'])

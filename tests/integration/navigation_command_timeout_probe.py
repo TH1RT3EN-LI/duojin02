@@ -21,6 +21,7 @@ import rclpy
 import yaml
 
 from navigation_probe_fixture import ROOT, SensorFixture
+from duojin02_bringup.safety_profile import mux_parameters
 from ros_isolation import configure_isolation
 
 
@@ -60,13 +61,16 @@ def run(args):
                                   'requested': fixture.requested[-3:]})
         result['checks'].append(name)
 
+    mux_file = args.output_dir/'mux.yaml'
+    mux_file.write_text(yaml.safe_dump({'twist_mux': {'ros__parameters': mux_parameters(
+        ROOT/'src/duojin02_bringup/config/twist_mux.yaml')}}))
     master, slave = os.openpty()
     tty.setraw(slave)
     os.set_blocking(master, False)
     fixture.master = master
     try:
         start('mux', ['ros2', 'run', 'twist_mux', 'twist_mux', '--ros-args',
-            '--params-file', str(ROOT/'src/duojin02_bringup/config/twist_mux.yaml'),
+            '--params-file', str(mux_file),
             '-r', '/cmd_vel_out:=/cmd_vel_requested'])
         # Use a node-scoped clock override: Humble merges node-specific YAML
         # after global CLI parameters when the file also contains /** defaults.
