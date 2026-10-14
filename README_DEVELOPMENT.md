@@ -12,7 +12,7 @@
 | `duojin02_bringup` | 启动、EKF、速度仲裁、定位管理、建图与 Nav2 |
 | `duojin02_slam_tools` | 地图快照、位姿图保存、离线建图和 TF 过滤 |
 | `duojin02_teleop` | 键盘遥控；手柄使用 bringup 的 Joy 配置 |
-| `duojin02_navigation` | PreciseLattice、PreciseMPPI、持续停稳判据和 VelocityGuard |
+| `duojin02_navigation` | PreciseLattice、PreciseMPPI、可选 CUDA 几何查询、持续停稳判据和 VelocityGuard |
 
 相机、机械臂、AprilTag、任务包装及相关自定义消息已移除。导航使用标准 Nav2 Action；外部 ROS 依赖由 rosdep 安装，SLAM Toolbox 使用固定源码和项目补丁覆盖层。
 
@@ -70,6 +70,8 @@ flowchart LR
 | SLAM 后端参数 | [slam_toolbox.yaml](src/duojin02_bringup/config/slam_toolbox.yaml)；在线地图分辨率由所选配置统一派生 |
 | 键盘遥控默认值 | [keyboard_teleop_defaults.py](src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py)，节点和控制核心共同读取 |
 | 手柄输入与速度档位 | `duojin02_teleop/config/joy_*.yaml` 与 `duojin02_bringup/config/joy_teleop_*.yaml`，分别维护输入映射与档位 |
+
+GPU 开关 `FollowPath.use_gpu` 与几何工作量 / 超时参数也只维护在 `nav2.yaml`；导航 launch 从所选文件读取默认值，显式 `use_gpu` 仅覆写这一项。两种模式使用同一优化器，CPU 分支、clearance 排名与最终制动检查保持原有流程。详见 [GPU / CPU 统一入口](docs/gpu-cpu.md)。
 
 定位健康模型及管理器的默认值只从 `localization_health.yaml` 读取；键盘默认值只在 defaults 模块维护。Launch 选择 / 转发配置，不再另存健康阈值或在线地图分辨率。ROS 参数覆盖可用于当次实验，经过验证的持久修改回写上表入口。
 

@@ -3,6 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from duojin02_bringup.middleware import middleware
+from duojin02_bringup.gpu_profile import use_gpu_argument
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -42,6 +43,7 @@ def generate_launch_description():
             "autostart": autostart,
             "map": map_yaml,
             "params_file": params_file,
+            "use_gpu": LaunchConfiguration("use_gpu"),
             "log_level": nav_log_level,
         }.items(),
     )
@@ -65,6 +67,7 @@ def generate_launch_description():
                 "params_file",
                 default_value=os.path.join(bringup_share, "config", "nav2.yaml"),
             ),
+            use_gpu_argument(),
             base_launch,
             nav_launch,
         ]

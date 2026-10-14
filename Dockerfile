@@ -40,6 +40,18 @@ COPY scripts/prepare_slam_backend.py /source/scripts/prepare_slam_backend.py
 COPY patches/slam_toolbox /source/patches/slam_toolbox
 RUN python3 /source/scripts/prepare_slam_backend.py --root /source --destination /source/backend/slam_toolbox
 
+# The compiler is a build dependency; deployment links the CUDA runtime statically.
+FROM hardware_dependencies AS cuda_toolkit
+ARG DUOJIN_ENABLE_CUDA=ON
+COPY docker/cuda-toolkit.json /source/docker/cuda-toolkit.json
+COPY scripts/prepare_cuda_toolkit.py /source/scripts/prepare_cuda_toolkit.py
+RUN if [[ "${DUOJIN_ENABLE_CUDA}" != "OFF" ]]; then \
+      python3 /source/scripts/prepare_cuda_toolkit.py --root /source \
+        --destination /opt/cuda --cache-directory /tmp/cuda-downloads && \
+      rm -rf /tmp/cuda-downloads; \
+    else mkdir -p /opt/cuda; \
+    fi
+
 FROM hardware_dependencies AS slam_builder
 ARG BUILD_JOBS=2
 ENV CMAKE_BUILD_PARALLEL_LEVEL=${BUILD_JOBS}
@@ -54,14 +66,21 @@ RUN source /opt/ros/humble/setup.bash && \
 FROM hardware_dependencies AS builder
 ARG BUILD_WORKERS=1
 ARG BUILD_JOBS=2
+ARG DUOJIN_ENABLE_CUDA=ON
+ARG CUDA_ARCHITECTURES=87;120
 ENV CMAKE_BUILD_PARALLEL_LEVEL=${BUILD_JOBS}
+ENV PATH=/opt/cuda/bin:${PATH}
+ENV CUDAToolkit_ROOT=/opt/cuda
 WORKDIR /opt/duojin02
 COPY --from=slam_builder /opt/duojin02/slam_backend /opt/duojin02/slam_backend
+COPY --from=cuda_toolkit /opt/cuda /opt/cuda
 COPY src ./src
 RUN source /opt/ros/humble/setup.bash && \
     source /opt/duojin02/slam_backend/setup.bash && \
     MAKEFLAGS="-j${BUILD_JOBS}" colcon build --merge-install --parallel-workers ${BUILD_WORKERS} \
-      --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+      --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF \
+        -DDUOJIN_ENABLE_CUDA=${DUOJIN_ENABLE_CUDA} \
+        "-DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES}"
 
 FROM hardware_dependencies AS hardware_runtime
 COPY --from=slam_builder /opt/duojin02/slam_backend /opt/duojin02/slam_backend
@@ -90,6 +109,9 @@ CMD ["bash"]
 # Offline integration probes compile against the exact patched backend source.
 FROM hardware_runtime AS testing
 COPY --from=slam_source /source/backend/slam_toolbox /opt/duojin02/test_sources/slam_toolbox
+COPY --from=cuda_toolkit /opt/cuda /opt/cuda
+ENV PATH=/opt/cuda/bin:${PATH}
+ENV CUDAToolkit_ROOT=/opt/cuda
 
 # The default deployment image contains installed packages only.
 FROM hardware_runtime AS runtime

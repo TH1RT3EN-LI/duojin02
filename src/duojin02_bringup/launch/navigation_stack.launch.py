@@ -5,6 +5,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 from duojin02_bringup.navigation_stack import navigation_actions
+from duojin02_bringup.gpu_profile import gpu_parameters, use_gpu_argument
 import os
 
 
@@ -12,10 +13,12 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('params_file', default_value=os.path.join(
             get_package_share_directory('duojin02_bringup'),'config','nav2.yaml')),
+        use_gpu_argument(),
         DeclareLaunchArgument('autostart',default_value='true'),
         DeclareLaunchArgument('log_level',default_value='info'),
         DeclareLaunchArgument('navigation_output',default_value='/cmd_vel'),
-        *navigation_actions(ParameterFile(LaunchConfiguration('params_file'),allow_substs=True),
+        *navigation_actions(ParameterFile(gpu_parameters(
+            LaunchConfiguration('params_file'), LaunchConfiguration('use_gpu')),allow_substs=True),
             False, ParameterValue(LaunchConfiguration('autostart'),value_type=bool),
             LaunchConfiguration('log_level'),LaunchConfiguration('navigation_output')),
     ])

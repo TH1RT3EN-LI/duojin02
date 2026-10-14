@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | 如何原生构建、识别串口和选择启动入口 | [主 README](../README.MD) | 操作顺序、各入口参数范围；Docker 为可选环境 |
 | 如何从旧包名升级，外部调用需要改什么 | [名称迁移](package-renaming.md) | 6 包映射、全新构建、环境、设备和 Docker 更新 |
+| 如何选择 GPU / CPU，怎样保留同一优化器 | [GPU / CPU 统一入口](gpu-cpu.md) | `use_gpu`、可选 CUDA 构建、仿真 worktree 与目录归档 |
 | 如何在观看机看雷达、模型和导航话题 | [RViz 观察](remote-rviz.md) | 显示域、坐标系、模板差异和 QoS；不重复启动机器人 |
 | 包有哪些，谁发布速度，节点怎样连接 | [开发接口](../README_DEVELOPMENT.md) | 7 包职责、当前话题和指令所有权 |
 | 固定图怎样就绪、闭锁、恢复 | [定位健康](localization-health.md) | 状态机、证据窗口、地图和扫描语义 |

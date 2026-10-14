@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-14",
+  "baseline": "8a4d1b215479a8faa17963e0cc83ae0ecfbf2778",
+  "gpu_worktree_snapshot": {
+    "source_head": "3ff67153647fd6fae5512f366b948e609a9678ad",
+    "snapshot_commit": "323d8604dda87c993653393dbab44c5b53f1c97a",
+    "scope": "Tracked and unignored latest GPU working-tree content; full original directory separately retained in archive"
+  },
+  "decision": "Same original optimizer; GPU collision geometry only; no replacement sampler, EDT, study or HIL imports.",
+  "runtime_parameter": "controller_server.ros__parameters.FollowPath.use_gpu",
+  "default": true,
+  "new_gpu_fields": {
+    "use_gpu": true,
+    "gpu_minimum_work": 262144,
+    "gpu_deadline_ms": 40.0
+  },
+  "original_nav2_values_and_types_unchanged": true,
+  "preserved_file_count": 339,
+  "cpu_algorithm_body_equivalence": {
+    "baseline": "8a4d1b2",
+    "checks": {
+      "setPlan": {
+        "unchanged": true,
+        "baseline_sha256": "7269b7eaa264fbed46edfa827f8bb0e93ddfaa415efc1ede46027eb897d8793b"
+      },
+      "setSpeedLimit": {
+        "unchanged": true,
+        "baseline_sha256": "e83ad6ae193acb246631de1e7d08b7a54cfae1a842eee26aebd7f242aae2662c"
+      },
+      "converge": {
+        "unchanged": true,
+        "baseline_sha256": "3a8b74570c30275cf28e8df2060661d3c0838267cbe541b6a7bab967eaafed8c"
+      },
+      "nearObstacle": {
+        "unchanged": true,
+        "baseline_sha256": "4a54c6cb4dee45bf3324af5fa758873944a72b06cf5799a5068262c42b2dc5bb"
+      },
+      "trackingTarget": {
+        "unchanged": true,
+        "baseline_sha256": "ddedd8a87c559420b3812fc5a67b09371442eba2bf043687c48b5e8f553b5176"
+      },
+      "pathTarget": {
+        "unchanged": true,
+        "baseline_sha256": "4bf3396906bb0224b4e8c31fb8a0e011dcad29967bf9eeedf341d91656b3a149"
+      },
+      "freshTransform": {
+        "unchanged": true,
+        "baseline_sha256": "b4070e45770b5ad6b0fac4628b636ed7cfaf6523698fec06d47951af8c6c57ac"
+      },
+      "stopped": {
+        "unchanged": true,
+        "baseline_sha256": "1ed938c3874f298e16e29effdac647c02058a8ddbde02b59436546981d821104"
+      },
+      "centeredTarget": {
+        "unchanged": true,
+        "baseline_sha256": "1f0a8d7d2ea0edf003c34b0fa18ca681ca9c1f53217cd114fdbb5a8731ebd3d8"
+      },
+      "checked": {
+        "unchanged": true,
+        "baseline_sha256": "f11251a284b5285a9d6d803a553fe423781d796535f1573303e7c73f2496e20d"
+      },
+      "sampledCommand": {
+        "unchanged": true,
+        "baseline_sha256": "c778e61e3cafa4303000d36096ddf6a9e87baa2c846022ef65fa67f9ba5547c6"
+      },
+      "applyNativeLimit": {
+        "unchanged": true,
+        "baseline_sha256": "3a23a9315e5173ee69f6b78c759a22435e03b179bf4b5fbc2e9702ac2e350999"
+      },
+      "refreshLimits": {
+        "unchanged": true,
+        "baseline_sha256": "299ed5270e3017460c75d3dbabdade76d0af55c51aa04387323601e88a67fb6c"
+      },
+      "controller_decisions": {
+        "unchanged": true,
+        "baseline_sha256": "3aa44c5144cd72a8cc9f1570264eb29ba173fa3135938ba134091fa89b31f27f"
+      },
+      "directApproachClear_cpu_body": {
+        "unchanged": true,
+        "baseline_sha256": "7d15c9450a1a8982bf2e9dc58c4d520e5978b111b14c06691bf8a652901e4d4c"
+      },
+      "snapshot_cpu_body": {
+        "unchanged": true,
+        "baseline_sha256": "23779ebae9dbffea66ba794ae1a930497ac5262f037d975be95cf05b5e12132c"
+      }
+    }
+  },
+  "verification": {
+    "python_tests": 161,
+    "launch_entries": 12,
+    "cpu_ctest": {
+      "total": 18,
+      "passed": 17,
+      "skipped_gpu_only": 1,
+      "failed": 0
+    },
+    "gpu": {
+      "schema_version": 1,
+      "production_algorithm_baseline": "8a4d1b2",
+      "image": "sha256:06e5b2ebbfd8c4ed2428a6d39d6fd9dda45e5af806b1ed7f43a762039705745a",
+      "device": "NVIDIA GeForce RTX 5070",
+      "driver": "580.178.04",
+      "cuda_compute_capability": "12.0",
+      "cuda_compiler": "12.8.93",
+      "cuda_architectures": [
+        "87",
+        "120"
+      ],
+      "ctest": {
+        "total": 19,
+        "passed": 19,
+        "skipped": 0,
+        "failed": 0
+      },
+      "geometry_differential": {
+        "comparisons_per_run": 14472,
+        "cuda_batches_per_gpu_run": 470,
+        "boundary_rechecks_per_gpu_run": 439,
+        "collision_mismatches": 0
+      },
+      "controller_api": {
+        "cpu_operations": 198,
+        "gpu_operations": 198,
+        "no_device_fallback_operations": 198,
+        "actual_controller_cuda_batches": 1,
+        "startup_parameters_read_only": true
+      },
+      "installed_backend": {
+        "sha256": "0cad1b3d4e40110a0552d0eb227c0b09f4dfb270cb7254b597618db06466b152",
+        "cuda_batches": 12,
+        "boundary_rechecks": 1,
+        "deadline_error": "CUDA geometry completion deadline exceeded",
+        "second_call_error": "CUDA geometry fault latched; reconfigure required"
+      },
+      "dense_early_collision_microbenchmark_ms": {
+        "cpu": 0.0929497,
+        "gpu": 0.895136,
+        "scope": "specific dense early-exit input; no universal speedup claim"
+      },
+      "device_validation_scope": "x86_64 RTX5070 only; no robot hardware nodes or serial devices; Orin not tested this round",
+      "log_sha256": {
+        "ctest-final.log": "23c1c06d9b362d57c2c52ab1209b3db1ef712a77064b2bd6e05516c4af7d589e",
+        "navigation-build.log": "455d4936caf8b7405595ee68a4732febad473516deb37d06802a898268944ccf",
+        "device.csv": "1cfee4eb08728ecc224b2da73f0b35646b4cffc0a4b8e72d79ceed0a1d871e58",
+        "installed-backend-ldd.log": "3e8692cdce3a563876a7c8505cee6299a5df9d58c88b0818dcb9a5077900265b",
+        "installed-backend-sha256.txt": "d3f6f038abb7fb4c7e252e893115d86d32381df25378fd189870699f11ac78da",
+        "installed-backend-final.log": "ab2f1f5d4bd963306ea405a05ed84e2cdfee2a70d591a2e78a97775a8ec748bf"
+      },
+      "geometry_source_sha256": {
+        "src/precise_mppi.cpp": "0842945d3a46d469a4d08abe2abe33e1c1f8a77ae60309b88554cd04abef0bdd",
+        "include/duojin02_navigation/gpu_geometry.hpp": "3b8d97b67f4fd677ae41e0a1a338db140e63d25cdc747d75b59d9581e2e9f171",
+        "gpu/geometry.cpp": "ca6007a80fcaef461699f08c231bd53558360e27d690c3e3aa3eee8e5e40ae0f",
+        "gpu/geometry.cu": "a1a6fb6b59e0b1d61b9f3cefa4ced8bbea3c11b6a29e87e3057283c162395231",
+        "gpu/geometry_internal.hpp": "846b8c3bb508ea8ddd291ca91a3b82a063ae946223868bed1bec95cc34d3434c"
+      },
+      "cuda_toolkit_release": "12.8.1"
+    },
+    "navigation_command_chain": {
+      "grid": {
+        "passed": true,
+        "checks": 6
+      },
+      "localization": {
+        "passed": true,
+        "checks": 18
+      },
+      "command_timeout": {
+        "passed": true,
+        "checks": 16
+      }
+    },
+    "lidar": "passed",
+    "slam": "passed",
+    "gpu_deployment_runtime_probe": "passed",
+    "cpu_deployment_runtime_without_cuda": "passed"
+  },
+  "images": {
+    "duojin02:hardware-humble": "sha256:1e90dd7b66b284a55db859b3670ca3e45d65bbc91cae998f1ff41fe2e8571f3b",
+    "duojin02:hardware-humble-cpu": "sha256:901807a08e7394962ce08d7b43dc9294138d4d5a480b92ce13e1efb1baa96757",
+    "duojin02:gpu-cpu-unified-testing": "sha256:06e5b2ebbfd8c4ed2428a6d39d6fd9dda45e5af806b1ed7f43a762039705745a",
+    "duojin02:gpu-cpu-unified-cpu-testing": "sha256:4c15f1a73b0d40c877655f55761b193558f9282f550ecbc551913f36e8d603dd"
+  },
+  "log_sha256": {
+    "full-cpu.log": "02fd042034be630865e5458e6bb9a2f708f0ff027882c3608ae21fa5ab2bfcd9",
+    "cpu-ctest-final.log": "7be31a9541bb1b560b12bec4f0ce64771befc33152be414d8822f7c18089be77",
+    "cpu-startup-fallback.log": "3ca0db19b4ebf862e37360acc5be82b70d0beda086d6777ad9dcd810be8382d6",
+    "gpu-image-build.log": "223e6bb92f1d75cd6e77d8519fdc6c32b92fff1538c2871c9e26d84c3d99ec8f",
+    "cpu-image-build.log": "d3c97d1f5963b0ebef4dc7091dfea9665764128e772bd76403dfdc6e2d6f3ed1",
+    "gpu-runtime-probe.log": "cf8e3b63138693d0f428379083e1b33d9d6fcc267081b27b57aa7b4b5e485c0f",
+    "cpu-runtime-probe.log": "f319bb4867ea5b4d16829d37ce206920cbdaa79c505b37929bdd8e6bf77094cb"
+  },
+  "archive": {
+    "root": "/home/th1rt3en/dev/archive/duojin02/2026-10-14",
+    "gpu_directory": "duojin02-gpu",
+    "gpu_files": 8662,
+    "gpu_symlinks": 14,
+    "gpu_hash_and_metadata_verification": true,
+    "historical_cache": "main-historical-cache.tar.gz",
+    "historical_cache_sha256": "e53bf4fda3078faf542d8fbdd67b6b2146a5ff757ae9a3b3f4e70cea6294ed78",
+    "historical_cache_verified_members": 15933,
+    "main_allocated_bytes_after": 793432064,
+    "main_allocated_bytes_removed": 1334566912,
+    "sim_worktree_and_dirty_state_preserved": true,
+    "raw_cleanup_record_sha256": "1907f3aa3a8d5ce57ef270f3bca36669932b812dd0f98d8bb883d7d1f5d23c7a"
+  },
+  "limits": [
+    "GPU device validation on RTX5070; SM87 compiled, no new physical Orin/robot deployment.",
+    "Dense early-collision benchmark can be slower on GPU; no universal speedup or real-time guarantee.",
+    "GPU startup unavailability falls back to original CPU; a running GPU failure stops the request."
+  ]
+}

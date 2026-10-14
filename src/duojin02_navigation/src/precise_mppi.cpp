@@ -2,6 +2,8 @@
 #include "duojin02_navigation/velocity_limits.hpp"
 #include "duojin02_navigation/local_grid_snapshot.hpp"
 #include "duojin02_navigation/path_target.hpp"
+#include "duojin02_navigation/gpu_geometry.hpp"
+#include <rcl_interfaces/msg/parameter_descriptor.hpp>
 #include <cstring>
 #include <nav2_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
@@ -28,6 +30,42 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     if(!std::isfinite(narrow_speed) || narrow_speed<0)
       throw std::invalid_argument("PreciseMPPI narrow_speed_max must be finite and nonnegative");
     narrow_speed_=std::min(narrow_speed,max_speed);
+    geometry_.reset();
+    const GeometryOptions defaults;
+    auto startup_parameter=[&](const std::string &key,const rclcpp::ParameterValue &value) {
+      rcl_interfaces::msg::ParameterDescriptor descriptor;
+      descriptor.read_only=true;
+      descriptor.description="Geometry backend startup setting; reconfigure to change.";
+      const auto parameter=name+"."+key;
+      if(!node->has_parameter(parameter)) node->declare_parameter(parameter,value,descriptor);
+      else if(!node->describe_parameter(parameter).read_only) {
+        const auto configured=node->get_parameter(parameter).get_parameter_value();
+        node->undeclare_parameter(parameter);
+        node->declare_parameter(parameter,configured,descriptor,true);
+      }
+    };
+    startup_parameter("use_gpu",rclcpp::ParameterValue(defaults.use_gpu));
+    startup_parameter("gpu_minimum_work",rclcpp::ParameterValue(static_cast<int64_t>(defaults.minimum_work)));
+    startup_parameter("gpu_deadline_ms",rclcpp::ParameterValue(defaults.deadline_ms));
+    const bool use_gpu=node->get_parameter(name+".use_gpu").as_bool();
+    const auto work=node->get_parameter(name+".gpu_minimum_work").as_int();
+    const double deadline=node->get_parameter(name+".gpu_deadline_ms").as_double();
+    if(work<0 || !std::isfinite(deadline) || deadline<=0)
+      throw std::invalid_argument("GPU geometry requires nonnegative gpu_minimum_work and positive finite gpu_deadline_ms");
+    if(use_gpu) {
+      geometry_=std::make_unique<GeometryCompute>(GeometryOptions{true,static_cast<uint64_t>(work),deadline});
+      if(geometry_->available()) RCLCPP_INFO(logger_,"GPU geometry enabled: %s; native Nav2 optimizer unchanged",geometry_->deviceName().c_str());
+      else RCLCPP_WARN(logger_,"GPU geometry unavailable (%s); using original CPU geometry and native Nav2 optimizer",geometry_->deviceName().c_str());
+    } else RCLCPP_INFO(logger_,"use_gpu=false: original CPU geometry and native Nav2 optimizer");
+  }
+  void cleanup() override {
+    if(geometry_) {
+      const auto &statistics=geometry_->statistics();
+      RCLCPP_INFO(logger_,"GPU_GEOMETRY_SUMMARY cuda_batches=%lu boundary_rechecks=%lu",
+        statistics.cuda_batches,statistics.boundary_rechecks);
+    }
+    geometry_.reset();
+    nav2_mppi_controller::MPPIController::cleanup();
   }
   void setPlan(const nav_msgs::msg::Path &path) override {
     std::lock_guard<std::mutex> lock(limits_mutex_);
@@ -46,6 +84,17 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,
       nav2_core::GoalChecker *checker) override {
     std::lock_guard<std::mutex> lock(limits_mutex_);
+    try {return computeCommand(pose,speed,checker);}
+    catch(const ComputeFailure &error) {
+      RCLCPP_ERROR_THROTTLE(logger_,*clock_,2000,"GPU geometry stopped motion: %s",error.what());
+      return stopped(pose);
+    }
+  }
+
+ private:
+  geometry_msgs::msg::TwistStamped computeCommand(
+      const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::Twist &speed,
+      nav2_core::GoalChecker *checker) {
     if(!refreshLimits()) return stopped(pose);
     if(limits_.stopped()) return stopped(pose);
     if(!snapshot(pose,speed)) return stopped(pose);
@@ -70,7 +119,6 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     }
   }
 
- private:
   geometry_msgs::msg::TwistStamped converge(const geometry_msgs::msg::PoseStamped &pose,const geometry_msgs::msg::PoseStamped &target,bool docking) {
     const double dx=target.pose.position.x-pose.pose.position.x,dy=target.pose.position.y-pose.pose.position.y;
     const double yaw=tf2::getYaw(pose.pose.orientation),dyaw=std::remainder(tf2::getYaw(target.pose.orientation)-yaw,2*M_PI);
@@ -136,6 +184,15 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
     const double dx=b.pose.position.x-a.pose.position.x,dy=b.pose.position.y-a.pose.position.y;
     double radius=0;for(const auto &p:polygon_) radius=std::max(radius,std::hypot(p.x,p.y));
     const int steps=std::max(1,static_cast<int>(std::ceil((std::hypot(dx,dy)+radius*std::abs(delta))/.004)));
+    if(geometry_ && geometry_->willUseCuda(steps+1)) {
+      std::vector<Pose> poses;poses.reserve(steps+1);
+      for(int i=0;i<=steps;++i) {
+        const double f=static_cast<double>(i)/steps;
+        poses.push_back({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta});
+      }
+      const auto result=geometry_->evaluate(poses,.010);
+      return std::none_of(result.collisions.begin(),result.collisions.end(),[](uint8_t hit){return hit!=0;});
+    }
     for(int i=0;i<=steps;++i) {
       const double f=static_cast<double>(i)/steps;
       if(collision({a.pose.position.x+f*dx,a.pose.position.y+f*dy,yaw+f*delta},polygon_,obstacles_,.010)) return false;
@@ -191,6 +248,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
       const double wy=grid_.origin_y+(cy+grid_.crop_y+.5)*grid_.resolution;
       obstacles_.push_back({wx,wy,grid_.resolution*std::sqrt(2.0)/2});
     }
+    if(geometry_ && geometry_->available() && !polygon_.empty())geometry_->setScene(polygon_,obstacles_);
     return !polygon_.empty();
   }
   bool centeredTarget(const geometry_msgs::msg::PoseStamped &pose,geometry_msgs::msg::PoseStamped &target) {
@@ -271,6 +329,7 @@ class PreciseMPPI : public nav2_mppi_controller::MPPIController {
   LocalGridSnapshot grid_;
   geometry_msgs::msg::PoseStamped goal_;PathTarget target_path_;bool have_goal_{false};
   OmniVelocityLimits limits_;std::mutex limits_mutex_;
+  std::unique_ptr<GeometryCompute> geometry_;
   double narrow_speed_{.5},requested_limit_{0};bool requested_percentage_{false};
 };
 }

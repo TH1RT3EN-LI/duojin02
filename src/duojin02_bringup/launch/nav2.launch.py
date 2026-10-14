@@ -6,6 +6,7 @@ from ament_index_python.packages import get_package_share_directory
 from duojin02_bringup.map_paths import resolve_map_yaml
 from launch import LaunchDescription
 from duojin02_bringup.middleware import middleware
+from duojin02_bringup.gpu_profile import GpuDefault, use_gpu_argument
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo, OpaqueFunction, RegisterEventHandler, Shutdown, GroupAction
 from launch.event_handlers import OnProcessExit
 from launch.conditions import IfCondition
@@ -46,6 +47,7 @@ def _create_nav_actions(context, nav2_share: str):
     navigation=GroupAction([IncludeLaunchDescription(PythonLaunchDescriptionSource(
         os.path.join(get_package_share_directory(PACKAGE_NAME),'launch','navigation_stack.launch.py')),
         launch_arguments={'params_file':rewritten,'autostart':autostart,'log_level':log_level,
+                          'use_gpu':LaunchConfiguration('use_gpu', default=GpuDefault(params_file)),
                           'navigation_output':'/nav/localization_requested'}.items())])
     health_config=os.path.join(get_package_share_directory(PACKAGE_NAME),'config','localization_health.yaml')
     manager=Node(package=PACKAGE_NAME,executable='localization_manager',
@@ -90,6 +92,7 @@ def generate_launch_description():
                 "params_file",
                 default_value=os.path.join(bringup_share, "config", "nav2.yaml"),
             ),
+            use_gpu_argument(),
             DeclareLaunchArgument("map", default_value=""),
             DeclareLaunchArgument("rviz_config", default_value=default_rviz_config),
             OpaqueFunction(function=_create_nav_actions, args=[nav2_share]),

@@ -12,7 +12,7 @@ DETACH="${DETACH:-1}"
 IPC_HOST="${IPC_HOST:-1}"
 SHM_SIZE="${SHM_SIZE:-}"
 
-GPU="${GPU:-0}"
+GPU="${GPU:-1}"
 DOCKER_GPUS="${DOCKER_GPUS:-all}"
 INPUT="${INPUT:-1}"
 DEV="${DEV:-}"
@@ -100,10 +100,10 @@ if [[ "$GPU" == "1" ]]; then
   fi
   if [[ "$(uname -m)" == "aarch64" && -f /etc/nv_tegra_release ]]; then
     DOCKER_GPU_ARGS+=(--runtime=nvidia)
-    DOCKER_ENV_ARGS+=(-e NVIDIA_VISIBLE_DEVICES="${DOCKER_GPUS}" -e NVIDIA_DRIVER_CAPABILITIES="graphics,utility,display")
+    DOCKER_ENV_ARGS+=(-e NVIDIA_VISIBLE_DEVICES="${DOCKER_GPUS}" -e NVIDIA_DRIVER_CAPABILITIES="compute,graphics,utility,display")
   elif [[ -c /dev/nvidiactl ]] || command -v nvidia-smi >/dev/null 2>&1; then
     DOCKER_GPU_ARGS+=(--gpus "$DOCKER_GPUS")
-    DOCKER_ENV_ARGS+=(-e NVIDIA_DRIVER_CAPABILITIES="graphics,utility,display")
+    DOCKER_ENV_ARGS+=(-e NVIDIA_DRIVER_CAPABILITIES="compute,graphics,utility,display")
   fi
 fi
 

@@ -26,6 +26,13 @@ void bounded(const geometry_msgs::msg::Twist &v,const OmniVelocityBounds &b,bool
   if(stop)assert(v.linear.x==0 && v.linear.y==0 && v.angular.z==0);
 }
 int main(int argc,char **argv) {
+  const std::string mode=argc>1 ? argv[1] : "";
+  const bool use_gpu=mode=="--gpu" || mode=="--fallback";
+  if(mode=="--fallback") assert(!GeometryCompute().available());
+  if(mode=="--gpu" && !GeometryCompute().available()) {
+    std::cout<<"CUDA device unavailable\n";
+    return 77;
+  }
   NativeOracle oracle;OmniVelocityLimits reference;reference.configure({.5,-.2,.3,.65});
   for(const auto request:std::vector<std::pair<double,bool>>{{20,true},{60,true},{.1,false},{0,false},{0,true}}) {
     oracle.setSpeedLimit(request.first,request.second);reference.update(request.first,request.second);
@@ -50,10 +57,12 @@ int main(int argc,char **argv) {
   // of map files, launch lifecycle, and future production YAML additions.
   // Critic selection here only makes the free-map native branch executable;
   // this is a bounds test, not a trajectory quality or collision benchmark.
-  auto make_options=[]() {
+  auto make_options=[use_gpu]() {
     rclcpp::NodeOptions o;
     o.parameter_overrides({
       rclcpp::Parameter("controller_frequency",20.),
+      rclcpp::Parameter("FollowPath.use_gpu",use_gpu),
+      rclcpp::Parameter("FollowPath.gpu_minimum_work",0),
       rclcpp::Parameter("FollowPath.vx_max",.5),
       rclcpp::Parameter("FollowPath.vx_min",-.2),
       rclcpp::Parameter("FollowPath.vy_max",.3),
@@ -75,6 +84,10 @@ int main(int argc,char **argv) {
   auto node=std::make_shared<rclcpp_lifecycle::LifecycleNode>("controller_server",options);
   auto tf=std::make_shared<tf2_ros::Buffer>(node->get_clock());tf2_ros::TransformListener listener(*tf);
   TestController controller;controller.configure(node,"FollowPath",tf,map);controller.activate();
+  assert(node->describe_parameter("FollowPath.use_gpu").read_only);
+  assert(node->describe_parameter("FollowPath.gpu_minimum_work").read_only);
+  assert(node->describe_parameter("FollowPath.gpu_deadline_ms").read_only);
+  assert(!node->set_parameter(rclcpp::Parameter("FollowPath.use_gpu",!use_gpu)).successful);
   nav2_controller::SimpleGoalChecker checker;checker.initialize(node,"probe_goal",map);
   OmniVelocityLimits expected;expected.configure({.5,-.2,.3,.1});
   const std::vector<geometry_msgs::msg::PoseStamped> goals={pose(.4,0),pose(-.4,0),pose(0,.4),pose(.3,.3,1),pose(0,0,1),pose(.8,0),pose(-.8,0),pose(0,.8),pose(.8,.2,1)};
@@ -92,6 +105,20 @@ int main(int argc,char **argv) {
       }
     }
   }
+  // Add a real occupied cell outside the robot and beside a clear chord so
+  // the GPU case exercises collision batches, not just no-obstacle shortcuts.
+  map->getCostmap()->setCost(300,300,0);
+  map->getCostmap()->setCost(305,334,254);
+  controller.setSpeedLimit(20,true);
+  {
+    auto s=pose();s.header.stamp=node->now();auto g=pose(.4,0);g.header=s.header;
+    nav_msgs::msg::Path clear_path;clear_path.header=s.header;clear_path.poses={s,g};
+    controller.setPlan(clear_path);geometry_msgs::msg::Twist v;
+    const auto result=controller.computeVelocityCommands(s,v,&checker).twist;
+    bounded(result,{.1,-.04,.06,.02});
+    assert(result.linear.x>0);
+  }
+  map->getCostmap()->setCost(305,334,0);
   map->getCostmap()->setCost(300,300,0);controller.setSpeedLimit(20,true);
   const auto changed=node->set_parameters_atomically({rclcpp::Parameter("FollowPath.vx_max",.4),rclcpp::Parameter("FollowPath.vx_min",-.1),rclcpp::Parameter("FollowPath.vy_max",.2),rclcpp::Parameter("FollowPath.wz_max",.04)});assert(changed.successful);
   expected.configure({.4,-.1,.2,.04});expected.update(20,true);

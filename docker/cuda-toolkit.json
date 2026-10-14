@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "release": "12.8.1",
+  "manifest": {
+    "url": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_12.8.1.json",
+    "sha256": "249e28a83008d711d5f72880541c8be6253f6d61608461de4fcb715554a6cf17"
+  },
+  "base_url": "https://developer.download.nvidia.com/compute/cuda/redist/",
+  "components": {
+    "cuda_nvcc": {
+      "version": "12.8.93",
+      "platforms": {
+        "linux-x86_64": {
+          "relative_path": "cuda_nvcc/linux-x86_64/cuda_nvcc-linux-x86_64-12.8.93-archive.tar.xz",
+          "sha256": "9961b3484b6b71314063709a4f9529654f96782ad39e72bf1e00f070db8210d3",
+          "size": 79015464
+        },
+        "linux-aarch64": {
+          "relative_path": "cuda_nvcc/linux-aarch64/cuda_nvcc-linux-aarch64-12.8.93-archive.tar.xz",
+          "sha256": "2eb267e6ebbe17e5ebc593bae8b83fa927c3e53cbf43ef5c614eff6c94053d10",
+          "size": 74262012
+        }
+      }
+    },
+    "cuda_cudart": {
+      "version": "12.8.90",
+      "platforms": {
+        "linux-x86_64": {
+          "relative_path": "cuda_cudart/linux-x86_64/cuda_cudart-linux-x86_64-12.8.90-archive.tar.xz",
+          "sha256": "8d566b5fe745c46842dc16945cf36686227536decd2302c372be86da37faca68",
+          "size": 1354240
+        },
+        "linux-aarch64": {
+          "relative_path": "cuda_cudart/linux-aarch64/cuda_cudart-linux-aarch64-12.8.90-archive.tar.xz",
+          "sha256": "0cdde0058d47b3307bc2d58156cfadce092631a3d24616e1b88d6ef089b5ca73",
+          "size": 1030172
+        }
+      }
+    },
+    "cuda_cccl": {
+      "version": "12.8.90",
+      "platforms": {
+        "linux-x86_64": {
+          "relative_path": "cuda_cccl/linux-x86_64/cuda_cccl-linux-x86_64-12.8.90-archive.tar.xz",
+          "sha256": "0740e9e01e4f15e17c5ab8d68bba4f8ec0eb6b84edccba4ac45112d2d2174e4b",
+          "size": 928524
+        },
+        "linux-aarch64": {
+          "relative_path": "cuda_cccl/linux-aarch64/cuda_cccl-linux-aarch64-12.8.90-archive.tar.xz",
+          "sha256": "d2c88dd447a7dcbc8eb1d416c34d88e9df03745dc471b6cfaf93f5ef161d5dbd",
+          "size": 928700
+        }
+      }
+    }
+  }
+}

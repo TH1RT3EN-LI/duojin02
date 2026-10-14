@@ -4,6 +4,8 @@
 
 从旧命名版本升级时，先按[名称迁移指南](docs/package-renaming.md)更新构建产物、设备规则和外部调用。当前入口只接受新名称。
 
+导航通过一个 `use_gpu` 参数选择几何加速，默认 `true`；`use_gpu:=false` 使用完整 CPU 路径。两种模式沿用同一套 Nav2 MPPI 优化器与导航参数；CUDA 能力、构建和验证见 [GPU / CPU 统一入口](docs/gpu-cpu.md)。
+
 本页是构建与启动入口；模块、指令链路见 [开发接口](README_DEVELOPMENT.md)，操作说明与历史试验的阅读顺序见 [文档索引](docs/README.md)。工作树、main、设备部署是不同状态，历史报告的通过结果不能证明当前版本已合并或部署。
 
 ## Ubuntu 22.04 原生构建（Jetson 首选）

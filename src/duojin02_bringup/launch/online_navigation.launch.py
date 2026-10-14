@@ -4,6 +4,7 @@ from duojin02_bringup.online_profile import OnlineParameters
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from duojin02_bringup.middleware import middleware
+from duojin02_bringup.gpu_profile import use_gpu_argument
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, Shutdown, GroupAction
 from launch.event_handlers import OnProcessExit
 from launch_ros.actions import Node
@@ -25,10 +26,12 @@ def generate_launch_description():
     ready = Node(package='duojin02_bringup', executable='localization_readiness', output='screen')
     navigation = GroupAction([include('navigation_stack.launch.py', {
         'params_file': parameters, 'autostart': 'true',
+        'use_gpu': LaunchConfiguration('use_gpu'),
         'log_level': LaunchConfiguration('nav_log_level')})])
     return LaunchDescription([
         middleware(),
         DeclareLaunchArgument('params_file', default_value=os.path.join(own, 'config/nav2.yaml')),
+        use_gpu_argument(),
         DeclareLaunchArgument('slam_params_file', default_value=os.path.join(own, 'config/slam_toolbox.yaml')),
         DeclareLaunchArgument('pose_graph', default_value=''),
         DeclareLaunchArgument('map_start_pose', default_value=''),
