@@ -96,7 +96,7 @@ def main():
     root = Path(__file__).resolve().parents[2]
     directory = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(tempfile.mkdtemp(prefix='smoother-probe-'))
     directory.mkdir(parents=True, exist_ok=True)
-    config = yaml.safe_load((root / 'src/duojin01_bringup/config/nav2.yaml').read_text())['velocity_smoother']
+    config = yaml.safe_load((root / 'src/duojin02_bringup/config/nav2.yaml').read_text())['velocity_smoother']
     candidate = json.loads(json.dumps(config))
     old = json.loads(json.dumps(config))
     old['ros__parameters']['deadband_velocity'] = [.005, .005, .003]

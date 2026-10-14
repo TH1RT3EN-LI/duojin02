@@ -78,12 +78,12 @@ baseline 指旧 Nav2 参数、原生 NavFn/MPPI、关闭新增速度保护；upg
 
 ```bash
 source source.sh
-ros2 launch duojin01_bringup online_navigation.launch.py
+ros2 launch duojin02_bringup online_navigation.launch.py
 # 在另外终端，已有导航目标运行期间读取，不发送运动命令
 python3 scripts/profile_navigation.py --seconds 60 --output orin-navigation-profile.json
 ```
 
-固定地图使用 `ros2 launch duojin01_bringup navigation.launch.py map:=...`。
+固定地图使用 `ros2 launch duojin02_bringup navigation.launch.py map:=...`。
 
 ## 核心技术来源
 

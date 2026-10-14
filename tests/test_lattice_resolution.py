@@ -3,9 +3,9 @@ import json
 from pathlib import Path
 import sys
 import pytest
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src/duojin01_bringup'))
-from duojin01_bringup.lattice import for_resolution
-SOURCE=Path(__file__).resolve().parents[1]/'src/duojin01_bringup/config/lattice_primitives/duojin01_omni_2cm_rich_lattice.json'
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src/duojin02_bringup'))
+from duojin02_bringup.lattice import for_resolution
+SOURCE=Path(__file__).resolve().parents[1]/'src/duojin02_bringup/config/lattice_primitives/duojin02_omni_2cm_rich_lattice.json'
 
 
 @pytest.mark.parametrize('resolution',[.01,.02,.03,.05])

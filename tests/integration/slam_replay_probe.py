@@ -17,7 +17,7 @@ from rclpy.node import Node
 from rclpy.serialization import serialize_message
 from sensor_msgs.msg import Imu, LaserScan
 from tf2_msgs.msg import TFMessage
-from duojin01_slam_tools.snapshots import validate_map
+from duojin02_slam_tools.snapshots import validate_map
 
 
 def timestamp(seconds):
@@ -101,7 +101,7 @@ def reload_graph(prefix, root):
     node = Node('pose_graph_reload_probe')
     service = node.create_client(GetMap, '/slam_toolbox/dynamic_map')
     with (root / 'reload.log').open('w') as log:
-        process = subprocess.Popen(['ros2', 'launch', 'duojin01_bringup', 'slam.launch.py',
+        process = subprocess.Popen(['ros2', 'launch', 'duojin02_bringup', 'slam.launch.py',
                                     f'pose_graph:={prefix}', 'start_at_dock:=true'],
                                    stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         try:
@@ -133,7 +133,7 @@ def reject_corrupt_graph(root):
     environment = {**os.environ, 'ROS_DOMAIN_ID': '95', 'ROS_LOCALHOST_ONLY': '1'}
     log_path = root / 'corrupt-graph.log'
     with log_path.open('w') as log:
-        process = subprocess.Popen(['ros2', 'launch', 'duojin01_bringup', 'slam.launch.py',
+        process = subprocess.Popen(['ros2', 'launch', 'duojin02_bringup', 'slam.launch.py',
                                     f'pose_graph:={prefix}', 'start_at_dock:=true'],
                                    env=environment, stdout=log, stderr=subprocess.STDOUT,
                                    start_new_session=True)
@@ -159,7 +159,7 @@ def run(root):
     rate = os.environ.get('SLAM_PROBE_RATE', '1.0')
     drain_timeout = os.environ.get('SLAM_PROBE_DRAIN_TIMEOUT', '20')
     for route, domain in [('recorded', 96), ('ekf', 97)]:
-        subprocess.run(['ros2', 'run', 'duojin01_slam_tools', 'offline_mapping', str(bag),
+        subprocess.run(['ros2', 'run', 'duojin02_slam_tools', 'offline_mapping', str(bag),
                         '--odom-source', route, '--domain-id', str(domain), '--rate', rate,
                         '--output-dir', str(root / 'maps'), '--map-name', f'rotation_{route}',
                         '--drain-timeout', drain_timeout], check=True)

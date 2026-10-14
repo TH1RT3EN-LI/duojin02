@@ -12,10 +12,10 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BRINGUP = ROOT / "src/duojin01_bringup"
+BRINGUP = ROOT / "src/duojin02_bringup"
 sys.path.insert(0, str(BRINGUP))
 FORBIDDEN = re.compile(
-    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin01_(?:camera|mission|msgs)|lslidar_msgs|duojin01_(?:sim|controller_emulator|gz|safety_watchdog)")
+    r"gazebo|ignition|ros_gz|orbbec|depth_cam|duojin02_(?:camera|mission|msgs)|lslidar_msgs|duojin02_(?:sim|controller_emulator|gz|safety_watchdog)")
 
 
 def load_launch(name):
@@ -34,14 +34,14 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         assert not FORBIDDEN.search(name), name
         packages[name] = tree
     assert set(packages) == {
-        "duojin01_base_driver", "duojin01_bringup", "duojin01_description",
-        "duojin01_slam_tools", "duojin01_teleop", "duojin01_navigation", "lslidar_driver"}
+        "duojin02_base_driver", "duojin02_bringup", "duojin02_description",
+        "duojin02_slam_tools", "duojin02_teleop", "duojin02_navigation", "lslidar_driver"}
     for name, tree in packages.items():
         for element in tree:
             if element.tag.endswith("depend"):
                 dependency = (element.text or "").strip()
                 assert not FORBIDDEN.search(dependency), (name, dependency)
-                if dependency.startswith("duojin01_"):
+                if dependency.startswith("duojin02_"):
                     assert dependency in packages, (name, dependency)
 
 
@@ -50,7 +50,7 @@ def test_no_scene_bridge_or_simulation_assets_remain():
         assert not path.name.startswith("sim_"), path
         assert path.suffix != ".sdf", path
         assert not FORBIDDEN.search(path.name), path
-    for path in (ROOT / "src/duojin01_description/urdf").rglob("*.xacro"):
+    for path in (ROOT / "src/duojin02_description/urdf").rglob("*.xacro"):
         assert "<gazebo" not in path.read_text(), path
 
 
@@ -128,14 +128,14 @@ def test_command_sources_reach_base_through_validated_velocity_arbitration():
                 nodes[package] = dict(ast.literal_eval(fields["remappings"]))
     output_topic = nodes["twist_mux"]["/cmd_vel_out"]
     assert output_topic == "/cmd_vel_requested"
-    guard_source = (ROOT / "src/duojin01_navigation/src/velocity_guard.cpp").read_text()
+    guard_source = (ROOT / "src/duojin02_navigation/src/velocity_guard.cpp").read_text()
     assert 'Twist>("/cmd_vel_requested",qos,' in guard_source
-    assert f'Twist>("{nodes["duojin01_base_driver"]["/cmd_vel"]}",qos)' in guard_source
+    assert f'Twist>("{nodes["duojin02_base_driver"]["/cmd_vel"]}",qos)' in guard_source
     assert output_topic not in {entry["topic"] for entry in parameters["topics"].values()}
 
 
 def test_removed_modules_leave_no_launch_or_configuration_references():
-    removed = re.compile(r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop|duojin01_camera|duojin01_mission|gcode|calibration_file|lidar_model")
+    removed = re.compile(r"orbbec|depth_cam|watchdog|cmd_vel_safe|cmd_vel_estop|teleop_estop|duojin02_camera|duojin02_mission|gcode|calibration_file|lidar_model")
     for directory in (BRINGUP / "launch", BRINGUP / "config"):
         for path in directory.rglob("*"):
             if path.is_file() and path.suffix in {".py", ".yaml", ".rviz", ".json"}:
@@ -145,7 +145,7 @@ def test_removed_modules_leave_no_launch_or_configuration_references():
 def test_generated_urdf_contains_only_hardware_geometry():
     import xacro
     document = xacro.process_file(
-        str(ROOT / "src/duojin01_description/urdf/duojin01.xacro"))
+        str(ROOT / "src/duojin02_description/urdf/duojin02.xacro"))
     robot = ET.fromstring(document.toxml())
     assert not robot.findall(".//gazebo")
     assert not robot.findall(".//plugin")
@@ -154,9 +154,9 @@ def test_generated_urdf_contains_only_hardware_geometry():
     assert not any("depth_cam" in name for name in links)
     for mesh in robot.findall(".//mesh"):
         filename = mesh.attrib["filename"]
-        assert filename.startswith("package://duojin01_description/")
-        relative = filename.removeprefix("package://duojin01_description/")
-        assert (ROOT / "src/duojin01_description" / relative).is_file(), filename
+        assert filename.startswith("package://duojin02_description/")
+        relative = filename.removeprefix("package://duojin02_description/")
+        assert (ROOT / "src/duojin02_description" / relative).is_file(), filename
 
 
 def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monkeypatch):
@@ -166,8 +166,8 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
     module = load_launch("base")
     lidar_share = ROOT / "src/lslidar_driver/lslidar_driver"
     shares = {"lslidar_driver": lidar_share,
-              "duojin01_description": ROOT / "src/duojin01_description",
-              "duojin01_bringup": BRINGUP}
+              "duojin02_description": ROOT / "src/duojin02_description",
+              "duojin02_bringup": BRINGUP}
     monkeypatch.setattr(module, "get_package_share_directory", lambda name: str(shares[name]))
     description = module.generate_launch_description()
     groups = [item for item in description.entities if isinstance(item, GroupAction)]
@@ -182,7 +182,7 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
     assert Path(path) == lidar_share / "launch/lslidar_x10_launch.py"
     values = {name: perform_substitutions(context, normalize_to_list_of_substitutions(value))
               for name, value in include.launch_arguments}
-    assert values["params_file"] == str(lidar_share / "config/duojin01_n10plus.yaml")
+    assert values["params_file"] == str(lidar_share / "config/duojin02_n10plus.yaml")
     assert values["serial_port"] == "/dev/test_lidar"
     assert values["frame_id"] == "laser"
     assert values["scan_topic"] == "/scan"
@@ -200,8 +200,8 @@ def test_lidar_upgrade_preserves_hardware_interfaces_and_scopes_parameters(monke
 
 
 def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, monkeypatch):
-    from duojin01_bringup import map_paths
-    monkeypatch.setenv("DUOJIN01_WORKSPACE_ROOT", str(tmp_path))
+    from duojin02_bringup import map_paths
+    monkeypatch.setenv("DUOJIN02_WORKSPACE_ROOT", str(tmp_path))
     (tmp_path / "maps").mkdir()
     (tmp_path / "maps/test.pgm").write_bytes(b"P5\n1 1\n255\n\xff")
     for name in ("2", "12", "5"):
@@ -209,7 +209,7 @@ def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, m
     assert map_paths.get_workspace_root() == tmp_path
     assert map_paths.pick_latest_map_yaml() == str(tmp_path / "maps/12.yaml")
     assert map_paths.resolve_map_yaml("maps/5.yaml") == str(tmp_path / "maps/5.yaml")
-    monkeypatch.setenv("DUOJIN01_WORKSPACE_ROOT", "relative/path")
+    monkeypatch.setenv("DUOJIN02_WORKSPACE_ROOT", "relative/path")
     with pytest.raises(RuntimeError, match="absolute"):
         map_paths.get_workspace_root()
 
@@ -217,7 +217,7 @@ def test_container_and_native_workspace_use_persistent_hardware_maps(tmp_path, m
 @pytest.mark.parametrize("selected,expected", [(None, "rmw_cyclonedds_cpp"), ("rmw_fastrtps_cpp", "rmw_fastrtps_cpp")])
 def test_middleware_default_preserves_explicit_deployment_choice(monkeypatch, selected, expected):
     from launch import LaunchContext
-    from duojin01_bringup.middleware import middleware
+    from duojin02_bringup.middleware import middleware
     if selected is None:
         monkeypatch.delenv("RMW_IMPLEMENTATION", raising=False)
     else:

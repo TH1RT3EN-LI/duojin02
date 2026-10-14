@@ -4,7 +4,7 @@
 
 ## 先统一环境
 
-两端使用 ROS 2 Humble。显示模型时，观看机需有同版本 `duojin01_description` 和网格，按本机架构构建并加载；ARM64 安装产物不能直接复制给 x86 观看机。以下示例在观看机已构建的仓库根目录运行，机器人已在另一端启动：
+两端使用 ROS 2 Humble。显示模型时，观看机需有同版本 `duojin02_description` 和网格，按本机架构构建并加载；ARM64 安装产物不能直接复制给 x86 观看机。以下示例在观看机已构建的仓库根目录运行，机器人已在另一端启动：
 
 ```bash
 source ./source.sh
@@ -14,7 +14,7 @@ export ROS_LOCALHOST_ONLY=0
 
 `20` 是项目默认值；机器人使用其他域时两端改为该实际值。`source.sh` 保留已有域与 RMW 设置，默认 RMW 为 Cyclone DDS；不要以为重新 source 会清除之前的实验域。直接跨机器订阅还要求机器人进程的 `ROS_LOCALHOST_ONLY=0`、DDS 配置允许远端发现及传输。改变终端环境不会修改已启动进程的环境。
 
-只看扫描可使用已安装 Humble / RViz 的最小环境；上例的 `source.sh` 需要已构建工作区。完整模型显示须确认 `package://duojin01_description/...` 在观看机可解析。机器人使用自定义 RMW / DDS 网络配置时，按其实际部署核对发现和 QoS；本页不提供另一套桥接配置。
+只看扫描可使用已安装 Humble / RViz 的最小环境；上例的 `source.sh` 需要已构建工作区。完整模型显示须确认 `package://duojin02_description/...` 在观看机可解析。机器人使用自定义 RMW / DDS 网络配置时，按其实际部署核对发现和 QoS；本页不提供另一套桥接配置。
 
 ## 只看雷达
 
@@ -37,13 +37,13 @@ ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=false
 观看机使用仓库模板启动，下面是固定图 / 在线导航的示例：
 
 ```bash
-ros2 run rviz2 rviz2 -d "$PWD/src/duojin01_bringup/config/rviz/navigation.rviz" \
+ros2 run rviz2 rviz2 -d "$PWD/src/duojin02_bringup/config/rviz/navigation.rviz" \
   --ros-args -p use_sim_time:=false
 ```
 
-建图时改用 [mapping.rviz](../src/duojin01_bringup/config/rviz/mapping.rviz)。两个模板的 Fixed Frame 均为 `map`，不能用于没有地图 TF 的独立雷达观察。
+建图时改用 [mapping.rviz](../src/duojin02_bringup/config/rviz/mapping.rviz)。两个模板的 Fixed Frame 均为 `map`，不能用于没有地图 TF 的独立雷达观察。
 
-当前 [navigation.rviz](../src/duojin01_bringup/config/rviz/navigation.rviz) 的 `GlobalCostMap` 显示 `/global_costmap/costmap`，局部显示订阅 `/local_costmap/costmap`；两者分别使用对应的更新话题。查看前确认节点 ACTIVE 和实际发布者。需要保存观看设置时使用自己的 RViz 配置文件。
+当前 [navigation.rviz](../src/duojin02_bringup/config/rviz/navigation.rviz) 的 `GlobalCostMap` 显示 `/global_costmap/costmap`，局部显示订阅 `/local_costmap/costmap`；两者分别使用对应的更新话题。查看前确认节点 ACTIVE 和实际发布者。需要保存观看设置时使用自己的 RViz 配置文件。
 
 RobotModel 接收 `/robot_description`，网格由观看机本地解析；机器人端已有模型 / TF 发布者，观看机不再启动一套。两个模板的 RobotModel、`/map` 及导航全局代价图使用 Reliable / Transient Local；局部代价图和增量更新保留对应订阅设置。晚加入时如模型 / 地图未出现，核对实际发布端 QoS 和本地网格路径。模板已移除旧 computer、pillar 和空轮轴中间 frame；轮子仍在原测量位置。
 

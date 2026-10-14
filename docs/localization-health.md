@@ -1,6 +1,6 @@
 # 固定图定位健康与恢复
 
-本页集中维护固定图的状态机、扫描 / 地图语义与恢复操作；模块和话题所有权见 [开发接口](../README_DEVELOPMENT.md)，验证层级见 [优化状态](navigation-optimization.md)。配置阈值见 [localization_health.yaml](../src/duojin01_bringup/config/localization_health.yaml)；本文的窗口与参数描述不能当作已经完成实物标定。
+本页集中维护固定图的状态机、扫描 / 地图语义与恢复操作；模块和话题所有权见 [开发接口](../README_DEVELOPMENT.md)，验证层级见 [优化状态](navigation-optimization.md)。配置阈值见 [localization_health.yaml](../src/duojin02_bringup/config/localization_health.yaml)；本文的窗口与参数描述不能当作已经完成实物标定。
 
 `nav2.launch.py` 在 AMCL/map server 之外常驻启动一个 `localization_manager`，同时负责健康判断、恢复和导航命令许可。它按扫描实际时间查询 `map → laser`，核对有限返回端点与占据格、用逐格 DDA 检查返回之前的射线是否穿过墙体。协方差小、TF 新鲜都不单独构成通过条件。
 

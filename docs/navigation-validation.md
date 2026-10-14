@@ -6,7 +6,7 @@
 
 `scripts/build_hardware.sh` 默认传入 `BUILD_TESTING=OFF`。已有生产构建目录可能没有 CTest，`validate_hardware.sh` 的 Python 检查和 launch 参数解析也不替代 C++ / ROS 算法回归。需要工作区测试构建时，可在隔离环境中运行 `./scripts/build_hardware.sh -DBUILD_TESTING=ON`；脚本将后置参数传给 CMake，覆盖默认 OFF。不要把“未发现测试”记作通过。
 
-仅检查导航包不需要重新构建 SLAM 后端：可在具备 Humble、Nav2、KDL 和测试依赖的环境中使用独立 CMake 构建。源码目录与输出目录分开，不能把独立包安装的 `share/duojin01_navigation/local_setup.bash` 当成完整 colcon 工作区的 `setup.bash`。
+仅检查导航包不需要重新构建 SLAM 后端：可在具备 Humble、Nav2、KDL 和测试依赖的环境中使用独立 CMake 构建。源码目录与输出目录分开，不能把独立包安装的 `share/duojin02_navigation/local_setup.bash` 当成完整 colcon 工作区的 `setup.bash`。
 
 ## 隔离的本地算法回归
 
@@ -22,7 +22,7 @@ docker run --rm --init --network none --cpus 2 --memory 3g --pids-limit 256 \
   --entrypoint bash "$TEST_IMAGE" -c '
     set -eo pipefail
     source /opt/ros/humble/setup.bash
-    cmake -S src/duojin01_navigation -B /check/build \
+    cmake -S src/duojin02_navigation -B /check/build \
       -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
     cmake --build /check/build -j2
     ctest --test-dir /check/build --output-on-failure
@@ -58,7 +58,7 @@ docker run --rm --init --network none --cpus 2 --memory 2g --pids-limit 128 \
   --entrypoint bash "$TEST_IMAGE" -c '
     set -eo pipefail
     source /opt/ros/humble/setup.bash
-    cmake -S src/duojin01_navigation -B /check/build \
+    cmake -S src/duojin02_navigation -B /check/build \
       -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
     cmake --build /check/build --target path_target_benchmark spatial_index_benchmark -j2
     slot=0

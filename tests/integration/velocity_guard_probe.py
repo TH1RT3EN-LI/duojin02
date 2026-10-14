@@ -27,9 +27,9 @@ def run():
     scan=node.create_publisher(LaserScan,'/scan',qos_profile_sensor_data)
     grid=node.create_publisher(OccupancyGrid,'/local_costmap/costmap',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
     covariance=node.create_publisher(PoseWithCovarianceStamped,'/amcl_pose',QoSProfile(depth=1,durability=DurabilityPolicy.TRANSIENT_LOCAL))
-    parameters=Path(__file__).resolve().parents[2]/'src/duojin01_bringup/config/velocity_guard.yaml'
+    parameters=Path(__file__).resolve().parents[2]/'src/duojin02_bringup/config/velocity_guard.yaml'
     with open('/tmp/velocity-guard-probe.log','w') as log:
-        binary=Path(get_package_prefix('duojin01_navigation'))/'lib/duojin01_navigation/velocity_guard'
+        binary=Path(get_package_prefix('duojin02_navigation'))/'lib/duojin02_navigation/velocity_guard'
         process=subprocess.Popen([str(binary),'--ros-args','--params-file',str(parameters)],
                                  stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         def pump(duration,point=(1.5,0),requested=.3,actual=0.0,send_scan=True,send_command=True,scan_min=.02):

@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace as S
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src/duojin01_bringup'))
-from duojin01_bringup.localization_readiness import ScanReadiness
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src/duojin02_bringup'))
+from duojin02_bringup.localization_readiness import ScanReadiness
 
 
 def scan(t, frame='laser', ranges=None):

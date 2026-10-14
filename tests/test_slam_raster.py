@@ -8,9 +8,9 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src/duojin01_slam_tools"))
-from duojin01_slam_tools.raster import validate_trinary_raster
-from duojin01_slam_tools.snapshots import artifact_path, commit_snapshot, reserve_snapshot
+sys.path.insert(0, str(ROOT / "src/duojin02_slam_tools"))
+from duojin02_slam_tools.raster import validate_trinary_raster
+from duojin02_slam_tools.snapshots import artifact_path, commit_snapshot, reserve_snapshot
 
 
 def staged(prefix, free=0.196, pixels=b"\x00\xcd\xfe", graph=True):

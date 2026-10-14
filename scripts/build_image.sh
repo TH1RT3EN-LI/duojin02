@@ -3,11 +3,11 @@ set -euo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 build_options=()
 build_options+=(--build-arg "BUILD_JOBS=${BUILD_JOBS:-2}" --build-arg "BUILD_WORKERS=${BUILD_WORKERS:-1}")
-image="${IMAGE:-duojin01:hardware-humble}"
+image="${IMAGE:-duojin02:hardware-humble}"
 if [[ -n "${PLATFORM:-}" ]]; then
   build_options+=(--platform "$PLATFORM")
   if [[ -z "${IMAGE:-}" && "$PLATFORM" == "linux/arm64" && "$(uname -m)" != "aarch64" ]]; then
-    image=duojin01:hardware-humble-arm64
+    image=duojin02:hardware-humble-arm64
   fi
 fi
 supplied_arguments=("$@")

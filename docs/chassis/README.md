@@ -70,7 +70,7 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
  [0.202879, -0.203], [0.213, -0.192879]]
 ```
 
-图中与上述多边形尚未包含额外 padding。**2026-10-06 建模阶段**沿用局部 80 mm / 全局 40 mm padding，并将膨胀半径从 100 mm 调至 350 mm，代价衰减系数为 3.0；这些是历史配置记录，不是当前导航推荐值。当前局部 / 全局足迹、padding 与膨胀参数以 [nav2.yaml](../../src/duojin01_bringup/config/nav2.yaml) 为维护位置。原始投影经外向取整后约为 427 × 406 mm，不能把 CAD 尺寸、导航多边形和额外 padding 混为一个尺寸。通道通过性仍需实机验证。
+图中与上述多边形尚未包含额外 padding。**2026-10-06 建模阶段**沿用局部 80 mm / 全局 40 mm padding，并将膨胀半径从 100 mm 调至 350 mm，代价衰减系数为 3.0；这些是历史配置记录，不是当前导航推荐值。当前局部 / 全局足迹、padding 与膨胀参数以 [nav2.yaml](../../src/duojin02_bringup/config/nav2.yaml) 为维护位置。原始投影经外向取整后约为 427 × 406 mm，不能把 CAD 尺寸、导航多边形和额外 padding 混为一个尺寸。通道通过性仍需实机验证。
 
 足迹范围与 Nav2 的配置关系见 [Nav2 足迹说明](https://docs.nav2.org/rolling/configuration_and_development/first_time_robot_setup_guide/footprint/setup_footprint/)，膨胀参数说明见 [膨胀层说明](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/costmap_2d/costmap_plugins/inflation/)。 这两处链接分别面向 Rolling / Jazzy，只作概念参考，当前 Humble 配置不由外链版本决定。
 
@@ -86,7 +86,7 @@ CAD 雷达壳体约为直径 52 mm、高 36.05 mm，与厂商公开外形尺寸�
 
 生成脚本属于模型维护工具，不是日常部署步骤；它会写描述资产与导航足迹相关配置，不再夹带膨胀半径的一次性迁移。重新生成后应检查差异，保留经过验证的导航参数与实测光学高度。以下验证结果仅属于原 CAD 更新；结构清理见[维护记录](../maintenance-cleanup.md)。
 
-尺寸集中在 `src/duojin01_description/urdf/chassis_geometry.xacro`，由 `scripts/update_chassis_model.py` 生成。原始 CAD 分析目录与 Python 环境不打包到运行包内。离线生成环境需要 numpy、scipy、trimesh、Pillow 和 CJK 字体；预览使用本地 Blender 5.0.1。
+尺寸集中在 `src/duojin02_description/urdf/chassis_geometry.xacro`，由 `scripts/update_chassis_model.py` 生成。原始 CAD 分析目录与 Python 环境不打包到运行包内。离线生成环境需要 numpy、scipy、trimesh、Pillow 和 CJK 字体；预览使用本地 Blender 5.0.1。
 
 在仓库根目录执行，`--cad-analysis` 指向已验证的原生缓存目录，包含 `native_meshes`、变换和零件清单，其父目录包含 `assembly_summary.json`：
 

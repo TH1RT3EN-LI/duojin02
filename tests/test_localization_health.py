@@ -3,8 +3,8 @@ import math
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src/duojin01_bringup'))
-from duojin01_bringup.localization_health import HealthPolicy, HealthState, MapEvidence, HealthSignal
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src/duojin02_bringup'))
+from duojin02_bringup.localization_health import HealthPolicy, HealthState, MapEvidence, HealthSignal
 
 
 def rings(inner=False, unknown=False):
@@ -500,7 +500,7 @@ def monitor_fixture():
     pytest.importorskip('rclpy')
     from types import SimpleNamespace
     from tf2_ros import TransformException
-    from duojin01_bringup.localization_manager import LocalizationManager
+    from duojin02_bringup.localization_manager import LocalizationManager
 
     def missing_tf(*_args):
         raise TransformException('Missing exact-stamp transform')
@@ -556,7 +556,7 @@ def test_manager_shutdown_publishes_only_while_context_is_available(monkeypatch)
     import pytest
     pytest.importorskip('rclpy')
     from types import SimpleNamespace as S
-    from duojin01_bringup import localization_manager as module
+    from duojin02_bringup import localization_manager as module
 
     for active, close_during_publish in ((True, False), (False, False), (True, True)):
         context = S(active=active)
@@ -585,7 +585,7 @@ def test_manager_shutdown_preserves_live_context_errors_and_always_cleans_up(mon
     import pytest
     pytest.importorskip('rclpy')
     from types import SimpleNamespace as S
-    from duojin01_bringup import localization_manager as module
+    from duojin02_bringup import localization_manager as module
 
     context, destroyed, shutdown = S(ok=lambda: True), [], []
 
@@ -659,7 +659,7 @@ def test_recovery_confirmation_at_deadline_is_accepted_but_later_is_closed():
 def test_monitor_tick_checks_the_deadline_after_scoring_finishes(monkeypatch):
     methods, monitor, msg, stamp = monitor_fixture()
     from types import SimpleNamespace
-    from duojin01_bringup import localization_manager as module
+    from duojin02_bringup import localization_manager as module
     monitor.grid, monitor.pending = object(), msg
     monitor.recovery_phase, monitor.deadline = 'VERIFY_SCANS', 8.
     # Avoid clocks/ROS initialization while preserving tick's actual sequencing.

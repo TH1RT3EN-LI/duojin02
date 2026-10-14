@@ -9,7 +9,7 @@ import os
 import sys
 
 
-PACKAGED_SOURCE = Path('/opt/duojin01/test_sources/slam_toolbox')
+PACKAGED_SOURCE = Path('/opt/duojin02/test_sources/slam_toolbox')
 
 
 def verify(root, source):

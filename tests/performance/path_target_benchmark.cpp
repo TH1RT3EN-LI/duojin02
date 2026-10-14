@@ -1,6 +1,6 @@
 // Actual Humble doTransform reference versus production PathTarget helper.
 // Synthetic selection timing only; fresh TF lookup and safety checks excluded.
-#include "duojin01_navigation/path_target.hpp"
+#include "duojin02_navigation/path_target.hpp"
 #include "path_target_reference.hpp"
 #include <chrono>
 #include <cstring>
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <time.h>
-using namespace duojin01_navigation;
+using namespace duojin02_navigation;
 static double cpuNs() {
   timespec t{};if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t)) throw std::runtime_error("thread clock failed");
   return static_cast<double>(t.tv_sec)*1e9+t.tv_nsec;

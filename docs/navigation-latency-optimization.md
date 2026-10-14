@@ -44,7 +44,7 @@ Humble 的 `Buffer` 带 timeout 重载即使 timeout=0 也会检查独立监听�
 
 ## 2026-10-10 本地继续：只缓存精确相同输入的关联结果
 
-[PriorAssociationCache](../src/duojin01_navigation/include/duojin01_navigation/prior_association_cache.hpp) 以地图 / 观测更新代数、点索引 / 数量、精确变换位表示、定位余量与距离误差作为键；来源变化即失效。查询区域新出现的点首次计算。它只复用“地图点是否已有当前激光关联”，不缓存制动判断或任何输入新鲜度；坐标、半径及完整扫掠仍逐周期计算。20 Hz 安全频率和配置未变。
+[PriorAssociationCache](../src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp) 以地图 / 观测更新代数、点索引 / 数量、精确变换位表示、定位余量与距离误差作为键；来源变化即失效。查询区域新出现的点首次计算。它只复用“地图点是否已有当前激光关联”，不缓存制动判断或任何输入新鲜度；坐标、半径及完整扫掠仍逐周期计算。20 Hz 安全频率和配置未变。
 
 本机 11 项 CTest 通过；ROS 检查覆盖 15 项扫描故障、4 项 TF 和 9 项缓存场景，其中缓存探针已纳入 CTest；缓存最终探针先验证稳定命中再变更来源，并确认 guard 正常退出。新状态字段 `prior_association_hits` 与 `prior_association_misses` 是最近一次有效障碍构造的计数，故障短路时可能保留旧值，不能作为所有周期的累计工作量。
 
@@ -54,7 +54,7 @@ Humble 的 `Buffer` 带 timeout 重载即使 timeout=0 也会检查独立监听�
 
 ## 2026-10-10 本地后续：路径目标选择预处理
 
-[PathTarget](../src/duojin01_navigation/include/duojin01_navigation/path_target.hpp) 在 `setPlan` 时把不可变的输入转换为 KDL Frame。每周期仍获取原有新鲜 TF，使用 Humble 原计算的 Frame 乘法和四元数还原，完整评分全部路径点；没有改成平面近似、窗口搜索或复用旧目标。原有 0.20 m 离轨判断、前视距离、评分与平分时保留首点的顺序不变，所有足迹和制动检查继续执行。当前路径点的独立消息头原本不参与变换选择，输出沿用所查询 TF 的头信息。
+[PathTarget](../src/duojin02_navigation/include/duojin02_navigation/path_target.hpp) 在 `setPlan` 时把不可变的输入转换为 KDL Frame。每周期仍获取原有新鲜 TF，使用 Humble 原计算的 Frame 乘法和四元数还原，完整评分全部路径点；没有改成平面近似、窗口搜索或复用旧目标。原有 0.20 m 离轨判断、前视距离、评分与平分时保留首点的顺序不变，所有足迹和制动检查继续执行。当前路径点的独立消息头原本不参与变换选择，输出沿用所查询 TF 的头信息。
 
 新的原计算对照覆盖 4,891 组：替换路径、空 / 单点、重复 / 交叉、变换变化、roll / pitch、非单位四元数及阈值相邻浮点数；接受 / 拒绝及返回位姿、头信息逐位一致。新 Humble Release 构建的 12 项 CTest 全部通过，包含原生 MPPI 公共 API 的 198 组命令限制检查与既有缓存 ROS 探针。没有把上一阶段额外的 28 个 ROS 场景重新计为本轮执行。
 
@@ -64,7 +64,7 @@ Humble 的 `Buffer` 带 timeout 重载即使 timeout=0 也会检查独立监听�
 
 ## 2026-10-10 再一轮：有上限的连续点索引
 
-[SpatialPointIndex](../src/duojin01_navigation/include/duojin01_navigation/guard_query.hpp) 在紧凑点集上使用连续桶偏移 / 原始索引，避免近邻查询反复哈希；最多 65,536 格，且不超过 `16 × max(64, 点数)`。宽 / 稀疏范围继续用原哈希桶。首 / 中 / 末点范围只可提前证明超限，批准连续存储前仍遍历全部点；隐藏离群点另有负例。桶遍历与桶内原始索引顺序、精确 `hypot`、点半径及所有原安全判断保持，未改变查询半径、20 Hz 周期或 YAML。
+[SpatialPointIndex](../src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp) 在紧凑点集上使用连续桶偏移 / 原始索引，避免近邻查询反复哈希；最多 65,536 格，且不超过 `16 × max(64, 点数)`。宽 / 稀疏范围继续用原哈希桶。首 / 中 / 末点范围只可提前证明超限，批准连续存储前仍遍历全部点；隐藏离群点另有负例。桶遍历与桶内原始索引顺序、精确 `hypot`、点半径及所有原安全判断保持，未改变查询半径、20 Hz 周期或 YAML。
 
 新 Humble Release 构建的 13 项 CTest 通过。6,044 次查询同时对照冻结哈希实现和完整点集，核对有序结果、访问计数、关联存在性、替换与存储边界。当前安装产物重新执行 15 项扫描故障、4 项 TF、9 项缓存 ROS 场景，全数通过；同名 CTest 缓存探针不重复计入 28 个不同场景。TF / 缓存 guard 正常退出分别核验，不据此宣称整个 Nav2 图正常退出。
 

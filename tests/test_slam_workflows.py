@@ -11,9 +11,9 @@ from launch import LaunchContext
 from launch_ros.actions import Node
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'src/duojin01_slam_tools'))
-from duojin01_slam_tools.snapshots import artifact_path, commit_snapshot, reserve_snapshot, validate_map
-from duojin01_slam_tools.replay_tf import retained
+sys.path.insert(0, str(ROOT / 'src/duojin02_slam_tools'))
+from duojin02_slam_tools.snapshots import artifact_path, commit_snapshot, reserve_snapshot, validate_map
+from duojin02_slam_tools.replay_tf import retained
 
 
 def write_staged(prefix, graph=True):
@@ -93,7 +93,7 @@ def test_replay_tf_has_one_owner_for_map_and_odometry():
 
 
 def load_launch(name):
-    spec = importlib.util.spec_from_file_location(name, ROOT / 'src/duojin01_bringup/launch' / f'{name}.launch.py')
+    spec = importlib.util.spec_from_file_location(name, ROOT / 'src/duojin02_bringup/launch' / f'{name}.launch.py')
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -106,7 +106,7 @@ def test_offline_launch_starts_only_recorded_data_consumers(route):
     nodes = load_launch('offline_mapping').create_nodes(context)
     assert all(isinstance(node, Node) for node in nodes)
     assert len(nodes) == (2 if route == 'recorded' else 3)
-    assert {node.node_package for node in nodes} <= {'slam_toolbox', 'duojin01_slam_tools', 'robot_localization'}
+    assert {node.node_package for node in nodes} <= {'slam_toolbox', 'duojin02_slam_tools', 'robot_localization'}
 
 
 def test_continuation_requires_a_real_graph_and_explicit_pose(tmp_path):

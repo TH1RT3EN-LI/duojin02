@@ -1,9 +1,9 @@
 // Compile with the frozen pre-change include directory for the reference,
 // or define DUOJIN_ASSOCIATION_CACHE_BENCH with the candidate include directory.
 // Synthetic component timing only; does not estimate robot/device performance.
-#include "duojin01_navigation/guard_query.hpp"
+#include "duojin02_navigation/guard_query.hpp"
 #ifdef DUOJIN_ASSOCIATION_CACHE_BENCH
-#include "duojin01_navigation/prior_association_cache.hpp"
+#include "duojin02_navigation/prior_association_cache.hpp"
 #endif
 #include <chrono>
 #include <cstring>
@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <time.h>
-using namespace duojin01_navigation;
+using namespace duojin02_navigation;
 static double cpuNs() {
   timespec t{};if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t)) throw std::runtime_error("thread clock failed");
   return static_cast<double>(t.tv_sec)*1e9+t.tv_nsec;

@@ -33,6 +33,6 @@ if(BUILD_TESTING)
   ament_add_gtest(test_x10_driver test/test_x10_driver.cpp TIMEOUT 30)
   target_link_libraries(test_x10_driver lslidar_driver)
   target_compile_definitions(test_x10_driver PRIVATE
-    HARDWARE_LIDAR_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/duojin01_n10plus.yaml")
+    HARDWARE_LIDAR_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/duojin02_n10plus.yaml")
 endif()
 ament_package()

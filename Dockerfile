@@ -30,8 +30,8 @@ RUN if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then rosdep in
 
 FROM ${DEPENDENCIES_IMAGE} AS hardware_dependencies
 SHELL ["/bin/bash", "-c"]
-COPY scripts/fix_humble_cmake.py /opt/duojin01/tools/fix_humble_cmake.py
-RUN python3 /opt/duojin01/tools/fix_humble_cmake.py
+COPY scripts/fix_humble_cmake.py /opt/duojin02/tools/fix_humble_cmake.py
+RUN python3 /opt/duojin02/tools/fix_humble_cmake.py
 COPY requirements-build.txt /tmp/requirements-build.txt
 RUN python3 -m pip install --no-cache-dir -r /tmp/requirements-build.txt
 
@@ -43,7 +43,7 @@ RUN python3 /source/scripts/prepare_slam_backend.py --root /source --destination
 FROM hardware_dependencies AS slam_builder
 ARG BUILD_JOBS=2
 ENV CMAKE_BUILD_PARALLEL_LEVEL=${BUILD_JOBS}
-WORKDIR /opt/duojin01
+WORKDIR /opt/duojin02
 COPY --from=slam_source /source/backend/slam_toolbox /source/slam_toolbox
 RUN source /opt/ros/humble/setup.bash && \
     MAKEFLAGS="-j${BUILD_JOBS}" colcon build --base-paths /source/slam_toolbox \
@@ -55,23 +55,23 @@ FROM hardware_dependencies AS builder
 ARG BUILD_WORKERS=1
 ARG BUILD_JOBS=2
 ENV CMAKE_BUILD_PARALLEL_LEVEL=${BUILD_JOBS}
-WORKDIR /opt/duojin01
-COPY --from=slam_builder /opt/duojin01/slam_backend /opt/duojin01/slam_backend
+WORKDIR /opt/duojin02
+COPY --from=slam_builder /opt/duojin02/slam_backend /opt/duojin02/slam_backend
 COPY src ./src
 RUN source /opt/ros/humble/setup.bash && \
-    source /opt/duojin01/slam_backend/setup.bash && \
+    source /opt/duojin02/slam_backend/setup.bash && \
     MAKEFLAGS="-j${BUILD_JOBS}" colcon build --merge-install --parallel-workers ${BUILD_WORKERS} \
       --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 
 FROM hardware_dependencies AS hardware_runtime
-COPY --from=slam_builder /opt/duojin01/slam_backend /opt/duojin01/slam_backend
-COPY --from=builder /opt/duojin01/install /opt/duojin01/install
-COPY docker/entrypoint.sh /usr/local/bin/duojin01-entrypoint
-RUN chmod +x /usr/local/bin/duojin01-entrypoint && mkdir -p /ws/maps && \
+COPY --from=slam_builder /opt/duojin02/slam_backend /opt/duojin02/slam_backend
+COPY --from=builder /opt/duojin02/install /opt/duojin02/install
+COPY docker/entrypoint.sh /usr/local/bin/duojin02-entrypoint
+RUN chmod +x /usr/local/bin/duojin02-entrypoint && mkdir -p /ws/maps && \
     printf '%s\n' \
       'source /opt/ros/humble/setup.bash' \
-      'source /opt/duojin01/slam_backend/setup.bash' \
-      'source /opt/duojin01/install/setup.bash' \
+      'source /opt/duojin02/slam_backend/setup.bash' \
+      'source /opt/duojin02/install/setup.bash' \
       'for overlay in slam_backend hardware; do' \
       '  if [[ -r /ws/install/$overlay/setup.bash ]]; then' \
       '    if [[ "$(cat /ws/install/$overlay/.target_architecture 2>/dev/null)" == "$(uname -m)" ]]; then' \
@@ -80,16 +80,16 @@ RUN chmod +x /usr/local/bin/duojin01-entrypoint && mkdir -p /ws/maps && \
       '  fi' \
       'done' \
       >> /root/.bashrc
-ENV DUOJIN01_WORKSPACE_ROOT=/ws
+ENV DUOJIN02_WORKSPACE_ROOT=/ws
 ENV ROS_DOMAIN_ID=20
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 WORKDIR /ws
-ENTRYPOINT ["/usr/local/bin/duojin01-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/duojin02-entrypoint"]
 CMD ["bash"]
 
 # Offline integration probes compile against the exact patched backend source.
 FROM hardware_runtime AS testing
-COPY --from=slam_source /source/backend/slam_toolbox /opt/duojin01/test_sources/slam_toolbox
+COPY --from=slam_source /source/backend/slam_toolbox /opt/duojin02/test_sources/slam_toolbox
 
 # The default deployment image contains installed packages only.
 FROM hardware_runtime AS runtime

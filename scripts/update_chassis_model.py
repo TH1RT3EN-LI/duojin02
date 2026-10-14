@@ -261,7 +261,7 @@ def main():
     lidar_scan = lidar_axis + np.array([0., 0., scan_offset])
     lidar_yaw = {"unconfirmed": 0., "forward": 0., "backward": math.pi,
                  "left": math.pi / 2, "right": -math.pi / 2}[args.lidar_zero_heading]
-    meshes = repo / "src/duojin01_description/meshes"
+    meshes = repo / "src/duojin02_description/meshes"
     docs = repo / "docs/chassis"
     meshes.mkdir(parents=True, exist_ok=True)
     docs.mkdir(parents=True, exist_ok=True)
@@ -326,9 +326,9 @@ def main():
     root.append(ET.Comment("Generated CAD geometry. See docs/chassis/measurements.json. Zero-heading status is recorded there; optical scan height and IMU still require hardware calibration."))
     for name, value in properties.items():
         ET.SubElement(root, "xacro:property", name=name, value=f"{value:.12g}")
-    xml_write(repo / "src/duojin01_description/urdf/chassis_geometry.xacro", root)
+    xml_write(repo / "src/duojin02_description/urdf/chassis_geometry.xacro", root)
     polygon = data["projections"][args.footprint]["navigation_polygon_xy_m"]
-    nav = repo / "src/duojin01_bringup/config/nav2.yaml"
+    nav = repo / "src/duojin02_bringup/config/nav2.yaml"
     text = nav.read_text()
     text, count = re.subn(r'footprint: "[^"\n]+"', 'footprint: "' + json.dumps(polygon, separators=(", ", ": ")) + '"', text)
     assert count == 2, count

@@ -16,7 +16,7 @@ from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
-from duojin01_bringup.navigation_stack import NAVIGATION_NODES
+from duojin02_bringup.navigation_stack import NAVIGATION_NODES
 
 
 def percentile(values,q):

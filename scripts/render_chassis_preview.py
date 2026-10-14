@@ -16,7 +16,7 @@ NS = {"c": "http://www.collada.org/2005/11/COLLADASchema"}
 bpy.ops.wm.read_factory_settings(use_empty=True)
 temporary = tempfile.TemporaryDirectory(prefix="duojin02-chassis-preview-")
 for name in DATA["assets"]:
-    document = ET.parse(ROOT / "src/duojin01_description/meshes" / (name + ".dae"))
+    document = ET.parse(ROOT / "src/duojin02_description/meshes" / (name + ".dae"))
     values = list(map(float, document.findtext('.//c:source[@id="positions"]/c:float_array', namespaces=NS).split()))
     vertices = [values[i:i + 3] for i in range(0, len(values), 3)]
     indices = list(map(int, document.findtext('.//c:triangles/c:p', namespaces=NS).split()))

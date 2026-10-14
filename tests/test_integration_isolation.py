@@ -73,7 +73,7 @@ def test_direct_probe_configures_isolation_before_ros_init(isolation, tmp_path, 
                  'rclpy': SimpleNamespace(init=init), 'yaml': __import__('yaml')}
     exec(compile(ast.Module(body=[function], type_ignores=[]), str(INTEGRATION / f'{name}.py'), 'exec'), namespace)
     args = SimpleNamespace(output_dir=tmp_path / name,
-                           params=ROOT / 'src/duojin01_bringup/config/nav2.yaml')
+                           params=ROOT / 'src/duojin02_bringup/config/nav2.yaml')
     with pytest.raises(Initialized):
         namespace['run'](args)
 

@@ -1,5 +1,0 @@
-<library path="precise_lattice">
-  <class name="duojin01_navigation/PreciseLattice" type="duojin01_navigation::PreciseLattice" base_class_type="nav2_core::GlobalPlanner">
-    <description>Smac Lattice with filled swept-footprint validation and exact terminal pose.</description>
-  </class>
-</library>

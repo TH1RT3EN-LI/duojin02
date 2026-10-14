@@ -8,11 +8,11 @@
 
 在线入口拥有底盘与雷达，选择建图、固定图导航或在线建图导航中的一个。真机使用系统时钟；离线回放只启动消费者，使用独立域和录包时钟。当前阈值以有效 YAML 为准，旧报告数值不能覆盖它们。
 
-示例假定数据工作区就是当前仓库。若设置 `DUOJIN01_WORKSPACE_ROOT` 指向其他绝对目录，按下面的实际路径规则统一保存和读取，不混用两份 `maps/`：
+示例假定数据工作区就是当前仓库。若设置 `DUOJIN02_WORKSPACE_ROOT` 指向其他绝对目录，按下面的实际路径规则统一保存和读取，不混用两份 `maps/`：
 
 | 输入 | 相对路径的基准 |
 | --- | --- |
-| 固定导航 `map:=...`、在线保存 `output_dir:=...` | `DUOJIN01_WORKSPACE_ROOT`；默认来自 `source.sh` 的仓库根目录 |
+| 固定导航 `map:=...`、在线保存 `output_dir:=...` | `DUOJIN02_WORKSPACE_ROOT`；默认来自 `source.sh` 的仓库根目录 |
 | 录包目录、离线 `--output-dir`、续建 `pose_graph:=...` | 调用时的当前目录；示例显式用 `$PWD` 的位置不要当作自定义数据根目录 |
 
 离线 `--output-dir` 不传时默认用数据根目录下的 `maps`；表格说明的是显式相对路径。数据根目录改变时，离线输出及续建前缀优先传同一数据目录的绝对路径。快照名不是目录；位姿图前缀与栅格 YAML 也不能互换。
@@ -36,11 +36,11 @@
 
 ```bash
 # 保留录包中的 odom -> base_footprint：评估原有里程计链路
-ros2 run duojin01_slam_tools offline_mapping "$PWD/bags/run01" \
+ros2 run duojin02_slam_tools offline_mapping "$PWD/bags/run01" \
   --odom-source recorded --output-dir "$PWD/maps" --map-name run01_recorded
 
 # 从原始底盘速度 / IMU 重新运行 EKF：评估偏置与方差修改
-ros2 run duojin01_slam_tools offline_mapping "$PWD/bags/run01" \
+ros2 run duojin02_slam_tools offline_mapping "$PWD/bags/run01" \
   --odom-source ekf --output-dir "$PWD/maps" --map-name run01_ekf
 ```
 
@@ -63,13 +63,13 @@ QEMU 跨架构验证中，早期 1 倍速回放曾触发状态服务响应超时
 已有在线建图节点时，先停稳，再保存：
 
 ```bash
-ros2 launch duojin01_bringup save_map.launch.py map_name:=site_a
+ros2 launch duojin02_bringup save_map.launch.py map_name:=site_a
 ```
 
 保存完成后停止建图入口，再用栅格图启动固定图导航：
 
 ```bash
-ros2 launch duojin01_bringup navigation.launch.py map:=maps/site_a.yaml
+ros2 launch duojin02_bringup navigation.launch.py map:=maps/site_a.yaml
 ```
 
 显式指定 `map` 避免自动选中其他实验地图；同名快照会拒绝保存，不覆盖原文件。需要新一轮记录时换 `map_name`，不要删除旧地图来绕过重名检查。
@@ -77,7 +77,7 @@ ros2 launch duojin01_bringup navigation.launch.py map:=maps/site_a.yaml
 需要续建时，先停止原建图 / 导航入口；下面的示例初值必须替换为机器人在旧地图中的真实起点：
 
 ```bash
-ros2 launch duojin01_bringup mapping.launch.py \
+ros2 launch duojin02_bringup mapping.launch.py \
   pose_graph:="$PWD/maps/site_a" map_start_pose:='[1.2, 0.5, 0.0]'
 # 若确实位于首次扫描的位置，才使用 start_at_dock:=true
 ```

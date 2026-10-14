@@ -1,4 +1,4 @@
-"""N10Plus serial driver connected to the Duojin01 hardware interfaces."""
+"""N10Plus serial driver connected to the Duojin02 hardware interfaces."""
 
 import os
 
@@ -11,7 +11,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     config = os.path.join(get_package_share_directory("lslidar_driver"),
-                          "config", "duojin01_n10plus.yaml")
+                          "config", "duojin02_n10plus.yaml")
     return LaunchDescription([
         DeclareLaunchArgument("params_file", default_value=config),
         DeclareLaunchArgument("serial_port", default_value="/dev/lslidar"),

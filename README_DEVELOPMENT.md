@@ -1,18 +1,18 @@
 # Duojin02 真机开发接口
 
-平台为 Jetson Orin Nano、Ubuntu 22.04、ROS 2 Humble；统一硬件为麦克纳姆底盘、IMU、N10Plus 串口雷达。本文描述当前开发工作树的模块和接口；构建、设备命名、启动见 [主 README](README.MD)，版本及证据状态见 [文档索引](docs/README.md)。ROS 名称保留 `duojin01_*`。
+平台为 Jetson Orin Nano、Ubuntu 22.04、ROS 2 Humble；统一硬件为麦克纳姆底盘、IMU、N10Plus 串口雷达。本文描述当前开发工作树的模块和接口；构建、设备命名、启动见 [主 README](README.MD)，版本及证据状态见 [文档索引](docs/README.md)。6 个自研 ROS 包统一使用 `duojin02_*`，第三方雷达包保持 `lslidar_driver`。
 
 ## 模块
 
 | 包（共 7 个） | 职责 |
 | --- | --- |
-| `duojin01_base_driver` | 底盘串口、速度命令、里程计 / IMU / 电池反馈 |
+| `duojin02_base_driver` | 底盘串口、速度命令、里程计 / IMU / 电池反馈 |
 | `lslidar_driver` | N10Plus 串口采集、540 格扫描和点云 |
-| `duojin01_description` | 底盘、雷达、IMU 的 URDF、网格和 TF |
-| `duojin01_bringup` | 启动、EKF、速度仲裁、定位管理、建图与 Nav2 |
-| `duojin01_slam_tools` | 地图快照、位姿图保存、离线建图和 TF 过滤 |
-| `duojin01_teleop` | 键盘遥控；手柄使用 bringup 的 Joy 配置 |
-| `duojin01_navigation` | PreciseLattice、PreciseMPPI、持续停稳判据和 VelocityGuard |
+| `duojin02_description` | 底盘、雷达、IMU 的 URDF、网格和 TF |
+| `duojin02_bringup` | 启动、EKF、速度仲裁、定位管理、建图与 Nav2 |
+| `duojin02_slam_tools` | 地图快照、位姿图保存、离线建图和 TF 过滤 |
+| `duojin02_teleop` | 键盘遥控；手柄使用 bringup 的 Joy 配置 |
+| `duojin02_navigation` | PreciseLattice、PreciseMPPI、持续停稳判据和 VelocityGuard |
 
 相机、机械臂、AprilTag、任务包装及相关自定义消息已移除。导航使用标准 Nav2 Action；外部 ROS 依赖由 rosdep 安装，SLAM Toolbox 使用固定源码和项目补丁覆盖层。
 
@@ -62,14 +62,14 @@ flowchart LR
 | 内容 | 维护位置 / 边界 |
 | --- | --- |
 | 串口路径、波特率 | 启动参数 `base_serial_port`、`base_serial_baudrate`、`lidar_serial_port`；各完整入口提供的范围见 [启动参数表](README.MD#真机启动) |
-| 里程计尺度、IMU 偏置、协方差 | [base_driver.yaml](src/duojin01_bringup/config/base_driver.yaml)，需要实物标定 |
-| CAD 安装几何、坐标基准 | [chassis_geometry.xacro](src/duojin01_description/urdf/chassis_geometry.xacro)、[测量报告](docs/chassis/README.md) |
-| 当前足迹、padding、控制与规划参数 | [nav2.yaml](src/duojin01_bringup/config/nav2.yaml)，历史报告数值不覆盖它 |
-| 固定图健康参数与地图语义 | [localization_health.yaml](src/duojin01_bringup/config/localization_health.yaml)、[健康契约](docs/localization-health.md) |
-| 保护参数 | [velocity_guard.yaml](src/duojin01_bringup/config/velocity_guard.yaml)，不为显示性能削弱安全检查 |
-| SLAM 后端参数 | [slam_toolbox.yaml](src/duojin01_bringup/config/slam_toolbox.yaml)；在线地图分辨率由所选配置统一派生 |
-| 键盘遥控默认值 | [keyboard_teleop_defaults.py](src/duojin01_teleop/duojin01_teleop/keyboard_teleop_defaults.py)，节点和控制核心共同读取 |
-| 手柄输入与速度档位 | `duojin01_teleop/config/joy_*.yaml` 与 `duojin01_bringup/config/joy_teleop_*.yaml`，分别维护输入映射与档位 |
+| 里程计尺度、IMU 偏置、协方差 | [base_driver.yaml](src/duojin02_bringup/config/base_driver.yaml)，需要实物标定 |
+| CAD 安装几何、坐标基准 | [chassis_geometry.xacro](src/duojin02_description/urdf/chassis_geometry.xacro)、[测量报告](docs/chassis/README.md) |
+| 当前足迹、padding、控制与规划参数 | [nav2.yaml](src/duojin02_bringup/config/nav2.yaml)，历史报告数值不覆盖它 |
+| 固定图健康参数与地图语义 | [localization_health.yaml](src/duojin02_bringup/config/localization_health.yaml)、[健康契约](docs/localization-health.md) |
+| 保护参数 | [velocity_guard.yaml](src/duojin02_bringup/config/velocity_guard.yaml)，不为显示性能削弱安全检查 |
+| SLAM 后端参数 | [slam_toolbox.yaml](src/duojin02_bringup/config/slam_toolbox.yaml)；在线地图分辨率由所选配置统一派生 |
+| 键盘遥控默认值 | [keyboard_teleop_defaults.py](src/duojin02_teleop/duojin02_teleop/keyboard_teleop_defaults.py)，节点和控制核心共同读取 |
+| 手柄输入与速度档位 | `duojin02_teleop/config/joy_*.yaml` 与 `duojin02_bringup/config/joy_teleop_*.yaml`，分别维护输入映射与档位 |
 
 定位健康模型及管理器的默认值只从 `localization_health.yaml` 读取；键盘默认值只在 defaults 模块维护。Launch 选择 / 转发配置，不再另存健康阈值或在线地图分辨率。ROS 参数覆盖可用于当次实验，经过验证的持久修改回写上表入口。
 
@@ -81,7 +81,7 @@ Nav2 控制器的搜索限速与平滑器的输出约束都在 `nav2.yaml`，仍
 
 ## 构建与数据
 
-在仓库根目录使用项目构建脚本与 `source.sh`，原生覆盖层是 `install/slam_backend` 和 `install/hardware`；Docker 根目录才是 `/ws`。跨架构不复用构建产物。从已删包的旧安装升级时，清理对应生成目录后重建，避免残留包；不删除源码、地图或录包。
+在仓库根目录使用项目构建脚本与 `source.sh`，原生覆盖层是 `install/slam_backend` 和 `install/hardware`；Docker 根目录才是 `/ws`。跨架构不复用构建产物。从旧包名或已删包的安装升级时，按[名称迁移指南](docs/package-renaming.md)隔离旧生成目录、重新构建并打开新终端；源码、地图和录包保留。
 
 地图保存、续建和离线回放见 [SLAM 工作流](docs/slam-workflow.md)；算法契约见 [导航修复](docs/navigation-repairs.md)，测试构建、隔离和计时方法见 [导航验证](docs/navigation-validation.md)。旧报告中的“最新完整验证”只对其冻结版本成立；候选改动与未完成的 Jetson 长路线性能对照见 [优化状态](docs/navigation-optimization.md)。
 

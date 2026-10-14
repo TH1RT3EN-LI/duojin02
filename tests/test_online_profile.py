@@ -10,12 +10,12 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
 from nav2_common.launch import RewrittenYaml
-from duojin01_bringup.online_profile import OnlineParameters, online_parameters
+from duojin02_bringup.online_profile import OnlineParameters, online_parameters
 
-CONFIG_DIRECTORY = Path(__file__).resolve().parents[1] / 'src/duojin01_bringup/config'
+CONFIG_DIRECTORY = Path(__file__).resolve().parents[1] / 'src/duojin02_bringup/config'
 CONFIG = CONFIG_DIRECTORY / 'nav2.yaml'
 SLAM_CONFIG = CONFIG_DIRECTORY / 'slam_toolbox.yaml'
-LATTICE = CONFIG_DIRECTORY / 'lattice_primitives/duojin01_omni_2cm_rich_lattice.json'
+LATTICE = CONFIG_DIRECTORY / 'lattice_primitives/duojin02_omni_2cm_rich_lattice.json'
 
 
 def test_online_local_map_uses_lidar_and_memory_without_changing_fixed_config():

@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-14",
+  "baseline_commit": "78add13f3ae464711874eb19b71ff0c3764c5156",
+  "scope": "project package and content naming migration; lslidar_driver retained",
+  "algorithm_preservation": {
+    "all_source_files_match": true,
+    "historical_evidence_files_byte_identical": 270,
+    "slam_source_lock_and_patch_files_byte_identical": 2,
+    "source_files_only_name_substitution_or_trailing_whitespace": 140,
+    "trailing_whitespace_cleanup": [
+      "src/duojin02_bringup/launch/base.launch.py"
+    ]
+  },
+  "environment": {
+    "architecture": "amd64",
+    "image": "duojin02:hardware-humble-renamed-testing",
+    "runtime_network": "none",
+    "device_mappings": [],
+    "source_mount": "read-only snapshot",
+    "dependency_image": "duojin02:rename-dependencies-20261014",
+    "testing_image_id": "sha256:8303f37b36216f32f3d7ec46f263b3df991a656b7373eee1f7f4ae369159ea64",
+    "deployment_image": "duojin02:hardware-humble",
+    "deployment_image_id": "sha256:36cf7300fe469b32b0645a9500d6aeeb045801b9c746798fcf58cc2ba6e551fd"
+  },
+  "build": {
+    "packages": 7,
+    "passed": true
+  },
+  "verification": {
+    "python_tests": 124,
+    "launch_entries": 12,
+    "navigation_ctest": 14,
+    "installed_package_checks": {
+      "packages": [
+        "duojin02_base_driver",
+        "duojin02_bringup",
+        "duojin02_description",
+        "duojin02_navigation",
+        "duojin02_slam_tools",
+        "duojin02_teleop",
+        "lslidar_driver"
+      ],
+      "executables": {
+        "duojin02_base_driver": [
+          "duojin02_base_driver_node"
+        ],
+        "duojin02_navigation": [
+          "velocity_guard"
+        ],
+        "duojin02_bringup": [
+          "localization_manager",
+          "localization_readiness"
+        ],
+        "duojin02_slam_tools": [
+          "offline_mapping",
+          "replay_tf_filter",
+          "save_map_client_node"
+        ],
+        "duojin02_teleop": [
+          "joy_axis_selector_node",
+          "joy_launcher_node",
+          "keyboard_teleop_node"
+        ],
+        "lslidar_driver": [
+          "lslidar_driver_node"
+        ],
+        "duojin02_description": []
+      },
+      "installed_python_modules": [
+        "duojin02_bringup",
+        "duojin02_bringup.lattice",
+        "duojin02_bringup.localization_health",
+        "duojin02_bringup.localization_manager",
+        "duojin02_bringup.localization_readiness",
+        "duojin02_bringup.map_paths",
+        "duojin02_bringup.middleware",
+        "duojin02_bringup.navigation_stack",
+        "duojin02_bringup.online_profile",
+        "duojin02_slam_tools",
+        "duojin02_slam_tools.offline",
+        "duojin02_slam_tools.raster",
+        "duojin02_slam_tools.replay_tf",
+        "duojin02_slam_tools.save_map",
+        "duojin02_slam_tools.snapshots",
+        "duojin02_teleop",
+        "duojin02_teleop.joy_axis_selector_node",
+        "duojin02_teleop.joy_launcher_node",
+        "duojin02_teleop.keyboard_teleop_core",
+        "duojin02_teleop.keyboard_teleop_defaults",
+        "duojin02_teleop.keyboard_teleop_node"
+      ],
+      "robot_name": "duojin02",
+      "mesh_uri_checks": 8,
+      "old_packages_visible": false,
+      "old_opt_tree_exists": false,
+      "slam_backend_prefix": "/opt/duojin02/slam_backend",
+      "old_environment_names_or_paths": false
+    },
+    "nav2_plugins_dynamically_instantiated": [
+      "duojin02_navigation/PreciseLattice",
+      "duojin02_navigation::PreciseMPPI",
+      "duojin02_navigation::StableStoppedGoalChecker"
+    ],
+    "navigation_command_chain": {
+      "grid_validation": {
+        "passed": true,
+        "checks": 6
+      },
+      "localization_owner": {
+        "passed": true,
+        "checks": 18
+      },
+      "command_timeout": {
+        "passed": true,
+        "checks": 16
+      }
+    },
+    "lidar_integration": "passed",
+    "slam_integration": "passed",
+    "deployment_runtime_packages": {
+      "duojin02_description": "/opt/duojin02/install",
+      "duojin02_base_driver": "/opt/duojin02/install",
+      "duojin02_navigation": "/opt/duojin02/install",
+      "lslidar_driver": "/opt/duojin02/install",
+      "duojin02_slam_tools": "/opt/duojin02/install",
+      "duojin02_teleop": "/opt/duojin02/install",
+      "duojin02_bringup": "/opt/duojin02/install"
+    },
+    "deployment_runtime_contains_no_testing_sources": true,
+    "old_install_root_absent": true
+  },
+  "logs_sha256": {
+    "image-build.log": "add8fecc8133234f81acafc990f0e541dcb343468854b9a869b56f3a17ac149f",
+    "python-launch-install.log": "670ebf2836836839396573a9b87afd7e74a9ee6f2a242578664941d90ec03050",
+    "navigation.log": "2d3056d1bf6f2c19dfcfafec3a4b9d4e92a1e12565053a1a5d48f80af5540623",
+    "sensors.log": "17d5853772e301c563049d5ea4fab4bf82b21699f48632d8509a2fa2b68db74b",
+    "runtime-image-build.log": "b8855b9a99af18c7b47b0ace442029ca7dbcca42221ad4d441de4d0a021fb18b",
+    "runtime-install-check.log": "3ad4a8d71a04beca41914663ecb7447f2f43bf61fc3997a4b159ee6a0f77e0bb"
+  },
+  "limits": [
+    "No physical robot or viewer deployment in this change.",
+    "Frozen historical evidence retains original names."
+  ]
+}

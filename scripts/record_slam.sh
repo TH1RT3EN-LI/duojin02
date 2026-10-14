@@ -27,5 +27,5 @@ from ament_index_python.packages import get_package_share_directory
 shutil.copyfile(Path(get_package_share_directory('slam_toolbox')) / 'hardware_build.json', sys.argv[1])
 PY
 exec ros2 bag record --storage sqlite3 --output "$bag_directory" \
-  --qos-profile-overrides-path "$hardware_root/src/duojin01_bringup/config/rosbag_record_qos.yaml" \
+  --qos-profile-overrides-path "$hardware_root/src/duojin02_bringup/config/rosbag_record_qos.yaml" \
   /scan /odom /imu /odometry/filtered /tf /tf_static /diagnostics

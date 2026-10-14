@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${IMAGE:-duojin01:hardware-humble}"
-NAME="${NAME:-duojin01_hardware}"
+IMAGE="${IMAGE:-duojin02:hardware-humble}"
+NAME="${NAME:-duojin02_hardware}"
 WS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 GUI="${GUI:-0}"

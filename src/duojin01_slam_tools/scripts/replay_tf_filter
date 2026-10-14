@@ -1,4 +1,0 @@
-#!/usr/bin/env python3
-from duojin01_slam_tools.replay_tf import main
-
-main()

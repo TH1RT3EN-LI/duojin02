@@ -1,4 +1,0 @@
-#!/usr/bin/env python3
-from duojin01_slam_tools.save_map import main
-
-raise SystemExit(main())

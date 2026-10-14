@@ -11,7 +11,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DESCRIPTION = ROOT / "src/duojin01_description"
+DESCRIPTION = ROOT / "src/duojin02_description"
 NS = {"c": "http://www.collada.org/2005/11/COLLADASchema"}
 
 
@@ -22,7 +22,7 @@ def measurements():
 
 @pytest.fixture(scope="module")
 def robot():
-    return ET.fromstring(xacro.process_file(str(DESCRIPTION / "urdf/duojin01.xacro")).toxml())
+    return ET.fromstring(xacro.process_file(str(DESCRIPTION / "urdf/duojin02.xacro")).toxml())
 
 
 def vertices(name):
@@ -79,7 +79,7 @@ def test_lidar_mount_is_on_rotation_axis_and_scan_calibration_is_separate(robot,
 
 def test_navigation_envelope_uses_chassis_projection(measurements):
     assert measurements["selected_navigation_projection"] == "chassis"
-    config = yaml.safe_load((ROOT / "src/duojin01_bringup/config/nav2.yaml").read_text())
+    config = yaml.safe_load((ROOT / "src/duojin02_bringup/config/nav2.yaml").read_text())
     polygon = measurements["projections"][measurements["selected_navigation_projection"]]["navigation_polygon_xy_m"]
     for costmap in ["local_costmap", "global_costmap"]:
         parameters = config[costmap][costmap]["ros__parameters"]

@@ -1,6 +1,6 @@
 // Frozen hash index versus production bounded dense/sparse index. Measures
 // query batches and, separately, rebuilding every batch. No safety/ROS timing.
-#include "duojin01_navigation/guard_query.hpp"
+#include "duojin02_navigation/guard_query.hpp"
 #include "spatial_index_reference.hpp"
 #include <chrono>
 #include <cstring>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <time.h>
-using namespace duojin01_navigation;
+using namespace duojin02_navigation;
 static double cpuNs() {
   timespec t{};if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t))throw std::runtime_error("thread clock failed");
   return static_cast<double>(t.tv_sec)*1e9+t.tv_nsec;

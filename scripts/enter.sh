@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-NAME="${NAME:-duojin01_hardware}"
+NAME="${NAME:-duojin02_hardware}"
 if ! docker ps --format '{{.Names}}' | grep -qx "$NAME"; then
   if docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
     docker start "$NAME" >/dev/null

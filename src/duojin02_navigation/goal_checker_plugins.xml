@@ -1,0 +1,5 @@
+<library path="stable_goal_checker">
+  <class name="duojin02_navigation::StableStoppedGoalChecker" type="duojin02_navigation::StableStoppedGoalChecker" base_class_type="nav2_core::GoalChecker">
+    <description>Recheck pose and stopped velocity throughout a bounded, continuous settling interval.</description>
+  </class>
+</library>

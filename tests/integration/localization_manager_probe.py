@@ -200,14 +200,14 @@ def run(args):
     os.set_blocking(master, False)
     fixture.master = master
     try:
-        manager = start('manager', ['ros2', 'run', 'duojin01_bringup', 'localization_manager',
-            '--ros-args', '--params-file', str(ROOT/'src/duojin01_bringup/config/localization_health.yaml'),
+        manager = start('manager', ['ros2', 'run', 'duojin02_bringup', 'localization_manager',
+            '--ros-args', '--params-file', str(ROOT/'src/duojin02_bringup/config/localization_health.yaml'),
             '-p', 'use_sim_time:=true'])
         start('mux', ['ros2','run','twist_mux','twist_mux','--ros-args',
-            '--params-file',str(ROOT/'src/duojin01_bringup/config/twist_mux.yaml'),
+            '--params-file',str(ROOT/'src/duojin02_bringup/config/twist_mux.yaml'),
             '-r','/cmd_vel_out:=/cmd_vel_requested'])
         start('guard', [str(args.guard_binary),'--ros-args','--params-file',
-            str(ROOT/'src/duojin01_bringup/config/velocity_guard.yaml'), '-p','use_sim_time:=true'])
+            str(ROOT/'src/duojin02_bringup/config/velocity_guard.yaml'), '-p','use_sim_time:=true'])
         start('driver', [str(args.driver_binary),'--ros-args','-p',f'usart_port_name:={os.ttyname(slave)}',
             '-p','serial_baud_rate:=57600','-p','use_sim_time:=true','-r','/cmd_vel:=/cmd_vel_base'])
         fixture.pump(.3, scan=False, nav=.24)

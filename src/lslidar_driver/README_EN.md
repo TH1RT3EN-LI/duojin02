@@ -1,4 +1,4 @@
-# Duojin01 N10Plus serial lidar
+# Duojin02 N10Plus serial lidar
 
 This is a project-specific subset of the official V5.1.3 driver for one hardware configuration. See [UPSTREAM.md](UPSTREAM.md) for source provenance, Apache-2.0 licensing and the removed features.
 

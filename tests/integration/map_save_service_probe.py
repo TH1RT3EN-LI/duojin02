@@ -12,7 +12,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from nav_msgs.srv import GetMap
 from slam_toolbox.srv import SaveMap, SerializePoseGraph
-from duojin01_slam_tools.snapshots import artifact_path, validate_map
+from duojin02_slam_tools.snapshots import artifact_path, validate_map
 
 
 def run():
@@ -59,7 +59,7 @@ def run():
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder)
             def save(name, timeout='2.0'):
-                return subprocess.run(['ros2', 'run', 'duojin01_slam_tools', 'save_map_client_node',
+                return subprocess.run(['ros2', 'run', 'duojin02_slam_tools', 'save_map_client_node',
                                        '--ros-args', '-p', f'output_dir:={output}', '-p', f'map_name:={name}',
                                        '-p', f'response_timeout:={timeout}', '-p', 'wait_timeout:=2.0'],
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=15)

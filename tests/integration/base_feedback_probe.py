@@ -40,7 +40,7 @@ def run():
     logfile = '/tmp/base-feedback-probe.log'
     with open(logfile, 'w') as log:
         process = subprocess.Popen([
-            str(Path(get_package_prefix('duojin01_base_driver'))/'lib/duojin01_base_driver/duojin01_base_driver_node'), '--ros-args',
+            str(Path(get_package_prefix('duojin02_base_driver'))/'lib/duojin02_base_driver/duojin02_base_driver_node'), '--ros-args',
             '-p', f'usart_port_name:={path}', '-p', 'serial_baud_rate:=57600',
             '-p', 'loop_hz:=200', '-p', 'imu_yaw_rate_bias:=0.01',
             '-p', 'imu_yaw_rate_variance:=0.02',
