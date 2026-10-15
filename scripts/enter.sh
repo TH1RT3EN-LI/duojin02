@@ -9,4 +9,5 @@ if ! docker ps --format '{{.Names}}' | grep -qx "$NAME"; then
     NAME="$NAME" DETACH=1 "$hardware_root/scripts/dev.sh" >/dev/null
   fi
 fi
-exec docker exec -it -w /ws -e TERM="${TERM:-xterm-256color}" "$NAME" bash
+exec docker exec -it -w /ws -e TERM="${TERM:-xterm-256color}" \
+  "$NAME" /usr/local/bin/duojin02-entrypoint bash

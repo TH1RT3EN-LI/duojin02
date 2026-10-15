@@ -17,13 +17,13 @@ from slam_toolbox.srv import SaveMap, SerializePoseGraph
 from std_srvs.srv import Trigger
 from duojin02_slam_tools.snapshots import artifact_path, validate_map
 from duojin02_slam_tools.offline import await_response
+from ros_isolation import configure_isolation
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def run():
-    os.environ["ROS_DOMAIN_ID"] = "92"
-    os.environ["ROS_LOCALHOST_ONLY"] = "1"
+    configure_isolation()
     rclpy.init()
     node = Node("slam_toolbox", start_parameter_services=False)
     mode = ["success"]

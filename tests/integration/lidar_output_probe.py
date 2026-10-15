@@ -19,6 +19,7 @@ from rcl_interfaces.srv import (
     SetParametersAtomically,
 )
 from sensor_msgs.msg import LaserScan, PointCloud2
+from ros_isolation import configure_isolation
 
 
 def packet(start_angle, distance):
@@ -39,7 +40,7 @@ def packet(start_angle, distance):
 
 
 def run():
-    os.environ.update(ROS_DOMAIN_ID="95", ROS_LOCALHOST_ONLY="1")
+    configure_isolation()
     master, slave = os.openpty()
     executable = (
         Path(get_package_prefix("lslidar_driver")) / "lib/lslidar_driver/lslidar_driver_node"
@@ -76,7 +77,7 @@ def run():
             for name, value in zip(names, response.values)
         }
 
-    logfile = "/tmp/lidar-output-probe.log"
+    logfile = str(Path(os.environ.get("TEST_ARTIFACT_ROOT", "/tmp")) / "lidar-output-probe.log")
     with open(logfile, "w") as log:
         command = [str(executable), "--ros-args"]
         for name, value in startup.items():

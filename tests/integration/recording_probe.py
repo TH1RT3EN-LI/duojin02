@@ -13,11 +13,11 @@ from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import LaserScan
 from tf2_msgs.msg import TFMessage
+from ros_isolation import configure_isolation
 
 
 def run():
-    os.environ["ROS_DOMAIN_ID"] = "93"
-    os.environ["ROS_LOCALHOST_ONLY"] = "1"
+    configure_isolation()
     rclpy.init()
 
     nodes = [

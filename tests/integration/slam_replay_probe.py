@@ -17,6 +17,7 @@ from rclpy.serialization import serialize_message
 from sensor_msgs.msg import Imu, LaserScan
 from tf2_msgs.msg import TFMessage
 from duojin02_slam_tools.snapshots import validate_map
+from ros_isolation import configure_isolation
 
 
 def timestamp(seconds):
@@ -116,8 +117,7 @@ def make_bag(path):
 
 
 def reload_graph(prefix, root, launch_file=None):
-    os.environ["ROS_DOMAIN_ID"] = "94"
-    os.environ["ROS_LOCALHOST_ONLY"] = "1"
+    configure_isolation()
     rclpy.init()
     node = Node("pose_graph_reload_probe")
     service = node.create_client(GetMap, "/slam_toolbox/dynamic_map")
@@ -149,7 +149,7 @@ def reload_graph(prefix, root, launch_file=None):
             )
         finally:
             if process.poll() is None:
-                os.killpg(process.pid, signal.SIGINT)
+                process.send_signal(signal.SIGINT)
             forced = False
             try:
                 returncode = process.wait(timeout=10)
@@ -170,7 +170,8 @@ def reject_corrupt_graph(root, launch_file=None):
     for suffix in (".posegraph", ".data"):
         original = root / "maps" / ("rotation_recorded" + suffix)
         Path(str(prefix) + suffix).write_bytes(original.read_bytes()[:16])
-    environment = {**os.environ, "ROS_DOMAIN_ID": "95", "ROS_LOCALHOST_ONLY": "1"}
+    configure_isolation()
+    environment = dict(os.environ)
     log_path = root / "corrupt-graph.log"
     with log_path.open("w") as log:
         entry = [str(launch_file)] if launch_file else ["duojin02_bringup", "slam.launch.py"]
@@ -208,6 +209,7 @@ def reject_corrupt_graph(root, launch_file=None):
 
 
 def run(root):
+    configure_isolation()
     root.mkdir(parents=True, exist_ok=True)
     bag = root / "rotation-bag"
     make_bag(bag)

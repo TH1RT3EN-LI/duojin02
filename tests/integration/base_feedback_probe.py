@@ -12,6 +12,7 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Twist
+from ros_isolation import configure_isolation
 
 
 def frame(vx=1.0, gyro=100):
@@ -26,8 +27,7 @@ def frame(vx=1.0, gyro=100):
 
 
 def run():
-    os.environ["ROS_DOMAIN_ID"] = "91"
-    os.environ["ROS_LOCALHOST_ONLY"] = "1"
+    configure_isolation()
     master, slave = os.openpty()
     path = os.ttyname(slave)
     rclpy.init()
@@ -36,7 +36,7 @@ def run():
     node.create_subscription(Odometry, "/odom", odometry.append, 100)
     node.create_subscription(Imu, "/imu", inertial.append, 100)
     commands = node.create_publisher(Twist, "/cmd_vel", 10)
-    logfile = "/tmp/base-feedback-probe.log"
+    logfile = str(Path(os.environ.get("TEST_ARTIFACT_ROOT", "/tmp")) / "base-feedback-probe.log")
     with open(logfile, "w") as log:
         process = subprocess.Popen(
             [

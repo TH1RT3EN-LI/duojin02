@@ -16,6 +16,67 @@ from scan_fault_probe import (
 import rclpy
 
 
+def pending_fault_case(probe, publish_tf):
+    pending = probe.scan()
+    pending.header.frame_id = "queued_laser"
+    before = probe.statuses[-1][1]["tf_ready_scans"]
+    probe.scan_pub.publish(pending)
+    fault = probe.fault_scan("all_nan")
+    fault.header.frame_id = pending.header.frame_id
+    sent = time.monotonic()
+    probe.scan_pub.publish(fault)
+    response = probe.response(sent, lambda value: value["reason"] == "scan_invalid", zero)
+
+    # The invalid callback clears queued scans before publishing its fault status.
+    # Observe that status before delivering TF and explicitly replaying the old scan;
+    # this exercises the stamp barrier without depending on DDS callback timing.
+    publish_tf(pending)
+    probe.scan_pub.publish(pending)
+    probe.pump(0.070)
+    rejected_count = probe.statuses[-1][1]["tf_ready_scans"]
+    require(
+        rejected_count == before,
+        "Pre-fault scan passed the TF-ready admission barrier after the fault",
+        before_tf_ready=before,
+        after_replay_tf_ready=rejected_count,
+    )
+    require(
+        probe.statuses[-1][1]["reason"] == "scan_invalid" and zero(probe.outputs[-1][1]),
+        "Delayed pre-fault scan cleared the fault",
+    )
+    require(
+        not any(stamp_ns(cloud.header.stamp) == stamp_ns(pending.header.stamp)
+                for _, cloud in probe.clouds),
+        "Pre-fault scan entered obstacle memory after the fault",
+    )
+
+    recovery = probe.scan()
+    recovery.header.frame_id = "queued_laser"
+    publish_tf(recovery)
+    recovery_sent = time.monotonic()
+    probe.scan_pub.publish(recovery)
+    probe.response(recovery_sent, lambda value: value["reason"] == "clear", clear_command)
+    recovered_count = probe.statuses[-1][1]["tf_ready_scans"]
+    require(
+        recovered_count > before,
+        "Fresh recovery scan did not reach the TF-ready callback",
+        before_tf_ready=before,
+        after_recovery_tf_ready=recovered_count,
+    )
+    return recovery, {
+        "case": "invalid_immediate_and_pending_barrier",
+        "passed": True,
+        "command_latency_ms": response["command_latency_ms"],
+        "pending_stamp_ns": stamp_ns(pending.header.stamp),
+        "fault_stamp_ns": stamp_ns(fault.header.stamp),
+        "recovery_stamp_ns": stamp_ns(recovery.header.stamp),
+        "tf_ready_before_fault": before,
+        "tf_ready_after_old_replay": rejected_count,
+        "tf_ready_after_fresh_recovery": recovered_count,
+        "old_scan_replayed_after_fault_acknowledgment": True,
+    }
+
+
 def main():
     args = arguments()
     os.environ["ROS_DOMAIN_ID"] = str(args.domain_id)
@@ -77,47 +138,8 @@ def main():
             }
         )
 
-        pending = probe.scan()
-        pending.header.frame_id = "queued_laser"
-        before = probe.statuses[-1][1]["tf_ready_scans"]
-        probe.scan_pub.publish(pending)
-        probe.pump(0.004)
-        fault = probe.fault_scan("all_nan")
-        fault.header.frame_id = pending.header.frame_id
-        sent = time.monotonic()
-        probe.scan_pub.publish(fault)
-        probe.pump(0.004)
-        publish_tf(pending)
-        response = probe.response(sent, lambda v: v["reason"] == "scan_invalid", zero)
-        probe.pump(0.070)
-        require(
-            probe.statuses[-1][1]["tf_ready_scans"] > before,
-            "Queued pre-fault scan did not reach the TF-ready callback; timing case unsupported",
-        )
-        require(
-            probe.statuses[-1][1]["reason"] == "scan_invalid" and zero(probe.outputs[-1][1]),
-            "Delayed pre-fault scan cleared the fault",
-        )
-        require(
-            not any(
-                stamp_ns(c.header.stamp) == stamp_ns(pending.header.stamp) for _, c in probe.clouds
-            ),
-            "Pre-fault scan entered obstacle memory after the fault",
-        )
-        report["cases"].append(
-            {
-                "case": "invalid_immediate_and_pending_barrier",
-                "passed": True,
-                "command_latency_ms": response["command_latency_ms"],
-                "ready_callback_observed": True,
-            }
-        )
-        recovery = probe.scan()
-        recovery.header.frame_id = "queued_laser"
-        publish_tf(recovery)
-        sent = time.monotonic()
-        probe.scan_pub.publish(recovery)
-        probe.response(sent, lambda v: v["reason"] == "clear", clear_command)
+        recovery, barrier = pending_fault_case(probe, publish_tf)
+        report["cases"].append(barrier)
 
         def anchored_cloud(offset):
             m = probe.scan([math.inf] * len(recovery.ranges))

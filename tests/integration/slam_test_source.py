@@ -51,7 +51,7 @@ def resolve_source(root, source=None):
             failures.append(f"{candidate}: {error}")
     raise RuntimeError(
         "Offline SLAM tests require verified, patched source already present. "
-        "Use the Docker testing target, or prepare it with "
+        "Use the local Docker environment, or prepare it with "
         "scripts/prepare_slam_backend.py before entering the offline test environment. "
         "PREPARED_SLAM_SOURCE may select an existing source directory.\n" + "\n".join(failures)
     )

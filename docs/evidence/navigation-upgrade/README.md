@@ -1,6 +1,6 @@
 # 导航升级证据
 
-正式结论见 [研究与验证报告](../../navigation-upgrade-review.md)。`results.json` / `results.csv` 是冻结配置的 52 组最终对照；完整逐帧轨迹、场景、规划、刺激、运行日志、源码与二进制哈希位于 `final-trials.tar.gz`。正式结果包含失败或未到达，不能只选成功轨迹。
+原研究报告可用 `git show 89c2f3a:docs/navigation-upgrade-review.md` 查阅。`results.json` / `results.csv` 是冻结配置的 52 组最终对照；完整逐帧轨迹、场景、规划、刺激、运行日志、源码与二进制哈希位于 `final-trials.tar.gz`。正式结果包含失败或未到达，不能只选成功轨迹。
 
 - `baseline-nav2.yaml`、`baseline-commit.txt`：旧 Nav2 配置和硬件提交。
 - `results-table.md`：逐场景结果；`trajectories.png`、`accuracy-and-clearance.png`：实际真值轨迹与汇总图。

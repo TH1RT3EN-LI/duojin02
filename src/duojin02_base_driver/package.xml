@@ -6,6 +6,7 @@
   <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>asio_cmake_module</build_depend>
   <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
