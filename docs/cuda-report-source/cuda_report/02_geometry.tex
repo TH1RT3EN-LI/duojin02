@@ -1,0 +1,242 @@
+\section{几何重构：从反复遍历障碍到可复用查询结构}
+\base{geometry.tex；control.tex 的制动扫掠；gpu/geometry.cu}
+\subsection{现有算法的运算对象与早停优势}
+对第 $i$ 个位姿与第 $j$ 个障碍，把中心变换到车体坐标：
+\[
+y_{ij}=R(\theta_i)^\top(o_j-p_i).
+\]
+第 $v$ 条边为 $e_v=a_{v+1}-a_v$，点到线段距离为
+\begin{align}
+t_v&=\clip\left(\frac{(y_{ij}-a_v)^\top e_v}{e_v^\top e_v},0,1\right),\\
+d_v&=\norm{y_{ij}-a_v-t_ve_v}.
+\end{align}
+在包围盒门控 $A_{ij}$ 内，局部碰撞是
+\[
+c_{ij}=A_{ij}\land
+\left\{\left[\bigwedge_v e_v\times(y_{ij}-a_v)\ge-\epsilon_\times\right]
+\lor\left[\min_v d_v\le\delta+\rho_j\right]\right\}.
+\]
+总结果 $C_i=\bigvee_jc_{ij}$。理想算术下，OR 的交换律、结合律允许任意线程划分；
+这只改变求值顺序，未改变算法复杂度 $O(N_qN_oN_v)$。
+
+CPU 对某个位姿首次遇到碰撞就停止。
+用简化独立模型表示每次障碍检测碰撞概率为 $p_{\rm hit}$，
+令 $L$ 为至多检查 $N_o$ 个障碍时的实际检查次数。
+利用正整数随机变量的尾和公式：
+\begin{align}
+\E L&=\sum_{\ell=1}^{N_o}\Prob(L\ge\ell)
+=\sum_{\ell=1}^{N_o}(1-p_{\rm hit})^{\ell-1}\\
+&=\frac{1-(1-p_{\rm hit})^{N_o}}{p_{\rm hit}},\quad p_{\rm hit}>0.
+\label{eq:early}
+\end{align}
+若 $p_{\rm hit}\to0$，极限为 $N_o$；若较大，趋近 $1/p_{\rm hit}$。
+实际障碍并不独立，此式只解释机制。
+此外直连 CPU 路径一旦某个位姿碰撞，会停止整条路径；GPU 当前把整批位姿都算完。
+因此仅按 $N_qN_o\ge262144$ 分流忽略了两级早停。
+当前实现已在主机预计算位姿正余弦，并按场景版本复用上传；
+这些不能再作为“尚未实现”的新加速点。
+
+\subsection{先缩小问题：空间桶、排序与候选合批}
+对每个位姿，只需要考虑与扩张足迹包围盒相交的障碍。
+若空间索引返回 $n_i$ 个邻近障碍，则窄相位工作量变为
+\[
+O\!\left(N_q\,c_{\rm index}+N_v\sum_i n_i\right),
+\]
+其中 $c_{\rm index}$ 是查询索引成本，均匀桶在局部密度有界时可能近似常数；
+聚集退化情况下仍会接近全遍历。桶边长是算法参数，应按足迹范围和障碍密度选取。
+CPU 也应使用同样的候选削减作为公平基线，而不能只比较 GPU 优化算法和 CPU 暴力算法。
+
+多个横向居中候选可把全部直连位姿合成一次 GPU 调用。
+但原控制器先按 $\alpha_c\in\{1,0.65,0.4\}$ 分组，再按净空分数稳定排序，
+选择第一个通过候选。正确合批步骤是“并行计算全部可行布尔值，再按原顺序找首个真值”，
+不是在 21 个候选里重新选全局最优。
+重构成全局最优属于另一算法，需单独比较。
+
+\subsection{距离场安全筛选：推导可保证的下界}
+定义障碍集合 $O$ 与其非负距离场
+$D_O(x)=\inf_{o\in O}\|x-o\|$。
+对任何 $x,y$，三角不等式给出
+\[
+\|x-o\|\le\|x-y\|+\|y-o\|.
+\]
+对 $o$ 取下确界得 $D_O(x)\le\|x-y\|+D_O(y)$；
+交换 $x,y$，于是
+\begin{equation}
+|D_O(x)-D_O(y)|\le\|x-y\|.
+\label{eq:lipschitz}
+\end{equation}
+任意足迹点 $a\in\mathcal F$ 满足 $\|R(\theta)a\|\le r_F$。
+在式 \eqref{eq:lipschitz} 取 $x=p+R(\theta)a,y=p$：
+\[
+D_O(p+R(\theta)a)\ge D_O(p)-r_F.
+\]
+再对所有 $a$ 取最小，得到足迹到障碍的距离下界
+\begin{equation}
+\dist(\mathcal F(q),O)\ge D_O(p)-r_F.
+\label{eq:centerbound}
+\end{equation}
+所以 $D_O(p)>r_F+\delta$ 是充分安全条件；不满足只表示“不确定”，不能直接判碰撞。
+中心圆筛选在宽阔区域很有效，在窄道会保守，应落回完整填充足迹检查。
+
+实际 EDT 常给到占据格\emph{中心}的距离 $D_c$。
+每个边长 $r_g$ 的占据格均位于以中心为圆心、半径 $\rho_g=\sqrt2r_g/2$ 的圆盘内。
+对任意格内点 $o$、格中心 $c$，
+$\|x-o\|\ge\|x-c\|-\rho_g$，
+所以
+\begin{equation}
+D_O(x)\ge\max(0,D_c(x)-\rho_g).
+\end{equation}
+若在最近查询格中心 $x_g$ 查表，$\|x-x_g\|\le\rho_g$；
+表值的绝对数值误差上界为 $\epsilon_D$，
+则
+\begin{equation}
+\underline D_O(x)=
+\max\{0,\widehat D_c(x_g)-\epsilon_D-2\rho_g\}\le D_O(x).
+\label{eq:edtbound}
+\end{equation}
+第一个 $\rho_g$ 是障碍格几何外扩，第二个是查询量化误差，不能重复遗漏或混为一个。
+若用四格双线性插值，权重 $a_s\ge0,\sum_s a_s=1$，由 Lipschitz 性
+\[
+\left|\sum_s a_sD_c(x_s)-D_c(x)\right|
+\le\sum_s a_s\|x_s-x\|\le\sqrt2r_g;
+\]
+可以使用这个较松但明确的插值误差界，再加 $\rho_g$ 与数值误差。
+纹理插值值本身不自动是安全下界。
+
+\textbf{与源码容差的区别。}
+上述保证针对真实填充多边形及建模障碍。
+CPU 内点判定使用 $\epsilon_\times=10^{-10}\,\mathrm m^2$，可能把近边界外点也判入。
+若要求连同此容差的布尔输出也一致，可定义
+\[
+\mathcal F_\epsilon=\{y:e_v\times(y-a_v)\ge-\epsilon_\times,\ \forall v\}
+\]
+并使用其外接半径 $r_{F,\epsilon}\ge r_F$ 做筛选。
+有效非退化凸足迹的该集合有界，去除冗余约束后，其顶点由相邻平移支持线求交得到。
+于是把式 \eqref{eq:centerbound} 中 $r_F$ 换为 $r_{F,\epsilon}$，
+再计入距离阈值，便不忽略容差假内点。
+浮点上下界还必须向保守方向舍入；无经验证误差界的点继续回查 CPU。
+
+\subsection{多圆覆盖使距离场适应非圆车体}
+设离线构造有限圆盘，使
+$\mathcal F\subseteq\bigcup_{a=1}^{A}\mathbb B(c_a,r_a)$。
+第 $a$ 个圆盘变换后圆心为 $p+R(\theta)c_a$。
+若每个覆盖圆都满足
+\begin{equation}
+\underline D_O(p+R(\theta)c_a)>r_a+\delta,\qquad a=1,\ldots,A,
+\label{eq:cover}
+\end{equation}
+则覆盖并集与障碍隔离，子集 $\mathcal F(q)$ 也隔离。
+每个位姿只需 $A$ 次距离场查表；$A$ 可以远小于 $N_oN_v$。
+圆盘越多越贴合足迹，窄道保守性越小，但查询增加。
+该方法是“显存与预处理换在线工作”的具体例子。
+
+只检查足迹顶点并不成立：小障碍可以完全处在足迹内部，距所有顶点都很远。
+只检查边界采样也不能自动解决内部障碍问题。
+必须使用完整覆盖、精确多边形，或后述配置空间占据。
+对变半径激光圆盘，不能直接套用等半径占据格 EDT；
+可先保守栅格化所有圆盘并计入栅格化误差，或用保留半径的空间索引精查。
+
+\subsection{精确 EDT 的可分离结构，而非近似距离的盲用}
+令二值图的代价函数 $f(i,j)$ 在障碍中心取 $0$，其他格取 $+\infty$。
+以格为单位的平方 EDT 为
+\[
+E(x,y)=\min_{i,j}\{(x-i)^2+(y-j)^2+f(i,j)\}.
+\]
+有限集合最小化可交换次序：
+\begin{align}
+g(i,y)&=\min_j\{(y-j)^2+f(i,j)\},\\
+E(x,y)&=\min_i\{(x-i)^2+g(i,y)\},\qquad D_c=r_g\sqrt E.
+\end{align}
+一维变换是抛物线 $\varphi_i(x)=(x-i)^2+g_i$ 的下包络。
+两条 $i\ne j$ 抛物线交点由
+$x^2-2ix+i^2+g_i=x^2-2jx+j^2+g_j$ 得
+\[
+x_{ij}=\frac{j^2+g_j-i^2-g_i}{2(j-i)}.
+\]
+维护下包络交点的有序栈，每条抛物线至多进栈、出栈一次，
+可得一维线性总工作；二维逐轴处理为 $O(G)$。
+行列独立，但一行内的包络维护不是全部元素无依赖。
+PBA/PBA+ 通过分带及合并提供 GPU 精确 EDT 路线\cite{edt,pba}。
+这里“精确”指选定离散中心距离，不是物理环境距离。
+
+普通 Jump Flooding 一类近似方法若漏掉最近障碍，返回较远种子距离，即\emph{高估}间隙；
+高估不能直接用于安全放行。只有取得可证明误差上界并按式 \eqref{eq:edtbound} 扣除，
+或把它仅用于排序再精查，才符合本报告的保证条件。
+
+\subsection{更深入的替换：位置--航向配置空间查表}
+定义 Minkowski 和 $A\oplus B=\{a+b:a\in A,b\in B\}$。
+在固定方向 $\theta$ 下，足迹与障碍相交等价于
+\begin{align}
+(p+R(\theta)\mathcal F)\cap O\ne\varnothing
+&\iff \exists f\in\mathcal F,o\in O:\ p+R(\theta)f=o\\
+&\iff p=o-R(\theta)f\\
+&\iff p\in O\oplus[-R(\theta)\mathcal F].
+\end{align}
+因此可预计算 $N_\theta$ 个配置空间占据切片：
+\begin{equation}
+C_\theta(p)=\ind\{p\in O\oplus[-R(\theta)\mathcal F]\oplus\mathbb B(0,\delta)\}.
+\label{eq:cspace}
+\end{equation}
+把复杂几何判断变成三维表的查询，尤其适合大量轨迹与方向候选共用一幅地图。
+
+若方向均匀采样，间隔 $\Delta\theta=2\pi/N_\theta$，最近方向误差至多 $\Delta\theta/2$。
+对足迹点，
+\begin{align}
+\|R(\theta)a-R(\theta_j)a\|
+&=2\|a\|\left|\sin\frac{\theta-\theta_j}{2}\right|\\
+&\le2r_F\sin\frac{\Delta\theta}{4}
+=:e_\theta.
+\label{eq:anglebound}
+\end{align}
+查询中心量化误差为 $e_p\le\sqrt2r_g/2$。
+把建表余量增为 $\delta+e_p+e_\theta$，
+再加障碍栅格化/数值误差，最近层的“无碰撞”可成为真实查询的充分安全条件。
+否则直接取最近方向层可能漏碰撞。
+若非等间隔方向，应使用当地相邻间隔或最大间隔，不能假定原 Smac 的 16 个方向均匀。
+
+取说明性 $r_F=0.30$ m、$N_\theta=64$，则 $e_\theta\approx14.72$ mm；
+$1$ cm 网格还有 $e_p\approx7.07$ mm。
+这远大于原直连余量与采样共同形成的 8 mm 名义下界。
+所以 64 层保守查表可能封死窄道，合理方案是“宽区直接通过，近边界更细方向或精确检查”，
+并非粗查表完全替代原几何。
+
+对 $400\times400$ 图、64 方向：状态总数 $10.24$ 百万；
+每状态 1 bit、1 byte、float 分别约 $1.28$、$10.24$、$40.96$ MB。
+双缓冲至少翻倍。若足迹模板含 $A_F$ 个格，直接膨胀建表工作为
+$O(N_\theta GA_F)$；内存很小不意味着构建很快。
+可用并行形态学、位运算或离线静态地图预计算。
+动态障碍更新只影响其与反射足迹模板的作用区；障碍删除需要计数或局部重建，
+不能只 OR 新障碍，否则旧障碍永远残留。
+滚动窗口平移时还须维护世界坐标原点和新进入区域，不能把数组循环移动当成完整更新。
+
+\subsection{批量制动与连续间隙：能增加什么检查}
+原防护先检查实测速度，再按 8 个缩放值，每个检查请求及 3 个过渡速度；
+最坏有 $1+8\times4=33$ 条制动轨迹。
+可先独立生成每条轨迹，再把其采样位姿合批查询，并按轨迹 OR 归约。
+令 $b_{s,\beta}$ 是轨迹碰撞标志，
+\[
+s_*=\max\{s:\bigvee_{\beta\in\{1,0.25,0.5,0.75\}}b_{s,\beta}=0\}.
+\]
+这能保留原“按比例选最大可接受值”语义，且无需假定可行性对 $s$ 单调。
+不同轨迹的 $h_b$、终止步数不同，批内需偏移数组；
+原算法先推进再减速的顺序不能改成连续制动距离公式。
+
+更进一步，可对执行迟滞、减速度、初始位姿及障碍速度生成多场景，
+检查量从 33 条扩到 $33M$ 条；这是额外计算换更充分模型的入口。
+但每条情景仍是模型假设，其覆盖性见第 \ref{sec:deep} 节。
+
+对静态障碍，原直连长度参数
+$L=\|\Delta p\|+r_F|\Delta\theta|$，
+取 $N=\lceil L/\ell_s\rceil$。
+任意插值点距最近样本参数差至多 $1/(2N)$，
+足迹 Hausdorff 距离至多 $L/(2N)\le\ell_s/2$。
+再由集合距离 Lipschitz 性，
+\begin{equation}
+d_{\rm continuous}>\delta-\ell_s/2.
+\end{equation}
+代入 $\delta=10$ mm、$\ell_s=4$ mm 得 8 mm；
+增加采样会提高该\emph{理想模型}下界。
+若实际位姿、障碍和时延误差界分别为
+$\epsilon_p+r_F\epsilon_\theta$、$\epsilon_o$、$v_{\rm rel}\tau$，
+则保证余量应再扣除它们。
+GPU 不能靠更密几何采样消除未建模的定位或执行误差。

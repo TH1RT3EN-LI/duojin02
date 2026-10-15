@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Linux-c++"
+	tests="4"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="e8be330f05c3"
+	time="0"
+	timestamp="2026-10-15T15:09:35"
+	>
+	<testcase name="gpu_geometry_checks" classname="gpu_geometry_checks" time="0.242886" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=NVIDIA GeForce RTX 5070 clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=1014 boundary_rechecks=891 scene_updates=496 scene_reuses=10 scene_uploads=470 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_no_device_checks" classname="gpu_geometry_no_device_checks" time="0.0791463" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=no CUDA-capable device is detected clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=0 boundary_rechecks=0 scene_updates=496 scene_reuses=10 scene_uploads=0 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_cuda_checks" classname="gpu_geometry_cuda_checks" time="0.222533" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=NVIDIA GeForce RTX 5070 clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=1014 boundary_rechecks=891 scene_updates=496 scene_reuses=10 scene_uploads=470 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_fault_checks" classname="gpu_geometry_fault_checks" time="0.179533" status="run">
+		<system-out>CUDA_FAULT_CHECKS first=CUDA pose upload: an illegal memory access was encountered repeated=CUDA geometry fault latched; reconfigure required passed
+</system-out>
+	</testcase>
+</testsuite>

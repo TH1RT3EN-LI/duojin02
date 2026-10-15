@@ -3,6 +3,12 @@ set -euo pipefail
 hardware_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 build_options=()
 build_options+=(--build-arg "BUILD_JOBS=${BUILD_JOBS:-2}" --build-arg "BUILD_WORKERS=${BUILD_WORKERS:-1}")
+# Preserve explicit environment overrides; caller --build-arg options may override these.
+for cuda_setting in CUDA_ARCHITECTURES DUOJIN_ENABLE_CUDA; do
+  if [[ -n "${!cuda_setting:-}" ]]; then
+    build_options+=(--build-arg "${cuda_setting}=${!cuda_setting}")
+  fi
+done
 image="${IMAGE:-duojin02:hardware-humble}"
 if [[ -n "${PLATFORM:-}" ]]; then
   build_options+=(--platform "$PLATFORM")

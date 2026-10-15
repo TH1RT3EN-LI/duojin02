@@ -1,0 +1,166 @@
+\section{定位：并行粒子评分与多假设保持}
+\base{localization.tex 的 AMCL、地图一致性部分}
+\subsection{现有 AMCL 的核心批量计算}
+粒子 $q_i=(p_i,\theta_i)$，当前束 $b$ 的激光坐标点为
+$s_b^L=r_b(\cos\varphi_b,\sin\varphi_b)^\top$。
+令固定激光到车体外参为 $T^B_L=(R_{BL},t_{BL})$，则
+$s_b^B=R_{BL}s_b^L+t_{BL}$，其中 $R_{BL},t_{BL}$ 明确将激光系点变换到车体系。
+地图端点为
+\[
+e_{ib}=p_i+R(\theta_i)s_b^B.
+\]
+对截断中心距离场 $D_{\mathcal M}$，
+原模型使用\cite{amclsrc}
+\begin{equation}
+\pi_{ib}=a\exp[-D_{\mathcal M}(e_{ib})^2/(2\sigma^2)]+b_0,
+\quad a=0.85,\ \sigma=0.025\ {\rm m},\
+b_0=0.15/r_{\max}.
+\end{equation}
+这里 $\pi$ 是原库保留工程标度的束评分，不重新补上高斯归一化系数。
+粒子后验权重正比于
+\begin{equation}
+\widetilde w_i=w_i^{\rm prior}\prod_{b=1}^{B}\pi_{ib}.
+\label{eq:amclprod}
+\end{equation}
+当前 $B\le120$、$N_p=700$--$3000$，
+因此一次扫描最多 $84000$--$360000$ 个粒子束组合。
+各组合共享地图、扫描与外参，是很适合 GPU 的二维批量运算。
+对每个粒子算一次三角函数，把束点预先变换到车体系，再分别完成端点及查表。
+
+在保持束筛选、越界策略、量化索引和评分完全一致时，
+并行化不改变实数公式。
+用纹理双线性读取替代原离散取格、增加束跳过或改变噪声宽度，
+均属于观测模型变更，必须单独报告。
+AMCL、MPPI 与碰撞可共享设备常驻的相关地图缓存，但必须分别保留其语义标签。
+
+\subsection{稳定对数归一化与不能忽略的语义改变}
+若 $w_i^{\rm prior}>0$，取对数：
+\[
+\ell_i=\log w_i^{\rm prior}+\sum_b\log\pi_{ib}.
+\]
+令 $m=\max_i\ell_i$，则
+\begin{align}
+w_i^+
+&=\frac{e^{\ell_i}}{\sum_je^{\ell_j}}
+=\frac{e^m e^{\ell_i-m}}{e^m\sum_je^{\ell_j-m}}\\
+&=\frac{e^{\ell_i-m}}{\sum_je^{\ell_j-m}}.
+\label{eq:logsum}
+\end{align}
+至少一个指数为 $1$，其余不大于 $1$，避免共同下溢。
+先验为零的粒子记 $\ell_i=-\infty$；若全部非法或负无穷，必须定义失败处理。
+在实数运算中等价，但原实现的权重全零时会回到均匀权重；
+稳定形式可能避免该退化，所以\textbf{数值上可能改变旧输出且改善可靠性}，应标为数值算法升级。
+
+不能将 $\sum_b\log\pi_{ib}$ 除以 $B$ 作为“稳定化”。
+除法改变相对权重：
+两粒子的似然比从 $\prod_b(\pi_{ib}/\pi_{jb})$ 变成其 $1/B$ 次方，
+等于改变观测温度与统计模型，而不只是防溢出。
+类似地，统一扩大 $\sigma$ 会改变地图匹配辨识度。
+
+\subsection{重采样的并行边界与 KLD 语义}
+设归一化权重为 $w_1,\dots,w_{N_p}$，累计分布
+$F_j=\sum_{i=1}^jw_i$。
+GPU prefix sum 可并行求出 $F$。
+给定抽样数 $N'$，systematic 重采样取
+$u_0\sim U[0,1/N')$、$u_m=u_0+m/N'$，
+返回 $j(m)=\min\{j:F_j\ge u_m\}$。
+二分查询可并行，工作约 $O(N'\log N_p)$，或利用有序合并做线性总工作。
+
+但当前 KLD 重采样根据\emph{已经抽到的粒子}占据箱数 $\kappa$ 决定停止位置。
+其停止长度与粒子序列相互依赖。
+先算整批新粒子再按固定 $N'$ 取样，或者直接换 systematic，
+会改变联合分布/停止规律，不是简单的并行求和等价替换。
+初期可把运动采样与束评分搬到 GPU，保留 KLD、聚类与输出在 CPU；
+若通信成为瓶颈，再单独设计分批 KLD 并声明与基线的差别。
+原稿还指出 \code{pf_z=0.99} 被直接作为系数使用，不能据此宣称 99\% 置信保证。
+
+\subsection{更大粒子数可减少什么误差}
+为了给“更多计算换更好估计”一个明确条件，
+令粒子 $X_i$ 独立来自提议分布 $q$，
+未归一化重要性权重 $a_i=p(X_i)/q(X_i)$，
+目标统计量为
+$\mu=\int\phi(x)p(x)dx/\int p(x)dx$。
+记
+$A_N=N^{-1}\sum_i a_i\phi(X_i)$、
+$B_N=N^{-1}\sum_i a_i$、
+$B=\E_q a_i>0$。
+自归一化估计为 $\hat\mu_N=A_N/B_N$。
+在 $(A,B)$ 处一阶展开：
+\begin{align}
+\hat\mu_N-\mu
+&\approx\frac{A_N-A}{B}
+-\frac{A}{B^2}(B_N-B)\\
+&=\frac1{NB}\sum_i a_i[\phi(X_i)-\mu],
+\end{align}
+所以在相应二阶矩有限、独立抽样及渐近条件下
+\begin{equation}
+\Var(\hat\mu_N)\approx
+\frac{\Var_q(a[\phi(X)-\mu])}{NB^2}.
+\label{eq:snis}
+\end{equation}
+粒子数增为 4 倍，标准差近似减半；模型偏差并不会减半。
+经过重采样的粒子相关，不能机械按独立 $N$ 套用。
+ESS 是退化诊断而非通用精度定理。
+
+若某个真实可行模式在当前后验中质量为 $m_A$，
+独立重采样 $N'$ 次一个也没保留的概率为
+\[
+P_{\rm lose}=(1-m_A)^{N'}.
+\]
+这解释扩大粒子预算有助于保留低质量但正确的候选。
+但是如果初始提议根本不覆盖该模式，则 $m_A=0$，任意复制旧粒子都无济于事。
+因此更深重构应同时保留全局探索或独立多模式分支，而非只增大一个收敛错误簇。
+
+\subsection{更多激光束为何也有收益上限}
+局部近似令残差
+$r_b(q)=D_{\mathcal M}(p+R(\theta)s_b^B)$，
+在场可微且小扰动下
+\begin{equation}
+j_b=\frac{\partial r_b}{\partial q}
+=\nabla D_{\mathcal M}(e_b)^\top
+\begin{bmatrix}I_2&R(\theta)Js_b^B\end{bmatrix}.
+\label{eq:locjac}
+\end{equation}
+若残差是独立、方差 $\sigma_b^2$ 的近似高斯，
+局部信息矩阵为
+\[
+\mathcal I=\sum_b \sigma_b^{-2}j_b^\top j_b.
+\]
+增加新独立束，新增项半正定，因此信息在 Loewner 顺序上不减；
+当 $\mathcal I$ 正定时，逆矩阵所代表的局部方差界不增。
+但若所有束都只约束平行墙法向，沿走廊方向的列可能接近零，
+$\mathcal I$ 仍退化，更多同方向束不产生缺失的可观测性。
+占据距离场在障碍内部为零、最近障碍切换处不可微，上式只限可微邻域；
+不能把它当成全地图全局证明。
+
+相关性也限制信息增长。设 $B$ 个束误差方差均为 $\sigma_e^2$，
+两两相关系数为 $\rho\ge0$，则平均误差
+$\bar e=B^{-1}\sum_be_b$ 满足
+\begin{align}
+\Var(\bar e)
+&=\frac1{B^2}\left[B\sigma_e^2+B(B-1)\rho\sigma_e^2\right]\\
+&=\frac{\sigma_e^2}{B}\,[1+(B-1)\rho].
+\end{align}
+等效独立束数
+$B_{\rm eff}=B/[1+(B-1)\rho]$。
+说明性 $B=120,\rho=0.1$ 得 $B_{\rm eff}\approx9.30$。
+因此 GPU 允许用全部激光束，并不意味着可以按独立乘积无限提高置信度。
+共享地图误差、外参误差和运动畸变会相关；应增加相关噪声模型或按结构抽样，
+并用外部真值检验后验校准。
+
+\subsection{多假设比单高斯局部定位更适合当前歧义}
+重复走廊可能同时支持多个位姿模式。
+把多峰后验压成单个均值可能落在两个合法模式之间的非法位置。
+合理结构是维护模式权重 $\pi_a$、模式内粒子/局部网格及各自状态，
+\[
+b(q)=\sum_{a=1}^{A_m}\pi_a b_a(q),\qquad
+\pi_a\ge0,\quad\sum_a\pi_a=1.
+\]
+并行更新所有模式后，再依据观测证据、动态一致性和任务风险决策。
+若使用局部扫描优化作为粒子提议，优化后的点不再服从原运动提议，
+必须计算提议修正、使用合适 MCMC 接受率，或明确改为混合启发式算法。
+不能在每个粒子上做一次梯度下降，仍声称保持原 AMCL 后验。
+
+这也是为什么不能简单用 GPU NDT/ICP 替换 AMCL：
+单次局部配准通常给出一个局部最优位姿，无法自动提供原粒子滤波的多峰表示及全局覆盖。
+它可以作为多假设框架内的局部精化器；更大批量有价值，但优化器名称不构成精度保证。

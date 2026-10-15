@@ -78,10 +78,20 @@ inline double approachZero(double v, double amount) {
   return std::copysign(std::max(0.0, std::abs(v) - amount), v);
 }
 
-inline bool brakingSweep(Pose pose, Velocity v, const Polygon &polygon,
-                         const std::vector<Point> &points, double margin, double reaction,
-                         double deceleration, double angular_deceleration,
-                         double spatial_step = 0.004) {
+struct BrakingSweepSamples {
+  std::vector<Pose> poses;
+  double margin{0};
+  double min_x{1e100}, min_y{1e100}, max_x{-1e100}, max_y{-1e100};
+};
+
+struct BrakingSweepTiming {
+  double dt, end, sampling_margin;
+};
+
+inline BrakingSweepTiming brakingSweepTiming(const Velocity &v, const Polygon &polygon,
+                                             double reaction, double deceleration,
+                                             double angular_deceleration,
+                                             double spatial_step = .004) {
   double radius = 0;
   for (const auto &vertex : polygon)
     radius = std::max(radius, std::hypot(vertex.x, vertex.y));
@@ -89,18 +99,36 @@ inline bool brakingSweep(Pose pose, Velocity v, const Polygon &polygon,
   const double dt = std::min(0.02, spatial_step / std::max(corner_speed, 0.001));
   const double end =
       reaction + std::max(speed / deceleration, std::abs(v.yaw) / angular_deceleration) + dt;
+  return {dt, end, corner_speed * dt / 2};
+}
 
-  const double sampling_margin = corner_speed * dt / 2;
-  std::vector<Pose> poses;
-  double min_x = 1e100, min_y = 1e100, max_x = -1e100, max_y = -1e100;
+// A cheap dispatch estimate, deliberately not used to generate time samples.
+inline size_t brakingSweepSampleCountEstimate(const Velocity &v, const Polygon &polygon,
+                                              double reaction, double deceleration,
+                                              double angular_deceleration) {
+  const auto timing = brakingSweepTiming(v, polygon, reaction, deceleration, angular_deceleration);
+  return static_cast<size_t>(std::ceil(timing.end / timing.dt)) + 2;
+}
+
+// The CPU oracle and CUDA candidate batch share exactly the same integration,
+// reaction-time convention and sampling margin. Keep the t += dt loop: replacing
+// it with an integer count can change the last sample at floating-point boundaries.
+inline BrakingSweepSamples brakingSweepSamples(
+    Pose pose, Velocity v, const Polygon &polygon, double margin, double reaction,
+    double deceleration, double angular_deceleration, double spatial_step = 0.004) {
+  const auto timing = brakingSweepTiming(v, polygon, reaction, deceleration,
+                                        angular_deceleration, spatial_step);
+  const double dt = timing.dt, end = timing.end;
+  BrakingSweepSamples result;
+  result.margin = margin + timing.sampling_margin;
   for (double t = 0; t <= end; t += dt) {
-    poses.push_back(pose);
+    result.poses.push_back(pose);
     for (const auto &vertex : polygon) {
       const auto p = transform(vertex, pose);
-      min_x = std::min(min_x, p.x);
-      min_y = std::min(min_y, p.y);
-      max_x = std::max(max_x, p.x);
-      max_y = std::max(max_y, p.y);
+      result.min_x = std::min(result.min_x, p.x);
+      result.min_y = std::min(result.min_y, p.y);
+      result.max_x = std::max(result.max_x, p.x);
+      result.max_y = std::max(result.max_y, p.y);
     }
     pose = advance(pose, v, dt);
     if (t >= reaction) {
@@ -111,16 +139,24 @@ inline bool brakingSweep(Pose pose, Velocity v, const Polygon &polygon,
       v.yaw = approachZero(v.yaw, angular_deceleration * dt);
     }
   }
+  return result;
+}
 
+inline bool brakingSweep(Pose pose, Velocity v, const Polygon &polygon,
+                         const std::vector<Point> &points, double margin, double reaction,
+                         double deceleration, double angular_deceleration,
+                         double spatial_step = 0.004) {
+  const auto samples = brakingSweepSamples(pose, v, polygon, margin, reaction, deceleration,
+                                           angular_deceleration, spatial_step);
   std::vector<Point> nearby;
   for (const auto &p : points) {
-    const double padding = margin + sampling_margin + p.radius;
-    if (p.x >= min_x - padding && p.x <= max_x + padding && p.y >= min_y - padding &&
-        p.y <= max_y + padding)
+    const double padding = samples.margin + p.radius;
+    if (p.x >= samples.min_x - padding && p.x <= samples.max_x + padding &&
+        p.y >= samples.min_y - padding && p.y <= samples.max_y + padding)
       nearby.push_back(p);
   }
-  for (const auto &sample : poses)
-    if (collision(sample, polygon, nearby, margin + sampling_margin))
+  for (const auto &sample : samples.poses)
+    if (collision(sample, polygon, nearby, samples.margin))
       return true;
   return false;
 }

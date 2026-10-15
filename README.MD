@@ -1,4 +1,18 @@
-# Duojin02 真机工作区
+# Duojin02 本机 CUDA 新版本
+
+版本 `0.2.0-local-cuda.1`，从当前工作树单独复制，开发分支为 `codex/local-cuda-v2`。本次目标平台是本机 RTX 5070 / x86_64 / ROS 2 Humble，依据 CUDA 重构报告落实场景复用、空间索引和控制器批量几何检查。原项目保持不变。
+
+实现范围、验证结果及本机复现入口见 [本机 CUDA 版本说明](docs/cuda-local-v2.md)。原生 Nav2 MPPI 优化器、AMCL 和 SLAM 尚未迁移到 GPU。下方保留原项目的硬件操作说明，本版本尚未做 Jetson 适配和实物导航验收。
+
+本机已有 `duojin02:hardware-humble` 依赖镜像时，可在本目录直接复现构建、实际 CUDA 检查与配对基准：
+
+```bash
+python3 scripts/validate_cuda_local.py --architecture 120 --samples 40
+```
+
+输出写入 `output/cuda-local-v2/` 下唯一命名的运行目录，最终验收记录为 `validation-r2/`；本版导航插件安装到 `install/cuda-local/`。测试容器不映射底盘或雷达设备，独立于原工作区。
+
+## 原项目硬件操作说明
 
 适用于 Jetson Orin Nano、Ubuntu 22.04、ROS 2 Humble，包含麦克纳姆底盘、IMU、N10Plus 雷达、建图、定位、Nav2 导航和遥控。
 

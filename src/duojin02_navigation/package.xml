@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>duojin02_navigation</name>
-  <version>0.1.0</version>
-  <description>Sensor and filled-footprint braking sweep validation for navigation and teleoperation.</description>
+  <version>0.2.0</version>
+  <description>Local CUDA indexed geometry and batched control validation with CPU braking admission.</description>
   <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -181,6 +181,55 @@ int main(int argc, char **argv) {
   }
   map->getCostmap()->setCost(305, 334, 0);
   map->getCostmap()->setCost(300, 300, 0);
+
+  // The lookahead chord is clear, but the requested velocity needs a longer
+  // braking distance. Force both centered-clearance and later-scale braking
+  // batches and compare the admitted command with an independent CPU instance.
+  controller.setSpeedLimit(0, false);
+  map->getCostmap()->setCost(300, 300, 120);
+  map->getCostmap()->setCost(345, 300, 254);
+  auto cpu_options = make_options();
+  cpu_options.append_parameter_override("FollowPath.use_gpu", false);
+  cpu_options.append_parameter_override("FollowPath.wz_max", .1);
+  auto cpu_node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("cpu_controller_oracle", cpu_options);
+  TestController cpu_controller;
+  cpu_controller.configure(cpu_node, "FollowPath", tf, map);
+  cpu_controller.activate();
+  auto batch_start = pose();
+  batch_start.header.stamp = node->now();
+  nav_msgs::msg::Path batch_path;
+  batch_path.header = batch_start.header;
+  for (int i = 0; i <= 100; ++i)
+    batch_path.poses.push_back(pose(i * .01, 0));
+  controller.setPlan(batch_path);
+  cpu_controller.setPlan(batch_path);
+  const auto before_batch = controller.controllerStatistics();
+  const auto cpu_command = cpu_controller.computeVelocityCommands(batch_start, {}, &checker).twist;
+  const auto batch_command = controller.computeVelocityCommands(batch_start, {}, &checker).twist;
+  assert(std::abs(batch_command.linear.x - cpu_command.linear.x) < 1e-12);
+  assert(std::abs(batch_command.linear.y - cpu_command.linear.y) < 1e-12);
+  assert(std::abs(batch_command.angular.z - cpu_command.angular.z) < 1e-12);
+  assert(batch_command.linear.x > .2 && batch_command.linear.x < .34);
+  const auto after_batch = controller.controllerStatistics();
+  assert(after_batch.cycles == before_batch.cycles + 1);
+  assert(after_batch.last_cycle_ms > 0 && after_batch.max_cycle_ms >= after_batch.last_cycle_ms);
+  if (mode == "--gpu") {
+    assert(after_batch.centering_cuda_batches > before_batch.centering_cuda_batches);
+    assert(after_batch.braking_cuda_batches > before_batch.braking_cuda_batches);
+    assert(after_batch.braking_final_cpu_candidates > before_batch.braking_final_cpu_candidates);
+  } else {
+    assert(after_batch.centering_cpu_batches > before_batch.centering_cpu_batches);
+    assert(after_batch.braking_cuda_batches == 0);
+  }
+  std::cout << "CONTROLLER_BATCH_PARITY vx=" << batch_command.linear.x
+            << " centering_cuda=" << after_batch.centering_cuda_batches - before_batch.centering_cuda_batches
+            << " braking_cuda=" << after_batch.braking_cuda_batches - before_batch.braking_cuda_batches
+            << " final_cpu_candidates=" << after_batch.braking_final_cpu_candidates - before_batch.braking_final_cpu_candidates
+            << " cycle_wall_ms=" << after_batch.last_cycle_ms << "\n";
+  cpu_controller.deactivate();
+  cpu_controller.cleanup();
+  map->getCostmap()->setCost(300, 300, 0);
+  map->getCostmap()->setCost(345, 300, 0);
   controller.setSpeedLimit(20, true);
   const auto changed = node->set_parameters_atomically(
       {rclcpp::Parameter("FollowPath.vx_max", .4), rclcpp::Parameter("FollowPath.vx_min", -.1),
@@ -227,6 +276,35 @@ int main(int argc, char **argv) {
     bounded(out, expected.effective());
     std::cout << "NATIVE_PUBLIC_LIMIT vx=" << out.linear.x << " vy=" << out.linear.y
               << " wz=" << out.angular.z << "\n";
+  }
+  if (mode == "--gpu") {
+    controller.setSpeedLimit(0, false);
+    auto valid_footprint = map->getUnpaddedRobotFootprint();
+    auto clockwise = valid_footprint;
+    std::reverse(clockwise.begin(), clockwise.end());
+    map->setRobotFootprint(clockwise);
+    start.header.stamp = node->now();
+    path.header = start.header;
+    path.poses = {start, pose(.1, 0)};
+    controller.setPlan(path);
+    const auto before_fault = controller.controllerStatistics();
+    out = controller.computeVelocityCommands(start, {}, &checker).twist;
+    bounded(out, {}, true);
+    const auto after_fault = controller.controllerStatistics();
+    assert(after_fault.compute_failures == before_fault.compute_failures + 1);
+    assert(after_fault.cycles == before_fault.cycles + 1);
+    // Restore valid geometry and make a small clear query. This path would
+    // normally take CPU early exits and must still honor the controller latch.
+    map->setRobotFootprint(valid_footprint);
+    out = controller.computeVelocityCommands(start, {}, &checker).twist;
+    bounded(out, {}, true);
+    const auto after_latched = controller.controllerStatistics();
+    assert(after_latched.compute_failures == after_fault.compute_failures);
+    assert(after_latched.fault_latched_stops == after_fault.fault_latched_stops + 1);
+    assert(after_latched.cycles == after_fault.cycles + 1);
+    std::cout << "CONTROLLER_FAULT_LATCH invalid_scene_failure_then_small_clear_cpu_path_stopped "
+              << "failure_cycle_wall_ms=" << after_fault.last_cycle_ms
+              << " latched_cycle_wall_ms=" << after_latched.last_cycle_ms << "\n";
   }
   controller.deactivate();
   controller.cleanup();

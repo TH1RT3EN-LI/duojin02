@@ -1,0 +1,87 @@
+\documentclass[UTF8,fontset=none,zihao=5,a4paper]{ctexart}
+\usepackage[margin=22mm,headheight=16pt,headsep=7mm,footskip=10mm]{geometry}
+\usepackage{fontspec}
+\setmainfont{NimbusRoman}[Path=/usr/share/fonts/opentype/urw-base35/,Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic]
+\setsansfont{NimbusSans}[Path=/usr/share/fonts/opentype/urw-base35/,Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic]
+\setmonofont{DejaVu Sans Mono}[Scale=0.80]
+\setCJKmainfont[AutoFakeSlant=true]{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans Mono CJK SC}
+\usepackage{amsmath,amssymb,amsthm,bm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array,graphicx,xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{enumitem,fancyhdr,microtype}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!55!black,breaklinks=true]{hyperref}
+\usepackage{url}
+\urlstyle{same}
+\definecolor{accent}{HTML}{244F6B}
+\definecolor{lightaccent}{HTML}{EDF3F7}
+\ctexset{section={format=\Large\bfseries\color{accent}},subsection={format=\large\bfseries},subsubsection={format=\normalsize\bfseries}}
+\setlength{\parskip}{3pt}
+\linespread{1.12}
+\setlength{\emergencystretch}{3em}
+\setlist{nosep,leftmargin=2em}
+\renewcommand{\arraystretch}{1.17}
+\numberwithin{equation}{section}
+\newtheorem{proposition}{命题}[section]
+\renewcommand{\proofname}{证明}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\clip}{clip}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\CVaR}{CVaR}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\wrap}{\operatorname{wrap}}
+\newcommand{\ind}{\mathbf1}
+\newcommand{\code}[1]{\texttt{\small\detokenize{#1}}}
+\newcommand{\base}[1]{\textbf{原稿依据：}\code{#1}。}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small duojin02：固定时延下的 CUDA 算法重构分析}
+\fancyhead[R]{\small 技术研究报告}
+\fancyfoot[C]{\thepage}
+\hypersetup{pdftitle={duojin02 CUDA 加速与固定时延算法重构分析},pdfauthor={技术分析报告},pdfsubject={数学推导、计算预算与验证方案；不修改项目代码}}
+\begin{document}
+\begin{titlepage}
+\vspace*{15mm}
+{\color{accent}\Huge\bfseries duojin02\\[4mm]CUDA 加速与算法重构分析\par}
+\vspace{9mm}
+{\LARGE 在相同在线耗时内，\\利用更大的计算与存储预算改善算法效果\par}
+\vspace{12mm}
+{\large 基于所提供算法论文源文件的逐项审阅与数学推导\par}
+\vspace{7mm}
+{\large 2026 年 10 月 15 日\par}
+\vspace{14mm}
+\noindent\fcolorbox{accent}{lightaccent}{\parbox{0.91\textwidth}{
+\textbf{核心判断}\par
+最有价值的方向并非把所有 CPU 运算原样搬到 GPU，而是重构计算结构：
+用多场景采样控制处理不确定性，用多假设定位保持歧义，
+用预计算配置空间与距离场把昂贵的几何运算转成密集查表。
+GPU 的并行与显存用于换取更充分的决策，同时用完整时延预算约束规模。\par
+这些方向具有可推导的收益机制，但“同耗时且效果更好”仍是待测假设；
+原稿没有提供这些新算法的实测结果。
+}}
+\vfill
+\noindent\textbf{交付范围}\quad 算法分析、逐步公式推导、资源估算、重构优先级与实验设计。\\
+\textbf{实施范围}\quad 未修改项目源码、配置或机器人运行状态；仅生成本报告及其可编辑源文件。\\
+\textbf{阅读建议}\quad 先读第 1、2、8、11 节获得决策框架，再按需阅读各算法推导。
+\end{titlepage}
+\tableofcontents
+\clearpage
+\input{01_scope_budget}
+\input{02_geometry}
+\input{03_mppi}
+\input{04_localization}
+\input{05_scan_graph}
+\input{06_deep_reconstruction}
+\input{07_validation}
+\input{references}
+\end{document}

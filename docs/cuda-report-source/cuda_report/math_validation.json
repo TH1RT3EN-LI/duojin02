@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-15",
+  "seed": 20261015,
+  "numpy_version": "1.26.4",
+  "scope": "Independent mathematical sanity checks only; no CUDA benchmark or robot test.",
+  "all_passed": true,
+  "checks": {
+    "entropy_stationarity": {
+      "passed": true,
+      "max_error_or_violation": 1.1102230246251565e-15,
+      "tolerance": 1e-12,
+      "cases": 500,
+      "detail": ""
+    },
+    "softmax_l1_bound": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 500,
+      "detail": ""
+    },
+    "omni_prefix_vs_sequential": {
+      "passed": true,
+      "max_error_or_violation": 1.7763568394002505e-15,
+      "tolerance": 1e-12,
+      "cases": 100,
+      "detail": ""
+    },
+    "constant_twist_integral": {
+      "passed": true,
+      "max_error_or_violation": 1.937339177970898e-12,
+      "tolerance": 1e-09,
+      "cases": 100,
+      "detail": ""
+    },
+    "euler_error_bound": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 100,
+      "detail": ""
+    },
+    "scan_chain_rule_jacobian": {
+      "passed": true,
+      "max_error_or_violation": 6.172683697514003e-08,
+      "tolerance": 2e-06,
+      "cases": 200,
+      "detail": "Smooth synthetic field; does not assert differentiability at grid boundaries."
+    },
+    "pose_graph_jacobians": {
+      "passed": true,
+      "max_error_or_violation": 5.71191982601249e-10,
+      "tolerance": 2e-08,
+      "cases": 400,
+      "detail": ""
+    },
+    "grid_square_distance_lower_bound": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 2000,
+      "detail": ""
+    },
+    "footprint_outer_radius_lower_bound": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 1000,
+      "detail": ""
+    },
+    "orientation_quantization_bound": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 2000,
+      "detail": ""
+    },
+    "finite_grid_prediction_factorization": {
+      "passed": true,
+      "max_error_or_violation": 6.938893903907228e-18,
+      "tolerance": 1e-14,
+      "cases": 60,
+      "detail": "Zero outside finite domain; escaped mass is not silently renormalized."
+    },
+    "fft_correlation_vs_beam_sum": {
+      "passed": true,
+      "max_error_or_violation": 7.105427357601002e-15,
+      "tolerance": 1e-12,
+      "cases": 5600,
+      "detail": "Valid interior domain with zero padding; duplicates retained in template."
+    },
+    "empirical_cvar_fractional_tail": {
+      "passed": true,
+      "max_error_or_violation": 4.440892098500626e-16,
+      "tolerance": 1e-12,
+      "cases": 1000,
+      "detail": ""
+    },
+    "nested_heading_dag_optimum": {
+      "passed": true,
+      "max_error_or_violation": 0.0,
+      "tolerance": 1e-12,
+      "cases": 200,
+      "detail": ""
+    }
+  },
+  "numeric_examples": {
+    "old_gpu_cpu_time_ratio": 9.630338891877354,
+    "max_work_expansion_example": 11.2,
+    "expanded_latency_example_ms": 32.0,
+    "baseline_rollout_states": 89600,
+    "risk_rollout_two_iterations_states": 716800,
+    "risk_states_memory_MB": 4.3008,
+    "coverage_K1600_p001": 0.7982650423028447,
+    "coverage_K6400_p001": 0.9983437547479731,
+    "effective_beams_B120_rho01": 9.30232558139535,
+    "direction_error_N64_radius03_mm": 14.724737113747372,
+    "query_quantization_1cm_mm": 7.071067811865476,
+    "scenario_union_bound_M32": 0.2768738563020554,
+    "scenario_union_bound_M256": 0.03971143383090847,
+    "euler_step_bound_mm": 0.4062500000000001,
+    "euler_56_step_bound_mm": 22.750000000000004,
+    "cspace_states": 10240000,
+    "cspace_bitpacked_MB": 1.28,
+    "cspace_float_MB": 40.96,
+    "full20m_float_grid_MB": 1024.0
+  }
+}

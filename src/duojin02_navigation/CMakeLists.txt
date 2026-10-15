@@ -229,11 +229,20 @@ if(BUILD_TESTING)
   add_test(NAME precise_mppi_limit_checks COMMAND precise_mppi_limit_checks)
   set_tests_properties(precise_mppi_limit_checks PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
   add_test(NAME precise_mppi_gpu_limit_checks COMMAND precise_mppi_limit_checks --gpu)
-  set_tests_properties(precise_mppi_gpu_limit_checks PROPERTIES SKIP_RETURN_CODE 77 ENVIRONMENT
-                                                                "ROS_LOCALHOST_ONLY=1")
+  set_tests_properties(precise_mppi_gpu_limit_checks PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1")
+  if(NOT DUOJIN_CUDA_REQUIRED)
+    set_tests_properties(precise_mppi_gpu_limit_checks PROPERTIES SKIP_RETURN_CODE 77)
+  endif()
   add_test(NAME precise_mppi_no_device_checks COMMAND precise_mppi_limit_checks --fallback)
   set_tests_properties(precise_mppi_no_device_checks
                        PROPERTIES ENVIRONMENT "ROS_LOCALHOST_ONLY=1;CUDA_VISIBLE_DEVICES=")
+  add_executable(cuda_local_plugin_probe
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/cuda_local_plugin_probe.cpp")
+  target_include_directories(cuda_local_plugin_probe PRIVATE include)
+  target_link_libraries(cuda_local_plugin_probe duojin02_gpu_geometry nlohmann_json::nlohmann_json)
+  ament_target_dependencies(cuda_local_plugin_probe nav2_core nav2_controller nav2_mppi_controller
+    nav2_costmap_2d rclcpp rclcpp_lifecycle pluginlib tf2 tf2_geometry_msgs geometry_msgs nav_msgs)
+  target_compile_options(cuda_local_plugin_probe PRIVATE -UNDEBUG)
   add_executable(goal_settling_checks test/goal_settling_checks.cpp)
   target_include_directories(goal_settling_checks PRIVATE include)
   ament_target_dependencies(goal_settling_checks nav2_controller nav2_core rcl_interfaces)

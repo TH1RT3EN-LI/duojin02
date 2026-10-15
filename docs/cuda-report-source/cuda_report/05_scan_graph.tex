@@ -1,0 +1,253 @@
+\section{扫描匹配：扩大搜索范围并提高局部拟合精度}
+\base{localization.tex 的 Karto 相关匹配部分}
+\subsection{候选位姿与激光点的二维批处理}
+设候选位姿 $q_s=(p_s,\theta_s)$，$s=1,\dots,N_s$，
+激光点 $y_b$ 共 $B_s$ 个，相关栅格为 $G_c$。
+原评分可写为
+\begin{equation}
+c_s=\frac1{B_s}\sum_{b=1}^{B_s}
+\ind_{\rm valid}(p_s+R(\theta_s)y_b)\,
+G_c(p_s+R(\theta_s)y_b).
+\end{equation}
+越界项贡献零，分母仍为总点数 $B_s$。
+再乘原稿中带下限的距离与航向惩罚 $\chi_d(q_s)\chi_\theta(q_s)$。
+每个 $(s,b)$ 独立，随后按 $s$ 归约，再全局求最大，是直接的 GPU 结构。
+
+若搜索平移半宽 $L_x,L_y$、角度半宽 $L_\theta$，
+步长分别为 $r_x,r_y,r_\theta$，
+候选数约为
+\[
+N_s=
+\left(\left\lfloor\frac{2L_x}{r_x}\right\rfloor+1\right)
+\left(\left\lfloor\frac{2L_y}{r_y}\right\rfloor+1\right)
+\left(\left\lfloor\frac{2L_\theta}{r_\theta}\right\rfloor+1\right).
+\]
+三维分辨率均减半，候选数约增为 8 倍；
+搜索半宽均加倍也约增为 8 倍。
+这正是 CPU 容易限制但 GPU 可能承担的计算扩张。
+收益分别是减少离散候选量化、增加初值误差容忍范围，不应混为“精度提高 8 倍”。
+
+若真实解不在窗口内，细化窗口内分辨率不能找回它。
+若窗口很大且地图重复，最大相关分数可能来自错误走廊；
+算得更多还会增加误匹配候选。因此需同时使用先验一致性、多个高分模式及几何验证。
+
+\subsection{保证不漏候选的分层搜索}
+对一个候选子集合（搜索盒）$\mathcal B$，第 $b$ 个点可能落入的栅格集合为
+$X_b(\mathcal B)=\{p+R(\theta)y_b:q\in\mathcal B\}$。
+定义该点的上界
+\[
+U_b(\mathcal B)=\max_{x\in X_b(\mathcal B)}\widetilde G_c(x),
+\]
+其中 $\widetilde G_c$ 越界为零。
+任何候选均满足逐点评分不超过 $U_b$，故
+\[
+c(q)\le\frac1{B_s}\sum_b U_b(\mathcal B).
+\]
+若 $0\le\chi_d,\chi_\theta\le1$，再令
+$U_\chi(\mathcal B)\ge\max_{q\in\mathcal B}\chi_d(q)\chi_\theta(q)$，
+得到
+\begin{equation}
+c(q)\chi_d(q)\chi_\theta(q)
+\le U(\mathcal B)
+=\frac{U_\chi(\mathcal B)}{B_s}\sum_bU_b(\mathcal B).
+\label{eq:bnb}
+\end{equation}
+$U_\chi=1$ 总是可用但较松；也可按盒内到先验的最短距离求更紧界。
+维护已得到分数 $S_{\rm best}$。
+若 $U(\mathcal B)<S_{\rm best}$，该盒不可能包含同等或更好解，可删除；
+否则分裂搜索盒，直至叶节点逐个计算。
+严格小于的剪枝保留并列最佳解，便于复现原 Karto 的并列位置均值与圆均值。
+
+最大值金字塔可快速查询 $U_b$；
+旋转造成的点移动包围域必须覆盖整个搜索盒，不能只查盒中心。
+这种有上界的分支定界在有限候选集上可保持最优值，
+与“粗层只保留 top-1 再细化”的启发式不同。
+后者可能丢掉粗层分数略差、细层正确的模式。
+GPU 可批量展开一批搜索盒，CPU 管理不规则队列。
+Cartographer 的作者论文提供了 scan-to-submap 分支定界先例\cite{cartographer}；
+本文公式是针对原稿评分结构的适用条件分析，非现有 Karto CUDA 插件声明。
+
+\subsection{连续精化：每束并行构造小型正规方程}
+原稿局部平移搜索步长是 5 mm，不等于定位误差上界。
+在离散候选附近，可换用可微插值场做连续局部优化，
+消除“只能选择离散候选”造成的限制。
+此时必须明确目标已改变，建议保持多个粗搜索模式各自精化。
+
+使用统一量纲变量 $z=(p_x,p_y,\ell_\theta\theta)^\top$，
+$\ell_\theta>0$ 为选定尺度长度。
+令连续距离场 $\bar D$ 的单位为 m，
+令 $\sigma_b>0$ 为第 $b$ 束的距离残差尺度（m）。标准化残差
+$r_b(z)=\bar D(p+R(\theta)y_b)/\sigma_b$。
+先定义二次目标
+\begin{equation}
+E(z)=\frac12\sum_b r_b(z)^2+
+\frac12(z-z_0)^\top P_z^{-1}(z-z_0),
+\label{eq:scanls}
+\end{equation}
+其中 $z_0$ 是指定先验均值，$P_z$ 是正定先验协方差，不与其他模块重复使用同一证据。
+在当前点 $z$，
+\[
+r_b(z+\Delta z)\approx r_b(z)+j_b\Delta z,\quad
+j_b=\frac{\nabla\bar D(e_b)^\top}{\sigma_b}
+\begin{bmatrix}I_2&R(\theta)Jy_b/\ell_\theta\end{bmatrix}.
+\]
+代入目标，展开平方，对 $\Delta z$ 求导：
+\begin{align}
+\nabla_{\Delta z}E_{\rm lin}
+&=\sum_bj_b^\top(r_b+j_b\Delta z)
++P_z^{-1}(z-z_0+\Delta z).
+\end{align}
+令导数为零并收集 $\Delta z$：
+\begin{equation}
+\underbrace{\left(\sum_bj_b^\top j_b+P_z^{-1}\right)}_{H_z}
+\Delta z
+=-\underbrace{\left(\sum_bj_b^\top r_b+P_z^{-1}(z-z_0)\right)}_{g_z}.
+\label{eq:scangn}
+\end{equation}
+每个激光束独立贡献 $3\times3$ 对称矩阵的 6 个分量和向量的 3 个分量。
+GPU 并行计算、归约这 9 个量；最终 $3\times3$ 线性求解本身极小。
+只有一个起点、少量束时 CPU 可能更快；
+多个假设、多分辨率、多个子地图同时评估才更适合 GPU。
+若矩阵病态，可使用 LM 阻尼 $(H_z+\mu I)\Delta z=-g_z$；
+变量尺度已统一，$\mu I$ 才有明确的数值意义。
+
+对动态障碍离群点可把 $\frac12r^2$ 替换为 Huber 损失
+\[
+h_\kappa(r)=
+\begin{cases}
+r^2/2,&|r|\le\kappa,\\
+\kappa|r|-\kappa^2/2,&|r|>\kappa.
+\end{cases}
+\]
+其导数是 $r$ 或 $\kappa\operatorname{sgn}(r)$，
+因此 IRLS 权重为
+\[
+a_b=\frac{h_\kappa'(r_b)}{r_b}
+=\min(1,\kappa/|r_b|),\quad a_b=1\text{ 当 }r_b=0.
+\]
+固定权重的一轮更新只需将式 \eqref{eq:scangn} 中
+$j_b^\top j_b,j_b^\top r_b$ 改为 $a_bj_b^\top j_b,a_bj_b^\top r_b$。
+这是对新目标的迭代近似，不是原 Karto 算法的等价替换。
+
+连续插值改善可优化性，同时改变目标表面。
+最近障碍切换、未知区域、粗地图内的无信息平台都会限制梯度，
+局部 Hessian 的逆也不自动是校准协方差。
+需要步长/信赖域与更新后的目标下降检查；
+多峰之间仍由粗搜索覆盖，不能靠一次局部求解保证全局正确。
+
+\subsection{更高维模型与误匹配控制}
+GPU 可让每个扫描候选同时估计微小时间偏移、外参扰动或扫描内运动参数。
+如果额外变量 $\xi$ 改变端点 $e_b(q,\xi)$，只需将
+$j_b$ 增加
+$\nabla\bar D(e_b)^\top\partial e_b/\partial\xi$ 这些列。
+代价是维度增加、信息矩阵更易退化；
+必须有足够运动激励和先验约束，不能同时任意释放位置、外参和时间偏移。
+
+扩大搜索还改变多重比较：若每个错误候选独立超过阈值概率为 $p_f$，
+$N_s$ 个错误候选至少一次超过阈值概率为
+$1-(1-p_f)^{N_s}$。
+实际评分相关，独立模型只是解释；
+无论如何不能在大幅扩展搜索后沿用未经复验的单候选接受阈值。
+多假设保持、回环几何一致性与后续时序证据，比单纯选最大分更必要。
+
+\section{位姿图、规划与地图更新：适合局部卸载的环节}
+\subsection{位姿图的可并行部分及其规模门槛}
+\base{localization.tex 的 Ceres 图优化部分}
+对边 $(a,b)$，设
+$d_{ab}=R_a^\top(p_b-p_a)$、观测 $\bar d_{ab},\bar\theta_{ab}$，
+未白化残差
+\[
+e_{ab}=
+\begin{bmatrix}d_{ab}-\bar d_{ab}\\
+\wrap(\theta_b-\theta_a-\bar\theta_{ab})\end{bmatrix}.
+\]
+在角差非分支点，因 $(R_a^\top)'=-JR_a^\top$，雅可比为
+\begin{equation}
+A_{ab}=\frac{\partial e_{ab}}{\partial q_a}
+=\begin{bmatrix}-R_a^\top&-Jd_{ab}\\0&-1\end{bmatrix},
+\quad
+B_{ab}=\frac{\partial e_{ab}}{\partial q_b}
+=\begin{bmatrix}R_a^\top&0\\0&1\end{bmatrix}.
+\end{equation}
+其中最后一行前两项是零；两个矩阵均为 $3\times3$。
+信息矩阵 $\Omega_{ab}=\Sigma_{ab}^{-1}$，白化因子应满足
+$U_{ab}^\top U_{ab}=\Omega_{ab}$。
+线性化后，一条边向全局矩阵贡献
+\[
+H_{aa}{+}=A^\top\Omega A,\quad
+H_{ab}{+}=A^\top\Omega B,\quad
+H_{bb}{+}=B^\top\Omega B,
+\]
+并向梯度贡献
+$g_a{+}=A^\top\Omega e,\ g_b{+}=B^\top\Omega e$，
+对称块 $H_{ba}=H_{ab}^\top$。
+独立边评估适合 GPU，但同节点写入要分段归约或受控原子累加。
+
+固定连通图锚点、统一变量尺度并加入正阻尼后，
+求 $(H+\mu I)\Delta=-g$。
+GPU 稀疏 Cholesky 或预条件共轭梯度（PCG）适合较大的稀疏系统。
+PCG 的一个核心操作可以不显式形成 $H$：
+\[
+v\longmapsto J^\top(Jv)+\mu v.
+\]
+边局部矩阵乘法和节点归约为主要并行部分。
+迭代数依赖条件数；正规方程还会平方 $J$ 的条件数，不能只按非零元数估计求解时间。
+若图断连，单个锚点不能消除所有分量的规范自由度。
+
+较新 Ceres 官方文档列出 CUDA 稠密求解、CGNR 及 cuDSS 稀疏后端选项\cite{ceresnew}；
+本项目的实际版本与编译依赖需要另外确认，不能仅改配置名就假定 GPU 已启用。
+二维中小位姿图的状态很少且优化非每个控制周期执行，
+本报告不把全量图迁 GPU 排在 MPPI/匹配之前。
+
+当前损失是 None。
+用鲁棒边权、异常回环验证或增量更新可能比硬件移植更改善图质量，
+但它们改变模型/求解流程。
+Huber 只降低大残差影响，无法保证识别低残差却错误的重复结构回环；
+需要跨扫描证据与约束一致性验证。
+
+\subsection{Smac 搜索与更大航向修复族}
+Smac 的优先队列弹出、动态分支与地图相关扩展较不规则。
+GPU 可批量验证运动原语、计算启发式场，CPU 保留队列管理。
+若同时弹出一批节点，应重新检查搜索最优性/停止条件；
+不能将原有算法性质直接转移到无序 GPU 扩展。
+
+项目的航向修复是固定位置序列上的分层 DAG：
+\[
+D_i(b)=\min_{a\in\Theta_{i-1}}
+\{D_{i-1}(a)+c_i(a,b)\},
+\]
+其中非法边 $c_i=+\infty$，合法边为角行程，
+每层当前至多 4 个候选。DP 标量计算很少，真正昂贵的是
+每条边沿插值的填充碰撞及软代价比较。
+可先 GPU 并行生成所有边可行性与代价，CPU 顺序 DP。
+
+深度重构可把候选数从 $A=4$ 扩到 $A'$ 个方向，
+边数从约 $16L$ 变为 $A'^2L$（$L$ 为段数）。
+在候选族嵌套、原边代价与接纳规则不变且完整求解时，
+原最优路径仍在扩大的图里，因此
+\[
+J^*_{\rm enlarged}\le J^*_{\rm original}.
+\]
+这是“更多计算不会变差”的明确有限图结论；
+它只针对累计角行程，不保证整体到达时间或风险下降。
+固定位置不变也无法解决原路径位置不合理的问题。
+若增加横向位置候选，可进一步形成带宽受限的状态格优化，
+但碰撞边数与空间规模会一起增加，需要配置空间缓存帮助摊销。
+
+\subsection{射线、膨胀与一致性监测}
+地图射线可按束并行遍历栅格，计算 pass/hit 整数统计，
+GPU 原子加法在无溢出时保持整数和的顺序不变性；
+必须复现越界、端点计数、未知区和严格阈值。
+图优化改变历史扫描位姿后，累计图需要重新投影或维护可撤销贡献，
+仅追加新射线会混用新旧几何。
+
+膨胀可由距离场加指数核生成，但原 Nav2 的有限半径、
+特殊值 253/254/255、层合并和未知空间策略必须逐项保留。
+“到最近障碍的距离一样”不自动保证最终 costmap 每个字节相同。
+
+定位质量监测最多 90 束、50000 个栅格段；
+可合并到已有 GPU 地图服务，但单独启动小核收益不确定。
+它的输出是几何一致性规则，增加射线数不能把它转成真值定位精度。
+EKF 只有 15 维状态、四元数更新常数级，
+更复杂 GPU 计算也不能创造偏航绝对观测或消除轮速系统偏差，
+因此这类模块应继续放在 CPU 关键控制路径。

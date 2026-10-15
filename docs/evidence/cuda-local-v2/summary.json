@@ -1,0 +1,510 @@
+{
+  "status": "passed",
+  "scope": "local desktop CUDA; geometry API and installed controller plugin; no robot/closed-loop claims",
+  "source_sha256": "60c1d422946dca6b9a391d3930a6f955e16f03210bb4c364a26cb09fe9ed7412",
+  "source_unchanged": true,
+  "tests": {
+    "strict-cuda-tests": {
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    "cpu-tests": {
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    "navigation-checks": {
+      "tests": 12,
+      "skipped": 0,
+      "failures": 0
+    },
+    "navigation-cpu-checks": {
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    }
+  },
+  "geometry_paired_groups": 1600,
+  "geometry_mismatches": 0,
+  "maximum_abs_clearance_error": 2.77555756e-17,
+  "plugin": {
+    "cases": [
+      {
+        "command_cpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 0.023595,
+          "p50_ms": 0.021391,
+          "p95_ms": 0.023201,
+          "p99_ms": 0.023595
+        },
+        "cpu_first_ms": 0.103015,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.023577,
+          "p50_ms": 0.021515,
+          "p95_ms": 0.022524,
+          "p99_ms": 0.023577
+        },
+        "default_gpu_first_ms": 0.023638,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 0.022322,
+          "p50_ms": 0.021552,
+          "p95_ms": 0.022297,
+          "p99_ms": 0.022322
+        },
+        "gpu_first_ms": 0.030877,
+        "maximum_command_error": 0.0,
+        "name": "empty_direct"
+      },
+      {
+        "command_cpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.457602447545902,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 0.881707,
+          "p50_ms": 0.828103,
+          "p95_ms": 0.834284,
+          "p99_ms": 0.881707
+        },
+        "cpu_first_ms": 0.861073,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.465033,
+          "p50_ms": 0.450625,
+          "p95_ms": 0.459667,
+          "p99_ms": 0.465033
+        },
+        "default_gpu_first_ms": 0.544926,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 0.151125,
+          "p50_ms": 0.143064,
+          "p95_ms": 0.146628,
+          "p99_ms": 0.151125
+        },
+        "gpu_first_ms": 0.373826,
+        "maximum_command_error": 0.0,
+        "name": "dense_direct"
+      },
+      {
+        "command_cpu": [
+          0.36800000000000005,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.36800000000000005,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.36800000000000005,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 1.094976,
+          "p50_ms": 1.069184,
+          "p95_ms": 1.088366,
+          "p99_ms": 1.094976
+        },
+        "cpu_first_ms": 1.129906,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.497013,
+          "p50_ms": 0.469369,
+          "p95_ms": 0.491693,
+          "p99_ms": 0.497013
+        },
+        "default_gpu_first_ms": 0.918766,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 1.227753,
+          "p50_ms": 1.189515,
+          "p95_ms": 1.221534,
+          "p99_ms": 1.227753
+        },
+        "gpu_first_ms": 1.643373,
+        "maximum_command_error": 0.0,
+        "name": "narrow_centered"
+      },
+      {
+        "command_cpu": [
+          0.288,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.288,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.288,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 0.030076,
+          "p50_ms": 0.028875,
+          "p95_ms": 0.030074,
+          "p99_ms": 0.030076
+        },
+        "cpu_first_ms": 0.040021,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.031504,
+          "p50_ms": 0.029795,
+          "p95_ms": 0.031268,
+          "p99_ms": 0.031504
+        },
+        "default_gpu_first_ms": 0.033761,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 0.148684,
+          "p50_ms": 0.146517,
+          "p95_ms": 0.148628,
+          "p99_ms": 0.148684
+        },
+        "gpu_first_ms": 0.190836,
+        "maximum_command_error": 0.0,
+        "name": "centered_braking_batch"
+      },
+      {
+        "command_cpu": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 0.018879,
+          "p50_ms": 0.017632,
+          "p95_ms": 0.018183,
+          "p99_ms": 0.018879
+        },
+        "cpu_first_ms": 0.07173,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.019303,
+          "p50_ms": 0.017735,
+          "p95_ms": 0.018923,
+          "p99_ms": 0.019303
+        },
+        "default_gpu_first_ms": 0.018922,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 0.041084,
+          "p50_ms": 0.038376,
+          "p95_ms": 0.039542,
+          "p99_ms": 0.041084
+        },
+        "gpu_first_ms": 0.04475,
+        "maximum_command_error": 0.0,
+        "name": "measured_braking_early_stop"
+      },
+      {
+        "command_cpu": [
+          0.27293955374771167,
+          0.0,
+          0.0
+        ],
+        "command_default_gpu": [
+          0.27293955374771167,
+          0.0,
+          0.0
+        ],
+        "command_gpu": [
+          0.27293955374771167,
+          0.0,
+          0.0
+        ],
+        "cpu": {
+          "calls": 24,
+          "max_ms": 0.021979,
+          "p50_ms": 0.021055,
+          "p95_ms": 0.021482,
+          "p99_ms": 0.021979
+        },
+        "cpu_first_ms": 0.022264,
+        "default_gpu": {
+          "calls": 24,
+          "max_ms": 0.023207,
+          "p50_ms": 0.021915,
+          "p95_ms": 0.022693,
+          "p99_ms": 0.023207
+        },
+        "default_gpu_first_ms": 0.023052,
+        "gpu": {
+          "calls": 24,
+          "max_ms": 0.117464,
+          "p50_ms": 0.113257,
+          "p95_ms": 0.114902,
+          "p99_ms": 0.117464
+        },
+        "gpu_first_ms": 0.12084,
+        "maximum_command_error": 0.0,
+        "name": "requested_braking_scale"
+      }
+    ],
+    "configure_three_arms_ms": 140.15494,
+    "default_gpu_minimum_work": 262144,
+    "force_gpu_minimum_work": 0,
+    "maps": [
+      "/workspace/install/cuda-local/lib/libduojin02_gpu_geometry.so",
+      "/workspace/install/cuda-local/lib/libprecise_mppi.so"
+    ],
+    "maximum_command_error": 0.0,
+    "schema_version": 1,
+    "scope": "installed_plugin_synthetic_static_inputs",
+    "timing_scope": "whole_computeVelocityCommands_including_snapshot_and_validation"
+  },
+  "plugin_branch_summaries": [
+    {
+      "direct_cpu_batches": 150,
+      "direct_cuda_batches": 0,
+      "centering_cpu_batches": 50,
+      "centering_cuda_batches": 0,
+      "ranking_cpu_rechecks": 0,
+      "braking_cpu_sweeps": 700,
+      "braking_cpu_batches": 0,
+      "braking_cuda_batches": 0,
+      "braking_batched_poses": 0,
+      "braking_measured_stops": 25,
+      "braking_first_scale_accepts": 75,
+      "braking_final_cpu_candidates": 0,
+      "braking_final_cpu_rejections": 0
+    },
+    {
+      "direct_cpu_batches": 25,
+      "direct_cuda_batches": 125,
+      "centering_cpu_batches": 0,
+      "centering_cuda_batches": 50,
+      "ranking_cpu_rechecks": 350,
+      "braking_cpu_sweeps": 700,
+      "braking_cpu_batches": 0,
+      "braking_cuda_batches": 50,
+      "braking_batched_poses": 29800,
+      "braking_measured_stops": 25,
+      "braking_first_scale_accepts": 75,
+      "braking_final_cpu_candidates": 50,
+      "braking_final_cpu_rejections": 0
+    },
+    {
+      "direct_cpu_batches": 125,
+      "direct_cuda_batches": 25,
+      "centering_cpu_batches": 50,
+      "centering_cuda_batches": 0,
+      "ranking_cpu_rechecks": 0,
+      "braking_cpu_sweeps": 700,
+      "braking_cpu_batches": 0,
+      "braking_cuda_batches": 0,
+      "braking_batched_poses": 0,
+      "braking_measured_stops": 25,
+      "braking_first_scale_accepts": 75,
+      "braking_final_cpu_candidates": 0,
+      "braking_final_cpu_rejections": 0
+    }
+  ],
+  "first_geometry_call": {
+    "scene_build_ms": 0.207691,
+    "backend_constructor_ms": 95.459664,
+    "scene_setup_ms": 0.198697,
+    "query_ms": 0.133694,
+    "end_to_end_ms": 95.999994,
+    "used_cuda": true
+  },
+  "geometry_reuse_examples": [
+    {
+      "scenario": "early_collision",
+      "query": "collision",
+      "mode": "scene_reuse",
+      "poses": 256,
+      "obstacles": 8000,
+      "reference_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 0.00732985,
+          "p50_ms": 0.00727,
+          "p95_ms": 0.007492,
+          "p99_ms": 0.00851,
+          "max_ms": 0.00851
+        },
+        "scene_uploads": 0
+      },
+      "indexed_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 0.0199282,
+          "p50_ms": 0.019877,
+          "p95_ms": 0.020377,
+          "p99_ms": 0.020552,
+          "max_ms": 0.020552
+        },
+        "scene_uploads": 0
+      },
+      "gpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 0.061292725,
+          "p50_ms": 0.061121,
+          "p95_ms": 0.06223,
+          "p99_ms": 0.065024,
+          "max_ms": 0.065024
+        },
+        "scene_uploads": 0
+      }
+    },
+    {
+      "scenario": "large_no_collision",
+      "query": "collision",
+      "mode": "scene_reuse",
+      "poses": 1600,
+      "obstacles": 8000,
+      "reference_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 9.76863708,
+          "p50_ms": 9.762477,
+          "p95_ms": 9.894143,
+          "p99_ms": 9.998249,
+          "max_ms": 9.998249
+        },
+        "scene_uploads": 0
+      },
+      "indexed_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 0.0301383,
+          "p50_ms": 0.029657,
+          "p95_ms": 0.033634,
+          "p99_ms": 0.036444,
+          "max_ms": 0.036444
+        },
+        "scene_uploads": 0
+      },
+      "gpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 0.132542275,
+          "p50_ms": 0.131503,
+          "p95_ms": 0.143996,
+          "p99_ms": 0.145351,
+          "max_ms": 0.145351
+        },
+        "scene_uploads": 0
+      }
+    },
+    {
+      "scenario": "centered_clearance",
+      "query": "collision_and_clearance",
+      "mode": "scene_reuse",
+      "poses": 256,
+      "obstacles": 8000,
+      "reference_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 17.7465917,
+          "p50_ms": 17.729502,
+          "p95_ms": 17.938928,
+          "p99_ms": 18.047581,
+          "max_ms": 18.047581
+        },
+        "scene_uploads": 0
+      },
+      "indexed_cpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 18.852936,
+          "p50_ms": 18.848318,
+          "p95_ms": 18.986626,
+          "p99_ms": 19.031162,
+          "max_ms": 19.031162
+        },
+        "scene_uploads": 0
+      },
+      "gpu": {
+        "end_to_end": {
+          "samples": 40,
+          "mean_ms": 1.18295003,
+          "p50_ms": 1.183727,
+          "p95_ms": 1.197127,
+          "p99_ms": 1.214634,
+          "max_ms": 1.214634
+        },
+        "scene_uploads": 0
+      }
+    }
+  ],
+  "raw_evidence_directory": "output/cuda-local-v2/validation-r2",
+  "build_files_sha256": {
+    "build/local-cuda/gpu_geometry_checks": "1579ca19a4e495d0db9a06eb1861e504c1df5fe5a9fdf76719edbc20b05c2681",
+    "build/local-cuda/gpu_geometry_benchmark": "90255a52693bdf7d4857ccff62ed005dd07de37cc8b1eec1e13b6ae202d7c6f2",
+    "build/local-cuda/CMakeFiles/CheckCUDA/CMakeCache.txt": "4a099356e82a1b006c73ae5767c12b422ec62f23d3cd904f39834f0972d8cb11",
+    "build/local-cuda/CMakeCache.txt": "0769a5b38593cb599541eb675086d7dcb88fe8519aa001bad47e4670c36bddd1",
+    "build/local-cuda/libduojin02_gpu_geometry.so": "ece425eb3fad4fe91315f07fe60d2723f13489f1db5fc83a5618e1af4800f6cb",
+    "build/local-cpu/gpu_geometry_checks": "f616212fa8c077c531544c73a8d45a5fd96e68933c2a59188ed5d7aa7e30925d",
+    "build/local-cpu/CMakeCache.txt": "1c4b944883ad64159e740b6063a8d26ed1b3ca6956679eb2ed050308ea772034",
+    "build/local-cpu/libduojin02_gpu_geometry.so": "cb51a7e9ec76424db9003a95ea7c5d725fdae014944d80390c904f9c0d394692",
+    "build/local-navigation/libprecise_mppi.so": "3554eb48825ec10bcac711cf68b97b7a8316487df249a5951e777f0ee0e20eaa",
+    "build/local-navigation/precise_mppi_limit_checks": "df830c478f62970247b8ded15d8f6871d5d204c89bdf0af5f86b427030c1a4b8",
+    "build/local-navigation/libduojin02_recovery_bt_nodes.so": "c58ef1e9fa13afb67e93ca9506c5599c7c44df1d1f744620f06f80a14dae517f",
+    "build/local-navigation/libprecise_lattice.so": "617c2b0b71cc60e6f88f3ea30f6b775d9160df2ff4325cf1479fab6433aac7e4",
+    "build/local-navigation/CMakeCache.txt": "84131a3149fe5fe887341bd95a22e0ea27430f32ec1f054095b0a21b08161015",
+    "build/local-navigation/libstable_goal_checker.so": "58d4b2f79d877ee90b7cc2b68c4b3ce8c510d752dca260a5e44f14d53f81467a",
+    "build/local-navigation/cuda_local_plugin_probe": "53bea0e41a99490b1b1cb17dbd753904150ccbe63faff005346f848b257cc755",
+    "build/local-navigation/gpu/gpu_geometry_checks": "ac65071165e6dbd7910abc016021f9fc01b089f9fe8eae8ade8efc9e94681fe7",
+    "build/local-navigation/gpu/CMakeFiles/CheckCUDA/CMakeCache.txt": "baa331b5c3c62ecdd85a7ab2cd9ee9a7336fa87e8fc04184335c0567512990a4",
+    "build/local-navigation/gpu/libduojin02_gpu_geometry.so": "f79e43d72badbf9563959c7b043a2ca59e49025a1997244a8ab3a35354db8436",
+    "build/local-navigation-cpu/precise_mppi_limit_checks": "f8b5ab09851ec30d2a81515b6950cbbdf879fdcf279feed072249a4604e08518",
+    "build/local-navigation-cpu/CMakeCache.txt": "447fdd24f5a7ede6914340c73c95f5a02971840c04c9acd427910f6d8b324df0",
+    "build/local-navigation-cpu/gpu/libduojin02_gpu_geometry.so": "cb51a7e9ec76424db9003a95ea7c5d725fdae014944d80390c904f9c0d394692",
+    "install/cuda-local/lib/libprecise_mppi.so": "9a0b0edf419edd0a06791dfc01784803d51725b0f0a096892f4e19ef8e5b1c8f",
+    "install/cuda-local/lib/libduojin02_recovery_bt_nodes.so": "4cdad5bdbce2c581000372b27897be55b1d7b43bad9100f2320403d1bd0d786e",
+    "install/cuda-local/lib/libprecise_lattice.so": "bf3bbc3bb7b7da74d5925ef7ea1a8a0ac2d9bb198bd426d8d0875495984ef51c",
+    "install/cuda-local/lib/libstable_goal_checker.so": "7e639df384ff08947721be34098d07a209199f354a12a84a243666da27ef1129",
+    "install/cuda-local/lib/libduojin02_gpu_geometry.so": "f79e43d72badbf9563959c7b043a2ca59e49025a1997244a8ab3a35354db8436"
+  }
+}

@@ -1,0 +1,588 @@
+{
+  "date": "2026-10-15",
+  "timezone": "Asia/Shanghai",
+  "source_zip": "/home/th1rt3en/dev/forge/duojin02/output/pdf/duojin02_algorithm_manuscript_source.zip",
+  "source_zip_sha256": "f7a9797307c3cca22b929a564263ace6dc42e86e7bff84caa2af9f5400c8e385",
+  "source_entries": 16,
+  "tex_files_read": 11,
+  "scope": "Read-only algorithm analysis; report artifacts only. No new CUDA benchmark, robot trial or application source/configuration modification.",
+  "input_git_base": "89c2f3acae1d05e804b31f720fa52757b5ef190d",
+  "matched_source_files": [
+    {
+      "path": "src/duojin02_navigation/controller_plugins.xml",
+      "sha256": "d337d07b553a0ff8e4492a896061c62fbd1af972f53797e2ae6679a250ea7bc8",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/goal_checker_plugins.xml",
+      "sha256": "39dca830e17ab100dfa0bec691ec07a3558fd16d93edc598aae4586af892fe01",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/gpu/geometry.cpp",
+      "sha256": "b60d2dd0078e02cb32451c832fc76db0a571cdf717ae8482fd8dd4c7a977022e",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/gpu/geometry.cu",
+      "sha256": "f33d6e9a7032871b31f09a6aa566c7b4a5bb4548d54e8647f9a286ab510424bd",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/gpu/geometry_checks.cpp",
+      "sha256": "fd7f25d48dacfff8a379e2211c129b29e17276b1ce1ac83edd48a6b8ec1719ae",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/gpu/geometry_fault_checks.cu",
+      "sha256": "80e225692da434bb880cfd18bb5b924d85f14636be594f2a958b17d8d4aee3dc",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/gpu/geometry_internal.hpp",
+      "sha256": "f33b2c9a4bfff6f79dd163b95c9fd203bc84a03b6328999c6dc61772528caddf",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/finite_heading.hpp",
+      "sha256": "417a798462da93d06868e30c6f9cae5e1e9521f8ab10b8c021f219b2dcf8e158",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/gpu_geometry.hpp",
+      "sha256": "26877fc006e41def05637b3d36f318cd5ba103163f59c3a09873050d02f87549",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/guard_input_validity.hpp",
+      "sha256": "a2430dcc13f440817fa073df5370cce7e54c21ce97c73ddf55edc9ab59f82794",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/guard_query.hpp",
+      "sha256": "2855aa130600a723f90db25a6c10b108629cc540fa16c7313c2e5fe6e8aa0adf",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/local_grid_snapshot.hpp",
+      "sha256": "dad85c819944dc7e2e238283c70dd2095746097c7edaaaf94d93e4d430bbc3e7",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/path_cleanup.hpp",
+      "sha256": "24976d4b9b3211b9e59719e76dcba48e075e376dfd7849d68d6fe424b1fae235",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/path_target.hpp",
+      "sha256": "a75446d5eb6c73e41d9e56b8c29565884bcedf50af16cf6b13046dd5f1aae0e6",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/planner_checks.hpp",
+      "sha256": "a3ed9d703e60c357b9961b854b3ed055f127ca5d963479a7231808ccbbd68d39",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/prior_association_cache.hpp",
+      "sha256": "11217dd18c48fdcdf7b84338c3104e83f36c2be13bcd0d5aa470479b69fb7e62",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/scan_validity.hpp",
+      "sha256": "b50bd0a8cdbb8df6a79099044a43d2a188d31fa11ea2b4d8b2b90253f950cd10",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/stable_goal_checker.hpp",
+      "sha256": "53f3f4500573183af149e9b19aaf3f40db8c0aa8f853fdab5e6b472bc80b1291",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/sweep.hpp",
+      "sha256": "2480617ed10f116cd9d6c4fa872781eba996159c5fb320c3ace7c2586f98d1d9",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/tracking.hpp",
+      "sha256": "6a8df47b9d017ba6ee55fe7d2b34e1e1a2a381e6bfdf12b31e0a65077efd41c1",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/include/duojin02_navigation/velocity_limits.hpp",
+      "sha256": "870008af6a838e44cff201d63b226c78ec40f4bab06d9beb787d677fa9df50a2",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/package.xml",
+      "sha256": "5f7df67669d93dbc595c315929fd4ac0986ef5e434270b3a97d9220fc84f042a",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/planner_plugins.xml",
+      "sha256": "770cb2b82dbbd545a5a5c7018b5a1a8e056fe950d955f66c254f78e2500116ec",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/src/precise_lattice.cpp",
+      "sha256": "7575271340a54dfc7617362d9c07675ef57dfc4001bbe93ba4caf0efd78fd417",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/src/precise_mppi.cpp",
+      "sha256": "774fdabacf273077c123bb7cb99d02f3619b6c15698c901da6b83debab91761a",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/src/recovery_bt_nodes.cpp",
+      "sha256": "6a8a7c0f70523743a54cf96b4b45a121ddc9c5250f44c2ae9259427e10500f57",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/src/stable_goal_checker.cpp",
+      "sha256": "6f01e687a862cce4bc020fddac63ec2676f109ac13442f0aa888410910b33c5f",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/src/velocity_guard.cpp",
+      "sha256": "28285137c32ab8bd59ce82deaa6f39546a460be94c3d7318d9ca019ec135788a",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/geometry_checks.cpp",
+      "sha256": "143848ef96d1b3a4f7c356be705ec0866a39052763f26abcec2a93127eaeb7a0",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/goal_settling_checks.cpp",
+      "sha256": "304db3872349b385d4b17faa198aed2081eea44429dd1aff9c17bd64c3b9f287",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/guard_input_validity_checks.cpp",
+      "sha256": "5ed6129d78525064fe507502fd299056a4059b695b6c97db9deac1c79c884f3f",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/guard_query_checks.cpp",
+      "sha256": "9ef51888905c5f7c27afd1d6f3e35eb06139cabd109ed8d3afcfab10801f590e",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/path_target_checks.cpp",
+      "sha256": "6ec8af3d310611d0c0709a7556c59416b798c4c2fabcf5b7d2d95946022f767d",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/path_target_reference.hpp",
+      "sha256": "8c88cf56512a372b4a95288fe2c2f79f7c5950bb3974f8a95539f47ab11fc742",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/planner_checks.cpp",
+      "sha256": "6127c35fb7ad9b2f0a65f9af89ce1ba0fc49678ec4d097e716f5abaac85cfad7",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/precise_lattice_checks.cpp",
+      "sha256": "62c7dade5b461d7e1382a3e70cf2d69c65c88fc2df1c9f1fe24f1ad57756722d",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/precise_mppi_limit_checks.cpp",
+      "sha256": "8ac981405619d7f2434df0f5399bfae48e6b4ef446da0f4e5b566d207daa5c94",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/prior_association_checks.cpp",
+      "sha256": "11d7ccdbb7057b57d382f67cc655753d13030366d9fe2a949d84d66fdabaa9d5",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/recovery_bt_checks.cpp",
+      "sha256": "c74ede50f2716dc451e5f2a271036953521e386d85b1250ab7358e62d2001663",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/scan_validity_checks.cpp",
+      "sha256": "62a285046ff9ebb48e30b508a449e4c5bee8e89991887588227dd4e3544d6788",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/spatial_index_checks.cpp",
+      "sha256": "88e186183519ccf4f827cb2e7ff933b80c78bce1f178859e50a0423a44ab24bb",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/spatial_index_reference.hpp",
+      "sha256": "f0fbf1463485ff159ba7c2a2bdf73f427e23f098b4617b41b3e0b28d72e0ec49",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/tracking_checks.cpp",
+      "sha256": "c556c6b32ebf6d985aa6fe5099a48e1fc0aa4c68a6570bb25f1fc282aaba1e01",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_navigation/test/velocity_limit_checks.cpp",
+      "sha256": "a10377b0ae5db8dcf47cbe6646a10cb9bff91869ae5904c4e2f4dffe09c70a83",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/behavior_trees/navigate_through_poses.xml",
+      "sha256": "48c7bb56d57e88043c1dc420fead2d18dcf331e6782001db2620f51f607cbc8d",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/behavior_trees/navigate_to_pose.xml",
+      "sha256": "80aa2cc49821b63cd5b92d3c2d61993fe3deae741a509ce0baaa4f1c8145fc93",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/base_driver.yaml",
+      "sha256": "54dc55f5199e25ae52b552706081556b73249947362388efcf06e3f07943a0bb",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/ekf.yaml",
+      "sha256": "0c34c490488bfcd5efaf4a72b49ca879c3e7b33d4964991a25624f26846cb5d2",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/foxglove/bridge.yaml",
+      "sha256": "b8ab8cc5c9065da25a1570ba1b7348b6e29bd927385b97c4b3317b2d26868622",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/joy_teleop_normal.yaml",
+      "sha256": "de83a49d5b26032866452527f3426fb9e7c8178582b3f3f4360131fef4eb1a83",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/joy_teleop_slow.yaml",
+      "sha256": "5f3bbf2459d44e2adfe8362f6e680f7ca9576346d782770843d98d132d9bdf9b",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/lattice_primitives/duojin02_omni_2cm_rich_lattice.json",
+      "sha256": "a766907931503c019422655f91a5adbab6f06ff43d1d1183371d4e689f7cd48d",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/lattice_primitives/duojin02_omni_2cm_rich_spec.json",
+      "sha256": "0245391925f75347ae4ff594ecaeefd83f96f19d02ce617800cbba2f8a8f74f1",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/localization_monitor.yaml",
+      "sha256": "a6bc63b25e6b206641527497f33d50cad4c7bd4f45d8d384f6b5e87fe1ecd80e",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/nav2.yaml",
+      "sha256": "46d54e892d642da7e9dbb794d9c3ba7ab629a288f679763c1a47ec878c5a4956",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/rosbag_record_qos.yaml",
+      "sha256": "b557ebe19e4cce8bd60619c1be41dace9009a22706e94b850ac7a595490a849f",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/safety.yaml",
+      "sha256": "33e73bbaf1afca8be6cf66e4293dae7271e817cb4d96a6f6ad0b5c353c8ae973",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/slam_toolbox.yaml",
+      "sha256": "d180e0730538486afb88bfce0af87a08e105d4f8ac4d9269d0436c52fa605aeb",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/config/twist_mux.yaml",
+      "sha256": "8c403b7f7cff80c388cad59d78546e629da0d296c53b48f4ad7799afa6b0e513",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/gpu_profile.py",
+      "sha256": "cf1631a7478559ab6c8a94a3d3866d4576060bf647bd838906b6a19272a6190c",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/lattice.py",
+      "sha256": "f0cca5dee37f45957faee0fe2b1a210f0cabdc21e27854ab7799c59dfdcfa98f",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/localization_monitor.py",
+      "sha256": "23f3e866f6fa59dee0e5520b05d2819a2af0454e393633e876f64fb27bef86c2",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/localization_quality.py",
+      "sha256": "fad677fd353a97e48e2ef5d628a526198d9051289a7e0f5bd652dd6dca27711b",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/localization_readiness.py",
+      "sha256": "b289a9b943ae3925f0d85870272dfdef7a45031782f9e58bda9a15077df1ffaf",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/map_paths.py",
+      "sha256": "69fbf945cc1bda9dd9f3b346f42a3a7144390c08cf3a489d1d021ed541e61318",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/middleware.py",
+      "sha256": "e609d32c6821ddad384e1312c7d53cd955a289f3b84d1977f538444a085df578",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/navigation_stack.py",
+      "sha256": "86685ece41f6bcde8d24631102e1dfaeb6152ffea3062810c1e8b1df7e0bf5d9",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/online_profile.py",
+      "sha256": "3e17e0ba2f1d425cf66b48d13e96923003c08a7e8f1b3bb053d609b8a1276c69",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/duojin02_bringup/safety_profile.py",
+      "sha256": "dc00e104fb7947bba33e00eebbde760b743a03089dadb1dffa8945b346e36e5b",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/base.launch.py",
+      "sha256": "5c6606909440797256c23d8f3a5409852e4757261890c2ffc0149434b4c18af7",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/joy_teleop.launch.py",
+      "sha256": "ced40f4c38c6eeba4cba0f1156d59157bc7326ed4ad4b1a25137338d98b5d852",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/mapping.launch.py",
+      "sha256": "9c7bc6276f87cb1a21a634f4af2af13e0c849f15f3481e6422898d7ebf646f5c",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/nav2.launch.py",
+      "sha256": "c2f89d549287103c8e96834f5f350014806e06fe472bab75077286f67b8151c9",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/navigation.launch.py",
+      "sha256": "8d71074f7a39b2fa963129dbe8652d7ed7892be550975d36f4afe9523e91a4c4",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/navigation_stack.launch.py",
+      "sha256": "7a848b603b13b84c987a6dbc2dc3c1240eb86ecaeac3b2b3d0d8ad9b662a3eac",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/offline_mapping.launch.py",
+      "sha256": "0961090949ff1b974a5a601c2138eb80f8a338c88cb954adbe2da680b0cfb447",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/online_navigation.launch.py",
+      "sha256": "b849cb80211f30cba7cc17e19aef4e7238779e9c1a630893f371ff6971019951",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/save_map.launch.py",
+      "sha256": "f8995cdbfb43c84353491f846360cd4d8842dd1f93dbf40737ad923ca7a3d08e",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/slam.launch.py",
+      "sha256": "b1000304d6d1da219c332d1a8e6da2a97dcbdc4971d3854341c313bef45c7788",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/launch/velocity_guard.launch.py",
+      "sha256": "432a9cb0eff17f9fd90d5355817f1f6f066230f060b5a7cdc0be2e0ac41c2de2",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/package.xml",
+      "sha256": "6b4c2f40474c988805fd8ae0141c3f9cc7992b641f164fe414c29dbf6d0ef4ae",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_bringup/setup.py",
+      "sha256": "2c52b5e17515a43936a4a8357fd997edf71842403eeab32785fa33f0cf316884",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_base_driver/include/duojin02_base_driver/driver_types.hpp",
+      "sha256": "d4b7503370ea988ba0bdbf57f3b92f568589e25f92a925c1f8dc49d6eead9fa5",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_base_driver/include/duojin02_base_driver/quaternion_solution.hpp",
+      "sha256": "73f462b6906daaae18ba9c6ca3f192d7e1e85743ba9065becc06d7fa8cc7e8c8",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_base_driver/package.xml",
+      "sha256": "907e6ee9c0df8d6b8ad49c1e73908bee8f986fc256a551a6b782185634aa74be",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_base_driver/src/duojin02_base_driver.cpp",
+      "sha256": "2cb18d85cf7a8619c5c305e62d73951a38b38968497e23b379d88f7ba74384b8",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_base_driver/src/quaternion_solution.cpp",
+      "sha256": "5808e3d4a4bfee5558b5e8aae37cf55de98bf2c066452729fe7b17b92dd5e357",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/offline.py",
+      "sha256": "4c9b515c0e6e6c442e325d98acec4dbb7fdb53b759de6f655abd5ed29ae3ab11",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/raster.py",
+      "sha256": "81bceb8209439e4b079c61c90daa78279a093db1c62718075f8cb67364272758",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/replay_tf.py",
+      "sha256": "a4906fead34dfa6a606d2314fd2bf26952f16c990ca2fb086dcd2cce5d48e97d",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/save_map.py",
+      "sha256": "fe465495535ed994d72f945bd3b1a53d5bcae18e74f7d88e8ed45b14c8a79f91",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/duojin02_slam_tools/snapshots.py",
+      "sha256": "ea6dd27af2e5ec5bd76f5fe9cf63e83c2d2f0fe8d462f67cb6b9b2a900a95f40",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "src/duojin02_slam_tools/package.xml",
+      "sha256": "8f5d3ac872f464cb0b2ab50cf35204c10e503f1967f5945aa60c5dff6ed5fc94",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "patches/slam_toolbox/humble-hardware.patch",
+      "sha256": "fe88fb32298e96051b67872eeadef4765f8de7c8acc4ecbf003dade1aa7d6098",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "patches/slam_toolbox/source.json",
+      "sha256": "84f04822e7e95594365a10688543d410fe6d139b8b302b0eda38759bab36004c",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "docs/evidence/style-cleanup/validation.json",
+      "sha256": "0a874e6b88cd8a79d009cafab55cc96657df3ce933aec865c56e0277648a46a9",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "docs/evidence/gpu-cpu-merge/validation.json",
+      "sha256": "bcb7893efed2744e18a09383429f6edda3f23dd4fa0f492172a789197bd8e980",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "docs/evidence/navigation-performance/results.json",
+      "sha256": "92c94e629a6026e862c379f5c13163df3500f91d310a04f1cd80d60cb632b65f",
+      "matches_input_manifest": true
+    },
+    {
+      "path": "docs/evidence/navigation-narrow/results.json",
+      "sha256": "c8998b49505132827fd875313fedcffa3a5f51c200a53c179f9599184eb54117",
+      "matches_input_manifest": true
+    }
+  ],
+  "external_sources": [
+    {
+      "id": "cuda",
+      "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "edt",
+      "url": "https://theoryofcomputing.org/articles/v008a019/",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "pba",
+      "url": "https://www.comp.nus.edu.sg/~tants/pba.html",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "mppi_source",
+      "url": "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_mppi_controller/src/optimizer.cpp",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "mppi_theory",
+      "url": "https://arxiv.org/abs/1707.02342",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "amcl_source",
+      "url": "https://github.com/ros-navigation/navigation2/blob/1.1.20/nav2_amcl/src/sensors/laser/likelihood_field_model_prob.cpp",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "branch_and_bound",
+      "url": "https://research.google/pubs/real-time-loop-closure-in-2d-lidar-slam/",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "ceres_current",
+      "url": "https://ceres-solver.readthedocs.io/latest/nnls_solving.html",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    },
+    {
+      "id": "cvar",
+      "url": "https://sites.math.washington.edu/~rtr/papers/rtr179-CVaR1.pdf",
+      "accessed": "2026-10-15",
+      "type": "primary"
+    }
+  ],
+  "host_gpu_identification_only": {
+    "name": "NVIDIA GeForce RTX 5070",
+    "reported_memory_mib": 12227,
+    "driver": "580.178.04"
+  },
+  "math_check_runtime": {
+    "backend": "CPU only",
+    "container_image_id_prefix": "4fce3b4d94e7",
+    "python": "3.10",
+    "numpy": "1.26.4",
+    "network": "disabled",
+    "root_filesystem": "read-only",
+    "device_access": "none",
+    "purpose": "mathematical formula checks only"
+  }
+}

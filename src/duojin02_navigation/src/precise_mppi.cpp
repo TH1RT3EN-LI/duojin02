@@ -4,6 +4,7 @@
 #include "duojin02_navigation/path_target.hpp"
 #include "duojin02_navigation/gpu_geometry.hpp"
 #include <rcl_interfaces/msg/parameter_descriptor.hpp>
+#include <chrono>
 #include <cstring>
 #include <nav2_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
@@ -18,6 +19,8 @@ public:
                  const std::shared_ptr<tf2_ros::Buffer> tf,
                  const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
     nav2_mppi_controller::MPPIController::configure(parent, name, tf, costmap);
+    statistics_ = {};
+    compute_fault_latched_ = false;
     auto node = parent.lock();
     limits_.configure({node->get_parameter(name + ".vx_max").as_double(),
                        node->get_parameter(name + ".vx_min").as_double(),
@@ -56,7 +59,9 @@ public:
       geometry_ =
           std::make_unique<GeometryCompute>(GeometryOptions{true, static_cast<uint64_t>(work)});
       if (geometry_->available())
-        RCLCPP_INFO(logger_, "GPU geometry enabled: %s; native Nav2 optimizer unchanged",
+        RCLCPP_INFO(logger_,
+                    "GPU geometry enabled: %s; batched centering and braking checks; "
+                    "native Nav2 optimizer unchanged",
                     geometry_->deviceName().c_str());
       else
         RCLCPP_WARN(
@@ -68,6 +73,35 @@ public:
   }
 
   void cleanup() override {
+    RCLCPP_INFO(logger_,
+                "CUDA_LOCAL_CONTROLLER_SUMMARY cycles=%lu compute_failures=%lu exceptions=%lu "
+                "fault_latched_stops=%lu "
+                "direct_commands=%lu tracking_commands=%lu native_mppi_calls=%lu "
+                "cycle_mean_ms=%.6f cycle_max_ms=%.6f cycle_p50_upper_ms=%.3f "
+                "cycle_p95_upper_ms=%.3f cycle_p99_upper_ms=%.3f",
+                statistics_.cycles, statistics_.compute_failures, statistics_.exceptions,
+                statistics_.fault_latched_stops,
+                statistics_.direct_commands, statistics_.tracking_commands,
+                statistics_.native_mppi_calls,
+                statistics_.cycles ? statistics_.total_cycle_ms / statistics_.cycles : 0,
+                statistics_.max_cycle_ms, statistics_.cycleQuantileUpperBound(.50),
+                statistics_.cycleQuantileUpperBound(.95),
+                statistics_.cycleQuantileUpperBound(.99));
+    RCLCPP_INFO(logger_,
+                "CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=%lu direct_cuda_batches=%lu "
+                "centering_cpu_batches=%lu centering_cuda_batches=%lu ranking_cpu_rechecks=%lu "
+                "braking_cpu_sweeps=%lu braking_cpu_batches=%lu braking_cuda_batches=%lu "
+                "braking_batched_poses=%lu "
+                "braking_measured_stops=%lu braking_first_scale_accepts=%lu "
+                "braking_final_cpu_candidates=%lu braking_final_cpu_rejections=%lu",
+                statistics_.direct_cpu_batches, statistics_.direct_cuda_batches,
+                statistics_.centering_cpu_batches, statistics_.centering_cuda_batches,
+                statistics_.ranking_cpu_rechecks, statistics_.braking_cpu_sweeps,
+                statistics_.braking_cpu_batches, statistics_.braking_cuda_batches,
+                statistics_.braking_batched_poses,
+                statistics_.braking_measured_stops, statistics_.braking_first_scale_accepts,
+                statistics_.braking_final_cpu_candidates,
+                statistics_.braking_final_cpu_rejections);
     if (geometry_) {
       const auto &statistics = geometry_->statistics();
       RCLCPP_INFO(logger_, "GPU_GEOMETRY_SUMMARY cuda_batches=%lu boundary_rechecks=%lu",
@@ -101,20 +135,47 @@ public:
   computeVelocityCommands(const geometry_msgs::msg::PoseStamped &pose,
                           const geometry_msgs::msg::Twist &speed,
                           nav2_core::GoalChecker *checker) override {
+    // Start before taking the controller mutex and before snapshot construction:
+    // scene upload, GPU synchronization/readback and CPU rechecks are included.
+    const auto cycle_start = std::chrono::steady_clock::now();
     std::lock_guard<std::mutex> lock(limits_mutex_);
+    CycleTimer timer{statistics_, cycle_start};
     try {
       return computeCommand(pose, speed, checker);
     } catch (const ComputeFailure &error) {
+      ++statistics_.compute_failures;
+      compute_fault_latched_ = true;
       RCLCPP_ERROR_THROTTLE(logger_, *clock_, 2000, "GPU geometry stopped motion: %s",
                             error.what());
       return stopped(pose);
+    } catch (...) {
+      ++statistics_.exceptions;
+      throw;
     }
   }
 
+  ControllerGeometryStatistics controllerStatistics() {
+    std::lock_guard<std::mutex> lock(limits_mutex_);
+    return statistics_;
+  }
+
 private:
+  struct CycleTimer {
+    ControllerGeometryStatistics &statistics;
+    std::chrono::steady_clock::time_point start{std::chrono::steady_clock::now()};
+    ~CycleTimer() {
+      statistics.recordCycle(
+          std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
+              .count());
+    }
+  };
   geometry_msgs::msg::TwistStamped computeCommand(const geometry_msgs::msg::PoseStamped &pose,
                                                   const geometry_msgs::msg::Twist &speed,
                                                   nav2_core::GoalChecker *checker) {
+    if (compute_fault_latched_) {
+      ++statistics_.fault_latched_stops;
+      return stopped(pose);
+    }
     if (!refreshLimits())
       return stopped(pose);
     if (limits_.stopped())
@@ -135,18 +196,24 @@ private:
     }
     const double distance = std::hypot(target.pose.position.x - pose.pose.position.x,
                                        target.pose.position.y - pose.pose.position.y);
-    if (distance <= .45 && directApproachClear(pose, target))
+    if (distance <= .45 && directApproachClear(pose, target)) {
+      ++statistics_.direct_commands;
       return checked(converge(pose, target, true), pose, speed);
+    }
 
-    if (trackingTarget(pose, target, speed))
+    if (trackingTarget(pose, target, speed)) {
+      ++statistics_.tracking_commands;
       return checked(converge(pose, target, false), pose, speed);
+    }
     try {
       return sampledCommand(pose, speed, checker);
     } catch (const std::runtime_error &error) {
       if (std::string(error.what()) != "Optimizer fail to compute path")
         throw;
-      if (trackingTarget(pose, target, speed))
+      if (trackingTarget(pose, target, speed)) {
+        ++statistics_.tracking_commands;
         return checked(converge(pose, target, false), pose, speed);
+      }
       throw;
     }
   }
@@ -259,9 +326,14 @@ private:
         poses.push_back({a.pose.position.x + f * dx, a.pose.position.y + f * dy, yaw + f * delta});
       }
       const auto result = geometry_->evaluate(poses, .010);
+      if (result.used_cuda)
+        ++statistics_.direct_cuda_batches;
+      else
+        ++statistics_.direct_cpu_batches;
       return std::none_of(result.collisions.begin(), result.collisions.end(),
                           [](uint8_t hit) { return hit != 0; });
     }
+    ++statistics_.direct_cpu_batches;
     for (int i = 0; i <= steps; ++i) {
       const double f = static_cast<double>(i) / steps;
       if (collision({a.pose.position.x + f * dx, a.pose.position.y + f * dy, yaw + f * delta},
@@ -356,18 +428,55 @@ private:
     const double length = std::hypot(dx, dy);
     if (length < .01)
       return directApproachClear(pose, target);
-    const double nx = -dy / length, ny = dx / length;
+    const Pose start{pose.pose.position.x, pose.pose.position.y,
+                     tf2::getYaw(pose.pose.orientation)};
+    const Pose end{target.pose.position.x, target.pose.position.y,
+                   tf2::getYaw(target.pose.orientation)};
     for (double lookahead : {1.0, .65, .4}) {
+      const auto samples = centeringCandidates(start, end, lookahead);
+      std::vector<Pose> poses;
+      for (const auto &sample : samples)
+        poses.push_back(sample.pose);
+      std::vector<double> clearances;
+      bool recheck_ranking = false;
+      if (geometry_ && geometry_->willUseCuda(poses.size())) {
+        const auto result = geometry_->clearance(poses);
+        clearances = result.clearances;
+        if (clearances.size() != samples.size())
+          throw ComputeFailure("Incomplete centered-target clearance batch");
+        if (result.used_cuda) {
+          ++statistics_.centering_cuda_batches;
+          // Scores, including the offset penalty, determine the stable order.
+          // Recompute the whole small group if numerical intervals overlap.
+          recheck_ranking = result.clearance_error_bounds.size() != samples.size();
+          for (size_t i = 0; i < samples.size() && !recheck_ranking; ++i) {
+            const double a = clearances[i] - .05 * std::abs(samples[i].offset);
+            const double a_error = result.clearance_error_bounds[i];
+            recheck_ranking = !std::isfinite(a) || !std::isfinite(a_error) || a_error < 0;
+            for (size_t j = 0; j < i && !recheck_ranking; ++j) {
+              const double b = clearances[j] - .05 * std::abs(samples[j].offset);
+              recheck_ranking = std::abs(a - b) <=
+                                std::max(1e-9, a_error + result.clearance_error_bounds[j]);
+            }
+          }
+        } else
+          ++statistics_.centering_cpu_batches;
+      } else {
+        ++statistics_.centering_cpu_batches;
+        for (const auto &sample : samples)
+          clearances.push_back(footprintClearance(sample.pose, polygon_, obstacles_));
+      }
+      if (recheck_ranking) {
+        statistics_.ranking_cpu_rechecks += samples.size();
+        for (size_t i = 0; i < samples.size(); ++i)
+          clearances[i] = footprintClearance(samples[i].pose, polygon_, obstacles_);
+      }
       std::vector<std::pair<double, geometry_msgs::msg::PoseStamped>> candidates;
-      for (double offset : {0., -.01, .01, -.02, .02, -.03, .03}) {
+      for (size_t i = 0; i < samples.size(); ++i) {
         auto candidate = target;
-        candidate.pose.position.x = pose.pose.position.x + lookahead * dx + nx * offset;
-        candidate.pose.position.y = pose.pose.position.y + lookahead * dy + ny * offset;
-        const double clearance =
-            footprintClearance({candidate.pose.position.x, candidate.pose.position.y,
-                                tf2::getYaw(candidate.pose.orientation)},
-                               polygon_, obstacles_);
-        candidates.emplace_back(clearance - .05 * std::abs(offset), candidate);
+        candidate.pose.position.x = samples[i].pose.x;
+        candidate.pose.position.y = samples[i].pose.y;
+        candidates.emplace_back(clearances[i] - .05 * std::abs(samples[i].offset), candidate);
       }
       std::stable_sort(candidates.begin(), candidates.end(),
                        [](const auto &a, const auto &b) { return a.first > b.first; });
@@ -393,7 +502,8 @@ private:
     const Pose start{pose.pose.position.x, pose.pose.position.y,
                      tf2::getYaw(pose.pose.orientation)};
     const Velocity measured{speed.linear.x, speed.linear.y, speed.angular.z};
-    if (brakingSweep(start, measured, polygon_, obstacles_, .010, .2, .4, .8)) {
+    if (brakingCollision(start, measured)) {
+      ++statistics_.braking_measured_stops;
       RCLCPP_WARN_THROTTLE(
           costmap_ros_->get_logger(), *costmap_ros_->get_clock(), 2000,
           "Local measured braking rejected: %zu cells, clearance %.3f, velocity %.3f %.3f %.3f",
@@ -401,28 +511,86 @@ private:
           measured.y, measured.yaw);
       return stopped(pose);
     }
-    for (double scale : {1., .8, .6, .4, .25, .15, .08, .04}) {
-      const Velocity requested{result.twist.linear.x * scale, result.twist.linear.y * scale,
-                               result.twist.angular.z * scale};
-      bool clear = !brakingSweep(start, requested, polygon_, obstacles_, .010, .2, .4, .8);
-      if (clear)
-        for (double f : {.25, .5, .75}) {
-          const Velocity transition{measured.x + f * (requested.x - measured.x),
-                                    measured.y + f * (requested.y - measured.y),
-                                    measured.yaw + f * (requested.yaw - measured.yaw)};
-          if (brakingSweep(start, transition, polygon_, obstacles_, .010, .2, .4, .8)) {
-            clear = false;
-            break;
+    const Velocity command{result.twist.linear.x, result.twist.linear.y, result.twist.angular.z};
+    auto requested = [&](double scale) {
+      return Velocity{command.x * scale, command.y * scale, command.yaw * scale};
+    };
+    auto cpu_clear = [&](double scale) {
+      for (const auto &velocity : brakingCandidateVelocities(requested(scale), measured))
+        if (brakingCollision(start, velocity))
+          return false;
+      return true;
+    };
+    auto accepted = [&](double scale) {
+      result.twist.linear.x *= scale;
+      result.twist.linear.y *= scale;
+      result.twist.angular.z *= scale;
+      return result;
+    };
+    // Keep the common clear case and the measured-velocity stop on CPU. This
+    // avoids upload/launch/readback when the original early exit is cheapest.
+    if (cpu_clear(brakingScales.front())) {
+      ++statistics_.braking_first_scale_accepts;
+      return result;
+    }
+    size_t estimated_poses = 0;
+    if (geometry_ && geometry_->available())
+      for (size_t i = 1; i < brakingScales.size(); ++i)
+        for (const auto &velocity :
+             brakingCandidateVelocities(requested(brakingScales[i]), measured))
+          estimated_poses += brakingSweepSampleCountEstimate(velocity, polygon_, .2, .4, .8);
+    if (geometry_ && geometry_->willUseCuda(estimated_poses)) {
+      std::vector<Pose> poses;
+      std::vector<double> margins;
+      std::vector<GeometryWorldBounds> bounds;
+      std::array<std::pair<size_t, size_t>, 7> candidate_ranges;
+      for (size_t i = 1; i < brakingScales.size(); ++i) {
+        const size_t begin = poses.size();
+        for (const auto &velocity :
+             brakingCandidateVelocities(requested(brakingScales[i]), measured)) {
+          const auto samples = brakingSweepSamples(start, velocity, polygon_, .010, .2, .4, .8);
+          poses.insert(poses.end(), samples.poses.begin(), samples.poses.end());
+          margins.insert(margins.end(), samples.poses.size(), samples.margin);
+          bounds.insert(bounds.end(), samples.poses.size(),
+                         {samples.min_x, samples.min_y, samples.max_x, samples.max_y});
+        }
+        candidate_ranges[i - 1] = {begin, poses.size()};
+      }
+      if (geometry_->willUseCuda(poses.size())) {
+        const auto batch = geometry_->evaluate(poses, margins, bounds);
+        if (batch.collisions.size() != poses.size())
+          throw ComputeFailure("Incomplete braking candidate collision batch");
+        if (batch.used_cuda) {
+          ++statistics_.braking_cuda_batches;
+          statistics_.braking_batched_poses += poses.size();
+        } else
+          ++statistics_.braking_cpu_batches;
+        for (size_t i = 1; i < brakingScales.size(); ++i) {
+          const auto range = candidate_ranges[i - 1];
+          const bool hit = std::any_of(batch.collisions.begin() + range.first,
+                                      batch.collisions.begin() + range.second,
+                                      [](uint8_t value) { return value != 0; });
+          if (!hit) {
+            ++statistics_.braking_final_cpu_candidates;
+            // CUDA is a candidate evaluator. The command admitted to the robot
+            // still passes the original CPU swept-footprint test in order.
+            if (cpu_clear(brakingScales[i]))
+              return accepted(brakingScales[i]);
+            ++statistics_.braking_final_cpu_rejections;
           }
         }
-      if (clear) {
-        result.twist.linear.x *= scale;
-        result.twist.linear.y *= scale;
-        result.twist.angular.z *= scale;
-        return result;
+        return stopped(pose);
       }
     }
+    for (size_t i = 1; i < brakingScales.size(); ++i)
+      if (cpu_clear(brakingScales[i]))
+        return accepted(brakingScales[i]);
     return stopped(pose);
+  }
+
+  bool brakingCollision(const Pose &start, const Velocity &velocity) {
+    ++statistics_.braking_cpu_sweeps;
+    return brakingSweep(start, velocity, polygon_, obstacles_, .010, .2, .4, .8);
   }
 
   geometry_msgs::msg::TwistStamped sampledCommand(const geometry_msgs::msg::PoseStamped &pose,
@@ -430,6 +598,7 @@ private:
                                                   nav2_core::GoalChecker *checker) {
     applyNativeLimit(true);
     last_time_called_ = clock_->now();
+    ++statistics_.native_mppi_calls;
     return checked(
         nav2_mppi_controller::MPPIController::computeVelocityCommands(pose, speed, checker), pose,
         speed);
@@ -477,6 +646,8 @@ private:
   OmniVelocityLimits limits_;
   std::mutex limits_mutex_;
   std::unique_ptr<GeometryCompute> geometry_;
+  ControllerGeometryStatistics statistics_;
+  bool compute_fault_latched_{false};
   double narrow_speed_{.5}, requested_limit_{0};
   bool requested_percentage_{false};
 };

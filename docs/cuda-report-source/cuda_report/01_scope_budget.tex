@@ -1,0 +1,167 @@
+\section{结论、审阅对象与优先级}
+\subsection{直接回答：哪些部分值得加速或重构}
+\textbf{若目标是相同在线耗时下取得更好的导航效果，首选“GPU 批量控制评估 + 多场景不确定性模型 + 可复用几何预计算”，其次是“GPU 多假设定位与扫描匹配”。}
+这两条路线分别增加控制问题覆盖的未来情况与定位问题保留的候选解，能改变算法能力上限。
+单独加速现有直连碰撞只缩短一个布尔查询，收益取决于该查询在闭环中占据多少时间。
+
+原稿的控制器并非每周期都运行 MPPI：直接末端收敛与几何路径跟踪优先，无法使用时才进入 MPPI。
+因此 MPPI 虽有最清晰的规则并行结构，却不一定是整机最大耗时来源。
+固定地图运行应优先分析 AMCL；在线建图才分析 Karto 与位姿图。
+不能将不同模式的收益简单相加。
+
+\begin{longtable}{p{0.18\textwidth}p{0.23\textwidth}p{0.31\textwidth}p{0.17\textwidth}}
+\caption{针对本系统的建议。优先级是研究排序，不是实测性能排序。}\\
+\toprule 对象 & 原始规模/结构 & 建议与性能收益机制 & 建议优先级\\\midrule\endfirsthead
+\toprule 对象 & 原始规模/结构 & 建议与性能收益机制 & 建议优先级\\\midrule\endhead
+MPPI & $1600$ 条、$56$ 步、七项代价 & 保留基线后移植批评估；再扩大为多模式、多场景控制，减少遗漏可行行为和低估风险 & 高；看分支占比\\
+AMCL & $700$--$3000$ 粒子，至多 $120$ 束 & 并行粒子束评分；进一步维护多峰分布与多分辨率位姿网格 & 固定地图模式高\\
+相关扫描匹配 & 候选位姿 $\times$ 激光点 & GPU 穷举或有上界的分支定界；多起点连续精化，提高搜索覆盖与亚栅格拟合能力 & 在线 SLAM 高\\
+足迹碰撞 & 位姿 $\times$ 障碍 $\times$ 边 & 距离场安全筛选、空间索引、方向配置空间；把工作量从每次查询转到地图更新 & 共享基础设施高\\
+制动扫掠 & 最多 $33$ 条候选速度轨迹 & 批量检查全部候选，或增加动态/执行误差情景；保持原接纳顺序与失败处理 & 中；需低尾延迟\\
+Smac/航向修复 & 优先队列；每层至多 $4$ 航向 & GPU 做边验证/配置空间查表；扩大候选航向族，CPU 保留搜索管理 & 中\\
+距离场/地图构造 & 局部图 $400\times400$ & EDT、膨胀和射线统计批处理；多个消费者复用，但语义独立 & 中到高；看复用率\\
+位姿图优化 & 稀疏图，线程数 $2$ & 大图再考虑 GPU 稀疏求解；小图优先改善模型、异常边处理 & 条件性中低\\
+EKF/四元数/仲裁 & $15$ 维矩阵及常数级逻辑 & 保留 CPU；GPU 不增加可观测性，单次规模难覆盖调度成本 & 低\\
+\bottomrule
+\end{longtable}
+
+\subsection{输入、证据与实际核实范围}
+审阅输入为用户提供的 \code{duojin02_algorithm_manuscript_source.zip}，含 11 个 \LaTeX{} 文件、构建脚本及验证/源码清单，共 16 个条目。
+压缩包 SHA-256 为：
+\begin{quote}\small\ttfamily
+f7a9797307c3cca22b929a564263ace6dc42e86e7bff84caa2af9f5400c8e385
+\end{quote}
+本次读取全部正文、附录及原生代价说明，并逐项比对源清单：其中 101 个文件均存在，散列全部相同。
+另只读检查当前 GPU 几何实现、直连调用点、制动扫掠与配置。
+清单对应 Git 基点为 \code{89c2f3acae1d05e804b31f720fa52757b5ef190d}，但工作区有既存未提交修改，实际以散列为准。
+主机查询到 RTX 5070、12227 MiB 显存、驱动 580.178.04；\textbf{这只是设备识别，未执行新 CUDA 性能实验}。
+
+原稿 \code{evidence.tex} 报告 14472 个几何查询、470 个实际 CUDA 批次、439 个 CPU 边界回查，最终零差异。
+这是既有归档记录，本报告未重新执行这些实验。
+同文还记载较早产物中一个 $8000$ 障碍、$256$ 位姿的早停负载：
+\[
+T_C=0.09295\ \mathrm{ms},\qquad T_G=0.89514\ \mathrm{ms},\qquad
+T_G/T_C=9.6303.
+\]
+这些数字说明“并行工作总量大”不充分，不构成现版本或新方案的速度预测。
+
+本文把陈述分为三类：
+\begin{itemize}
+\item \textbf{已实现事实}：来自原稿及相同散列的源码；明确保留版本、数值与分支语义。
+\item \textbf{数学结论}：在写出的条件下由公式推导；实数证明与浮点实现验证分开。
+\item \textbf{设计建议}：尚未实现的新计算结构；规模数值是预算例，不是实测吞吐或精度。
+\end{itemize}
+外部方法只引用作者论文、官方文档或版本化官方源码；链接与访问日期见文末。
+较新 Ceres 文档的 CUDA 能力不代表本项目 Humble 依赖已经支持。
+
+\subsection{统一记号与量纲}
+\begin{longtable}{p{0.24\textwidth}p{0.66\textwidth}}
+\toprule 符号 & 定义\\\midrule\endfirsthead
+\toprule 符号 & 定义\\\midrule\endhead
+$q=(p,\theta)$ & 平面位姿，$p\in\R^2$，单位 m；$\theta$ 单位 rad\\
+$R(\theta),J$ & $R=\left[\begin{smallmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{smallmatrix}\right]$，$J=\left[\begin{smallmatrix}0&-1\\1&0\end{smallmatrix}\right]$，$R'=RJ$\\
+$\mathcal F,r_F,N_v$ & 车体坐标系内填充凸足迹、最大点半径、顶点数；$\mathcal F(q)=p+R(\theta)\mathcal F$\\
+$\mathcal O,N_o,\rho_j$ & 障碍圆盘集合、障碍数、第 $j$ 个圆盘半径\\
+$N_q,N_p,B$ & 查询位姿数、定位粒子数、有效激光束数；三者不混用\\
+$K,H,M$ & 控制候选轨迹数、预测步数、不确定性场景数\\
+$h,\delta,r_g$ & 积分步长（s）、碰撞余量（m）、栅格边长（m）\\
+$N_x,N_y,N_\theta$ & 网格横纵单元数与方向层数；$G=N_xN_y$\\
+$D_c,D_O$ & 到占据栅格中心的距离、到实际建模障碍集合的距离（m）\\
+$S_n,\lambda,w_n$ & 第 $n$ 条控制轨迹总代价、同标度温度、无量纲归一化权重\\
+$P,\Sigma$ & 协方差；须依状态/噪声单位解释，不能与旋转矩阵混用\\
+$T_0,T_*,f,s$ & 基线端到端时延、目标时延预算、可优化时间比例、对应子任务加速比\\
+$\epsilon$ 下标 & 各类误差界；数值误差、采样误差、建模误差必须各自标注\\
+\bottomrule
+\end{longtable}
+本文的“代价”是具有明确权重标度的工程数值，不自动具有焦耳量纲。
+位置与角度一起进入二次型时引入尺度长度 $\ell_\theta$：
+$z=(p_x,p_y,\ell_\theta\theta)^\top$，则三个坐标均以 m 计。
+对角度只在不跨主值分支的邻域求导。
+
+\section{以固定在线时延为约束，而非追求孤立加速比}
+\subsection{从端到端预算推导可用计算扩张量}
+设基线周期总时延为 $T_0$，其中可重构部分为 $fT_0$，其余为 $(1-f)T_0$。
+假设同工作量在 GPU 上的有效加速比为 $s$；新算法将这部分工作增加 $\alpha$ 倍。
+令新增传输、同步、地图更新分摊及调度开销为 $T_{\rm oh}$。
+则简化的串行关键路径模型为
+\begin{equation}
+T_{\rm new}=(1-f)T_0+\frac{\alpha fT_0}{s}+T_{\rm oh}.
+\label{eq:budget}
+\end{equation}
+要求 $T_{\rm new}\le T_0$，先减去 $(1-f)T_0$，再除以 $fT_0/s>0$：
+\begin{align}
+\frac{\alpha fT_0}{s}+T_{\rm oh}&\le fT_0,\\
+\alpha&\le s\left(1-\frac{T_{\rm oh}}{fT_0}\right).
+\label{eq:expansion}
+\end{align}
+若 $T_{\rm oh}\ge fT_0$，即使计算无限快也无法在这个模型中获得正的扩张预算。
+若仅搬迁而不扩大问题，即 $\alpha=1$ 且忽略新增开销，则
+\[
+\frac{T_0}{T_{\rm new}}=\frac1{1-f+f/s},
+\]
+这就是 Amdahl 型限制。
+
+\textbf{纯示例：}若 $T_0=40$ ms、$f=0.75$、有效 $s=12$、$T_{\rm oh}=2$ ms，
+则 $\alpha\le11.2$。把 GPU 部分扩大 $8$ 倍后，模型给出
+$T_{\rm new}=10+8\times30/12+2=32$ ms。
+这说明用户提出的换取方式在数学上成立；但 $s$ 必须是\emph{扩大后对应负载上的有效吞吐}。
+缓存命中、寄存器溢出、显存访问与归约结构变化会使 $s$ 随 $\alpha$ 改变，不能线性外推到任意规模。
+
+\subsection{将“算法更好”写成可检验优化问题}
+设设计向量
+$d=(K,H,M,N_p,N_\theta,r_g,\text{搜索层数},\text{模型复杂度})$，
+质量指标向量 $Q(d)$ 包括定位错误率、到达率、尾部碰撞风险、跟踪误差与控制平滑度。
+正确研究问题是
+\begin{equation}
+\max_d Q(d)\quad\text{受限于}\quad
+T_{99}(d)\le T_*,\quad
+\Pr(T(d)>T_*)\le\eta_T,\quad
+V(d)\le V_{\max}.
+\label{eq:pareto}
+\end{equation}
+多指标没有天然唯一全序，应报告 Pareto 前沿，或预先固定主要指标与次要约束。
+这里 $T_{99}$ 为完整调用路径 P99，$V$ 是峰值显存；$\eta_T$ 是允许超期比例。
+当前控制周期为 50 ms，但“比原 CPU 不慢”应同时满足原基线时延标准。
+更快返回却使用更老地图，也不必然改善控制。
+
+\subsection{数据驻留、更新频率与真正摊销}
+对 GPU 单任务，分解
+\begin{equation}
+T_G=T_{\rm prepare}+T_{\rm H2D}+T_{\rm launch}
++T_{\rm kernel}+T_{\rm D2H}+T_{\rm wait}+T_{\rm recheck}.
+\end{equation}
+设每幅地图建立索引耗时 $T_{\rm build}$，两次更新之间有 $Q_{\rm reuse}$ 次查询，
+每查询核耗时 $t_G$，则平均成本是
+\begin{equation}
+\bar T_G=\frac{T_{\rm build}}{Q_{\rm reuse}}+t_G.
+\label{eq:amort}
+\end{equation}
+若 CPU 单查询成本为 $t_C$，需满足
+$Q_{\rm reuse}>T_{\rm build}/(t_C-t_G)$，且分母为正。
+这不意味着地图更新峰值也被平均化：关键周期仍可能承受完整 $T_{\rm build}$。
+双缓冲可隐藏更新，但必须带地图版本、时间戳与最大允许年龄；不能默默使用过期障碍图。
+
+局部代价图 $4\mathrm m\times4\mathrm m$、分辨率 $0.01$ m，包含 $160000$ 格；
+一个 float 距离场约 $0.64$ MB（十进制 MB）。
+静态 AMCL 距离场可长驻，动态局部图不能假设长期不变。
+最终保护的激光记忆、局部 costmap 与全局定位地图具有不同未知区、时间戳和障碍语义；
+可以共享 GPU 服务和存储模式，不能直接合并为同一个无标签数组。
+这与 NVIDIA 对最小化传输及保持设备数据驻留的建议一致\cite{cuda}。
+
+\subsection{分支调用率与过期输入的质量代价}
+设每周期调用 MPPI 的比例为 $\pi_{\rm M}$，
+其他路径耗时 $T_{\rm D}$，MPPI 路径耗时 $T_{\rm M}$，则平均时间
+\[
+\E T=(1-\pi_{\rm M})\E T_{\rm D}+\pi_{\rm M}\E T_{\rm M}.
+\]
+降低 $T_{\rm M}$ 的平均收益被 $\pi_{\rm M}$ 缩放；P99 仍可能由 MPPI 决定。
+如果新增算法让 MPPI 在以前直接跟踪的周期也运行，必须把新调用率计入预算。
+可以只在狭窄、歧义或高不确定性时启用重型算法，而不能用旧分支占比估算新系统。
+
+若观测到控制输出的总年龄为 $\tau$，短时状态误差满足
+$\|\Delta p\|\lesssim v\tau$、$|\Delta\theta|\lesssim|\omega|\tau$，
+则足迹点误差保守近似为
+\[
+\epsilon_{\rm age}\lesssim(v+r_F|\omega|)\tau.
+\]
+因此增加计算量必须维持时效。吞吐更高但排队更久，可能抵消更丰富模型的收益。

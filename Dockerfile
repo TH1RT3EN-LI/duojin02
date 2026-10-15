@@ -46,7 +46,7 @@ RUN ./scripts/build_slam_backend.sh
 
 FROM slam_builder AS builder
 ARG DUOJIN_ENABLE_CUDA=ON
-ARG CUDA_ARCHITECTURES=87;120
+ARG CUDA_ARCHITECTURES=120
 ENV PATH=/opt/cuda/bin:${PATH}
 ENV CUDAToolkit_ROOT=/opt/cuda
 COPY --from=cuda_toolkit /opt/cuda /opt/cuda
@@ -55,6 +55,7 @@ RUN ./scripts/build_hardware.sh -DDUOJIN_ENABLE_CUDA=${DUOJIN_ENABLE_CUDA} \
       "-DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES}"
 
 FROM hardware_dependencies AS local_environment
+ARG CUDA_ARCHITECTURES=120
 COPY --from=builder /opt/duojin02/install /opt/duojin02/install
 COPY --from=slam_source /source/backend/slam_toolbox /opt/duojin02/test_sources/slam_toolbox
 COPY --from=cuda_toolkit /opt/cuda /opt/cuda
@@ -65,7 +66,7 @@ RUN chmod +x /usr/local/bin/duojin02-entrypoint && mkdir -p /ws/maps
 ENV DUOJIN02_WORKSPACE_ROOT=/ws
 ENV PATH=/opt/cuda/bin:${PATH}
 ENV CUDAToolkit_ROOT=/opt/cuda
-ENV CUDA_ARCHITECTURES=87;120
+ENV CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES}
 WORKDIR /ws
 ENTRYPOINT ["/usr/local/bin/duojin02-entrypoint"]
 CMD ["bash"]

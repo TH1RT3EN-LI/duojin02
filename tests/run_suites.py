@@ -94,8 +94,9 @@ def docker_command(suite, test_root, image):
         "-e", f"BUILD_JOBS={positive_setting('BUILD_JOBS', 2)}",
         "-e", f"BUILD_WORKERS={positive_setting('BUILD_WORKERS', 1)}",
     ]
-    if "CUDA_ARCHITECTURES" in os.environ:
-        command.extend(["-e", f"CUDA_ARCHITECTURES={os.environ['CUDA_ARCHITECTURES']}"])
+    for setting in ("CUDA_ARCHITECTURES", "DUOJIN_ENABLE_CUDA"):
+        if setting in os.environ:
+            command.extend(["-e", f"{setting}={os.environ[setting]}"])
     if Path("/dev/nvidiactl").exists():
         command.extend(["--gpus", "all", "-e", "NVIDIA_DRIVER_CAPABILITIES=compute,utility"])
     supplied = os.environ.get("PREPARED_SLAM_SOURCE")
@@ -153,7 +154,9 @@ def build_packages(directory, packages):
         f"-DPython3_EXECUTABLE={python}", f"-DPYTHON_EXECUTABLE={python}",
     ]
     if "duojin02_navigation" in packages:
-        options.append(f"-DCMAKE_CUDA_ARCHITECTURES={os.environ.get('CUDA_ARCHITECTURES', '87')}")
+        options.append(f"-DCMAKE_CUDA_ARCHITECTURES={os.environ.get('CUDA_ARCHITECTURES', 'native')}")
+        if "DUOJIN_ENABLE_CUDA" in os.environ:
+            options.append(f"-DDUOJIN_ENABLE_CUDA={os.environ['DUOJIN_ENABLE_CUDA']}")
     run([
         "colcon", "--log-base", directory / "log", "build", "--base-paths",
         *(ROOT / "src" / package for package in packages),

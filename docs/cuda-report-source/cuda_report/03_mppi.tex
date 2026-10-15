@@ -1,0 +1,228 @@
+\section{MPPI：从并行采样到更充分的控制优化}
+\base{control.tex 的 MPPI 部分；native_costs.tex}
+\subsection{先明确基线究竟在算什么}
+当前 $K=1600,H=56,h=0.05$ s，预测跨度 $Hh=2.8$ s，
+每次优化包含 $KH=89600$ 个预测状态、$3KH=268800$ 个控制分量。
+float 控制数组约 1.0752 MB，float 三维位姿数组同样约 1.0752 MB；
+噪声、速度、路径索引和临时结果需另计。
+
+名义控制为 $\bar u_\ell=(\bar v_{x,\ell},\bar v_{y,\ell},\bar\omega_\ell)$，
+扰动 $\epsilon_{n,\ell}\sim\mathcal N(0,\Sigma_u)$，
+$\Sigma_u=\diag(0.15^2,0.12^2,0.18^2)$。
+实际采样控制 $\tilde u_{n,\ell}=\bar u_\ell+\epsilon_{n,\ell}$。
+原配置复用噪声，不能把每周期重新生成独立噪声描述为等价移植。
+Omni 模型第一步用实测速度，其后用前一列采样控制：
+\begin{equation}
+\hat u_{n,0}=u^{\rm meas},\qquad
+\hat u_{n,\ell}=\tilde u_{n,\ell-1}\quad(\ell\ge1).
+\end{equation}
+随后
+\[
+p_{n,\ell+1}=p_{n,\ell}+hR(\theta_{n,\ell})\hat v_{n,\ell},\quad
+\theta_{n,\ell+1}=\theta_{n,\ell}+h\hat\omega_{n,\ell}.
+\]
+第一预测状态因而对所有轨迹相同。输出序列还有约束、滤波和移位，不能忽略。
+
+总代价
+\begin{equation}
+S_n=\sum_r\mathcal J_r+
+\gamma\sum_{\ell,d}\frac{\bar u_{\ell,d}\epsilon_{n,\ell,d}}{\sigma_d^2},
+\qquad \gamma=0.015.
+\label{eq:mppicost}
+\end{equation}
+式中 $r$ 遍历启用的代价评估器，$\mathcal J_r$ 是其返回的标量代价。七个启用 critic 含路径索引、阈值和碰撞分支，不是统一二次型。
+当前原生障碍 critic 的轮廓检查与项目填充几何不同；
+将其替换成填充碰撞是模型增强，不能计为纯 CUDA 后端改写\cite{mppisrc}。
+
+\subsection{指数权重为何是合理的，完整推导}
+对固定采样集考虑
+\[
+\min_{w\ge0,\ \sum_nw_n=1}
+F(w)=\sum_nw_nS_n+\lambda\sum_nw_n\log(Kw_n),\qquad\lambda>0.
+\]
+第二项是相对均匀分布的熵正则。
+拉格朗日函数
+$\mathcal L=F(w)+\mu(\sum_nw_n-1)$。
+在正权重区域逐项求导：
+\[
+\frac{\partial\mathcal L}{\partial w_n}
+=S_n+\lambda[\log(Kw_n)+1]+\mu=0.
+\]
+移项、指数化得
+\[
+w_n=\frac1K\exp[-S_n/\lambda]\exp[-1-\mu/\lambda].
+\]
+将其代入 $\sum_nw_n=1$ 消去共同常数：
+\begin{equation}
+w_n=\frac{\exp[-(S_n-S_{\min})/\lambda]}
+{\sum_j\exp[-(S_j-S_{\min})/\lambda]}.
+\label{eq:softmax}
+\end{equation}
+Hessian 是 $\diag(\lambda/w_n)$，对内部权重严格正定，
+因此驻点是该有限单纯形问题的唯一最优解。
+其中 $S_{\min}=\min_n S_n$；减去 $S_{\min}$ 只抵消共同乘数，不改变实数结果。
+
+令 $\mathcal U$ 为当前配置及动态限速共同确定的三轴速度盒，$\clip_{\mathcal U}$ 为逐轴裁剪。更新
+\begin{align}
+\bar u_\ell^+&=\clip_{\mathcal U}\left(\sum_nw_n\tilde u_{n,\ell}\right)\\
+&=\clip_{\mathcal U}\left(\bar u_\ell\sum_nw_n+\sum_nw_n\epsilon_{n,\ell}\right)\\
+&=\clip_{\mathcal U}\left(\bar u_\ell+\sum_nw_n\epsilon_{n,\ell}\right).
+\end{align}
+这只证明固定样本的权重最优，不证明整个非线性轨迹空间全局最优。
+路径积分/信息论控制的总体背景见作者论文\cite{itmppi}；
+本文不把该背景直接当成原生各 critic 的理论最优性证明。
+
+\subsection{并行结构：轨迹独立，部分时间递推还可转成扫描}
+保守第一版可令每个线程或线程组负责一条轨迹，顺序完成 $H$ 步。
+有 $K$ 份独立工作，之后做最小值、指数求和与加权控制归约。
+也可分开轨迹生成与状态评分，提高地图读取并行度。
+
+对当前开环 Omni 欧拉模型，时间方向并非完全不能并行。
+由于 $\hat\omega_{n,\ell}$ 不依赖未来位置，
+\begin{equation}
+\theta_{n,\ell}=\theta_0+h\sum_{j=0}^{\ell-1}\hat\omega_{n,j}.
+\end{equation}
+先对角速度作 exclusive prefix sum，再独立计算
+$d_{n,\ell}=hR(\theta_{n,\ell})\hat v_{n,\ell}$，最后
+\begin{equation}
+p_{n,\ell}=p_0+\sum_{j=0}^{\ell-1}d_{n,j}.
+\end{equation}
+于是两次并行前缀和即可产生全部轨迹。
+工作仍是 $O(KH)$，理想并行深度从 $O(H)$ 降到 $O(\log H)$。
+但 $H=56$ 很短，扫描的同步与临时数据可能比顺序寄存器积分更贵。
+采用依赖状态的动力学、反馈策略或接触模型后，此拆解一般不成立。
+并行求和也改变舍入顺序，须与确定噪声的 CPU 基线逐步比较。
+
+路径 critic 存在整批依赖，例如先求所有轨迹终点的最远匹配路径索引，
+其他 critic 才知道目标索引，因而需要分阶段执行，不能把七项全部随意融合。
+末尾 Savitzky--Golay 滤波目前按原地更新顺序执行，
+它不是可直接替换的普通并行卷积。
+路径关联存在原稿指出的未定义末端分支，移植前应明确合法输入域与期望修复语义；
+GPU 不能替一个未定义行为建立等价证明。
+
+\subsection{扩大采样为何可能有效，又为何不足够}
+设随机生成一条候选落入“质量合格集合” $\mathcal A$ 的概率为 $p_A$，
+不同候选独立，则全部 $K$ 条未命中概率为
+\[
+\Prob(\forall n,\ U_n\notin\mathcal A)=(1-p_A)^K.
+\]
+因而至少一次命中概率
+\begin{equation}
+P_{\rm cover}(K)=1-(1-p_A)^K.
+\label{eq:coverage}
+\end{equation}
+若 $p_A=10^{-3}$，$K=1600$ 时约 $79.83\%$；
+$K=6400$ 时约 $99.83\%$。
+这是指定采样分布下的覆盖计算，不是导航成功率。
+且对嵌套样本集有
+$\min_{n\le K'}S_n\le\min_{n\le K}S_n$（$K'\ge K$），
+但 MPPI 输出是加权平均，并非最优样本本身，控制效果不必随 $K$ 单调。
+
+权重有效样本数
+\[
+K_{\rm eff}=\frac1{\sum_nw_n^2}.
+\]
+均匀权重时 $K_{\rm eff}=K$，一个权重占优时接近 $1$。
+更大 $K$ 若仍只集中在同一错误模式，不能解决多模态绕障。
+高维独立噪声很难产生持续一致的侧向绕行，增加结构化候选可能比无差别扩样更有效。
+
+\subsection{结构化控制序列：把预算花在更有意义的方向}
+原控制自由度为 $3H=168$。
+令 $B\in\R^{H\times L_c}$ 为固定时间基函数矩阵，
+例如分段线性或样条；$L_c<H$。
+系数 $C\in\R^{L_c\times3}$ 决定控制
+\begin{equation}
+U=BC,\qquad u_\ell=\sum_{a=1}^{L_c}B_{\ell a}C_a.
+\label{eq:basis}
+\end{equation}
+对系数采样 $\Delta C$，即得到时间相关控制扰动。
+若系数协方差为 $\Sigma_C$，
+按列向量化后控制协方差为
+\[
+\Cov(\operatorname{vec}\Delta U)=
+(I_3\otimes B)\Sigma_C(I_3\otimes B)^\top.
+\]
+它一般低秩，因此不能把原满秩独立控制噪声的逆协方差公式原样套过来。
+合理做法是在系数空间定义采样与熵正则更新，或重新推导提议分布重要性修正。
+
+这使每个样本更容易形成平滑、连续的绕障动作，扩大相同样本数对“有意义控制”的覆盖。
+代价是只能表达 $\operatorname{col}(B)$ 内的轨迹，可能遗漏急转向。
+可以使用低频基函数为主、局部高频扰动为辅，并按当前状态增加停车、左绕、右绕等行为模式。
+若改变采样分布 $q(U)$，而目标仍是
+$p^*(U)\propto\exp[-J(U)/\lambda]p_0(U)$，
+正确样本权重为
+\begin{equation}
+w_n\propto\exp[-J(U_n)/\lambda]\frac{p_0(U_n)}{q(U_n)},
+\quad U_n\sim q,\quad q>0\text{ 于目标支持集}.
+\label{eq:is}
+\end{equation}
+该式由重要性恒等式
+$\int f p^*=\int f(p^*/q)q$ 得到。
+混合行为采样须使用实际混合密度，不是随意给新样本沿用旧权重。
+低秩基函数若改变支持集，实质上是受限控制问题，需按新的测度定义目标，不能假装保持全空间等价。
+
+\subsection{更好的运动预测，比单纯增加随机样本更有针对性}
+对于一步内恒定机体速度 $v$ 和角速度 $\omega$，
+精确积分为
+\begin{align}
+p_{\ell+1}-p_\ell
+&=R(\theta_\ell)\int_0^h R(\omega t)v\,dt\\
+&=R(\theta_\ell)
+\left[\frac{\sin(\omega h)}{\omega}I+
+\frac{1-\cos(\omega h)}{\omega}J\right]v.
+\label{eq:se2exact}
+\end{align}
+因为 $R(\omega t)=\cos(\omega t)I+\sin(\omega t)J$，逐项积分即可得到上式。
+令 $a=\omega h/2$，还可写成数值稳定形式
+\[
+p_{\ell+1}-p_\ell=h\,\operatorname{sinc}(a)R(\theta_\ell+a)v,
+\qquad \operatorname{sinc}(a)=\sin a/a,\quad\operatorname{sinc}(0)=1.
+\]
+原欧拉项为 $hR(\theta_\ell)v$。
+由 $\sin x=x-x^3/6+\cdots$、$1-\cos x=x^2/2+\cdots$，
+两者差的首项是
+\[
+\Delta p_{\rm exact}-\Delta p_{\rm Euler}
+=\tfrac12\omega h^2R(\theta_\ell)Jv+O(h^3).
+\]
+也可不依赖级数，利用 $\|R(\omega t)-I\|\le|\omega|t$，
+积分得单步界
+\[
+\|\Delta p_{\rm exact}-\Delta p_{\rm Euler}\|
+\le\tfrac12|\omega|h^2\|v\|.
+\]
+说明性 $\|v\|=0.5$ m/s、$|\omega|=0.65$ rad/s、$h=0.05$ s 对应至多约 0.406 mm/步。
+固定同一开环控制并保持角积分相同时，将 56 步三角不等式相加给出约 22.75 mm 的松上界，
+不是实际预测误差测量。
+这类替换无需巨大计算量，却可能比盲目增加 $K$ 更直接减少离散预测偏差。
+
+进一步纳入一阶执行响应
+$\dot v=(v_{\rm cmd}-v)/\tau_v$，
+恒定输入一步的精确解为
+$v^+=e^{-h/\tau_v}v+(1-e^{-h/\tau_v})v_{\rm cmd}$；
+可对不同 $\tau_v$、侧滑系数和制动能力并行情景展开。
+其参数必须用实测标定；未知动力学不能靠计算量凭空恢复。
+固定 2.8 s 跨度而将步长减半，需将 $H$ 加倍；
+只增加 $H$ 而保持 $h$ 不变，是延长未来而不是提高时间分辨率。
+
+\subsection{代价误差如何放大到控制误差}
+若各轨迹计算误差满足 $|\widehat S_n-S_n|\le\epsilon_S$，
+则未归一化权重比例在 $[e^{-\epsilon_S/\lambda},e^{\epsilon_S/\lambda}]$ 内。
+归一化分母也满足同样比例，因此
+\[
+e^{-2\epsilon_S/\lambda}\le\frac{\widehat w_n}{w_n}
+\le e^{2\epsilon_S/\lambda}.
+\]
+逐项相减、取绝对值并求和：
+\begin{equation}
+\|\widehat w-w\|_1\le
+\min\{2,e^{2\epsilon_S/\lambda}-1\}.
+\label{eq:softbound}
+\end{equation}
+若采样控制满足 $\|\tilde u_{n,\ell}\|\le U_{\max}$，
+则加权平均误差不超过 $U_{\max}\|\widehat w-w\|_1$；
+盒裁剪在欧氏范数下不扩大这个差异。
+高斯采样本身无全局有界 $U_{\max}$，该界应使用实际有限批次的最大范数，
+或明确限制后的采样域。
+当前 $\lambda=0.3$，不可把未经分析的低精度代价误差当成无关紧要。
+地图索引取错一个栅格更会产生离散分支变化，不属于微小舍入扰动。

@@ -39,6 +39,21 @@ int main() {
   assert(first.find("fault latched") == std::string::npos);
   const auto repeated = failure();
   assert(repeated.find("fault latched") != std::string::npos);
+  // A later tiny/empty query must not bypass a CUDA fault via CPU dispatch.
+  bool empty_rejected = false;
+  try {
+    geometry.evaluate({}, .01);
+  } catch (const ComputeFailure &error) {
+    empty_rejected = std::string(error.what()).find("fault latched") != std::string::npos;
+  }
+  assert(empty_rejected);
+  bool scene_rejected = false;
+  try {
+    geometry.setScene(polygon, {{0, 0, 0}});
+  } catch (const ComputeFailure &error) {
+    scene_rejected = std::string(error.what()).find("fault latched") != std::string::npos;
+  }
+  assert(scene_rejected);
   assert(geometry.statistics().cuda_batches == 1);
   assert(geometry.statistics().cpu_batches == 0);
   std::cout << "CUDA_FAULT_CHECKS first=" << first << " repeated=" << repeated << " passed\n";

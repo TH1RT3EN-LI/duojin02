@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="12"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="235e0654f647"
+	time="1"
+	timestamp="2026-10-15T15:10:00"
+	>
+	<testcase name="guard_input_validity_checks" classname="guard_input_validity_checks" time="0.00126855" status="run">
+		<system-out>Grid metadata, finite planar quaternion, transformed extent, int index/query bounds and ordinary rotated grids passed
+</system-out>
+	</testcase>
+	<testcase name="geometry_checks" classname="geometry_checks" time="0.00133672" status="run">
+		<system-out>Filled interior, thin obstacle, braking, lateral, rotated corner and cell extent checks passed
+</system-out>
+	</testcase>
+	<testcase name="tracking_checks" classname="tracking_checks" time="0.0173886" status="run">
+		<system-out>10000 unpruned broad-phase comparisons; 300 frozen braking oracle / full-scene batch comparisons; centered candidate and transition order; bounded timing; noisy corridor balance; thin interior; safe chord versus unsafe speed and angular-rate sweeps passed
+</system-out>
+	</testcase>
+	<testcase name="scan_validity_checks" classname="scan_validity_checks" time="0.00114662" status="run">
+		<system-out>Scan fault, no-return, mixed rays, metadata, timestamp and recovery-order checks passed
+</system-out>
+	</testcase>
+	<testcase name="velocity_limit_checks" classname="velocity_limit_checks" time="0.00167446" status="run">
+		<system-out>Omni percentage/absolute/reset/saturation, invalid limits/configuration, and 10000 bounded commands passed
+</system-out>
+	</testcase>
+	<testcase name="precise_mppi_limit_checks" classname="precise_mppi_limit_checks" time="0.102184" status="run">
+		<system-out>1792077000.226465 [20] precise_mp: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1792077000.229021605] [controller_repair_costmap.controller_repair_costmap]: 
+	controller_repair_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792077000.229461878] [controller_repair_costmap.controller_repair_costmap]: Creating Costmap
+[INFO] [1792077000.229612190] [controller_repair_costmap.controller_repair_costmap]: Configuring
+[INFO] [1792077000.230524575] [controller_repair_costmap.controller_repair_costmap]: Using plugin "inflation_layer"
+[INFO] [1792077000.232137530] [controller_repair_costmap.controller_repair_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1792077000.235079007] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.235689684] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.235703069] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.235735833] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.235740902] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.235768351] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.235773999] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.235806934] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.240660373] [controller_server]: Optimizer reset
+[INFO] [1792077000.241103485] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.241138067] [MPPIController]: use_gpu=false: original CPU geometry and native Nav2 optimizer
+[WARN] [1792077000.241147801] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792077000.243789905] [controller_server]: Optimizer reset
+[INFO] [1792077000.243809417] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792077000.243823067] [controller_server]: Parameter probe_goal.xy_goal_tolerance not found
+[INFO] [1792077000.246192550] [controller_server]: Optimizer reset
+[WARN] [1792077000.246212593] [controller_server]: Parameter probe_goal.yaw_goal_tolerance not found
+[INFO] [1792077000.248426401] [controller_server]: Optimizer reset
+[WARN] [1792077000.248445029] [controller_server]: Parameter probe_goal.stateful not found
+[INFO] [1792077000.250575900] [controller_server]: Optimizer reset
+[WARN] [1792077000.254137767] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.254205706] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.254271757] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[INFO] [1792077000.255791755] [cpu_controller_oracle]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.255984294] [cpu_controller_oracle]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.255991779] [cpu_controller_oracle]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.256013189] [cpu_controller_oracle]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.256016049] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.256035893] [cpu_controller_oracle]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.256039608] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.256062224] [cpu_controller_oracle]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.259385347] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.259535734] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.259550462] [MPPIController]: use_gpu=false: original CPU geometry and native Nav2 optimizer
+[WARN] [1792077000.259569823] [cpu_controller_oracle]: Parameter cpu_controller_oracle.verbose not found
+[INFO] [1792077000.261897715] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.261907929] [MPPIController]: Activated MPPI Controller: FollowPath
+[INFO] [1792077000.261982791] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.261984343] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=1 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=1 native_mppi_calls=0 cycle_mean_ms=0.037260 cycle_max_ms=0.037260 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=0.250
+[INFO] [1792077000.261987636] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=1 direct_cuda_batches=0 centering_cpu_batches=1 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=6 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.262296284] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.263864137] [controller_server]: Optimizer reset
+[INFO] [1792077000.265446376] [controller_server]: Optimizer reset
+[WARN] [1792077000.265489189] [MPPIController]: Invalid speed configuration: motion stopped: PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+[INFO] [1792077000.266776821] [controller_server]: Optimizer reset
+[INFO] [1792077000.268220396] [controller_server]: Optimizer reset
+[INFO] [1792077000.269547246] [controller_server]: Optimizer reset
+[INFO] [1792077000.271196780] [controller_server]: Optimizer reset
+[INFO] [1792077000.276055709] [controller_server]: Optimizer reset
+[INFO] [1792077000.280325459] [controller_server]: Optimizer reset
+[INFO] [1792077000.283262573] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.283265664] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=206 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=83 tracking_commands=65 native_mppi_calls=3 cycle_mean_ms=0.084569 cycle_max_ms=4.904258 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=4.500
+[INFO] [1792077000.283269452] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=148 direct_cuda_batches=0 centering_cpu_batches=33 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=756 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=150 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.283380667] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[WARN] [1792077000.283410010] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792077000.284130639] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.284325356] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.284332170] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.284353564] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.284356228] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.284376039] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.284379327] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.284402205] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.287614399] [controller_server]: Optimizer reset
+[INFO] [1792077000.287749968] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.287765184] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.287768511] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.287823867] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.288975448] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.289217019] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.289224566] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.289245948] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.289248507] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.289267875] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.289271184] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.289293687] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.292701999] [controller_server]: Optimizer reset
+[INFO] [1792077000.292834460] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.292846827] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.292850711] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.293017481] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.294177022] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.294616782] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.294625400] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.294646562] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.294649372] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.294668557] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.294672044] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.294694532] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.298180112] [controller_server]: Optimizer reset
+[INFO] [1792077000.298317795] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.298340439] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.298355553] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.298427898] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.301631693] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.301917324] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.301926893] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.301948112] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.301952752] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.301972018] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.301977671] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.302000516] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.305211688] [controller_server]: Optimizer reset
+[INFO] [1792077000.305342757] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.305356891] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.305361615] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.305430379] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.307557632] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.307785480] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.307793095] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.307813368] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.307815996] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.307835518] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.307838779] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.307861702] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.311169988] [controller_server]: Optimizer reset
+[INFO] [1792077000.311327880] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.311343406] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.311346778] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.311419751] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.311801584] [controller_repair_costmap.controller_repair_costmap]: Cleaning up
+[INFO] [1792077000.313415505] [controller_repair_costmap.controller_repair_costmap]: Destroying
+INSTALLED_HUMBLE_ORACLE percentage/absolute/zero-reset and fail-closed encoding passed
+CONTROLLER_BATCH_PARITY vx=0.288 centering_cuda=0 braking_cuda=0 final_cpu_candidates=0 cycle_wall_ms=0.026425
+NATIVE_PUBLIC_LIMIT vx=0.0125534 vy=-0.00160267 wz=-0.0011661
+NATIVE_PUBLIC_LIMIT vx=0.0141301 vy=0.00500951 wz=0.00131249
+NATIVE_PUBLIC_LIMIT vx=0.0108067 vy=0.00132545 wz=-0.00298304
+INVALID_CONFIG_REJECTED PreciseMPPI vx_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vx_min must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vy_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+PUBLIC_API_CHECKS 198 deterministic/docking/narrow percentage/absolute/reset/invalid commands; dynamic config; native periodic reset; invalid setup passed
+</system-out>
+	</testcase>
+	<testcase name="precise_mppi_gpu_limit_checks" classname="precise_mppi_gpu_limit_checks" time="0.241004" status="run">
+		<system-out>1792077000.425471 [20] precise_mp: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1792077000.427381267] [controller_repair_costmap.controller_repair_costmap]: 
+	controller_repair_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792077000.427677619] [controller_repair_costmap.controller_repair_costmap]: Creating Costmap
+[INFO] [1792077000.427782520] [controller_repair_costmap.controller_repair_costmap]: Configuring
+[INFO] [1792077000.428429189] [controller_repair_costmap.controller_repair_costmap]: Using plugin "inflation_layer"
+[INFO] [1792077000.429640317] [controller_repair_costmap.controller_repair_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1792077000.431750703] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.432164904] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.432177814] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.432202139] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.432207809] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.432226993] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.432232965] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.432255739] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.436150598] [controller_server]: Optimizer reset
+[INFO] [1792077000.436462515] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.437416373] [MPPIController]: GPU geometry enabled: NVIDIA GeForce RTX 5070; batched centering and braking checks; native Nav2 optimizer unchanged
+[WARN] [1792077000.437423313] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792077000.439806352] [controller_server]: Optimizer reset
+[INFO] [1792077000.439817781] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792077000.439829379] [controller_server]: Parameter probe_goal.xy_goal_tolerance not found
+[INFO] [1792077000.442385039] [controller_server]: Optimizer reset
+[WARN] [1792077000.442396656] [controller_server]: Parameter probe_goal.yaw_goal_tolerance not found
+[INFO] [1792077000.444237237] [controller_server]: Optimizer reset
+[WARN] [1792077000.444249666] [controller_server]: Parameter probe_goal.stateful not found
+[INFO] [1792077000.445774586] [controller_server]: Optimizer reset
+[WARN] [1792077000.448753474] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.448814769] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.448875542] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[INFO] [1792077000.450302447] [cpu_controller_oracle]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.450492338] [cpu_controller_oracle]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.450501503] [cpu_controller_oracle]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.450523336] [cpu_controller_oracle]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.450528685] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.450548284] [cpu_controller_oracle]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.450554376] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.450577750] [cpu_controller_oracle]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.453708127] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.453858701] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.453895154] [MPPIController]: use_gpu=false: original CPU geometry and native Nav2 optimizer
+[WARN] [1792077000.453898481] [cpu_controller_oracle]: Parameter cpu_controller_oracle.verbose not found
+[INFO] [1792077000.456273236] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.456283642] [MPPIController]: Activated MPPI Controller: FollowPath
+[INFO] [1792077000.456527666] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.456530262] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=1 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=1 native_mppi_calls=0 cycle_mean_ms=0.039684 cycle_max_ms=0.039684 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=0.250
+[INFO] [1792077000.456533491] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=1 direct_cuda_batches=0 centering_cpu_batches=1 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=6 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.457154415] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.458676254] [controller_server]: Optimizer reset
+[INFO] [1792077000.460129995] [controller_server]: Optimizer reset
+[WARN] [1792077000.460173761] [MPPIController]: Invalid speed configuration: motion stopped: PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+[INFO] [1792077000.461682813] [controller_server]: Optimizer reset
+[INFO] [1792077000.462952913] [controller_server]: Optimizer reset
+[INFO] [1792077000.464249880] [controller_server]: Optimizer reset
+[INFO] [1792077000.465651113] [controller_server]: Optimizer reset
+[INFO] [1792077000.469776064] [controller_server]: Optimizer reset
+[INFO] [1792077000.473695602] [controller_server]: Optimizer reset
+[ERROR] [1792077000.476477353] [MPPIController]: GPU geometry stopped motion: GPU geometry requires a convex CCW footprint
+[INFO] [1792077000.476669603] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.476672145] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=208 compute_failures=1 exceptions=0 fault_latched_stops=1 direct_commands=83 tracking_commands=65 native_mppi_calls=3 cycle_mean_ms=0.074527 cycle_max_ms=4.242095 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=4.000
+[INFO] [1792077000.476675659] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=146 direct_cuda_batches=2 centering_cpu_batches=32 centering_cuda_batches=1 ranking_cpu_rechecks=7 braking_cpu_sweeps=756 braking_cpu_batches=0 braking_cuda_batches=1 braking_batched_poses=605 braking_measured_stops=0 braking_first_scale_accepts=150 braking_final_cpu_candidates=1 braking_final_cpu_rejections=0
+[INFO] [1792077000.476677415] [MPPIController]: GPU_GEOMETRY_SUMMARY cuda_batches=4 boundary_rechecks=0
+[INFO] [1792077000.477324168] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[WARN] [1792077000.477366318] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792077000.478093868] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.478290918] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.478298763] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.478320558] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.478323684] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.478343228] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.478347057] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.478370448] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.480919272] [controller_server]: Optimizer reset
+[INFO] [1792077000.481058498] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.481072235] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.481076108] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.481653576] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.483104900] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.483276534] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.483285167] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.483306730] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.483310628] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.483330661] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.483335009] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.483357901] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.485964371] [controller_server]: Optimizer reset
+[INFO] [1792077000.486098703] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.486110745] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.486113835] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.486438903] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.490563607] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.490718297] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.490725551] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.490746479] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.490749290] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.490768844] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.490772435] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.490795118] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.493247220] [controller_server]: Optimizer reset
+[INFO] [1792077000.493376737] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.493388415] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.493391548] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.493594238] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.495924044] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.496074534] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.496081558] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.496103284] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.496106590] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.496129382] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.496133127] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.496156191] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.498612249] [controller_server]: Optimizer reset
+[INFO] [1792077000.498734994] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.498746973] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.498757869] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.498825109] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.501026149] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.501180323] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.501187656] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.501208550] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.501211342] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.501230673] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.501234086] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.501256708] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.503709079] [controller_server]: Optimizer reset
+[INFO] [1792077000.503832940] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.503844445] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.503847496] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.503912722] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.505344809] [controller_repair_costmap.controller_repair_costmap]: Cleaning up
+[INFO] [1792077000.506897604] [controller_repair_costmap.controller_repair_costmap]: Destroying
+INSTALLED_HUMBLE_ORACLE percentage/absolute/zero-reset and fail-closed encoding passed
+CONTROLLER_BATCH_PARITY vx=0.288 centering_cuda=1 braking_cuda=1 final_cpu_candidates=1 cycle_wall_ms=0.192095
+NATIVE_PUBLIC_LIMIT vx=0.0125534 vy=-0.00160267 wz=-0.0011661
+NATIVE_PUBLIC_LIMIT vx=0.0141301 vy=0.00500951 wz=0.00131249
+NATIVE_PUBLIC_LIMIT vx=0.0108067 vy=0.00132545 wz=-0.00298304
+CONTROLLER_FAULT_LATCH invalid_scene_failure_then_small_clear_cpu_path_stopped failure_cycle_wall_ms=0.048818 latched_cycle_wall_ms=7.1e-05
+INVALID_CONFIG_REJECTED PreciseMPPI vx_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vx_min must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vy_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+PUBLIC_API_CHECKS 198 deterministic/docking/narrow percentage/absolute/reset/invalid commands; dynamic config; native periodic reset; invalid setup passed
+</system-out>
+	</testcase>
+	<testcase name="precise_mppi_no_device_checks" classname="precise_mppi_no_device_checks" time="0.105576" status="run">
+		<system-out>1792077000.577683 [20] precise_mp: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1792077000.580147765] [controller_repair_costmap.controller_repair_costmap]: 
+	controller_repair_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792077000.580542895] [controller_repair_costmap.controller_repair_costmap]: Creating Costmap
+[INFO] [1792077000.580692976] [controller_repair_costmap.controller_repair_costmap]: Configuring
+[INFO] [1792077000.581539945] [controller_repair_costmap.controller_repair_costmap]: Using plugin "inflation_layer"
+[INFO] [1792077000.583122574] [controller_repair_costmap.controller_repair_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1792077000.585990224] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.586564841] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.586578028] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.586610813] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.586615550] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.586642979] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.586648653] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.586681651] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.591435533] [controller_server]: Optimizer reset
+[INFO] [1792077000.591893668] [MPPIController]: Configured MPPI Controller: FollowPath
+[WARN] [1792077000.591922061] [MPPIController]: GPU geometry unavailable (no CUDA-capable device is detected); using original CPU geometry and native Nav2 optimizer
+[WARN] [1792077000.591930948] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792077000.594715651] [controller_server]: Optimizer reset
+[INFO] [1792077000.594734445] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792077000.594749165] [controller_server]: Parameter probe_goal.xy_goal_tolerance not found
+[INFO] [1792077000.597593839] [controller_server]: Optimizer reset
+[WARN] [1792077000.597615912] [controller_server]: Parameter probe_goal.yaw_goal_tolerance not found
+[INFO] [1792077000.599861073] [controller_server]: Optimizer reset
+[WARN] [1792077000.599878291] [controller_server]: Parameter probe_goal.stateful not found
+[INFO] [1792077000.601942701] [controller_server]: Optimizer reset
+[WARN] [1792077000.605502392] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.605564246] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[WARN] [1792077000.605618336] [MPPIController]: Invalid speed limit: all motion is stopped until a valid limit or reset is received
+[INFO] [1792077000.606828403] [cpu_controller_oracle]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.607019815] [cpu_controller_oracle]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.607026837] [cpu_controller_oracle]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.607047850] [cpu_controller_oracle]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.607050728] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.607070043] [cpu_controller_oracle]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.607073375] [cpu_controller_oracle]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.607095745] [cpu_controller_oracle]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.610192525] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.610340636] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.610373905] [MPPIController]: use_gpu=false: original CPU geometry and native Nav2 optimizer
+[WARN] [1792077000.610378474] [cpu_controller_oracle]: Parameter cpu_controller_oracle.verbose not found
+[INFO] [1792077000.612603964] [cpu_controller_oracle]: Optimizer reset
+[INFO] [1792077000.612614991] [MPPIController]: Activated MPPI Controller: FollowPath
+[INFO] [1792077000.612692725] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.612694650] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=1 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=1 native_mppi_calls=0 cycle_mean_ms=0.038222 cycle_max_ms=0.038222 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=0.250
+[INFO] [1792077000.612698375] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=1 direct_cuda_batches=0 centering_cpu_batches=1 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=6 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.612876972] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.614341218] [controller_server]: Optimizer reset
+[INFO] [1792077000.615978686] [controller_server]: Optimizer reset
+[WARN] [1792077000.616020582] [MPPIController]: Invalid speed configuration: motion stopped: PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+[INFO] [1792077000.617293300] [controller_server]: Optimizer reset
+[INFO] [1792077000.618699297] [controller_server]: Optimizer reset
+[INFO] [1792077000.619982375] [controller_server]: Optimizer reset
+[INFO] [1792077000.621286644] [controller_server]: Optimizer reset
+[INFO] [1792077000.625382022] [controller_server]: Optimizer reset
+[INFO] [1792077000.629554872] [controller_server]: Optimizer reset
+[INFO] [1792077000.632114990] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792077000.632120418] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=206 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=83 tracking_commands=65 native_mppi_calls=3 cycle_mean_ms=0.076539 cycle_max_ms=4.156364 cycle_p50_upper_ms=0.250 cycle_p95_upper_ms=0.250 cycle_p99_upper_ms=4.000
+[INFO] [1792077000.632123816] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=148 direct_cuda_batches=0 centering_cpu_batches=33 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=756 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=150 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.632125827] [MPPIController]: GPU_GEOMETRY_SUMMARY cuda_batches=0 boundary_rechecks=0
+[INFO] [1792077000.632543865] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[WARN] [1792077000.632577964] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792077000.633351694] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.633571782] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.633578824] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.633600603] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.633603559] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.633622598] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.633640397] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.633664882] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.636229361] [controller_server]: Optimizer reset
+[INFO] [1792077000.636366146] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.636384332] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.636388133] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.636673415] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.639848306] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.640008006] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.640015159] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.640035606] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.640038984] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.640057925] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.640062061] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.640085926] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.642576323] [controller_server]: Optimizer reset
+[INFO] [1792077000.642705748] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.642719874] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.642723395] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.642951417] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.644028884] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.644185574] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.644192635] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.644213380] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.644216603] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.644235696] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.644239928] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.644262722] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.646738681] [controller_server]: Optimizer reset
+[INFO] [1792077000.646863304] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.646874742] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.646887949] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.647131812] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.652195540] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.652349068] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.652357592] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.652378930] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.652383755] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.652403133] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.652408838] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.652431504] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.654911398] [controller_server]: Optimizer reset
+[INFO] [1792077000.655038734] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.655050876] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.655054278] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.655232068] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.657350048] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792077000.657504592] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792077000.657511835] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[INFO] [1792077000.657532621] [controller_server]: GoalCritic instantiated with 1 power and 5.000000 weight.
+[INFO] [1792077000.657535391] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[INFO] [1792077000.657554608] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792077000.657558141] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[INFO] [1792077000.657581319] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[INFO] [1792077000.660057767] [controller_server]: Optimizer reset
+[INFO] [1792077000.660185365] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792077000.660197458] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=0 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=0 cycle_mean_ms=0.000000 cycle_max_ms=0.000000 cycle_p50_upper_ms=0.000 cycle_p95_upper_ms=0.000 cycle_p99_upper_ms=0.000
+[INFO] [1792077000.660200720] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=0 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=0 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792077000.660269795] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792077000.660668190] [controller_repair_costmap.controller_repair_costmap]: Cleaning up
+[INFO] [1792077000.662911015] [controller_repair_costmap.controller_repair_costmap]: Destroying
+INSTALLED_HUMBLE_ORACLE percentage/absolute/zero-reset and fail-closed encoding passed
+CONTROLLER_BATCH_PARITY vx=0.288 centering_cuda=0 braking_cuda=0 final_cpu_candidates=0 cycle_wall_ms=0.026926
+NATIVE_PUBLIC_LIMIT vx=0.0125534 vy=-0.00160267 wz=-0.0011661
+NATIVE_PUBLIC_LIMIT vx=0.0141301 vy=0.00500951 wz=0.00131249
+NATIVE_PUBLIC_LIMIT vx=0.0108067 vy=0.00132545 wz=-0.00298304
+INVALID_CONFIG_REJECTED PreciseMPPI vx_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vx_min must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI vy_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+INVALID_CONFIG_REJECTED PreciseMPPI wz_max must be finite, representable by Humble's float constraints, and have a valid sign
+PUBLIC_API_CHECKS 198 deterministic/docking/narrow percentage/absolute/reset/invalid commands; dynamic config; native periodic reset; invalid setup passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_checks" classname="gpu_geometry_checks" time="0.212811" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=NVIDIA GeForce RTX 5070 clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=1014 boundary_rechecks=891 scene_updates=496 scene_reuses=10 scene_uploads=470 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_no_device_checks" classname="gpu_geometry_no_device_checks" time="0.0800809" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=no CUDA-capable device is detected clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=0 boundary_rechecks=0 scene_updates=496 scene_reuses=10 scene_uploads=0 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_cuda_checks" classname="gpu_geometry_cuda_checks" time="0.239479" status="run">
+		<system-out>GEOMETRY_CHECKS comparisons=14673 device=NVIDIA GeForce RTX 5070 clearance_comparisons=15477 variable_margin_comparisons=4680 bounded_comparisons=4680 cuda_batches=1014 boundary_rechecks=891 scene_updates=496 scene_reuses=10 scene_uploads=470 indexed_batches=788 passed
+</system-out>
+	</testcase>
+	<testcase name="gpu_geometry_fault_checks" classname="gpu_geometry_fault_checks" time="0.161329" status="run">
+		<system-out>CUDA_FAULT_CHECKS first=CUDA pose upload: an illegal memory access was encountered repeated=CUDA geometry fault latched; reconfigure required passed
+</system-out>
+	</testcase>
+</testsuite>

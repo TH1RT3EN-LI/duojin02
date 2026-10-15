@@ -98,7 +98,7 @@ def test_navigation_build_enables_tests_and_requested_cuda_architectures(monkeyp
     assert commands[0][commands[0].index("--parallel-workers") + 1] == "2"
 
 
-def test_native_cuda_default_matches_orin_without_overriding_image_defaults(monkeypatch, tmp_path):
+def test_native_cuda_default_uses_desktop_without_overriding_image_defaults(monkeypatch, tmp_path):
     monkeypatch.setenv("BUILD_WORKERS", "1")
     monkeypatch.setenv("DUOJIN02_PYTHON", "/usr/bin/python3")
     monkeypatch.delenv("CUDA_ARCHITECTURES", raising=False)
@@ -106,7 +106,7 @@ def test_native_cuda_default_matches_orin_without_overriding_image_defaults(monk
     monkeypatch.setattr(suites, "run", lambda command: commands.append(command))
     monkeypatch.setattr(suites, "load_overlay", lambda path: None)
     suites.build_packages(tmp_path, ["duojin02_navigation"])
-    assert "-DCMAKE_CUDA_ARCHITECTURES=87" in commands[0]
+    assert "-DCMAKE_CUDA_ARCHITECTURES=native" in commands[0]
     docker = suites.docker_command("navigation", tmp_path, "local:testing")
     assert not any(argument.startswith("CUDA_ARCHITECTURES=") for argument in docker)
 

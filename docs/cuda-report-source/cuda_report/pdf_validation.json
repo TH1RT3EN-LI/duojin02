@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-15",
+  "pages": 27,
+  "pdf_sha256": "7f795b63fc2cfac020ee0c6102e72907d53d5c7998c1920141942c6216d69ffc",
+  "pdf_bytes": 545846,
+  "compile_warnings_errors_missing_glyphs": [],
+  "edge_bbox_issues": [],
+  "text_replacement_chars": 0,
+  "unresolved_question_pairs": 0,
+  "rendered_pages": 27,
+  "render_scale": 1.2,
+  "visual_review": "All pages rendered and contact sheets inspected; detailed pages inspected separately.",
+  "math_check_families": 14,
+  "math_checks_all_passed": true
+}
