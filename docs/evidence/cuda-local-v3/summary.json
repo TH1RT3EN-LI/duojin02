@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "epoch": "validation-r3",
+  "scope": "local GPU component parity and actual installed AMCL synthetic replay; no hardware qualification",
+  "started_utc": "2026-10-16T06:29:30.583236+00:00",
+  "finished_utc": "2026-10-16T06:34:32.988425+00:00",
+  "source_manifest_sha256": "758146dee11ad1e2cc5c3d8c62701984dff4dc53802932b928996f9995191136",
+  "source_files": 338,
+  "installed_cuda_files": 284,
+  "installed_cpu_files": 272,
+  "hardware": "name, driver_version, memory.total [MiB]\nNVIDIA GeForce RTX 5070, 580.178.04, 12227 MiB",
+  "build_environment": {
+    "cuda": "12.8.93",
+    "g++": "11.4.0",
+    "cmake": "3.27.9",
+    "cuda_architecture": "120"
+  },
+  "images": {
+    "image": {
+      "Id": "sha256:96dfc157e818a5c09ab57555a7270e97bf7af0a3b7dfea39311d181d72b883c7",
+      "RepoTags": [
+        "duojin02:hardware-humble"
+      ],
+      "Architecture": "amd64",
+      "Os": "linux"
+    },
+    "cpu-image": {
+      "Id": "sha256:4fce3b4d94e7d57a217e15f17cc79116821adfcf2292e1dfa6128682684056b8",
+      "RepoTags": [
+        "duojin02:hardware-humble-cpu",
+        "duojin02:style-cleanup-cpu"
+      ],
+      "Architecture": "amd64",
+      "Os": "linux"
+    }
+  },
+  "tests": {
+    "duojin02_mppi_controller": {
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    "duojin02_amcl_cuda": {
+      "tests": 5,
+      "skipped": 0,
+      "failures": 0
+    },
+    "duojin02_navigation": {
+      "tests": 22,
+      "skipped": 0,
+      "failures": 0
+    },
+    "duojin02_mppi_controller-cpu": {
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    "duojin02_amcl_cuda-cpu": {
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    "duojin02_navigation-cpu": {
+      "tests": 19,
+      "skipped": 0,
+      "failures": 0
+    }
+  },
+  "python_tests_passed": 301,
+  "mppi": {
+    "timing_scope": "whole_computeVelocityCommands_including_path_transform_native_critics_cuda_copies_sync_and_control_update",
+    "maximum_command_delta": 6.765127182006836e-06,
+    "cases": [
+      {
+        "cpu_warm": {
+          "calls": 31,
+          "max_ms": 3.292516,
+          "p50_ms": 2.960482,
+          "p95_ms": 3.130305,
+          "p99_ms": 3.292516
+        },
+        "cuda_warm": {
+          "calls": 31,
+          "max_ms": 1.905425,
+          "p50_ms": 1.607972,
+          "p95_ms": 1.816217,
+          "p99_ms": 1.905425
+        },
+        "fixture": 0,
+        "path_endpoint": [
+          2.5,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "cpu_warm": {
+          "calls": 31,
+          "max_ms": 3.142628,
+          "p50_ms": 3.036404,
+          "p95_ms": 3.141231,
+          "p99_ms": 3.142628
+        },
+        "cuda_warm": {
+          "calls": 31,
+          "max_ms": 1.879705,
+          "p50_ms": 1.659495,
+          "p95_ms": 1.836696,
+          "p99_ms": 1.879705
+        },
+        "fixture": 1,
+        "path_endpoint": [
+          1.5,
+          1.3,
+          0.0
+        ]
+      },
+      {
+        "cpu_warm": {
+          "calls": 31,
+          "max_ms": 3.146245,
+          "p50_ms": 2.959502,
+          "p95_ms": 3.122315,
+          "p99_ms": 3.146245
+        },
+        "cuda_warm": {
+          "calls": 31,
+          "max_ms": 1.933001,
+          "p50_ms": 1.606749,
+          "p95_ms": 1.884983,
+          "p99_ms": 1.933001
+        },
+        "fixture": 2,
+        "path_endpoint": [
+          2.5,
+          0.0,
+          0.35
+        ]
+      }
+    ],
+    "cpu_statistics": {
+      "cpu_rollout_batches": 96,
+      "cpu_update_batches": 96,
+      "cuda_critic_batches": 0,
+      "cuda_noise_batches": 0,
+      "cuda_rollout_batches": 0,
+      "cuda_update_batches": 0,
+      "failures": 0
+    },
+    "cuda_statistics": {
+      "cpu_rollout_batches": 0,
+      "cpu_update_batches": 0,
+      "cuda_critic_batches": 288,
+      "cuda_noise_batches": 96,
+      "cuda_rollout_batches": 96,
+      "cuda_update_batches": 96,
+      "failures": 0
+    },
+    "wrapper_delta": 1.043081283569336e-07,
+    "device_fault": {
+      "after_fault": {
+        "cpu_rollout_batches": 0,
+        "cpu_update_batches": 0,
+        "cuda_critic_batches": 36,
+        "cuda_noise_batches": 12,
+        "cuda_rollout_batches": 12,
+        "cuda_update_batches": 12,
+        "failures": 1
+      },
+      "after_latched": {
+        "cpu_rollout_batches": 0,
+        "cpu_update_batches": 0,
+        "cuda_critic_batches": 36,
+        "cuda_noise_batches": 12,
+        "cuda_rollout_batches": 12,
+        "cuda_update_batches": 12,
+        "failures": 1
+      },
+      "before": {
+        "cpu_rollout_batches": 0,
+        "cpu_update_batches": 0,
+        "cuda_critic_batches": 36,
+        "cuda_noise_batches": 12,
+        "cuda_rollout_batches": 12,
+        "cuda_update_batches": 12,
+        "failures": 0
+      },
+      "first_call_ms": 80.260326,
+      "first_command": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "geometry_gpu": false,
+      "injection": "cudaDeviceReset_in_this_process_after_all_normal_trials",
+      "latched_call_ms": 0.000236,
+      "passed": true,
+      "subsequent_clear_direct_plan_command": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "kinematic_scope": "entry into position/yaw envelope only; stopped speed, dwell and Nav2 Action success are not evaluated"
+  },
+  "amcl": {
+    "scope": "actual_amcl_node_synthetic_paired_replay",
+    "frames": 60,
+    "input_hash_scope": "Canonical complete ROS message fields; CDR serializer padding is excluded",
+    "maximum_position_delta_m": 0.0,
+    "maximum_yaw_delta_rad": 0.0,
+    "covariance_exactly_equal": true,
+    "arms": [
+      {
+        "backend": "cpu",
+        "input_messages_sha256": "fed86f98f0dbfc3c93d7c1f380159ee96a8441edf7fe0d625217a5a179feb4fa",
+        "scan_publish_to_pose_receipt": {
+          "count": 60,
+          "p50_ms": 13.253546,
+          "p95_ms": 13.702674,
+          "p99_ms": 17.091884,
+          "max_ms": 17.091884
+        },
+        "position_rmse_m": 0.02161633901040269,
+        "yaw_rmse_rad": 0.0038102788239179107,
+        "returncode": 0,
+        "final_observation_counters": {
+          "backend": "cpu",
+          "cuda_updates": "0",
+          "cpu_updates": "60",
+          "map_uploads": "0",
+          "failures": "0",
+          "boundary_fallbacks": "0",
+          "particles": "701",
+          "beams": "108",
+          "total_us": "521386.516",
+          "last_us": "2571.728"
+        }
+      },
+      {
+        "backend": "cuda",
+        "input_messages_sha256": "fed86f98f0dbfc3c93d7c1f380159ee96a8441edf7fe0d625217a5a179feb4fa",
+        "scan_publish_to_pose_receipt": {
+          "count": 60,
+          "p50_ms": 2.892464,
+          "p95_ms": 3.388912,
+          "p99_ms": 6.377938,
+          "max_ms": 6.377938
+        },
+        "position_rmse_m": 0.02161633901040269,
+        "yaw_rmse_rad": 0.0038102788239179107,
+        "returncode": 0,
+        "final_observation_counters": {
+          "backend": "cuda",
+          "cuda_updates": "60",
+          "cpu_updates": "0",
+          "map_uploads": "1",
+          "failures": "0",
+          "boundary_fallbacks": "0",
+          "particles": "701",
+          "beams": "108",
+          "total_us": "27133.818",
+          "last_us": "273.729"
+        }
+      }
+    ],
+    "observation_component_timings": [
+      {
+        "particles": "700",
+        "selected_beams": "120",
+        "samples": "30",
+        "warmup": "5",
+        "cpu_median_us": "1956.1",
+        "gpu_median_us": "194.167",
+        "cpu_p95_us": "1989.37",
+        "gpu_p95_us": "245.368",
+        "cold_cpu_us": "1989.88",
+        "cold_gpu_us": "435.819",
+        "max_weight_error": "3.46945e-18",
+        "cuda_updates": "35",
+        "scope": "sensorUpdate_without_resampling"
+      },
+      {
+        "particles": "3000",
+        "selected_beams": "120",
+        "samples": "30",
+        "warmup": "5",
+        "cpu_median_us": "8360.12",
+        "gpu_median_us": "430.861",
+        "cpu_p95_us": "8415.67",
+        "gpu_p95_us": "466.295",
+        "cold_cpu_us": "8383.96",
+        "cold_gpu_us": "548.925",
+        "max_weight_error": "3.46945e-18",
+        "cuda_updates": "35",
+        "scope": "sensorUpdate_without_resampling"
+      }
+    ]
+  },
+  "checks": {
+    "sources_unchanged": true,
+    "installed_artifacts_unchanged": true,
+    "package_license_metadata_install_verified_cuda_and_cpu": true
+  },
+  "raw_epoch_relative_path": "output/cuda-local-v3/validation-r3",
+  "archived_file_sha256": {
+    "amcl-replay.json": "2f4977e880b7c59fa2a634ef0ca87324c43aaefe4feb1327bba64d90043ba6de",
+    "cpu-localization-launch.json": "b71af62de007b59bc0c66cd5f215db56029316badc1981d1c56f40023f788a62",
+    "duojin02_amcl_cuda-cpu-tests.xml": "fbaaaee378ca3afb0d092616fd103e3cee3771aa4d8bddc6ae7bf56c775fdda3",
+    "duojin02_amcl_cuda-tests.xml": "2e42bf47c1de96dcb2c786624086286a91da0986434c47160616ddf0f90ccd00",
+    "duojin02_mppi_controller-cpu-tests.xml": "f7c60a5c2c0afc895dc6ba05e9b8fe128e90e98d4249af2af30674e3a6b27ee9",
+    "duojin02_mppi_controller-tests.xml": "c48d4930fd297d2fe9c0ffff2d4c3ed2b747470f7f49f9b76a0dafdeb6756344",
+    "duojin02_navigation-cpu-tests.xml": "5cde00d872b512dddeae458778ab5381c0952978c51497eb3be758d12820dc27",
+    "duojin02_navigation-tests.xml": "698947ff77f35693e00a2aa4ed66a82c3606271fa02578255ba68080e66b7763",
+    "localization-launch.json": "c5214c45e9ee369bee69c9a66277728a5d08f7403c525df0545bc88f223d7603",
+    "mppi-probe.json": "c7aa57a9d6dca11d2ca28d1148e98235d2791f8ab6be5918c36226ebda58d479",
+    "mppi-probe.log": "1972cb5021cca7f15c40c86256596bd7a679f88b3fe784fb8b2505fc607b64ba",
+    "pathalign-asan/after.cpp": "7b075d64dae638b9c89d67506c2e6126b2b9f23fce6f2dc5da4386deabcad170",
+    "pathalign-asan/after.log": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "pathalign-asan/before.cpp": "e637467de466ae178926ddbde61e1e82910b7856bde48c99a53a328b5af8a0fc",
+    "pathalign-asan/before.log": "6ddc64161fd9375aeb74961b6052c5e0a84ece148854cc8fa10b60e207cd0ae1",
+    "python.log": "f2f9dc30881427bec0d15a315fc2e4d8120c0d013985306124c8823e6d664c8a",
+    "validation.json": "d776a7bf1671fc59fafbaef6d5271a899cfb35ee4629270b2b7403e2dbce0fe3"
+  }
+}

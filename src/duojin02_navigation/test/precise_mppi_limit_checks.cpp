@@ -7,7 +7,7 @@
 
 using namespace duojin02_navigation;
 
-class NativeOracle : public mppi::Optimizer {
+class NativeOracle : public duojin_mppi::Optimizer {
 public:
   NativeOracle() {
     settings_.base_constraints = {.5f, -.2f, .3f, .65f};
@@ -92,6 +92,8 @@ int main(int argc, char **argv) {
     o.parameter_overrides(
         {rclcpp::Parameter("controller_frequency", 20.),
          rclcpp::Parameter("FollowPath.use_gpu", use_gpu),
+         rclcpp::Parameter("FollowPath.optimizer_backend", std::string(use_gpu ? "auto" : "cpu")),
+         rclcpp::Parameter("FollowPath.optimizer_seed", 42),
          rclcpp::Parameter("FollowPath.gpu_minimum_work", 0),
          rclcpp::Parameter("FollowPath.vx_max", .5), rclcpp::Parameter("FollowPath.vx_min", -.2),
          rclcpp::Parameter("FollowPath.vy_max", .3), rclcpp::Parameter("FollowPath.wz_max", .65),

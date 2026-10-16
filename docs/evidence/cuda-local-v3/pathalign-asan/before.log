@@ -1,0 +1,52 @@
+=================================================================
+==803534==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x759e529e0020 at pc 0x6173de333d35 bp 0x7ffc5a364530 sp 0x7ffc5a364520
+READ of size 4 at 0x759e529e0020 thread T0
+    #0 0x6173de333d34 in findClosestPathPt(std::vector<float, std::allocator<float> > const&, float, unsigned long) /home/th1rt3en/dev/forge/duojin02-cuda-local/output/cuda-local-v3/pathalign-asan/before.cpp:7
+    #1 0x6173de333d34 in main /home/th1rt3en/dev/forge/duojin02-cuda-local/output/cuda-local-v3/pathalign-asan/before.cpp:10
+    #2 0x797e5362a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #3 0x797e5362a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #4 0x6173de333244 in _start (/tmp/mppi-pathalign-before+0x1244) (BuildId: 113041f6821984634ae50970c1688c1a5709cb4e)
+
+0x759e529e0020 is located 0 bytes after 16-byte region [0x759e529e0010,0x759e529e0020)
+allocated by thread T0 here:
+    #0 0x797e53f2c73f in operator new(unsigned long) ../../../../src/libsanitizer/asan/asan_new_delete.cpp:109
+    #1 0x6173de3334be in std::__new_allocator<float>::allocate(unsigned long, void const*) /usr/include/c++/15/bits/new_allocator.h:151
+    #2 0x6173de3334be in std::allocator_traits<std::allocator<float> >::allocate(std::allocator<float>&, unsigned long) /usr/include/c++/15/bits/alloc_traits.h:614
+    #3 0x6173de3334be in std::_Vector_base<float, std::allocator<float> >::_M_allocate(unsigned long) /usr/include/c++/15/bits/stl_vector.h:387
+    #4 0x6173de3334be in void std::vector<float, std::allocator<float> >::_M_range_initialize_n<float const*, float const*>(float const*, float const*, unsigned long) /usr/include/c++/15/bits/stl_vector.h:1985
+    #5 0x6173de3334be in std::vector<float, std::allocator<float> >::vector(std::initializer_list<float>, std::allocator<float> const&) /usr/include/c++/15/bits/stl_vector.h:712
+    #6 0x6173de3334be in main /home/th1rt3en/dev/forge/duojin02-cuda-local/output/cuda-local-v3/pathalign-asan/before.cpp:10
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/th1rt3en/dev/forge/duojin02-cuda-local/output/cuda-local-v3/pathalign-asan/before.cpp:7 in findClosestPathPt(std::vector<float, std::allocator<float> > const&, float, unsigned long)
+Shadow bytes around the buggy address:
+  0x759e529dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x759e529dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x759e529dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x759e529dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x759e529dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x759e529e0000: fa fa 00 00[fa]fa fa fa fa fa fa fa fa fa fa fa
+  0x759e529e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x759e529e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x759e529e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x759e529e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x759e529e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==803534==ABORTING

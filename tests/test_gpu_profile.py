@@ -45,7 +45,7 @@ def selected_profile(tmp_path, use_gpu):
     return selected, data
 
 
-@pytest.mark.parametrize("entry", ["navigation", "nav2", "navigation_stack", "online_navigation"])
+@pytest.mark.parametrize("entry", ["navigation", "nav2", "navigation_stack", "online_navigation", "localization"])
 @pytest.mark.parametrize("selected", [True, False])
 def test_each_entry_reads_default_from_selected_navigation_file(
     entry, selected, tmp_path, monkeypatch
@@ -68,7 +68,7 @@ def test_each_entry_reads_default_from_selected_navigation_file(
 
 @pytest.mark.parametrize("selected", [True, False])
 @pytest.mark.parametrize("override", ["true", "false"])
-def test_final_override_changes_only_geometry_switch(selected, override, tmp_path):
+def test_final_override_controls_all_cuda_backends(selected, override, tmp_path):
     path, original = selected_profile(tmp_path, selected)
     context = LaunchContext()
     context.launch_configurations.update(params_file=str(path), use_gpu=override)
@@ -78,6 +78,9 @@ def test_final_override_changes_only_geometry_switch(selected, override, tmp_pat
     actual = yaml.safe_load(Path(output).read_text())
     expected = copy.deepcopy(original)
     expected["controller_server"]["ros__parameters"]["FollowPath"]["use_gpu"] = override == "true"
+    if override == "false":
+        expected["controller_server"]["ros__parameters"]["FollowPath"]["optimizer_backend"] = "cpu"
+        expected["amcl"]["ros__parameters"]["observation_backend"] = "cpu"
     assert actual == expected
     assert yaml.safe_load(path.read_text()) == original
 
@@ -86,6 +89,27 @@ def test_final_override_changes_only_geometry_switch(selected, override, tmp_pat
 def test_gpu_switch_rejects_ambiguous_choices(value):
     with pytest.raises(ValueError, match="true or false"):
         parse_use_gpu(value)
+
+
+@pytest.mark.parametrize("backend", ["cpu", "auto", "cuda"])
+def test_backend_policy_is_preserved_when_enabled_and_cpu_overridden(tmp_path, backend):
+    path, data = selected_profile(tmp_path, True)
+    data["controller_server"]["ros__parameters"]["FollowPath"]["optimizer_backend"] = backend
+    data["amcl"]["ros__parameters"]["observation_backend"] = backend
+    path.write_text(yaml.safe_dump(data))
+    for enabled, expected in (("true", backend), ("false", "cpu")):
+        output = gpu_parameters(str(path), enabled).perform(LaunchContext())
+        actual = yaml.safe_load(Path(output).read_text())
+        assert actual["controller_server"]["ros__parameters"]["FollowPath"]["optimizer_backend"] == expected
+        assert actual["amcl"]["ros__parameters"]["observation_backend"] == expected
+
+
+def test_invalid_component_backend_is_rejected(tmp_path):
+    path, data = selected_profile(tmp_path, True)
+    data["amcl"]["ros__parameters"]["observation_backend"] = "CUDA"
+    path.write_text(yaml.safe_dump(data))
+    with pytest.raises(ValueError, match="must be cpu, auto or cuda"):
+        gpu_parameters(str(path), "true").perform(LaunchContext())
 
 
 def test_selected_yaml_switch_must_be_an_explicit_boolean(tmp_path):
@@ -122,7 +146,7 @@ def test_fixed_navigation_passes_choice_through_both_includes(tmp_path, monkeypa
     (tmp_path / "map.pgm").write_bytes(b"P5\n1 1\n255\n\xff")
     context.launch_configurations.update(map=str(map_file), autostart="false")
     nav2 = load_launch("nav2", monkeypatch)
-    actions = nav2._create_nav_actions(context, str(BRINGUP))
+    actions = nav2._create_nav_actions(context)
     nested = [
         child
         for action in actions

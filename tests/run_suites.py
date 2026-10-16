@@ -16,7 +16,7 @@ INTEGRATION = ROOT / "tests/integration"
 SUITES = ("quick", "navigation", "slam", "lidar")
 LAUNCHES = (
     "base", "mapping", "navigation", "navigation_stack", "online_navigation",
-    "velocity_guard", "nav2", "slam", "offline_mapping", "save_map", "joy_teleop",
+    "velocity_guard", "nav2", "localization", "slam", "offline_mapping", "save_map", "joy_teleop",
 )
 
 
@@ -148,6 +148,9 @@ def run_ctest(directory, required):
 
 
 def build_packages(directory, packages):
+    packages = list(packages)
+    if "duojin02_navigation" in packages:
+        packages = ["duojin02_mppi_controller", "duojin02_amcl_cuda", *packages]
     python = os.environ["DUOJIN02_PYTHON"]
     options = [
         "-DCMAKE_BUILD_TYPE=Release", "-DBUILD_TESTING=ON",

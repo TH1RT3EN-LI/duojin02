@@ -39,6 +39,8 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         "duojin02_slam_tools",
         "duojin02_teleop",
         "duojin02_navigation",
+        "duojin02_mppi_controller",
+        "duojin02_amcl_cuda",
         "lslidar_driver",
     }
     for name, tree in packages.items():
@@ -119,9 +121,7 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     (tmp_path / "0.pgm").write_bytes(b"P5\n1 1\n255\n\xff")
     context = LaunchContext()
     context.launch_configurations["map"] = str(map_file)
-    actions = load_launch("nav2")._create_nav_actions(
-        context, get_package_share_directory("nav2_bringup")
-    )
+    actions = load_launch("nav2")._create_nav_actions(context)
     grouped_actions = [
         entity
         for action in actions

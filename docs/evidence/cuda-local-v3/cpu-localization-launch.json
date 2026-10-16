@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "domain": 221,
+  "arms": [
+    {
+      "use_gpu": "false",
+      "expected_backend": "cpu",
+      "parameters": {
+        "observation_backend": "cpu",
+        "laser_model_type": "likelihood_field_prob",
+        "robot_model_type": "nav2_amcl::OmniMotionModel"
+      },
+      "both_active": true,
+      "exit_code": 0,
+      "clean_child_exits": {
+        "amcl-2": "1370",
+        "lifecycle_manager-3": "1372",
+        "map_server-1": "1368"
+      },
+      "surviving_group_members": []
+    },
+    {
+      "use_gpu": "true",
+      "expected_backend": "auto",
+      "parameters": {
+        "observation_backend": "auto",
+        "laser_model_type": "likelihood_field_prob",
+        "robot_model_type": "nav2_amcl::OmniMotionModel"
+      },
+      "both_active": true,
+      "exit_code": 0,
+      "clean_child_exits": {
+        "amcl-2": "1408",
+        "lifecycle_manager-3": "1410",
+        "map_server-1": "1406"
+      },
+      "surviving_group_members": []
+    }
+  ],
+  "scope": "real installed localization launch and lifecycle/parameter wiring; no movement"
+}

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>duojin02_navigation</name>
-  <version>0.2.0</version>
-  <description>Local CUDA indexed geometry and batched control validation with CPU braking admission.</description>
+  <version>0.3.0</version>
+  <description>Source-pinned CUDA MPPI, indexed geometry and batched control validation with CPU braking admission.</description>
   <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -20,7 +20,7 @@
   <depend>nav2_core</depend>
   <depend>nav2_costmap_2d</depend>
   <depend>pluginlib</depend>
-  <depend>nav2_mppi_controller</depend>
+  <depend>duojin02_mppi_controller</depend>
   <depend>nav2_controller</depend>
   <depend>nav2_behavior_tree</depend>
   <depend>nav2_msgs</depend>

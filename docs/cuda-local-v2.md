@@ -1,5 +1,7 @@
 # 本机 CUDA 版本 0.2.0-local-cuda.1
 
+这是提交 `bb08da1` 的历史记录。当前 MPPI/AMCL 实现与复现入口见 [v3 说明](cuda-local-v3.md)；下文的未实现范围和测试命令仅对应该历史版本。
+
 本版本依据 `duojin02_cuda_acceleration_report_source.zip` 的阶段一及几何共享基础设施建议实现。开发目录为 `duojin02-cuda-local`，独立 Git 分支为 `codex/local-cuda-v2`；原工作区和未提交修改未被改写。基线提交 `5451efdb2e54b04ca30f825f38f296819efb38df` 保存了当时的源码状态，原报告源文件位于 `docs/cuda-report-source/cuda_report/`。
 
 ## 已实现的路径

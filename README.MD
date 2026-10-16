@@ -1,16 +1,27 @@
-# Duojin02 本机 CUDA 新版本
+# Duojin02 本机 CUDA 版本
 
-版本 `0.2.0-local-cuda.1`，从当前工作树单独复制，开发分支为 `codex/local-cuda-v2`。本次目标平台是本机 RTX 5070 / x86_64 / ROS 2 Humble，依据 CUDA 重构报告落实场景复用、空间索引和控制器批量几何检查。原项目保持不变。
+版本 `0.3.0-local-cuda.1`。本目录在上一版本基础上继续实现 **MPPI 优化器与 AMCL 激光观测更新的 CUDA 路径**，目标为本机 RTX 5070 / x86_64 / ROS 2 Humble。源码固定到 Nav2 `1.1.20`，两个独立包避免与系统安装的 Nav2 库混用。
 
-实现范围、验证结果及本机复现入口见 [本机 CUDA 版本说明](docs/cuda-local-v2.md)。原生 Nav2 MPPI 优化器、AMCL 和 SLAM 尚未迁移到 GPU。下方保留原项目的硬件操作说明，本版本尚未做 Jetson 适配和实物导航验收。
+- MPPI：GPU 高斯采样、速度/位姿展开、控制代价、softmax、加权控制更新，以及五类 critic；地图碰撞和路径对齐评分仍用原生 CPU 实现。
+- AMCL：GPU 粒子×光束评分，支持当前 `likelihood_field_prob`、普通 `likelihood_field` 和 beam skipping；归一化、运动模型、KLD 重采样保留 CPU 实现。
+- 原有几何 CUDA、制动复验和下游速度保护继续生效。详见 [实现、验证与边界](docs/cuda-local-v3.md)，上一版本证据见 [v2 记录](docs/cuda-local-v2.md)。
 
-本机已有 `duojin02:hardware-humble` 依赖镜像时，可在本目录直接复现构建、实际 CUDA 检查与配对基准：
+本机已有 `duojin02:hardware-humble` 依赖镜像时，在本目录执行：
 
 ```bash
-python3 scripts/validate_cuda_local.py --architecture 120 --samples 40
+python3 scripts/validate_cuda_algorithms.py --architecture 120 --jobs 2 --frames 60
 ```
 
-输出写入 `output/cuda-local-v2/` 下唯一命名的运行目录，最终验收记录为 `validation-r2/`；本版导航插件安装到 `install/cuda-local/`。测试容器不映射底盘或雷达设备，独立于原工作区。
+该入口构建当前源码、运行原生测试、检查真实插件和定位节点，将新记录保存到 `output/cuda-local-v3/` 的独立目录。安装前缀为 `install/cuda-local-v3/`。在同一 ROS/CUDA 容器中可单独构建及选择此版本：
+
+```bash
+./scripts/build_cuda_local.sh
+source ./scripts/source_cuda_local.sh
+```
+
+`use_gpu:=false` 将几何、MPPI 和 AMCL 全部切为 CPU。开启时分别使用 YAML 的 `optimizer_backend` 与 `observation_backend`：`auto` 允许无设备回退，`cuda` 强制设备可用，`cpu` 固定 CPU。默认确定性采样种子为 42；`optimizer_seed: -1` 可保留 Nav2 的 CPU 噪声生成器，此时仍可加速展开和更新。
+
+以下硬件操作说明沿用原项目。本次验证范围是本机组件与合成输入回放，Jetson、实物底盘和完整真实环境导航需要另行验证。
 
 ## 原项目硬件操作说明
 
@@ -26,7 +37,7 @@ Jetson 直接原生安装和运行，无需 Docker。先安装 [ROS 2 Humble](ht
 source ./source.sh
 ```
 
-安装和构建共用一套依赖声明、系统 Python 和固定版本 CMake；Jetson 沿用 JetPack 的 CUDA。构建脚本会准备项目补丁版 SLAM Toolbox 和全部 7 个 ROS 包。跨架构只传源码、地图和录包，重新生成 `build/`、`install/`。旧版本升级时，先移走旧构建产物，再构建并打开新终端。
+安装和构建共用一套依赖声明、系统 Python 和固定版本 CMake；Jetson 沿用 JetPack 的 CUDA。构建脚本会准备项目补丁版 SLAM Toolbox 和全部 9 个 ROS 包。跨架构只传源码、地图和录包，重新生成 `build/`、`install/`。旧版本升级时，先移走旧构建产物，再构建并打开新终端。
 
 串口用户需有 `dialout` 组权限，新增组成员后重新登录。按设备身份确认底盘和雷达，将下面的占位路径替换为实际设备；不要按串口枚举顺序判断：
 
@@ -51,7 +62,7 @@ sudo ./scripts/set_dev.sh /dev/ttyACM_LIDAR lslidar Lslidar
 
 建图、固定图导航、在线导航三选一，它们已启动底盘和雷达。地图需自行采集或提供；在线导航接收目标，不包含自主探索。固定图启动后，在 RViz 用 **2D Pose Estimate** 设置真实初始位置，检查扫描与地图对齐，等待扫描、TF 和导航节点就绪后发送目标。
 
-建图和固定图导航在无显示器时加 `use_rviz:=false`；在线导航不自动启动 RViz。导航默认尝试 GPU 几何加速，无 CUDA 能力时回退 CPU；加 `use_gpu:=false` 可指定 CPU，两者使用同一套导航参数和优化器。其他启动参数可用 `ros2 launch duojin02_bringup mapping.launch.py --show-args` 查看，替换文件名即可检查其他入口。
+建图和固定图导航在无显示器时加 `use_rviz:=false`；在线导航不自动启动 RViz。导航默认尝试配置的 GPU 几何、MPPI 和 AMCL 加速，无 CUDA 能力时自动策略回退 CPU；加 `use_gpu:=false` 可指定 CPU，两者保留相同的轨迹规模、传感器和运动参数。其他启动参数可用 `ros2 launch duojin02_bringup mapping.launch.py --show-args` 查看，替换文件名即可检查其他入口。
 
 在已运行的系统上另开终端启动键盘遥控：
 

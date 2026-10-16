@@ -1,0 +1,378 @@
+{
+  "repository": "https://github.com/ros-navigation/navigation2",
+  "tag": "1.1.20",
+  "commit": "a097086719c88f781aa59788eca29ac6ca5e56db",
+  "package": "nav2_mppi_controller",
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "git_blob_sha1": "3ca6735e40b4bedacaee050b01a9ed955586aec2",
+      "sha256": "fc57ba2c7b090ec24ee98c02ab9176dcb531cff49a15c95cc5dfa1c4b9942004"
+    },
+    {
+      "path": "LICENSE.md",
+      "git_blob_sha1": "57a5719427ab20ccccf6989c0b66cb07454db6fa",
+      "sha256": "fd511b3d95b4cfc9f0a5f82ed8f1238d664e1e54d11e70c10a3e3651d859e0c4"
+    },
+    {
+      "path": "README.md",
+      "git_blob_sha1": "e80f679219ccc61bbc15e77ba69bce8b14f0482c",
+      "sha256": "da3ed899455d71ecce11555b22bc9a69dde08d244578d1bce3398695582f8b35"
+    },
+    {
+      "path": "benchmark/CMakeLists.txt",
+      "git_blob_sha1": "97db9f41853d9235102ac571a954c148292da148",
+      "sha256": "06e38710c61807791549174fbdb635eabc9a595aaa8ac063da40ff89ba43d608"
+    },
+    {
+      "path": "benchmark/controller_benchmark.cpp",
+      "git_blob_sha1": "9a2cabb4dcb8f3c0f7a395353f4388f72e138f86",
+      "sha256": "8a0325a253b53a3ad2058bc0a01d11f169d51d182ba02ab419917b3165f554f0"
+    },
+    {
+      "path": "benchmark/optimizer_benchmark.cpp",
+      "git_blob_sha1": "a7216bc80d78a0a4caf7029b125ece9b9d2d7c63",
+      "sha256": "786a9a1ecede3eea2c3eb662ff805a12d9b895eff0f99a01e030daebcfac0901"
+    },
+    {
+      "path": "critics.xml",
+      "git_blob_sha1": "6085dbec885e182c1e29677a83a24a09df5f7adc",
+      "sha256": "e53fd23342f164fd64d820bb6a9e5ae59fbd4a1323be12c0d47a44fb6a5fd079"
+    },
+    {
+      "path": "include/nav2_mppi_controller/controller.hpp",
+      "git_blob_sha1": "2d7f2aa8ca4719732cfd11236f3d0b4358a34593",
+      "sha256": "1595f435c5b8b47f7a68b0d0f527f97dbab96056d99a4b72fcc3a6db86845897"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critic_data.hpp",
+      "git_blob_sha1": "31965eb1cfc21d08dfcf461fd3f1bb467bc5dee9",
+      "sha256": "ea6e3bae59d008a73b0e960fb298c1b2ab8a82f7a671c07a116046f59f250863"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critic_function.hpp",
+      "git_blob_sha1": "88d277c14ee19c0abb23205dbb7dc45005c2a99d",
+      "sha256": "42c080bcbb3d1cc8377e0da800cb56e7b138714e623d4893e11c8414bff89ed6"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critic_manager.hpp",
+      "git_blob_sha1": "d9a6645659b0d7c6108a6cd13d9e12fcd2726ca6",
+      "sha256": "2ee83419a51456492a75b058142a5e9c7f8c32803ff63e1608bf73815751a97a"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/constraint_critic.hpp",
+      "git_blob_sha1": "ef53434189264f42269956acd6cce5538851e002",
+      "sha256": "4653d4a69b3368f7a5a48914793e4704354c230b2a37ea3e03132098bb451962"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/cost_critic.hpp",
+      "git_blob_sha1": "77df20adcb5f97d86c7aa6d28978a44e1cf507a7",
+      "sha256": "39e8c4215d8b45273979044c427b4da7fc9bae532941e2746791d810a7f798a3"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/goal_angle_critic.hpp",
+      "git_blob_sha1": "08ec354cf3b7cd192ad482bede0f8795063d6b87",
+      "sha256": "86a0a5f80a7b9617d205c69f29b7a89cf6c6f00752e91cdb00333d258dfd6e41"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/goal_critic.hpp",
+      "git_blob_sha1": "8fb8fb688ae07bc6a725558dca1a65ba3bd95d01",
+      "sha256": "fbbb0f9493f346ea34c9c02cc36300b5b4b97441059366a7a5c41853ac4b283a"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/obstacles_critic.hpp",
+      "git_blob_sha1": "fd6eeab01282b1866c03056ae185d8d243b5b840",
+      "sha256": "881bd412049416715ae8a98fcb6865848492b51b66f00105a0f15b3123022b67"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/path_align_critic.hpp",
+      "git_blob_sha1": "f7ad2fda6a9d2dbfeaefa3bbb3abef720d1c7bf7",
+      "sha256": "ce407dcaad9eb37b7179b8eb0c71953ddefe001460266d44a1de939f8898ad93"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/path_align_legacy_critic.hpp",
+      "git_blob_sha1": "65d9d0d61e7c32f52c332e707e1e9547e1bdff3c",
+      "sha256": "f93826fd2430b6c753947f28cdd8244783f1830d0bae92c9e06216521446b2ae"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/path_angle_critic.hpp",
+      "git_blob_sha1": "e3ae2f67a282892870c365da691e20735593750e",
+      "sha256": "0910249f71f230dd730b452a88694080ca7d58eb23935c11ca8d9652bf20f5da"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/path_follow_critic.hpp",
+      "git_blob_sha1": "c06fba5b896a0b1b1762c7227a7114b8ead58955",
+      "sha256": "72b85f5aeaefc8e7c48a9e775432d116c9eb3042a58d5ea0a3b2645192bf81ab"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/prefer_forward_critic.hpp",
+      "git_blob_sha1": "e17ad235e5c64391022be481d02e22dd38c27912",
+      "sha256": "7d5401bee76f5188467c7d96a4427928a5c53dc3aace3a99f9e3d960a550a399"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/twirling_critic.hpp",
+      "git_blob_sha1": "3e316a567e09fe629f7b7a33d54ea746eaa345fc",
+      "sha256": "cb16742100f3f18d568ad98e5a85e65274695df821c6215b4021475cbc3e6127"
+    },
+    {
+      "path": "include/nav2_mppi_controller/critics/velocity_deadband_critic.hpp",
+      "git_blob_sha1": "76e1dbd670fa62f8340654e1a4643fb89bbb63f0",
+      "sha256": "c8ab68c80ade4480e8dc2db6daf84bd302ae60121dc0d975e7199e4a4bdafbf4"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/constraints.hpp",
+      "git_blob_sha1": "5e1885c271f352b908aab5d0808fa17c88f09ea0",
+      "sha256": "df738ba617d6f3688f7950bf9e2fc2b3eb9b73363b0bfc5041853b544902d6a3"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/control_sequence.hpp",
+      "git_blob_sha1": "7a96ad1c94e4ef858e1d26baef19332835edb1f1",
+      "sha256": "aeea101f79922755838757c7c1ab8599dca064a28a097d51465af5a3cb9fadde"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/optimizer_settings.hpp",
+      "git_blob_sha1": "61d7da74ec5e00db6d239912fc1096aa6011da5f",
+      "sha256": "5e3fccd7765ef2b2b3b00e1995bcbf29373cead81601752a9f352d886d584432"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/path.hpp",
+      "git_blob_sha1": "241a6928bab2cbce7f2773fb04eef64e115c1686",
+      "sha256": "e21dba4b220ab54077835d37370fc962b767f6e346a352c63fd0847319327155"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/state.hpp",
+      "git_blob_sha1": "7dd19eaff395e1d1bf3bae7323e41532f93d7aa3",
+      "sha256": "a8c253843fff10a396b8b78da93664e22c5ea664ff19b722182b996b7140bebc"
+    },
+    {
+      "path": "include/nav2_mppi_controller/models/trajectories.hpp",
+      "git_blob_sha1": "fa2c0181204b45d696012fba16fc12fe58f5bef1",
+      "sha256": "36b035e972f45479346809008f5d606adce8fa213a828ea2e22a62e5d1e12f8d"
+    },
+    {
+      "path": "include/nav2_mppi_controller/motion_models.hpp",
+      "git_blob_sha1": "4fa1261a00f75ed5f2f9477f868a35d258af5f59",
+      "sha256": "2f6d4d3ee958566cf2c69e4e6276cddc88290951b5f467386c378227ec01a9b9"
+    },
+    {
+      "path": "include/nav2_mppi_controller/optimizer.hpp",
+      "git_blob_sha1": "b7200575f706313d2893c7ce85b0e17d550afebd",
+      "sha256": "cbe121e6d1bfd2dd90a87d299f55a0de955ead8bb553b7c6bf37ae4bf977cd1e"
+    },
+    {
+      "path": "include/nav2_mppi_controller/tools/noise_generator.hpp",
+      "git_blob_sha1": "a811d998e41ccfef0fa4ba4e3128987eb4b379f4",
+      "sha256": "f8e0723aa3829f7def84a483fd37da13cf1c3e0fa5a8068c4a572ea2c86a872f"
+    },
+    {
+      "path": "include/nav2_mppi_controller/tools/parameters_handler.hpp",
+      "git_blob_sha1": "1667fa6d79d4b2ac4a31fdfc9e767f6f46f38e57",
+      "sha256": "755bdec229ab89060235c138afb9ec12a7c81929804babb60715551000d4c583"
+    },
+    {
+      "path": "include/nav2_mppi_controller/tools/path_handler.hpp",
+      "git_blob_sha1": "2c9f3aef8bb3141aaacf7c9491310b02960de8ce",
+      "sha256": "3bb0aa37fb24514bb90574568f9481fea19021760a6233341b6759fd6b19410d"
+    },
+    {
+      "path": "include/nav2_mppi_controller/tools/trajectory_visualizer.hpp",
+      "git_blob_sha1": "6ecdbdcb8dca6ca37e07257dd029fae4ea870768",
+      "sha256": "5480a0eff628c336812cd4babdde88e3ad24404e1bcfa7cc445a9a7551b0f92c"
+    },
+    {
+      "path": "include/nav2_mppi_controller/tools/utils.hpp",
+      "git_blob_sha1": "9d8c49a9cfdb3e7591b8adb849159bd4d443c788",
+      "sha256": "cd48e40c5e698eaf6568ef6f50671e1b90190c8210464d2b7dff54fdc5f2dbe7"
+    },
+    {
+      "path": "media/demo.gif",
+      "git_blob_sha1": "68031ef5155f45fc26dcb4a4579025809c2912ca",
+      "sha256": "5fef279991aff4a06a09d12150ea0a4c30f5042fd2dc4d50bbdbe97e69b7b009"
+    },
+    {
+      "path": "mppic.xml",
+      "git_blob_sha1": "021a3be8eb096261bae10d68e58173bed6318747",
+      "sha256": "56c34be47d0854eb1c511eccc205750dedd7e6b9706a1d6a6e9ce09151b403aa"
+    },
+    {
+      "path": "package.xml",
+      "git_blob_sha1": "60ff55db4986b2ebd101dafddc762c8153819104",
+      "sha256": "84ecef6a5502d1775e891a9fbb2103b1d27280813a4048d5e6fcc1ca9b30d395"
+    },
+    {
+      "path": "src/controller.cpp",
+      "git_blob_sha1": "8a631f97526066066a827919f9b406aeec795ab1",
+      "sha256": "9b5524ad0437c914592484f5b7cd306233d8389ced22cd97d2f6ad92197c9aaf"
+    },
+    {
+      "path": "src/critic_manager.cpp",
+      "git_blob_sha1": "2a7a77a234699b0130f67a55a76557712dce0615",
+      "sha256": "339587bccec06962453893eba577aa3ad9b65aa804ea12999dec5be8f73fce3b"
+    },
+    {
+      "path": "src/critics/constraint_critic.cpp",
+      "git_blob_sha1": "e9774c7775f552b6165b6722d37e5d924394629e",
+      "sha256": "9339e5ff7188f8ab38d325190c9333a2855d3fda73eaf5c394314b2acc5bc181"
+    },
+    {
+      "path": "src/critics/cost_critic.cpp",
+      "git_blob_sha1": "191d7c3bbc2d5f75c1cef86ac7fa9ce5d515f065",
+      "sha256": "0630dc3f8302d146d7f5317ee2c3fc940cc6f6ad63f26b19bf0aa630accc7fa4"
+    },
+    {
+      "path": "src/critics/goal_angle_critic.cpp",
+      "git_blob_sha1": "604ee24eb1d4bc7ddc35e8d4b6b38056710533d5",
+      "sha256": "b25702f44ff69df1faf90769cb585025fbeb8f8f2154529f18b21e52cc0b707c"
+    },
+    {
+      "path": "src/critics/goal_critic.cpp",
+      "git_blob_sha1": "f61d6fd2b2132be7f06002061e1272ba49edc521",
+      "sha256": "a58f7be349737e12dde79b9bbf17e72dd297df6283bf4f5be7074a7322f510ab"
+    },
+    {
+      "path": "src/critics/obstacles_critic.cpp",
+      "git_blob_sha1": "cae73fe3c8892422263ae352e673ab3ba0146617",
+      "sha256": "81b5972ebcfe00f0ea250def95ba35e83a4a9e258ed7dfeffb8d364cc208d908"
+    },
+    {
+      "path": "src/critics/path_align_critic.cpp",
+      "git_blob_sha1": "b103f5b5f64ddebc767743de3d07691065b590b4",
+      "sha256": "1bb0cd21617e04a065383ce2eedc3bfdf91cfc0690df9b6c74042bfc01f293a6"
+    },
+    {
+      "path": "src/critics/path_align_legacy_critic.cpp",
+      "git_blob_sha1": "a04f4a9fa9546cb6999b5ceb1e9d310be70b8ded",
+      "sha256": "983515fe591bf0f1597b0511ad3f36e99293c3445598786d4fe9b8d5ea425f85"
+    },
+    {
+      "path": "src/critics/path_angle_critic.cpp",
+      "git_blob_sha1": "f09554bf1892189aa8640b32ef68cc31fc459c5e",
+      "sha256": "f263bc82af25f94ef7f65806eacab8869487a794c460cccd8f02477772b525d2"
+    },
+    {
+      "path": "src/critics/path_follow_critic.cpp",
+      "git_blob_sha1": "01ecb91728e00c1d170582ed327842a08f61cc09",
+      "sha256": "6db360540dffa932b5c31a8ccb796e0111baa53c72c3005288fda192ac24d884"
+    },
+    {
+      "path": "src/critics/prefer_forward_critic.cpp",
+      "git_blob_sha1": "08e755dd6affe55a891820eb4eea1bac92f45b78",
+      "sha256": "b52cdba33d75d44160bd2c1f494e6b2bd3be7fb5e0c49b572611a14cefa79a23"
+    },
+    {
+      "path": "src/critics/twirling_critic.cpp",
+      "git_blob_sha1": "6b492d13ba04fff2fe32317d2c76c964f5bfe63a",
+      "sha256": "1bbe74130b312cd896773190174455afc6eec36e03e2c7a543de14d14eb2de50"
+    },
+    {
+      "path": "src/critics/velocity_deadband_critic.cpp",
+      "git_blob_sha1": "84d3aba303b016f6f086be09af624d90dc845a87",
+      "sha256": "c833779c97dc8d67e8743ab1cea02bfb324ac352b17e1ae5248ce52dc3d00d3f"
+    },
+    {
+      "path": "src/noise_generator.cpp",
+      "git_blob_sha1": "b7c452aa6a48632bf9ff4e6e82a3fc2b63e6e715",
+      "sha256": "5d7e3899a56c6c0d49a0b6433e39d61affef7dcfd15b23911219bc14bd05224b"
+    },
+    {
+      "path": "src/optimizer.cpp",
+      "git_blob_sha1": "ee6d708e5cc83804eb7c255731218a201457d8bb",
+      "sha256": "50489455e643cdc5b79a219c8a1886e1a5320a838cea145df9b7fc389a6ad8db"
+    },
+    {
+      "path": "src/parameters_handler.cpp",
+      "git_blob_sha1": "fd284b60d4717fe4ff714f55e2674d8808d8d8ca",
+      "sha256": "d535be8fa086fe015e7b4396f8bcb340e662e525b8e2ae197c0df95e884b29c8"
+    },
+    {
+      "path": "src/path_handler.cpp",
+      "git_blob_sha1": "893f9286c8d462043c326fd220e9e1a4cb5fb333",
+      "sha256": "3c0447e34598a1a12364179b57063c4c812d0038909856613b560d92c5da9ff1"
+    },
+    {
+      "path": "src/trajectory_visualizer.cpp",
+      "git_blob_sha1": "a6531b7d1df7b1566220a18edb397b035d45552e",
+      "sha256": "e83c7a847173feeacd00ca769f293b535852bba16eff3489d367216df29f1abb"
+    },
+    {
+      "path": "test/CMakeLists.txt",
+      "git_blob_sha1": "6305d4e31a10463d0207264b435d5ac1bcd47fd8",
+      "sha256": "df3103f756f62c87614dea391c3b15114298661372b14ee5cbb40af9be8a79cd"
+    },
+    {
+      "path": "test/controller_state_transition_test.cpp",
+      "git_blob_sha1": "e003859c6271a531d834d9820001ca9f9872b9ae",
+      "sha256": "e29303075577c97994e5d0022d4ff1f52194eefa04ab09b07bb7567d5e238012"
+    },
+    {
+      "path": "test/critic_manager_test.cpp",
+      "git_blob_sha1": "af4e18604991634b4b0f11328cfae90175dc7127",
+      "sha256": "c8c97fc129851c83a0e472fe071bb3d28971172d2ff2c6b95252fff795220a7f"
+    },
+    {
+      "path": "test/critics_tests.cpp",
+      "git_blob_sha1": "17658b06696846a0bbeef0ef3ecc54c7d932154d",
+      "sha256": "281341418f758bf277cf69657e64ce5c9654b33a9a04e1f38a4829f7034e3bd4"
+    },
+    {
+      "path": "test/models_test.cpp",
+      "git_blob_sha1": "12936d5875d52c05c5cec6fdb308cc0b169826ac",
+      "sha256": "8a9a185f9b8e99715cbde7843763a0b431537beb6ac4ab2708af5dfd75dc977f"
+    },
+    {
+      "path": "test/motion_model_tests.cpp",
+      "git_blob_sha1": "f22424d226a3498d72a697f1bb493946bf5475ee",
+      "sha256": "cd76a89666dd5d947815af9c15c0d980cd3d0e0ca56e5cabf0e6dd3118694522"
+    },
+    {
+      "path": "test/noise_generator_test.cpp",
+      "git_blob_sha1": "485cc375b09b9ebb51f7aef19d714581f37155ca",
+      "sha256": "af758cd56aed21386545b2fa458aaef1786c36d34e55c0a946afebdf5b5caa0a"
+    },
+    {
+      "path": "test/optimizer_smoke_test.cpp",
+      "git_blob_sha1": "9a77f6d8b06d3c383fc40549825dd3f7d30fc155",
+      "sha256": "071315bb06a4e9a70777a293b851f3b0c44ff5879317aee7ca6c242969a3cf00"
+    },
+    {
+      "path": "test/optimizer_unit_tests.cpp",
+      "git_blob_sha1": "e16cdafb6aa9a21750564dab2a46d896aacb2e68",
+      "sha256": "4486253a6d820d3b68e53448d2c83843952d3e2972532447981977b8389b9e44"
+    },
+    {
+      "path": "test/parameter_handler_test.cpp",
+      "git_blob_sha1": "bcc3208e784e9d19913d7a4ff270ba5be1b787cc",
+      "sha256": "08a3116e3c391ea6591b3ac691cc2ff3f0192dc48c035aae8c7e15571e262b6e"
+    },
+    {
+      "path": "test/path_handler_test.cpp",
+      "git_blob_sha1": "e6a992f482467e6f94e117b672e365bd2f58ef18",
+      "sha256": "84cb88c75ab61763b39eced13c7c459d1514b5b3056809450671f5ff8f5c3fa7"
+    },
+    {
+      "path": "test/trajectory_visualizer_tests.cpp",
+      "git_blob_sha1": "7ebada2a6a2b7820c797aa83122a157f980a6e65",
+      "sha256": "d777e75aa2d83c80219242e18a03613d7ab23d2d34153a6357cc1815284e16dd"
+    },
+    {
+      "path": "test/utils/factory.hpp",
+      "git_blob_sha1": "804cecb1519e05e2d6cbbde4be21cff7a880cd53",
+      "sha256": "0b378938b71c90c98a5be70dd7bc655c0422baba54e3c3c1b864c598bff667b4"
+    },
+    {
+      "path": "test/utils/models.hpp",
+      "git_blob_sha1": "fa819efe7762036fdbf213aeb3a287a31b55b60b",
+      "sha256": "a1128cc58053e5c02e9405deff53293c81e2bf2f6530f6e6f18c5171e80f7c2f"
+    },
+    {
+      "path": "test/utils/utils.hpp",
+      "git_blob_sha1": "0093492706f3a7623c219b872c183edd24ab2d80",
+      "sha256": "95533f416905d6be064856e660ac1835a3c38b96d64e9baeaf4f5825e22844c7"
+    },
+    {
+      "path": "test/utils_test.cpp",
+      "git_blob_sha1": "6bc093dcefb50d847ba76568ae8dd52a119dd2ad",
+      "sha256": "dbb395db0512cb61404a809f6d93ba5acdc0266f861acb392e5310891e6a10ff"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="4bb0f39202a9"
+	time="0"
+	timestamp="2026-10-16T06:31:17"
+	>
+	<testcase name="mppi_core_cpu_checks" classname="mppi_core_cpu_checks" time="0.0117001" status="run">
+		<system-out>[INFO] [1792132277.022040342] [MPPIController]: Optimizer reset
+[INFO] [1792132277.023019289] [MPPIController]: Optimizer reset
+[INFO] [1792132277.024697750] [MPPIController]: Optimizer reset
+[INFO] [1792132277.024710595] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=1 cpu_update_batches=0 failures=0
+[INFO] [1792132277.024718085] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=1 cpu_update_batches=0 failures=0
+MPPI CPU deterministic reset and speed limits passed
+</system-out>
+	</testcase>
+	<testcase name="mppi_core_cuda_checks" classname="mppi_core_cuda_checks" time="0.190844" status="run">
+		<system-out>[INFO] [1792132277.128562785] [MPPIController]: Optimizer reset
+[INFO] [1792132277.128580832] [MPPIController]: Optimizer reset
+[INFO] [1792132277.129080691] [MPPIController]: Optimizer reset
+[INFO] [1792132277.129154908] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.129161056] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.129162537] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.129212299] [MPPIController]: Optimizer reset
+[INFO] [1792132277.129258046] [MPPIController]: Optimizer reset
+[INFO] [1792132277.129498994] [MPPIController]: Optimizer reset
+[INFO] [1792132277.129572106] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.129574469] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.129575754] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.129955436] [MPPIController]: Optimizer reset
+[INFO] [1792132277.130379982] [MPPIController]: Optimizer reset
+[INFO] [1792132277.131516110] [MPPIController]: Optimizer reset
+[INFO] [1792132277.131649918] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.131652768] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.131654864] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.134663203] [MPPIController]: Optimizer reset
+[INFO] [1792132277.138088691] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146196241] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146546289] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.146549832] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.146551740] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.146556162] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146558191] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146676545] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146742549] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.146744489] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.146745655] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.146782707] [MPPIController]: Optimizer reset
+[INFO] [1792132277.146813375] [MPPIController]: Optimizer reset
+[INFO] [1792132277.147030145] [MPPIController]: Optimizer reset
+[INFO] [1792132277.147113940] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.147117946] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.147119067] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.147406960] [MPPIController]: Optimizer reset
+[INFO] [1792132277.147701418] [MPPIController]: Optimizer reset
+[INFO] [1792132277.148706657] [MPPIController]: Optimizer reset
+[INFO] [1792132277.148852274] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.148854682] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.148855814] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.151203864] [MPPIController]: Optimizer reset
+[INFO] [1792132277.153594803] [MPPIController]: Optimizer reset
+[INFO] [1792132277.160540810] [MPPIController]: Optimizer reset
+[INFO] [1792132277.160911296] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.160914300] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132277.160915639] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=0 cpu_update_batches=1 failures=0
+[INFO] [1792132277.161524724] [MPPIController]: Optimizer reset
+[ERROR] [1792132277.162244877] [MPPIController]: Invalid MPPI speed limit; motion stopped until valid limit/reset request
+[ERROR] [1792132277.162255110] [MPPIController]: Invalid MPPI speed limit; motion stopped until valid limit/reset request
+[INFO] [1792132277.162836184] [MPPIController]: Optimizer reset
+[INFO] [1792132277.163713857] [MPPIController]: Optimizer reset
+[ERROR] [1792132277.163714949] [MPPIController]: Invalid MPPI speed limit; motion stopped until valid limit/reset request
+[ERROR] [1792132277.163720899] [MPPIController]: Invalid MPPI speed limit; motion stopped until valid limit/reset request
+[INFO] [1792132277.164289916] [MPPIController]: Optimizer reset
+[INFO] [1792132277.164860759] [MPPIController]: Optimizer reset
+[INFO] [1792132277.165188052] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=3 cpu_update_batches=0 failures=0
+MPPI CUDA core passed device=NVIDIA GeForce RTX 5070 trials=8 rollouts=17 updates=9 critics=5
+</system-out>
+	</testcase>
+	<testcase name="mppi_core_no_device_checks" classname="mppi_core_no_device_checks" time="0.0174122" status="run">
+		<system-out>MPPI no-device detected
+</system-out>
+	</testcase>
+</testsuite>

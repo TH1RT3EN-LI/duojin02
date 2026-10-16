@@ -6,19 +6,19 @@
 #include <rcl_interfaces/msg/parameter_descriptor.hpp>
 #include <chrono>
 #include <cstring>
-#include <nav2_mppi_controller/controller.hpp>
+#include <duojin02_mppi_controller/controller.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2/utils.h>
 #include <mutex>
 
 namespace duojin02_navigation {
-class PreciseMPPI : public nav2_mppi_controller::MPPIController {
+class PreciseMPPI : public duojin02_mppi_controller::MPPIController {
 public:
   void configure(const rclcpp_lifecycle::LifecycleNode::WeakPtr &parent, std::string name,
                  const std::shared_ptr<tf2_ros::Buffer> tf,
                  const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap) override {
-    nav2_mppi_controller::MPPIController::configure(parent, name, tf, costmap);
+    duojin02_mppi_controller::MPPIController::configure(parent, name, tf, costmap);
     statistics_ = {};
     compute_fault_latched_ = false;
     auto node = parent.lock();
@@ -61,15 +61,15 @@ public:
       if (geometry_->available())
         RCLCPP_INFO(logger_,
                     "GPU geometry enabled: %s; batched centering and braking checks; "
-                    "native Nav2 optimizer unchanged",
+                    "CUDA-capable MPPI core enabled",
                     geometry_->deviceName().c_str());
       else
         RCLCPP_WARN(
             logger_,
-            "GPU geometry unavailable (%s); using original CPU geometry and native Nav2 optimizer",
+            "GPU geometry unavailable (%s); using original CPU geometry and configured MPPI core",
             geometry_->deviceName().c_str());
     } else
-      RCLCPP_INFO(logger_, "use_gpu=false: original CPU geometry and native Nav2 optimizer");
+      RCLCPP_INFO(logger_, "use_gpu=false: original CPU geometry and configured MPPI core");
   }
 
   void cleanup() override {
@@ -108,12 +108,12 @@ public:
                   statistics.cuda_batches, statistics.boundary_rechecks);
     }
     geometry_.reset();
-    nav2_mppi_controller::MPPIController::cleanup();
+    duojin02_mppi_controller::MPPIController::cleanup();
   }
 
   void setPlan(const nav_msgs::msg::Path &path) override {
     std::lock_guard<std::mutex> lock(limits_mutex_);
-    nav2_mppi_controller::MPPIController::setPlan(path);
+    duojin02_mppi_controller::MPPIController::setPlan(path);
     target_path_.setPath(path);
     have_goal_ = !path.poses.empty();
     if (have_goal_)
@@ -142,6 +142,11 @@ public:
     CycleTimer timer{statistics_, cycle_start};
     try {
       return computeCommand(pose, speed, checker);
+    } catch (const duojin_mppi::OptimizerComputeError &error) {
+      ++statistics_.compute_failures;
+      compute_fault_latched_ = true;
+      RCLCPP_ERROR_THROTTLE(logger_, *clock_, 2000, "MPPI device computation stopped motion: %s", error.what());
+      return stopped(pose);
     } catch (const ComputeFailure &error) {
       ++statistics_.compute_failures;
       compute_fault_latched_ = true;
@@ -600,7 +605,7 @@ private:
     last_time_called_ = clock_->now();
     ++statistics_.native_mppi_calls;
     return checked(
-        nav2_mppi_controller::MPPIController::computeVelocityCommands(pose, speed, checker), pose,
+        duojin02_mppi_controller::MPPIController::computeVelocityCommands(pose, speed, checker), pose,
         speed);
   }
 
@@ -608,8 +613,8 @@ private:
     std::lock_guard<std::mutex> lock(*parameters_handler_->getLock());
     if (periodic_reset &&
         clock_->now() - last_time_called_ > rclcpp::Duration::from_seconds(reset_period_))
-      nav2_mppi_controller::MPPIController::reset();
-    nav2_mppi_controller::MPPIController::setSpeedLimit(limits_.nativePercentage(), true);
+      duojin02_mppi_controller::MPPIController::reset();
+    duojin02_mppi_controller::MPPIController::setSpeedLimit(limits_.nativePercentage(), true);
   }
 
   bool refreshLimits() {

@@ -23,7 +23,7 @@ find_package(nav2_smac_planner REQUIRED)
 find_package(nav2_core REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(nav2_mppi_controller REQUIRED)
+find_package(duojin02_mppi_controller REQUIRED)
 find_package(nav2_controller REQUIRED)
 find_package(nav2_behavior_tree REQUIRED)
 find_package(nav2_msgs REQUIRED)
@@ -47,7 +47,7 @@ set_target_properties(precise_mppi PROPERTIES INSTALL_RPATH "$ORIGIN")
 target_include_directories(precise_mppi PRIVATE include)
 ament_target_dependencies(
   precise_mppi
-  nav2_mppi_controller
+  duojin02_mppi_controller
   nav2_core
   nav2_costmap_2d
   pluginlib
@@ -217,7 +217,7 @@ if(BUILD_TESTING)
     precise_mppi_limit_checks
     rclcpp
     rclcpp_lifecycle
-    nav2_mppi_controller
+    duojin02_mppi_controller
     nav2_core
     nav2_controller
     nav2_costmap_2d
@@ -240,7 +240,7 @@ if(BUILD_TESTING)
     "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/integration/cuda_local_plugin_probe.cpp")
   target_include_directories(cuda_local_plugin_probe PRIVATE include)
   target_link_libraries(cuda_local_plugin_probe duojin02_gpu_geometry nlohmann_json::nlohmann_json)
-  ament_target_dependencies(cuda_local_plugin_probe nav2_core nav2_controller nav2_mppi_controller
+  ament_target_dependencies(cuda_local_plugin_probe nav2_core nav2_controller duojin02_mppi_controller
     nav2_costmap_2d rclcpp rclcpp_lifecycle pluginlib tf2 tf2_geometry_msgs geometry_msgs nav_msgs)
   target_compile_options(cuda_local_plugin_probe PRIVATE -UNDEBUG)
   add_executable(goal_settling_checks test/goal_settling_checks.cpp)

@@ -1,6 +1,8 @@
 amcl:
   ros__parameters:
     use_sim_time: false
+    observation_backend: auto
+    observation_cuda_min_particles: 0
     alpha1: 0.1
     alpha2: 0.1
     alpha3: 0.1
@@ -94,6 +96,8 @@ controller_server:
     FollowPath:
       plugin: duojin02_navigation::PreciseMPPI
       use_gpu: true
+      optimizer_backend: auto
+      optimizer_seed: 42
       gpu_minimum_work: 262144
       time_steps: 56
       model_dt: 0.05

@@ -1,0 +1,153 @@
+1792132329.750831 [219] cuda_mppi_: selected interface "lo" is not multicast-capable: disabling multicast
+[INFO] [1792132329.753450138] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: 
+	cuda_mppi_core_fixture_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792132329.753857121] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Creating Costmap
+[INFO] [1792132329.754002442] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Configuring
+[INFO] [1792132329.755080563] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Using plugin "inflation_layer"
+[INFO] [1792132329.758198842] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1792132329.765023200] [controller_server]: MPPI optimizer backend=cpu seed=20261016
+[INFO] [1792132329.765159566] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792132329.765741892] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792132329.765755204] [controller_server]: Critic loaded : duojin_mppi::critics::ConstraintCritic
+[INFO] [1792132329.765814803] [controller_server]: InflationCostCritic instantiated with 1 power and 300.000000 / 0.007874 weights. Critic will collision check based on footprint cost.
+[INFO] [1792132329.765822482] [controller_server]: Critic loaded : duojin_mppi::critics::CostCritic
+[INFO] [1792132329.765856362] [controller_server]: GoalCritic instantiated with 1 power and 8.000000 weight.
+[INFO] [1792132329.765861575] [controller_server]: Critic loaded : duojin_mppi::critics::GoalCritic
+[INFO] [1792132329.765891517] [controller_server]: GoalAngleCritic instantiated with 1 power, 6.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792132329.765898284] [controller_server]: Critic loaded : duojin_mppi::critics::GoalAngleCritic
+[INFO] [1792132329.765957131] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 8.000000 weight
+[INFO] [1792132329.765962604] [controller_server]: Critic loaded : duojin_mppi::critics::PathAlignCritic
+[INFO] [1792132329.766001132] [controller_server]: Critic loaded : duojin_mppi::critics::PathFollowCritic
+[INFO] [1792132329.766047762] [controller_server]: PathAngleCritic instantiated with 1 power and 3.000000 weight. Reversing allowed.
+[INFO] [1792132329.766052887] [controller_server]: Critic loaded : duojin_mppi::critics::PathAngleCritic
+[INFO] [1792132329.766076636] [controller_server]: TwirlingCritic instantiated with 1 power and 3.000000 weight.
+[INFO] [1792132329.766081166] [controller_server]: Critic loaded : duojin_mppi::critics::TwirlingCritic
+[INFO] [1792132329.771299499] [controller_server]: Optimizer reset
+[INFO] [1792132329.771827311] [MPPIController]: Configured MPPI Controller: FollowPath
+[WARN] [1792132329.771840699] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792132329.777016820] [controller_server]: Optimizer reset
+[INFO] [1792132329.777041225] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792132329.777052984] [controller_server]: Parameter replay_goal.xy_goal_tolerance not found
+[INFO] [1792132329.781768645] [controller_server]: Optimizer reset
+[WARN] [1792132329.781791898] [controller_server]: Parameter replay_goal.yaw_goal_tolerance not found
+[INFO] [1792132329.786240864] [controller_server]: Optimizer reset
+[WARN] [1792132329.786262171] [controller_server]: Parameter replay_goal.stateful not found
+[INFO] [1792132329.789950489] [controller_server]: Optimizer reset
+[WARN] [1792132329.790253341] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792132329.883929573] [controller_server]: MPPI optimizer backend=cuda seed=20261016
+[INFO] [1792132329.884130108] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792132329.884370427] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792132329.884380393] [controller_server]: Critic loaded : duojin_mppi::critics::ConstraintCritic
+[INFO] [1792132329.884421082] [controller_server]: InflationCostCritic instantiated with 1 power and 300.000000 / 0.007874 weights. Critic will collision check based on footprint cost.
+[INFO] [1792132329.884427424] [controller_server]: Critic loaded : duojin_mppi::critics::CostCritic
+[INFO] [1792132329.884449761] [controller_server]: GoalCritic instantiated with 1 power and 8.000000 weight.
+[INFO] [1792132329.884454525] [controller_server]: Critic loaded : duojin_mppi::critics::GoalCritic
+[INFO] [1792132329.884476159] [controller_server]: GoalAngleCritic instantiated with 1 power, 6.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792132329.884480128] [controller_server]: Critic loaded : duojin_mppi::critics::GoalAngleCritic
+[INFO] [1792132329.884521574] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 8.000000 weight
+[INFO] [1792132329.884526499] [controller_server]: Critic loaded : duojin_mppi::critics::PathAlignCritic
+[INFO] [1792132329.884551077] [controller_server]: Critic loaded : duojin_mppi::critics::PathFollowCritic
+[INFO] [1792132329.884585102] [controller_server]: PathAngleCritic instantiated with 1 power and 3.000000 weight. Reversing allowed.
+[INFO] [1792132329.884588621] [controller_server]: Critic loaded : duojin_mppi::critics::PathAngleCritic
+[INFO] [1792132329.884605321] [controller_server]: TwirlingCritic instantiated with 1 power and 3.000000 weight.
+[INFO] [1792132329.884609591] [controller_server]: Critic loaded : duojin_mppi::critics::TwirlingCritic
+[INFO] [1792132329.886264793] [controller_server]: Optimizer reset
+[INFO] [1792132329.886541964] [MPPIController]: Configured MPPI Controller: FollowPath
+[WARN] [1792132329.886549505] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792132329.888075440] [controller_server]: Optimizer reset
+[INFO] [1792132329.888091659] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792132329.888097177] [controller_server]: Parameter replay_goal.xy_goal_tolerance not found
+[INFO] [1792132329.888635731] [controller_server]: Optimizer reset
+[WARN] [1792132329.888647251] [controller_server]: Parameter replay_goal.yaw_goal_tolerance not found
+[INFO] [1792132329.889521696] [controller_server]: Optimizer reset
+[WARN] [1792132329.889532246] [controller_server]: Parameter replay_goal.stateful not found
+[INFO] [1792132329.889671097] [controller_server]: Optimizer reset
+[INFO] [1792132329.893843777] [controller_server]: Optimizer reset
+[INFO] [1792132329.894132825] [controller_server]: Optimizer reset
+[INFO] [1792132330.045664968] [controller_server]: Optimizer reset
+[INFO] [1792132330.046842792] [controller_server]: Optimizer reset
+[INFO] [1792132330.200619314] [controller_server]: Optimizer reset
+[INFO] [1792132330.200839867] [controller_server]: Optimizer reset
+[INFO] [1792132330.351525222] [controller_server]: Optimizer reset
+[INFO] [1792132330.688780590] [controller_server]: Optimizer reset
+[WARN] [1792132330.839614858] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792132330.841305555] [controller_server]: MPPI optimizer backend=cpu seed=20261016
+[INFO] [1792132330.841389942] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792132330.841556169] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792132330.841566377] [controller_server]: Critic loaded : duojin_mppi::critics::ConstraintCritic
+[INFO] [1792132330.841622231] [controller_server]: InflationCostCritic instantiated with 1 power and 300.000000 / 0.007874 weights. Critic will collision check based on footprint cost.
+[INFO] [1792132330.841631075] [controller_server]: Critic loaded : duojin_mppi::critics::CostCritic
+[INFO] [1792132330.841653664] [controller_server]: GoalCritic instantiated with 1 power and 8.000000 weight.
+[INFO] [1792132330.841659694] [controller_server]: Critic loaded : duojin_mppi::critics::GoalCritic
+[INFO] [1792132330.841679991] [controller_server]: GoalAngleCritic instantiated with 1 power, 6.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792132330.841685203] [controller_server]: Critic loaded : duojin_mppi::critics::GoalAngleCritic
+[INFO] [1792132330.841722019] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 8.000000 weight
+[INFO] [1792132330.841726679] [controller_server]: Critic loaded : duojin_mppi::critics::PathAlignCritic
+[INFO] [1792132330.841750773] [controller_server]: Critic loaded : duojin_mppi::critics::PathFollowCritic
+[INFO] [1792132330.841782439] [controller_server]: PathAngleCritic instantiated with 1 power and 3.000000 weight. Reversing allowed.
+[INFO] [1792132330.841785667] [controller_server]: Critic loaded : duojin_mppi::critics::PathAngleCritic
+[INFO] [1792132330.841802101] [controller_server]: TwirlingCritic instantiated with 1 power and 3.000000 weight.
+[INFO] [1792132330.841805196] [controller_server]: Critic loaded : duojin_mppi::critics::TwirlingCritic
+[INFO] [1792132330.845951004] [controller_server]: Optimizer reset
+[INFO] [1792132330.846152791] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792132330.846187912] [MPPIController]: use_gpu=false: original CPU geometry and configured MPPI core
+[WARN] [1792132330.846193890] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792132330.850934525] [controller_server]: Optimizer reset
+[INFO] [1792132330.850949777] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792132330.850954221] [controller_server]: Parameter replay_goal.xy_goal_tolerance not found
+[INFO] [1792132330.855086399] [controller_server]: Optimizer reset
+[WARN] [1792132330.855100980] [controller_server]: Parameter replay_goal.yaw_goal_tolerance not found
+[INFO] [1792132330.858736048] [controller_server]: Optimizer reset
+[WARN] [1792132330.858751364] [controller_server]: Parameter replay_goal.stateful not found
+[INFO] [1792132330.862247634] [controller_server]: Optimizer reset
+[WARN] [1792132330.862559410] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[INFO] [1792132330.865106974] [controller_server]: MPPI optimizer backend=cuda seed=20261016
+[INFO] [1792132330.865193959] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[INFO] [1792132330.865399044] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[INFO] [1792132330.865407489] [controller_server]: Critic loaded : duojin_mppi::critics::ConstraintCritic
+[INFO] [1792132330.865452528] [controller_server]: InflationCostCritic instantiated with 1 power and 300.000000 / 0.007874 weights. Critic will collision check based on footprint cost.
+[INFO] [1792132330.865458060] [controller_server]: Critic loaded : duojin_mppi::critics::CostCritic
+[INFO] [1792132330.865482742] [controller_server]: GoalCritic instantiated with 1 power and 8.000000 weight.
+[INFO] [1792132330.865486525] [controller_server]: Critic loaded : duojin_mppi::critics::GoalCritic
+[INFO] [1792132330.865510191] [controller_server]: GoalAngleCritic instantiated with 1 power, 6.000000 weight, and 0.500000 angular threshold.
+[INFO] [1792132330.865513969] [controller_server]: Critic loaded : duojin_mppi::critics::GoalAngleCritic
+[INFO] [1792132330.865567746] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 8.000000 weight
+[INFO] [1792132330.865571367] [controller_server]: Critic loaded : duojin_mppi::critics::PathAlignCritic
+[INFO] [1792132330.865598036] [controller_server]: Critic loaded : duojin_mppi::critics::PathFollowCritic
+[INFO] [1792132330.865634100] [controller_server]: PathAngleCritic instantiated with 1 power and 3.000000 weight. Reversing allowed.
+[INFO] [1792132330.865637118] [controller_server]: Critic loaded : duojin_mppi::critics::PathAngleCritic
+[INFO] [1792132330.865655283] [controller_server]: TwirlingCritic instantiated with 1 power and 3.000000 weight.
+[INFO] [1792132330.865658249] [controller_server]: Critic loaded : duojin_mppi::critics::TwirlingCritic
+[INFO] [1792132330.867034513] [controller_server]: Optimizer reset
+[INFO] [1792132330.867232682] [MPPIController]: Configured MPPI Controller: FollowPath
+[INFO] [1792132330.867251623] [MPPIController]: use_gpu=false: original CPU geometry and configured MPPI core
+[WARN] [1792132330.867255524] [controller_server]: Parameter controller_server.verbose not found
+[INFO] [1792132330.868679168] [controller_server]: Optimizer reset
+[INFO] [1792132330.868691792] [MPPIController]: Activated MPPI Controller: FollowPath
+[WARN] [1792132330.868694576] [controller_server]: Parameter replay_goal.xy_goal_tolerance not found
+[INFO] [1792132330.869786079] [controller_server]: Optimizer reset
+[WARN] [1792132330.869797656] [controller_server]: Parameter replay_goal.yaw_goal_tolerance not found
+[INFO] [1792132330.870239201] [controller_server]: Optimizer reset
+[WARN] [1792132330.870249876] [controller_server]: Parameter replay_goal.stateful not found
+[INFO] [1792132330.870553465] [controller_server]: Optimizer reset
+[ERROR] [1792132331.066694868] [MPPIController]: MPPI device computation stopped motion: optimizer upload: context is destroyed
+[INFO] [1792132331.066776084] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792132331.066781243] [controller_server]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=202 cpu_update_batches=202 failures=0
+[INFO] [1792132331.067565100] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792132331.067655790] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792132331.067658694] [controller_server]: MPPI_CORE_SUMMARY backend=cuda cuda_noise_batches=202 cuda_rollout_batches=202 cuda_update_batches=202 cuda_critic_batches=621 cpu_rollout_batches=0 cpu_update_batches=0 failures=0
+[INFO] [1792132331.068051737] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792132331.068077375] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792132331.068079805] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=12 compute_failures=0 exceptions=0 fault_latched_stops=0 direct_commands=0 tracking_commands=0 native_mppi_calls=12 cycle_mean_ms=3.127550 cycle_max_ms=3.230662 cycle_p50_upper_ms=3.250 cycle_p95_upper_ms=3.250 cycle_p99_upper_ms=3.250
+[INFO] [1792132331.068085887] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=60 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=12 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792132331.068090304] [controller_server]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=12 cpu_update_batches=12 failures=0
+[INFO] [1792132331.068171733] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792132331.068191516] [MPPIController]: Deactivated MPPI Controller: FollowPath
+[INFO] [1792132331.068193664] [MPPIController]: CUDA_LOCAL_CONTROLLER_SUMMARY cycles=14 compute_failures=1 exceptions=0 fault_latched_stops=1 direct_commands=0 tracking_commands=0 native_mppi_calls=13 cycle_mean_ms=7.151990 cycle_max_ms=80.258602 cycle_p50_upper_ms=1.750 cycle_p95_upper_ms=80.500 cycle_p99_upper_ms=80.500
+[INFO] [1792132331.068197793] [MPPIController]: CUDA_LOCAL_GEOMETRY_BRANCHES direct_cpu_batches=0 direct_cuda_batches=0 centering_cpu_batches=0 centering_cuda_batches=0 ranking_cpu_rechecks=0 braking_cpu_sweeps=60 braking_cpu_batches=0 braking_cuda_batches=0 braking_batched_poses=0 braking_measured_stops=0 braking_first_scale_accepts=12 braking_final_cpu_candidates=0 braking_final_cpu_rejections=0
+[INFO] [1792132331.068199777] [controller_server]: MPPI_CORE_SUMMARY backend=cuda cuda_noise_batches=12 cuda_rollout_batches=12 cuda_update_batches=12 cuda_critic_batches=36 cpu_rollout_batches=0 cpu_update_batches=0 failures=1
+[INFO] [1792132331.068302145] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[INFO] [1792132331.068324515] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Cleaning up
+[INFO] [1792132331.074412567] [cuda_mppi_core_fixture_costmap.cuda_mppi_core_fixture_costmap]: Destroying

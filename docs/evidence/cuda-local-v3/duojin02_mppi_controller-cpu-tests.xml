@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="759917d4dc88"
+	time="0"
+	timestamp="2026-10-16T06:34:02"
+	>
+	<testcase name="mppi_core_cpu_checks" classname="mppi_core_cpu_checks" time="0.0118286" status="run">
+		<system-out>[INFO] [1792132442.117709293] [MPPIController]: Optimizer reset
+[INFO] [1792132442.118691339] [MPPIController]: Optimizer reset
+[INFO] [1792132442.120448795] [MPPIController]: Optimizer reset
+[INFO] [1792132442.120471072] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=1 cpu_update_batches=0 failures=0
+[INFO] [1792132442.120482233] [MPPIController]: MPPI_CORE_SUMMARY backend=cpu cuda_noise_batches=0 cuda_rollout_batches=0 cuda_update_batches=0 cuda_critic_batches=0 cpu_rollout_batches=1 cpu_update_batches=0 failures=0
+MPPI CPU deterministic reset and speed limits passed
+</system-out>
+	</testcase>
+	<testcase name="mppi_core_no_device_checks" classname="mppi_core_no_device_checks" time="0.00776439" status="run">
+		<system-out>MPPI no-device detected
+</system-out>
+	</testcase>
+</testsuite>

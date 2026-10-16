@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="5"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="4bb0f39202a9"
+	time="1"
+	timestamp="2026-10-16T06:31:17"
+	>
+	<testcase name="amcl_cpu_observation" classname="amcl_cpu_observation" time="0.109992" status="run">
+		<system-out>AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=106 beams=134 total_us=6359.899 last_us=10.058
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=106 beams=134 total_us=6372.912 last_us=10.292
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=80 beams=37 total_us=1791.582 last_us=3.524
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=80 beams=37 total_us=1797.570 last_us=3.632
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=94 beams=134 total_us=4245.610 last_us=5.882
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=94 beams=134 total_us=5121.358 last_us=5.903
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4695.376 last_us=4.760
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4713.660 last_us=4.788
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1560.957 last_us=2.802
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1568.661 last_us=2.918
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4673.311 last_us=5.715
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4701.488 last_us=5.763
+Reallocing temp weights 71 - 120
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4604.681 last_us=20.445
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4635.489 last_us=22.204
+Reallocing temp weights 71 - 120
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Reallocing temp weights 71 - 120
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1578.281 last_us=18.872
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1584.336 last_us=19.094
+Reallocing temp weights 71 - 120
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4584.910 last_us=20.535
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4619.595 last_us=21.477
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=1 total_us=7.481 last_us=7.481
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=1 total_us=7.824 last_us=7.824
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.569 last_us=2.569
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=3.099 last_us=3.099
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.734 last_us=2.734
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.892 last_us=2.892
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=3 total_us=9.129 last_us=9.129
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=3 total_us=8.807 last_us=8.807
+AMCL_DIFFERENTIAL_RESULT backend=cpu cases=13 frames=49 max_weight_error=0 cuda_updates=0 KLD=equal
+</system-out>
+	</testcase>
+	<testcase name="amcl_auto_no_device" classname="amcl_auto_no_device" time="0.118011" status="run">
+		<system-out>AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=106 beams=134 total_us=6381.122 last_us=9.917
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=106 beams=134 total_us=6415.483 last_us=10.027
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=80 beams=37 total_us=1793.230 last_us=3.566
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=80 beams=37 total_us=1803.170 last_us=3.651
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=94 beams=134 total_us=4273.666 last_us=6.322
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=94 beams=134 total_us=4747.631 last_us=6.402
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=115 total_us=4681.793 last_us=4.707
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4729.554 last_us=4.810
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=37 total_us=1560.508 last_us=2.823
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1566.069 last_us=2.918
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=115 total_us=4668.050 last_us=4.923
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4700.197 last_us=4.984
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+Reallocing temp weights 71 - 120
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=115 total_us=4603.645 last_us=20.586
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4626.798 last_us=21.849
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+Reallocing temp weights 71 - 120
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Reallocing temp weights 71 - 120
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=37 total_us=1578.266 last_us=19.314
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1585.268 last_us=19.614
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+Reallocing temp weights 71 - 120
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=5 map_uploads=0 failures=1 boundary_fallbacks=0 particles=71 beams=115 total_us=4590.654 last_us=20.667
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4628.779 last_us=21.279
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=1 map_uploads=0 failures=1 boundary_fallbacks=0 particles=128 beams=1 total_us=7.558 last_us=7.558
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=1 total_us=7.888 last_us=7.888
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=1 map_uploads=0 failures=1 boundary_fallbacks=0 particles=128 beams=0 total_us=2.717 last_us=2.717
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.977 last_us=2.977
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=1 map_uploads=0 failures=1 boundary_fallbacks=0 particles=128 beams=0 total_us=2.838 last_us=2.838
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=4.215 last_us=4.215
+AMCL observation auto fallback: AMCL cudaGetDeviceCount: no CUDA-capable device is detected
+AMCL_OBSERVATION_STATS backend=auto cuda_updates=0 cpu_updates=1 map_uploads=0 failures=1 boundary_fallbacks=0 particles=128 beams=3 total_us=8.639 last_us=8.639
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=3 total_us=8.813 last_us=8.813
+AMCL_DIFFERENTIAL_RESULT backend=auto cases=13 frames=49 max_weight_error=0 cuda_updates=0 KLD=equal
+</system-out>
+	</testcase>
+	<testcase name="amcl_strict_no_device" classname="amcl_strict_no_device" time="0.0103342" status="run">
+		<system-out></system-out>
+	</testcase>
+	<testcase name="amcl_cuda_observation" classname="amcl_cuda_observation" time="0.237965" status="run">
+		<system-out>AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=106 beams=134 total_us=593.445 last_us=32.982
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=106 beams=134 total_us=4312.059 last_us=6.676
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=80 beams=37 total_us=244.715 last_us=30.535
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=80 beams=37 total_us=1233.937 last_us=3.049
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=94 beams=134 total_us=374.257 last_us=33.566
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=94 beams=134 total_us=4262.102 last_us=6.400
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=789.387 last_us=116.382
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4705.538 last_us=4.848
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=764.617 last_us=116.708
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1549.717 last_us=2.945
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=784.232 last_us=115.740
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4715.020 last_us=5.056
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=849.252 last_us=182.797
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4699.322 last_us=21.639
+Reallocing temp weights 71 - 120
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+Over 1.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=976.123 last_us=182.035
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=37 total_us=1589.486 last_us=19.711
+Reallocing temp weights 71 - 120
+Over 90.000000% of the observations were not in the map - pf may have converged to wrong pose - integrating all observations
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=5 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=1007.360 last_us=270.530
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=5 map_uploads=0 failures=0 boundary_fallbacks=0 particles=71 beams=115 total_us=4612.412 last_us=21.537
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=0 cpu_updates=1 map_uploads=1 failures=0 boundary_fallbacks=1 particles=128 beams=1 total_us=159.550 last_us=159.550
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=1 total_us=7.953 last_us=7.953
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=1 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.935 last_us=2.935
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=2.782 last_us=2.782
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=1 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=139.838 last_us=139.838
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=0 total_us=3.031 last_us=3.031
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=1 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=128 beams=3 total_us=151.512 last_us=151.512
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=1 map_uploads=0 failures=0 boundary_fallbacks=0 particles=128 beams=3 total_us=8.986 last_us=8.986
+AMCL_DIFFERENTIAL_RESULT backend=cuda cases=13 frames=49 max_weight_error=5.46438e-17 cuda_updates=45 KLD=equal
+</system-out>
+	</testcase>
+	<testcase name="amcl_cuda_timing" classname="amcl_cuda_timing" time="0.557943" status="run">
+		<system-out>AMCL_OBSERVATION_STATS backend=cuda cuda_updates=35 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=700 beams=120 total_us=7092.959 last_us=194.103
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=35 map_uploads=0 failures=0 boundary_fallbacks=0 particles=700 beams=120 total_us=68500.096 last_us=1944.684
+AMCL_OBSERVATION_STATS backend=cuda cuda_updates=35 cpu_updates=0 map_uploads=1 failures=0 boundary_fallbacks=0 particles=3000 beams=120 total_us=14522.732 last_us=440.128
+AMCL_OBSERVATION_STATS backend=cpu cuda_updates=0 cpu_updates=35 map_uploads=0 failures=0 boundary_fallbacks=0 particles=3000 beams=120 total_us=292411.409 last_us=8363.134
+AMCL_TIMING_RESULT particles=700 selected_beams=120 samples=30 warmup=5 cpu_median_us=1956.1 gpu_median_us=194.167 cpu_p95_us=1989.37 gpu_p95_us=245.368 cold_cpu_us=1989.88 cold_gpu_us=435.819 max_weight_error=3.46945e-18 cuda_updates=35 scope=sensorUpdate_without_resampling
+AMCL_TIMING_RESULT particles=3000 selected_beams=120 samples=30 warmup=5 cpu_median_us=8360.12 gpu_median_us=430.861 cpu_p95_us=8415.67 gpu_p95_us=466.295 cold_cpu_us=8383.96 cold_gpu_us=548.925 max_weight_error=3.46945e-18 cuda_updates=35 scope=sensorUpdate_without_resampling
+</system-out>
+	</testcase>
+</testsuite>

@@ -27,7 +27,7 @@ from nav2_common.launch import RewrittenYaml
 PACKAGE_NAME = "duojin02_bringup"
 
 
-def _create_nav_actions(context, nav2_share: str):
+def _create_nav_actions(context):
     params_file = LaunchConfiguration(
         "params_file",
         default=os.path.join(get_package_share_directory(PACKAGE_NAME), "config", "nav2.yaml"),
@@ -65,17 +65,18 @@ def _create_nav_actions(context, nav2_share: str):
         "params_file": rewritten,
         "autostart": autostart,
         "log_level": log_level,
-        "use_composition": "False",
+        "use_gpu": LaunchConfiguration("use_gpu", default=GpuDefault(params_file)),
     }
     include = lambda name: GroupAction(
         [
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(nav2_share, "launch", name)),
+                PythonLaunchDescriptionSource(os.path.join(
+                    get_package_share_directory(PACKAGE_NAME), "launch", name)),
                 launch_arguments=arguments.items(),
             )
         ]
     )
-    localization = include("localization_launch.py")
+    localization = include("localization.launch.py")
     navigation = GroupAction(
         [
             IncludeLaunchDescription(
@@ -147,7 +148,6 @@ def _create_nav_actions(context, nav2_share: str):
 
 def generate_launch_description():
     bringup_share = get_package_share_directory(PACKAGE_NAME)
-    nav2_share = get_package_share_directory("nav2_bringup")
     default_rviz_config = PathJoinSubstitution([bringup_share, "config", "rviz", "navigation.rviz"])
 
     return LaunchDescription(
@@ -163,6 +163,6 @@ def generate_launch_description():
             use_gpu_argument(),
             DeclareLaunchArgument("map", default_value=""),
             DeclareLaunchArgument("rviz_config", default_value=default_rviz_config),
-            OpaqueFunction(function=_create_nav_actions, args=[nav2_share]),
+            OpaqueFunction(function=_create_nav_actions),
         ]
     )
