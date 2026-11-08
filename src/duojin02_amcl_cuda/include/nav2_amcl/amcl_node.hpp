@@ -69,46 +69,19 @@ namespace nav2_amcl
 class AmclNode : public nav2_util::LifecycleNode
 {
 public:
-  /*
-   * @brief AMCL constructor
-   * @param options Additional options to control creation of the node.
-   */
   explicit AmclNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
-  /*
-   * @brief AMCL destructor
-   */
   ~AmclNode();
 
 protected:
-  /*
-   * @brief Lifecycle configure
-   */
   nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & state) override;
-  /*
-   * @brief Lifecycle activate
-   */
   nav2_util::CallbackReturn on_activate(const rclcpp_lifecycle::State & state) override;
-  /*
-   * @brief Lifecycle deactivate
-   */
   nav2_util::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state) override;
-  /*
-   * @brief Lifecycle cleanup
-   */
   nav2_util::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state) override;
-  /*
-   * @brief Lifecycle shutdown
-   */
   nav2_util::CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state) override;
 
-  /**
-   * @brief Callback executed when a parameter change is detected
-   * @param event ParameterEvent message
-   */
   rcl_interfaces::msg::SetParametersResult
   dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
 
-  // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;
 
   // Since the sensor data from gazebo or the robot is not lifecycle enabled, we won't
@@ -130,23 +103,9 @@ protected:
   } amcl_hyp_t;
 
   // Map-related
-  /*
-   * @brief Get new map from ROS topic to localize in
-   * @param msg Map message
-   */
   void mapReceived(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
-  /*
-   * @brief Handle a new map message
-   * @param msg Map message
-   */
   void handleMapMessage(const nav_msgs::msg::OccupancyGrid & msg);
-  /*
-   * @brief Creates lookup table of free cells in map
-   */
   void createFreeSpaceVector();
-  /*
-   * @brief Frees allocated map related memory
-   */
   void freeMapDependentMemory();
   map_t * map_{nullptr};
   /*
@@ -165,9 +124,6 @@ protected:
 #endif
 
   // Transforms
-  /*
-   * @brief Initialize required ROS transformations
-   */
   void initTransforms();
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -177,9 +133,6 @@ protected:
   tf2::Transform latest_tf_;
 
   // Message filters
-  /*
-   * @brief Initialize incoming data message subscribers and filters
-   */
   void initMessageFilters();
   std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::LaserScan,
     rclcpp_lifecycle::LifecycleNode>> laser_scan_sub_;
@@ -187,9 +140,6 @@ protected:
   message_filters::Connection laser_scan_connection_;
 
   // Publishers and subscribers
-  /*
-   * @brief Initialize pub subs of AMCL
-   */
   void initPubSub();
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::ConstSharedPtr
     initial_pose_sub_;
@@ -197,13 +147,7 @@ protected:
     pose_pub_;
   rclcpp_lifecycle::LifecyclePublisher<nav2_msgs::msg::ParticleCloud>::SharedPtr
     particle_cloud_pub_;
-  /*
-   * @brief Handle with an initial pose estimate is received
-   */
   void initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
-  /*
-   * @brief Handle when a laser scan is received
-   */
   void laserReceived(sensor_msgs::msg::LaserScan::ConstSharedPtr laser_scan);
   void processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr laser_scan,
     const duojin02_scan_geometry::TimedScan * geometry = nullptr,
@@ -235,24 +179,14 @@ protected:
   rclcpp::TimerBase::SharedPtr scan_retry_timer_;
 
   // Services and service callbacks
-  /*
-   * @brief Initialize state services
-   */
   void initServices();
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr global_loc_srv_;
-  /*
-   * @brief Service callback for a global relocalization request
-   */
   void globalLocalizationCallback(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Empty::Request> request,
     std::shared_ptr<std_srvs::srv::Empty::Response> response);
 
-  // service server for providing an initial pose guess
   rclcpp::Service<nav2_msgs::srv::SetInitialPose>::SharedPtr initial_guess_srv_;
-  /*
-   * @brief Service callback for an initial pose guess request
-   */
   void initialPoseReceivedSrv(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<nav2_msgs::srv::SetInitialPose::Request> request,
@@ -272,9 +206,6 @@ protected:
   std::atomic<bool> force_update_{false};
 
   // Odometry
-  /*
-   * @brief Initialize odometry
-   */
   void initOdometry();
   std::shared_ptr<nav2_amcl::MotionModel> motion_model_;
   geometry_msgs::msg::PoseStamped latest_odom_pose_;
@@ -287,16 +218,12 @@ protected:
    * @brief Get robot pose in odom frame using TF
    */
   bool getOdomPose(
-    // Helper to get odometric pose from transform system
     geometry_msgs::msg::PoseStamped & pose,
     double & x, double & y, double & yaw,
     const rclcpp::Time & sensor_timestamp, const std::string & frame_id);
   std::atomic<bool> first_pose_sent_;
 
   // Particle filter
-  /*
-   * @brief Initialize particle filter
-   */
   void initParticleFilter();
   /*
    * @brief Pose-generating function used to uniformly distribute particles over the map
@@ -308,13 +235,7 @@ protected:
   int resample_count_{0};
 
   // Laser scan related
-  /*
-   * @brief Initialize laser scan
-   */
   void initLaserScan();
-  /*
-   * @brief Create a laser object
-   */
   nav2_amcl::Laser * createLaserObject();
   int scan_error_count_{0};
   std::vector<std::unique_ptr<nav2_amcl::Laser>> lasers_;
@@ -322,43 +243,25 @@ protected:
   std::map<std::string, int> frame_to_laser_;
   rclcpp::Time last_laser_received_ts_;
 
-  /*
-   * @brief Check if sufficient time has elapsed to get an update
-   */
   bool checkElapsedTime(std::chrono::seconds check_interval, rclcpp::Time last_time);
   rclcpp::Time last_time_printed_msg_;
-  /*
-   * @brief Add a new laser scanner if a new one is received in the laser scallbacks
-   */
   bool addNewScanner(
     int & laser_index,
     const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
     const std::string & laser_scan_frame_id,
     geometry_msgs::msg::PoseStamped & laser_pose);
-  /*
-   * @brief Whether the pf needs to be updated
-   */
   bool shouldUpdateFilter(const pf_vector_t pose, pf_vector_t & delta);
 
   // Replay the original scan-gated prediction sequence from a delayed anchor.
   // The final nonzero tail is consumed so subsequent PF motion starts at now.
   void applyAcquisitionMotion(const AcquisitionDispatch & dispatch);
-  /*
-   * @brief Update the PF
-   */
   bool updateFilter(
     const int & laser_index,
     const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
     const pf_vector_t & pose,
     const duojin02_scan_geometry::TimedScan * geometry = nullptr,
     int64_t raw_stamp_ns = 0);
-  /*
-   * @brief Publish particle cloud
-   */
   void publishParticleCloud(const pf_sample_set_t * set);
-  /*
-   * @brief Get the current state estimat hypothesis from the particle cloud
-   */
   bool getMaxWeightHyp(
     std::vector<amcl_hyp_t> & hyps, amcl_hyp_t & max_weight_hyps,
     int & max_weight_hyp, const PosteriorSnapshot * snapshot = nullptr);
@@ -376,13 +279,7 @@ protected:
     const std::vector<amcl_hyp_t> & hyps,
     const int & max_weight_hyp,
     const duojin02_scan_geometry::TimedScan * geometry = nullptr);
-  /*
-   * @brief Publish TF transformation from map to odom
-   */
   void sendMapToOdomTransform(const tf2::TimePoint & transform_expiration);
-  /*
-   * @brief Handle a new pose estimate callback
-   */
   void handleInitialPose(geometry_msgs::msg::PoseWithCovarianceStamped & msg);
   bool init_pose_received_on_inactive{false};
   bool initial_pose_is_known_{false};
@@ -393,9 +290,6 @@ protected:
   double initial_pose_z_;
   double initial_pose_yaw_;
 
-  /*
-   * @brief Get ROS parameters for node
-   */
   void initParameters();
   double alpha1_;
   double alpha2_;

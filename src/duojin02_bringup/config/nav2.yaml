@@ -19,11 +19,9 @@ amcl:
     laser_max_range: 8.0
     laser_min_range: 0.3
     laser_model_type: likelihood_field_prob
-    # Experimental acquisition failed the held-out lt_changes_0 validation.
-    # Keep it disabled until false global captures are resolved and revalidated.
+    # Experimental: false global captures remain unresolved.
     global_acquisition_enabled: false
-    # Refine the user-supplied starting position within +/-2 m in map X/Y;
-    # heading is searched over the full circle. Keep the robot stopped at startup.
+    # Search +/-2 m around the initial pose with full yaw; keep the robot stopped.
     local_initialization_enabled: true
     local_initialization_xy_half_width: 2.0
     max_beams: 120

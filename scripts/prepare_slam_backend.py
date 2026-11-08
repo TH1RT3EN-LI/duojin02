@@ -43,8 +43,7 @@ def source_tree_sha256(directory: Path) -> str:
 def source_provenance(root: Path, dependency="slam_toolbox"):
     patch_dir = root / "patches" / dependency
     source = json.loads((patch_dir / "source.json").read_text())
-    # Only the explicitly ordered manifest participates in a prepared build.
-    # Reject duplicate/path-escaping entries rather than silently applying extras.
+    # Apply only manifest-ordered, unique filenames confined to the patch directory.
     names = source["patches"] if "patches" in source else [source["patch"]]
     if not isinstance(names, list) or not names:
         raise ValueError("SLAM patch list must be nonempty, ordered, and unique")

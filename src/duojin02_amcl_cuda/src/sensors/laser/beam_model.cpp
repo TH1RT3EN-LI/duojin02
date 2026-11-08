@@ -41,7 +41,6 @@ BeamModel::BeamModel(
   chi_outlier_ = chi_outlier;
 }
 
-// Determine the probability for the given pose
 double
 BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
 {
@@ -59,12 +58,10 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
 
   total_weight = 0.0;
 
-  // Compute the sample weights
   for (j = 0; j < set->sample_count; j++) {
     sample = set->samples + j;
     pose = sample->pose;
 
-    // Take account of the laser pose relative to the robot
     pose = pf_vector_coord_add(self->laser_pose_, pose);
 
     p = 1.0;
@@ -73,14 +70,12 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
     for (i = 0; i < data->range_count; i += step) {
       obs_range = data->ranges[i][0];
 
-      // Check for NaN
       if (isnan(obs_range)) {
         continue;
       }
 
       obs_bearing = data->ranges[i][1];
 
-      // Compute the range according to the map
       map_range = map_calc_range(
         self->map_, pose.v[0], pose.v[1],
         pose.v[2] + obs_bearing, data->range_max);
@@ -105,13 +100,9 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
         pz += self->z_rand_ * 1.0 / data->range_max;
       }
 
-      // TODO(?): outlier rejection for short readings
-
       assert(pz <= 1.0);
       assert(pz >= 0.0);
-      //      p *= pz;
-      // here we have an ad-hoc weighting scheme for combining beam probs
-      // works well, though...
+      // Preserve the legacy cubic beam mixture.
       p += pz * pz * pz;
     }
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Build a reviewable overlay without changing the active install tree.
 set -eo pipefail
 source_root="${1:?source root required}"
 output_root="${2:?empty output directory required}"

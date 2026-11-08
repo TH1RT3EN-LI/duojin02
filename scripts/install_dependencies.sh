@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Shared dependency installation for native Ubuntu and the local test image.
 set -eo pipefail
 dependency_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source /etc/os-release

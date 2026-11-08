@@ -310,15 +310,12 @@ AmclNode::on_activate(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Activating");
 
-  // Lifecycle publishers must be explicitly activated
   pose_pub_->on_activate();
   particle_cloud_pub_->on_activate();
   estimate_contract_pub_->on_activate();
 
   first_pose_sent_ = false;
 
-  // Keep track of whether we're in the active state. We won't
-  // process incoming callbacks until we are
   active_ = true;
 
   if (set_initial_pose_) {
@@ -337,13 +334,11 @@ AmclNode::on_activate(const rclcpp_lifecycle::State & /*state*/)
   }
 
   auto node = shared_from_this();
-  // Add callback for dynamic parameters
   dyn_params_handler_ = node->add_on_set_parameters_callback(
     std::bind(
       &AmclNode::dynamicParametersCallback,
       this, std::placeholders::_1));
 
-  // create bond connection
   createBond();
 
   return nav2_util::CallbackReturn::SUCCESS;
@@ -358,15 +353,12 @@ AmclNode::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
   active_ = false;
   pending_scans_.clear();
 
-  // Lifecycle publishers must be explicitly deactivated
   pose_pub_->on_deactivate();
   particle_cloud_pub_->on_deactivate();
   estimate_contract_pub_->on_deactivate();
 
-  // reset dynamic parameter handler
   dyn_params_handler_.reset();
 
-  // destroy bond connection
   destroyBond();
 
   return nav2_util::CallbackReturn::SUCCESS;
@@ -394,7 +386,6 @@ AmclNode::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   laser_scan_filter_.reset();
   laser_scan_sub_.reset();
 
-  // Map
   map_sub_.reset();  //  map_sub_ may access map_, so it should be reset earlier
   if (map_ != NULL) {
     map_free(map_);
@@ -403,19 +394,15 @@ AmclNode::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   first_map_received_ = false;
   free_space_indices.resize(0);
 
-  // Transforms
   tf_broadcaster_.reset();
   tf_buffer_.reset();
 
-  // PubSub
   pose_pub_.reset();
   particle_cloud_pub_.reset();
   estimate_contract_pub_.reset();
 
-  // Odometry
   motion_model_.reset();
 
-  // Particle Filter
   pf_free(pf_);
   pf_ = nullptr;
   global_acquisition_.reset();
@@ -427,7 +414,6 @@ AmclNode::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   estimate_contract_.resetObservation();
   fine_modes_valid_ = false;
 
-  // Laser Scan
   lasers_.clear();
   lasers_update_.clear();
   frame_to_laser_.clear();
@@ -482,7 +468,6 @@ AmclNode::getOdomPose(
   double & x, double & y, double & yaw,
   const rclcpp::Time & sensor_timestamp, const std::string & frame_id)
 {
-  // Get the robot's pose
   geometry_msgs::msg::PoseStamped ident;
   ident.header.frame_id = nav2_util::strip_leading_slash(frame_id);
   ident.header.stamp = sensor_timestamp;
@@ -535,7 +520,6 @@ AmclNode::uniformPoseGenerator(void * arg)
     p.v[0] = min_x + drand48() * (max_x - min_x);
     p.v[1] = min_y + drand48() * (max_y - min_y);
     p.v[2] = drand48() * 2 * M_PI - M_PI;
-    // Check that it's a free cell
     int i, j;
     i = MAP_GXWX(map, p.v[0]);
     j = MAP_GYWY(map, p.v[1]);
@@ -642,7 +626,6 @@ AmclNode::initialPoseReceived(geometry_msgs::msg::PoseWithCovarianceStamped::Sha
       global_frame_id_.c_str());
     return;
   }
-  // Overriding last published pose to initial pose
   last_published_pose_ = *msg;
 
   if (!active_) {
@@ -666,7 +649,6 @@ AmclNode::handleInitialPose(geometry_msgs::msg::PoseWithCovarianceStamped & msg)
     rclcpp::Time rclcpp_time = now();
     tf2::TimePoint tf2_time(std::chrono::nanoseconds(rclcpp_time.nanoseconds()));
 
-    // Check if the transform is available
     tx_odom = tf_buffer_->lookupTransform(
       base_frame_id_, tf2_ros::fromMsg(msg.header.stamp),
       base_frame_id_, tf2_time, odom_frame_id_);
@@ -698,7 +680,6 @@ AmclNode::handleInitialPose(geometry_msgs::msg::PoseWithCovarianceStamped & msg)
     pose_new.getOrigin().y(),
     tf2::getYaw(pose_new.getRotation()));
 
-  // Re-initialize the filter
   pf_vector_t pf_init_pose_mean = pf_vector_zero();
   pf_init_pose_mean.v[0] = pose_new.getOrigin().x();
   pf_init_pose_mean.v[1] = pose_new.getOrigin().y();
@@ -841,17 +822,14 @@ void AmclNode::processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr lase
   int laser_index = -1;
   geometry_msgs::msg::PoseStamped laser_pose;
 
-  // Do we have the base->base_laser Tx yet?
   if (frame_to_laser_.find(laser_scan_frame_id) == frame_to_laser_.end()) {
     if (!addNewScanner(laser_index, laser_scan, laser_scan_frame_id, laser_pose)) {
       return;  // could not find transform
     }
   } else {
-    // we have the laser pose, retrieve laser index
     laser_index = frame_to_laser_[laser_scan->header.frame_id];
   }
 
-  // Where was the robot when this scan was taken?
   pf_vector_t pose;
   if (geometry) {
     const auto & reference = geometry->odom_from_base_reference;
@@ -890,7 +868,6 @@ void AmclNode::processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr lase
   pf_vector_t delta = pf_vector_zero();
   bool force_publication = false;
   if (!pf_init_) {
-    // Pose at last filter update
     pf_odom_pose_ = pose;
     pf_init_ = true;
 
@@ -901,7 +878,6 @@ void AmclNode::processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr lase
     force_publication = true;
     resample_count_ = 0;
   } else {
-    // Set the laser update flags
     if (shouldUpdateFilter(pose, delta)) {
       for (unsigned int i = 0; i < lasers_update_.size(); i++) {
         lasers_update_[i] = true;
@@ -917,7 +893,6 @@ void AmclNode::processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr lase
   bool filter_updated = false;
   std::shared_ptr<const PosteriorSnapshot> output_snapshot;
 
-  // If the robot has moved, update the filter
   if (global_acquisition_pending_) {lasers_update_[laser_index] = true;}
   if (lasers_update_[laser_index]) {
     acquisition_consumed_scan_ = false;
@@ -981,7 +956,6 @@ void AmclNode::processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr lase
       output_snapshot = buildPosteriorSnapshot(pf_);
     }
 
-    // Resample the particles
     if (observation_processed && pf_->diagnostics.status == PF_SENSOR_OK &&
       !(++resample_count_ % resample_interval_) &&
       pf_should_resample(pf_, get_parameter("resample_ess_ratio").as_double()) == 1)
@@ -1126,7 +1100,6 @@ bool AmclNode::shouldUpdateFilter(const pf_vector_t pose, pf_vector_t & delta)
   delta.v[1] = pose.v[1] - pf_odom_pose_.v[1];
   delta.v[2] = angleutils::angle_diff(pose.v[2], pf_odom_pose_.v[2]);
 
-  // See if we should update the filter
   bool update = fabs(delta.v[0]) > d_thresh_ ||
     fabs(delta.v[1]) > d_thresh_ ||
     fabs(delta.v[2]) > a_thresh_;
@@ -1204,7 +1177,6 @@ bool AmclNode::updateFilter(
   double angle_min = tf2::getYaw(min_q.quaternion);
   double angle_increment = tf2::getYaw(inc_q.quaternion) - angle_min;
 
-  // wrapping angle to [-pi .. pi]
   angle_increment = fmod(angle_increment + 5 * M_PI, 2 * M_PI) - M_PI;
 
   RCLCPP_DEBUG(
@@ -1242,7 +1214,6 @@ bool AmclNode::updateFilter(
     } else {
       ldata.ranges[i][0] = laser_scan->ranges[i];
     }
-    // Compute bearing
     ldata.ranges[i][1] = angle_min +
       (i * angle_increment);
     if (geometry) {
@@ -1398,7 +1369,6 @@ bool AmclNode::updateFilter(
 void
 AmclNode::publishParticleCloud(const pf_sample_set_t * set)
 {
-  // If initial pose is not known, AMCL does not know the current pose
   if (!initial_pose_is_known_) {return;}
   auto cloud_with_weights_msg = std::make_unique<nav2_msgs::msg::ParticleCloud>();
   cloud_with_weights_msg->header.stamp = this->now();
@@ -1422,7 +1392,6 @@ AmclNode::getMaxWeightHyp(
   std::vector<amcl_hyp_t> & hyps, amcl_hyp_t & max_weight_hyps,
   int & max_weight_hyp, const PosteriorSnapshot * snapshot)
 {
-  // Read out the current hypotheses
   double max_weight = 0.0;
   const int cluster_count = snapshot ? static_cast<int>(snapshot->clusters.size()) :
     pf_->sets[pf_->current_set].cluster_count;
@@ -1474,7 +1443,6 @@ AmclNode::publishAmclPose(
   const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
   const std::vector<amcl_hyp_t> & hyps, const int & max_weight_hyp)
 {
-  // If initial pose is not known, AMCL does not know the current pose
   if (!initial_pose_is_known_) {
     if (checkElapsedTime(2s, last_time_printed_msg_)) {
       RCLCPP_WARN(
@@ -1486,10 +1454,8 @@ AmclNode::publishAmclPose(
   }
 
   auto p = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  // Fill in the header
   p->header.frame_id = global_frame_id_;
   p->header.stamp = laser_scan->header.stamp;
-  // Copy in the pose
   p->pose.pose.position.x = hyps[max_weight_hyp].pf_pose_mean.v[0];
   p->pose.pose.position.y = hyps[max_weight_hyp].pf_pose_mean.v[1];
   p->pose.pose.orientation = orientationAroundZAxis(hyps[max_weight_hyp].pf_pose_mean.v[2]);
@@ -1752,7 +1718,6 @@ AmclNode::initParameters()
 
   last_time_printed_msg_ = now();
 
-  // Semantic checks
   if (laser_likelihood_max_dist_ < 0) {
     RCLCPP_WARN(
       get_logger(), "You've set laser_likelihood_max_dist to be negative,"
@@ -1792,10 +1757,6 @@ AmclNode::initParameters()
   }
 }
 
-/**
-  * @brief Callback executed when a parameter change is detected
-  * @param event ParameterEvent message
-  */
 rcl_interfaces::msg::SetParametersResult
 AmclNode::dynamicParametersCallback(
   std::vector<rclcpp::Parameter> parameters)
@@ -1874,7 +1835,6 @@ AmclNode::dynamicParametersCallback(
     if (param_type == ParameterType::PARAMETER_DOUBLE) {
       if (param_name == "alpha1") {
         alpha1_ = parameter.as_double();
-        //alpha restricted to be non-negative
         if (alpha1_ < 0.0) {
           RCLCPP_WARN(
             get_logger(), "You've set alpha1 to be negative,"
@@ -1884,7 +1844,6 @@ AmclNode::dynamicParametersCallback(
         reinit_odom = true;
       } else if (param_name == "alpha2") {
         alpha2_ = parameter.as_double();
-        //alpha restricted to be non-negative
         if (alpha2_ < 0.0) {
           RCLCPP_WARN(
             get_logger(), "You've set alpha2 to be negative,"
@@ -1894,7 +1853,6 @@ AmclNode::dynamicParametersCallback(
         reinit_odom = true;
       } else if (param_name == "alpha3") {
         alpha3_ = parameter.as_double();
-        //alpha restricted to be non-negative
         if (alpha3_ < 0.0) {
           RCLCPP_WARN(
             get_logger(), "You've set alpha3 to be negative,"
@@ -1904,7 +1862,6 @@ AmclNode::dynamicParametersCallback(
         reinit_odom = true;
       } else if (param_name == "alpha4") {
         alpha4_ = parameter.as_double();
-        //alpha restricted to be non-negative
         if (alpha4_ < 0.0) {
           RCLCPP_WARN(
             get_logger(), "You've set alpha4 to be negative,"
@@ -1914,7 +1871,6 @@ AmclNode::dynamicParametersCallback(
         reinit_odom = true;
       } else if (param_name == "alpha5") {
         alpha5_ = parameter.as_double();
-        //alpha restricted to be non-negative
         if (alpha5_ < 0.0) {
           RCLCPP_WARN(
             get_logger(), "You've set alpha5 to be negative,"
@@ -2040,20 +1996,17 @@ AmclNode::dynamicParametersCallback(
     }
   }
 
-  // Checking if the minimum particles is greater than max_particles_
   if (min_particles_ > max_particles_) {
     RCLCPP_ERROR(
       this->get_logger(),
       "You've set min_particles to be greater than max particles,"
       " this isn't allowed.");
-    // sticking to the old values
     max_particles_ = max_particles;
     min_particles_ = min_particles;
     result.successful = false;
     return result;
   }
 
-  // Re-initialize the particle filter
   if (reinit_pf) {
     if (pf_ != NULL) {
       pf_free(pf_);
@@ -2062,13 +2015,11 @@ AmclNode::dynamicParametersCallback(
     initParticleFilter();
   }
 
-  // Re-initialize the odometry
   if (reinit_odom) {
     motion_model_.reset();
     initOdometry();
   }
 
-  // Re-initialize the lasers and it's filters
   if (reinit_laser) {
     lasers_.clear();
     lasers_update_.clear();
@@ -2080,7 +2031,6 @@ AmclNode::dynamicParametersCallback(
     initMessageFilters();
   }
 
-  // Re-initialize the map
   if (reinit_map) {
     map_sub_.reset();
     map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
@@ -2147,7 +2097,6 @@ AmclNode::handleMapMessage(const nav_msgs::msg::OccupancyGrid & msg)
 void
 AmclNode::createFreeSpaceVector()
 {
-  // Index of free space
   free_space_indices.resize(0);
   for (int i = 0; i < map_->size_x; i++) {
     for (int j = 0; j < map_->size_y; j++) {
@@ -2201,7 +2150,6 @@ AmclNode::convertMap(const nav_msgs::msg::OccupancyGrid & map_msg)
   map->cells =
     reinterpret_cast<map_cell_t *>(malloc(sizeof(map_cell_t) * map->size_x * map->size_y));
 
-  // Convert to player format
   for (int i = 0; i < map->size_x * map->size_y; i++) {
     if (map_msg.data[i] == 0) {
       map->cells[i].occ_state = -1;
@@ -2220,7 +2168,6 @@ AmclNode::initTransforms()
 {
   RCLCPP_INFO(get_logger(), "initTransforms");
 
-  // Initialize transform listener and broadcaster
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
   auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
     get_node_base_interface(),
@@ -2387,8 +2334,6 @@ AmclNode::initServices()
 void
 AmclNode::initOdometry()
 {
-  // TODO(mjeronimo): We should handle persistance of the last known pose of the robot. We could
-  // then read that pose here and initialize using that.
 
   // When pausing and resuming, remember the last robot pose so we don't start at 0:0 again
   init_pose_[0] = last_published_pose_.pose.pose.position.x;
@@ -2422,14 +2367,12 @@ AmclNode::initParticleFilter()
   global_acquisition_status_ = "filter_reset";
   estimate_contract_.resetObservation();
   fine_modes_valid_ = false;
-  // Create the particle filter
   pf_ = pf_alloc(
     min_particles_, max_particles_, alpha_slow_, alpha_fast_,
     (pf_init_model_fn_t)AmclNode::uniformPoseGenerator);
   pf_->pop_err = pf_err_;
   pf_->pop_z = pf_z_;
 
-  // Initialize the filter
   pf_vector_t pf_init_pose_mean = pf_vector_zero();
   pf_init_pose_mean.v[0] = init_pose_[0];
   pf_init_pose_mean.v[1] = init_pose_[1];
@@ -2458,7 +2401,4 @@ AmclNode::initLaserScan()
 
 #include "rclcpp_components/register_node_macro.hpp"
 
-// Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(nav2_amcl::AmclNode)

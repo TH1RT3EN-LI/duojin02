@@ -17,8 +17,7 @@ target_include_directories(
 target_compile_features(duojin02_gpu_geometry PUBLIC cxx_std_17)
 set(DUOJIN_CUDA_BUILT OFF)
 if(DUOJIN_ENABLE_CUDA)
-  # Choose the installed desktop GPU, rather than silently targeting an Orin.
-  # native requires CMake 3.24; older CMake can target this local RTX 50 series explicitly.
+  # CMake <3.24 lacks native; default to the local RTX 50-series architecture.
   if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
       set(CMAKE_CUDA_ARCHITECTURES native CACHE STRING "CUDA GPU architectures")

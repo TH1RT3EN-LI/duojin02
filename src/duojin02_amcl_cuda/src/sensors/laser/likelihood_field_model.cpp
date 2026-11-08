@@ -64,13 +64,11 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
   }
 
 
-  // Pre-compute a couple of things
   double z_hit_denom = 2 * self->sigma_hit_ * self->sigma_hit_;
   double z_rand_mult = 1.0 / data->range_max;
 
   step = (data->range_count - 1) / (self->max_beams_ - 1);
 
-  // Step size must be at least 1
   if (step < 1) {
     step = 1;
   }
@@ -78,12 +76,10 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
   total_weight = 0.0;
   int valid_beams = 0;
 
-  // Compute the sample weights
   for (j = 0; j < set->sample_count; j++) {
     sample = set->samples + j;
     pose = sample->pose;
 
-    // Take account of the laser pose relative to the robot
     if (!data->endpoints) {pose = pf_vector_coord_add(self->laser_pose_, pose);}
 
     p = 1.0;
@@ -97,7 +93,6 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
       if (j == 0) {++valid_beams;}
       pz = 0.0;
 
-      // Compute the endpoint of the beam
       if (data->endpoints) {
         const double c = cos(pose.v[2]), sn = sin(pose.v[2]);
         hit.v[0] = pose.v[0] + c * data->endpoints[i][0] - sn * data->endpoints[i][1];
@@ -107,7 +102,6 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
         hit.v[1] = pose.v[1] + obs_range * sin(pose.v[2] + obs_bearing);
       }
 
-      // Convert to map grid coords.
       const double gx = MAP_GXWX(self->map_, hit.v[0]);
       const double gy = MAP_GYWY(self->map_, hit.v[1]);
       if (!std::isfinite(gx) || !std::isfinite(gy)) {p = NAN; continue;}
@@ -116,26 +110,18 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
       const bool on_map = gx >= 0 && gy >= 0 && gx < self->map_->size_x && gy < self->map_->size_y;
       if (on_map) {mi = static_cast<int>(gx); mj = static_cast<int>(gy);}
 
-      // Part 1: Get distance from the hit to closest obstacle.
-      // Off-map penalized as max distance
       if (!on_map) {
         z = self->map_->max_occ_dist;
       } else {
         z = self->map_->cells[MAP_INDEX(self->map_, mi, mj)].occ_dist;
       }
-      // Gaussian model
       // NOTE: this should have a normalization of 1/(sqrt(2pi)*sigma)
       pz += self->z_hit_ * exp(-(z * z) / z_hit_denom);
-      // Part 2: random measurements
       pz += self->z_rand_ * z_rand_mult;
-
-      // TODO(?): outlier rejection for short readings
 
       assert(pz <= 1.0);
       assert(pz >= 0.0);
-      //      p *= pz;
-      // here we have an ad-hoc weighting scheme for combining beam probs
-      // works well, though...
+      // Preserve the legacy cubic beam mixture.
       p += pz * pz * pz;
     }
 

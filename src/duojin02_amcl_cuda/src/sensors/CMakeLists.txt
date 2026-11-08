@@ -4,7 +4,6 @@ add_library(duojin02_amcl_sensors_lib SHARED
   laser/likelihood_field_model.cpp
   laser/likelihood_field_model_prob.cpp
 )
-# map_update_cspace
 target_link_libraries(duojin02_amcl_sensors_lib duojin02_amcl_pf_lib duojin02_amcl_map_lib)
 
 install(TARGETS

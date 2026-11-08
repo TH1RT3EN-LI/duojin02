@@ -18,8 +18,7 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture
 def subreaper():
-    # Reap the real orphan fixture ourselves instead of leaving a zombie to the
-    # container's PID1. This changes no production process-management policy.
+    # Reap orphan fixtures here instead of leaving zombies to the container's PID1.
     libc = ctypes.CDLL(None, use_errno=True)
     original = ctypes.c_int()
     assert libc.prctl(37, ctypes.byref(original), 0, 0, 0) == 0

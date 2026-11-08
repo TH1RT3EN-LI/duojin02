@@ -42,7 +42,6 @@
       <visual name="chassis_battery">
         <geometry><mesh filename="package://duojin02_description/meshes/chassis_battery.dae" /></geometry>
       </visual>
-      <!-- Chassis body collision; wheel envelopes remain on their measured links. -->
       <collision name="chassis_body_envelope">
         <origin xyz="${chassis_body_center_x} ${chassis_body_center_y} ${chassis_body_center_z}" rpy="0 0 0" />
         <geometry><box size="${chassis_body_size_x} ${chassis_body_size_y} ${chassis_body_size_z}" /></geometry>

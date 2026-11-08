@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Build the source-pinned optimizer, localizer, and their actual navigation consumers.
 set -eo pipefail
 cuda_workspace="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$cuda_workspace/scripts/environment.sh"

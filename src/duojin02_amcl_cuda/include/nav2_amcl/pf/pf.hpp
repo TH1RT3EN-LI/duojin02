@@ -189,8 +189,6 @@ void pf_init(pf_t * pf, pf_vector_t mean, pf_matrix_t cov);
 // Initialize the filter using some model
 void pf_init_model(pf_t * pf, pf_init_model_fn_t init_fn, void * init_data);
 
-// Update the filter with some new action
-// void pf_update_action(pf_t * pf, pf_action_model_fn_t action_fn, void * action_data);
 
 // Update the filter with some new sensor observation
 void pf_update_sensor(pf_t * pf, pf_sensor_model_fn_t sensor_fn, void * sensor_data);
@@ -207,8 +205,6 @@ const char * pf_resample_stop_name(pf_resample_stop_t reason);
 // Resample the distribution
 void pf_update_resample(pf_t * pf, void * random_pose_data);
 
-// Compute the CEP statistics (mean and variance).
-// void pf_get_cep_stats(pf_t * pf, pf_vector_t * mean, double * var);
 
 // Compute the statistics for a particular cluster.  Returns 0 if
 // there is no such cluster.
@@ -226,8 +222,6 @@ void pf_draw_samples(pf_t * pf, struct _rtk_fig_t * fig, int max_samples);
 // Draw the histogram (kdtree)
 void pf_draw_hist(pf_t * pf, struct _rtk_fig_t * fig);
 
-// Draw the CEP statistics
-// void pf_draw_cep_stats(pf_t * pf, struct _rtk_fig_t * fig);
 
 // Draw the cluster statistics
 void pf_draw_cluster_stats(pf_t * pf, struct _rtk_fig_t * fig);

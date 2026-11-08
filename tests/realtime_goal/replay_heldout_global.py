@@ -381,11 +381,8 @@ def main():
             from rclpy.parameter import parameter_value_to_python
             report['effective_parameters'] = dict(zip(request.names, [parameter_value_to_python(v) for v in future.result().values]))
             save()
-            # First-use distance-field construction takes longer than a scan
-            # interval. Admit the first original scan only after its original
-            # odometry bracket is present, then wait for that first estimate
-            # before paced playback. Otherwise the message filter's ten-scan
-            # queue drops different startup scans on CPU and CUDA.
+            # Wait for first-use distance-field construction and the first estimate
+            # with complete odometry support to prevent unequal CPU/CUDA startup drops.
             first_index = next(i for i,row in enumerate(records) if row[0]=='/scan')
             first_scan = deserialize_message(records[first_index][2], LaserScan)
             first_ns = source_by_index[first_index]['reference_stamp_ns']
