@@ -16,6 +16,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -47,6 +48,7 @@ set_target_properties(precise_mppi PROPERTIES INSTALL_RPATH "$ORIGIN")
 target_include_directories(precise_mppi PRIVATE include)
 ament_target_dependencies(
   precise_mppi
+  diagnostic_msgs
   duojin02_mppi_controller
   nav2_core
   nav2_costmap_2d
@@ -215,6 +217,7 @@ if(BUILD_TESTING)
   target_include_directories(precise_mppi_limit_checks PRIVATE include)
   ament_target_dependencies(
     precise_mppi_limit_checks
+    diagnostic_msgs
     rclcpp
     rclcpp_lifecycle
     duojin02_mppi_controller
@@ -243,6 +246,10 @@ if(BUILD_TESTING)
   ament_target_dependencies(cuda_local_plugin_probe nav2_core nav2_controller duojin02_mppi_controller
     nav2_costmap_2d rclcpp rclcpp_lifecycle pluginlib tf2 tf2_geometry_msgs geometry_msgs nav_msgs)
   target_compile_options(cuda_local_plugin_probe PRIVATE -UNDEBUG)
+  add_executable(task_goal_contract_checks test/task_goal_contract_checks.cpp)
+  target_include_directories(task_goal_contract_checks PRIVATE include)
+  target_compile_options(task_goal_contract_checks PRIVATE -UNDEBUG)
+  add_test(NAME task_goal_contract_checks COMMAND task_goal_contract_checks)
   add_executable(goal_settling_checks test/goal_settling_checks.cpp)
   target_include_directories(goal_settling_checks PRIVATE include)
   ament_target_dependencies(goal_settling_checks nav2_controller nav2_core rcl_interfaces)

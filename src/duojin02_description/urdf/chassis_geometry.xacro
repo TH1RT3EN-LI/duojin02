@@ -6,7 +6,6 @@
   <xacro:property name="lidar_mount_y" value="-8.97794961929e-06" />
   <xacro:property name="lidar_mount_z" value="0.114807665825" />
   <xacro:property name="lidar_scan_offset_z" value="0.0154249999905" />
-  <xacro:property name="lidar_scan_yaw" value="0" />
   <xacro:property name="chassis_body_center_x" value="-0.0005" />
   <xacro:property name="chassis_body_size_x" value="0.427" />
   <xacro:property name="chassis_body_center_y" value="-0.0005" />

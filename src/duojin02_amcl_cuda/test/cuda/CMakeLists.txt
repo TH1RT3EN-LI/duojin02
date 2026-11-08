@@ -1,5 +1,10 @@
 add_executable(amcl_observation_test observation_test.cpp)
 target_link_libraries(amcl_observation_test duojin02_amcl_sensors_lib duojin02_amcl_pf_lib duojin02_amcl_map_lib)
+target_include_directories(amcl_observation_test PRIVATE
+  "${PROJECT_SOURCE_DIR}/../duojin02_scan_geometry/include"
+  "${PROJECT_SOURCE_DIR}/../../tests/integration")
+target_compile_definitions(amcl_observation_test PRIVATE
+  DUOJIN02_RECORDED_SCAN_FIXTURE="${PROJECT_SOURCE_DIR}/../../tests/integration/fixtures/lilocbench_geometry_scan.txt")
 add_test(NAME amcl_cpu_observation COMMAND amcl_observation_test cpu)
 add_test(NAME amcl_auto_no_device COMMAND amcl_observation_test auto)
 set_tests_properties(amcl_auto_no_device PROPERTIES ENVIRONMENT "CUDA_VISIBLE_DEVICES=")
@@ -15,3 +20,44 @@ if(DUOJIN_ENABLE_CUDA)
     set_tests_properties(amcl_cuda_timing PROPERTIES SKIP_RETURN_CODE 77)
   endif()
 endif()
+
+add_executable(amcl_pf_numerics_test pf_numerics_test.cpp)
+target_link_libraries(amcl_pf_numerics_test duojin02_amcl_pf_lib)
+add_test(NAME amcl_pf_numerics COMMAND amcl_pf_numerics_test)
+
+add_executable(amcl_posterior_snapshot_test posterior_snapshot_test.cpp)
+target_link_libraries(amcl_posterior_snapshot_test duojin02_amcl_pf_lib)
+add_test(NAME amcl_posterior_snapshot COMMAND amcl_posterior_snapshot_test)
+
+add_executable(amcl_estimate_reset_test estimate_reset_test.cpp)
+target_link_libraries(amcl_estimate_reset_test duojin02_amcl_core)
+ament_target_dependencies(amcl_estimate_reset_test ${dependencies})
+add_test(NAME amcl_estimate_reset COMMAND amcl_estimate_reset_test)
+
+add_executable(amcl_global_acquisition_test global_acquisition_test.cpp)
+target_link_libraries(amcl_global_acquisition_test duojin02_amcl_map_lib)
+add_test(NAME amcl_global_acquisition COMMAND amcl_global_acquisition_test)
+
+add_executable(amcl_certified_lattice_test certified_lattice_test.cpp)
+target_link_libraries(amcl_certified_lattice_test duojin02_amcl_map_lib)
+add_test(NAME amcl_certified_lattice COMMAND amcl_certified_lattice_test)
+
+add_executable(amcl_certified_yaw_lattice_test certified_yaw_lattice_test.cpp)
+target_link_libraries(amcl_certified_yaw_lattice_test duojin02_amcl_map_lib)
+add_test(NAME amcl_certified_yaw_lattice COMMAND amcl_certified_yaw_lattice_test)
+
+add_executable(amcl_map_cspace_test map_cspace_test.cpp)
+target_link_libraries(amcl_map_cspace_test duojin02_amcl_map_lib)
+add_test(NAME amcl_map_cspace COMMAND amcl_map_cspace_test)
+
+add_executable(amcl_acquisition_handoff_test acquisition_handoff_test.cpp)
+target_link_libraries(amcl_acquisition_handoff_test duojin02_amcl_core)
+ament_target_dependencies(amcl_acquisition_handoff_test ${dependencies})
+add_test(NAME amcl_acquisition_handoff COMMAND amcl_acquisition_handoff_test)
+
+add_executable(amcl_acquisition_motion_test acquisition_motion_test.cpp)
+target_link_libraries(amcl_acquisition_motion_test
+  duojin02_amcl_core duojin02_amcl_motions_lib)
+ament_target_dependencies(amcl_acquisition_motion_test ${dependencies})
+add_test(NAME amcl_acquisition_motion COMMAND amcl_acquisition_motion_test)
+set_tests_properties(amcl_acquisition_motion PROPERTIES ENVIRONMENT "CUDA_VISIBLE_DEVICES=")

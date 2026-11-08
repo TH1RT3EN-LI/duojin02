@@ -97,16 +97,7 @@ def _create_nav_actions(context):
             )
         ]
     )
-    monitor_config = os.path.join(
-        get_package_share_directory(PACKAGE_NAME), "config", "localization_monitor.yaml"
-    )
-    monitor = Node(
-        package=PACKAGE_NAME,
-        executable="localization_monitor",
-        parameters=[monitor_config, {"use_sim_time": False}],
-        output="screen",
-    )
-    nav_actions = [localization, monitor]
+    nav_actions = [localization]
     if autostart.perform(context).lower() == "true":
         ready = Node(
             package="duojin02_bringup",

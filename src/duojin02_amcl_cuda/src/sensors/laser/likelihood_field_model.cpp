@@ -76,6 +76,7 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
   }
 
   total_weight = 0.0;
+  int valid_beams = 0;
 
   // Compute the sample weights
   for (j = 0; j < set->sample_count; j++) {
@@ -83,7 +84,7 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
     pose = sample->pose;
 
     // Take account of the laser pose relative to the robot
-    pose = pf_vector_coord_add(self->laser_pose_, pose);
+    if (!data->endpoints) {pose = pf_vector_coord_add(self->laser_pose_, pose);}
 
     p = 1.0;
 
@@ -91,30 +92,33 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
       obs_range = data->ranges[i][0];
       obs_bearing = data->ranges[i][1];
 
-      // This model ignores max range readings
-      if (obs_range >= data->range_max) {
-        continue;
-      }
+      if (!data->acceptsHit(i)) {continue;}
 
-      // Check for NaN
-      if (!std::isfinite(obs_range) || !std::isfinite(obs_bearing)) {
-        continue;
-      }
-
+      if (j == 0) {++valid_beams;}
       pz = 0.0;
 
       // Compute the endpoint of the beam
-      hit.v[0] = pose.v[0] + obs_range * cos(pose.v[2] + obs_bearing);
-      hit.v[1] = pose.v[1] + obs_range * sin(pose.v[2] + obs_bearing);
+      if (data->endpoints) {
+        const double c = cos(pose.v[2]), sn = sin(pose.v[2]);
+        hit.v[0] = pose.v[0] + c * data->endpoints[i][0] - sn * data->endpoints[i][1];
+        hit.v[1] = pose.v[1] + sn * data->endpoints[i][0] + c * data->endpoints[i][1];
+      } else {
+        hit.v[0] = pose.v[0] + obs_range * cos(pose.v[2] + obs_bearing);
+        hit.v[1] = pose.v[1] + obs_range * sin(pose.v[2] + obs_bearing);
+      }
 
       // Convert to map grid coords.
-      int mi, mj;
-      mi = MAP_GXWX(self->map_, hit.v[0]);
-      mj = MAP_GYWY(self->map_, hit.v[1]);
+      const double gx = MAP_GXWX(self->map_, hit.v[0]);
+      const double gy = MAP_GYWY(self->map_, hit.v[1]);
+      if (!std::isfinite(gx) || !std::isfinite(gy)) {p = NAN; continue;}
+      // Out-of-map finite endpoints do not need conversion to a bounded integer.
+      int mi = 0, mj = 0;
+      const bool on_map = gx >= 0 && gy >= 0 && gx < self->map_->size_x && gy < self->map_->size_y;
+      if (on_map) {mi = static_cast<int>(gx); mj = static_cast<int>(gy);}
 
       // Part 1: Get distance from the hit to closest obstacle.
       // Off-map penalized as max distance
-      if (!MAP_VALID(self->map_, mi, mj)) {
+      if (!on_map) {
         z = self->map_->max_occ_dist;
       } else {
         z = self->map_->cells[MAP_INDEX(self->map_, mi, mj)].occ_dist;
@@ -139,6 +143,7 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
     total_weight += sample->weight;
   }
 
+  set->sensor_no_information = valid_beams == 0;
   if (self->observation_) {
     self->observation_->recordCpu(std::chrono::duration<double, std::micro>(
       std::chrono::steady_clock::now() - observation_start).count(), set->sample_count,
@@ -151,6 +156,7 @@ LikelihoodFieldModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
 bool
 LikelihoodFieldModel::sensorUpdate(pf_t * pf, LaserData * data)
 {
+  data->validatePrepared();
   if (max_beams_ < 2) {
     return false;
   }

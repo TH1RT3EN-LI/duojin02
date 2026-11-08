@@ -1,0 +1,74 @@
+--- a/src/map_io.cpp
++++ b/src/map_io.cpp
+@@ -40,6 +40,8 @@
+ #include <fstream>
+ #include <stdexcept>
+ #include <cstdlib>
++#include <limits>
++#include <cmath>
+ 
+ #include "Magick++.h"
+ #include "nav2_util/geometry_utils.hpp"
+@@ -544,7 +546,8 @@
+ 
+   std::string mapmetadatafile = save_parameters.map_file_name + ".yaml";
+   {
+-    std::ofstream yaml(mapmetadatafile);
++    std::ofstream yaml(mapmetadatafile, std::ios::out | std::ios::trunc);
++    if (!yaml) {throw std::runtime_error("Cannot open map metadata file");}
+ 
+     geometry_msgs::msg::Quaternion orientation = map.info.origin.orientation;
+     tf2::Matrix3x3 mat(tf2::Quaternion(orientation.x, orientation.y, orientation.z, orientation.w));
+@@ -555,7 +558,10 @@
+     std::string image_name = mapdatafile.substr(file_name_index + 1);
+ 
+     YAML::Emitter e;
+-    e << YAML::Precision(3);
++    // OccupancyGrid resolution is float32; origin/yaw and thresholds are double.
++    // Preserve each field on conversion back to its interface type.
++    e.SetFloatPrecision(std::numeric_limits<float>::max_digits10);
++    e.SetDoublePrecision(std::numeric_limits<double>::max_digits10);
+     e << YAML::BeginMap;
+     e << YAML::Key << "image" << YAML::Value << image_name;
+     e << YAML::Key << "mode" << YAML::Value << map_mode_to_string(save_parameters.mode);
+@@ -570,10 +576,15 @@
+       RCLCPP_ERROR_STREAM(
+         rclcpp::get_logger("map_io"), "YAML writer failed with an error " << e.GetLastError() <<
+           ". The map metadata may be invalid.");
++      throw std::runtime_error("Failed to encode map metadata");
+     }
+ 
+     RCLCPP_INFO_STREAM(rclcpp::get_logger("map_io"), "Writing map metadata to " << mapmetadatafile);
+-    std::ofstream(mapmetadatafile) << e.c_str();
++    yaml << e.c_str() << '\n';
++    yaml.flush();
++    if (!yaml) {throw std::runtime_error("Failed to write map metadata");}
++    yaml.close();
++    if (!yaml) {throw std::runtime_error("Failed to close map metadata");}
+   }
+   RCLCPP_INFO_STREAM(rclcpp::get_logger("map_io"), "Map saved");
+ }
+@@ -586,6 +597,23 @@
+   SaveParameters save_parameters_loc = save_parameters;
+ 
+   try {
++    const auto & origin = map.info.origin;
++    if (!std::isfinite(map.info.resolution) || map.info.resolution <= 0.0f ||
++      !std::isfinite(origin.position.x) || !std::isfinite(origin.position.y) ||
++      !std::isfinite(origin.orientation.x) || !std::isfinite(origin.orientation.y) ||
++      !std::isfinite(origin.orientation.z) || !std::isfinite(origin.orientation.w) ||
++      origin.orientation.x * origin.orientation.x + origin.orientation.y * origin.orientation.y +
++      origin.orientation.z * origin.orientation.z + origin.orientation.w * origin.orientation.w <= 0.0 ||
++      !std::isfinite(save_parameters_loc.free_thresh) ||
++      !std::isfinite(save_parameters_loc.occupied_thresh))
++    {
++      throw std::invalid_argument("Map metadata must have finite coordinates/thresholds, positive resolution and a valid quaternion");
++    }
++    if (map.info.width == 0 || map.info.height == 0 ||
++      static_cast<uint64_t>(map.info.width) * map.info.height != map.data.size())
++    {
++      throw std::invalid_argument("Map dimensions and occupancy data size disagree");
++    }
+     // Checking map parameters for consistency
+     checkSaveParameters(save_parameters_loc);
+ 

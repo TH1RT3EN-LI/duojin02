@@ -9,6 +9,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
@@ -17,6 +18,7 @@ find_package(tf2 REQUIRED)
 find_package(nav2_util REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(duojin02_scan_geometry REQUIRED)
 
 nav2_package()
 # nav2_package warning switches target host compilers only, not nvcc.
@@ -88,6 +90,7 @@ set(dependencies
   message_filters
   tf2_geometry_msgs
   geometry_msgs
+  diagnostic_msgs
   nav_msgs
   sensor_msgs
   std_srvs
@@ -96,6 +99,7 @@ set(dependencies
   nav2_util
   nav2_msgs
   pluginlib
+  duojin02_scan_geometry
 )
 
 ament_target_dependencies(${executable_name}

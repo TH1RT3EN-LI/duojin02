@@ -104,7 +104,8 @@ def run(args):
     def serial_equals(x):
         return bool(fixture.wire_packets) and fixture.wire_packets[-1][1] == (x, 0, 0)
 
-    def pump(duration, *, nav=0.24, joy_mode=None, keys=None):
+    def pump(duration, *, nav=0.24, joy_mode=None, keys=None, scan=True, invalid=False,
+             map_tf=True):
         until = time.monotonic() + duration
         next_joy = next_key = 0.0
         while time.monotonic() < until:
@@ -123,7 +124,8 @@ def run(args):
             if keys is not None and now >= next_key:
                 next_key = now + 0.1
                 os.write(key_master, keys)
-            fixture.pump(min(0.01, max(0.0, until - time.monotonic())), nav=nav)
+            fixture.pump(min(0.01, max(0.0, until - time.monotonic())), nav=nav,
+                         scan=scan, invalid=invalid, map_tf=map_tf)
 
     def start_keyboard(name, expected_returncode=0):
         return start(
@@ -150,7 +152,7 @@ def run(args):
                 "--params-file",
                 str(mux_file),
                 "-r",
-                "/cmd_vel_out:=/cmd_vel_requested",
+                "/cmd_vel_out:=/cmd_vel_base",
             ],
         )
         start(
@@ -162,6 +164,10 @@ def run(args):
                 safety,
                 "-p",
                 "velocity_guard:use_sim_time:=true",
+                "-r",
+                "/cmd_vel_requested:=/cmd_vel",
+                "-r",
+                "/cmd_vel_base:=/cmd_vel_nav_guarded",
             ],
         )
         start(
@@ -203,9 +209,35 @@ def run(args):
         check("fresh_navigation_reaches_serial", serial_equals(240))
         check("idle_keyboard_publishes_nothing", keyboard == [])
 
+        pump(1.0, keys=b"w", invalid=True)
+        check("keyboard_remains_operational_with_invalid_lidar", serial_equals(300))
+        check("invalid_lidar_still_blocks_navigation_guard",
+              fixture.guard_status[-1]["reason"] in ("scan_invalid", "scan_or_tf_stale"))
+        pump(1.2, invalid=True)
+        check("navigation_stops_after_keyboard_release_if_lidar_invalid", serial_equals(0))
+        pump(1.2)
+        check("navigation_recovers_after_valid_lidar_returns", serial_equals(240))
+
+        pump(1.0, joy_mode="normal", scan=False)
+        check("joystick_remains_operational_with_no_lidar", serial_equals(200))
+        check("missing_lidar_still_blocks_navigation_guard",
+              fixture.guard_status[-1]["reason"] == "scan_or_tf_stale")
+        pump(1.2)
+        check("navigation_recovers_after_lidar_restart", serial_equals(240))
+
+        pump(1.1, keys=b"w", map_tf=False)
+        check("keyboard_remains_operational_with_stale_map_transform", serial_equals(300))
+        check("stale_map_transform_blocks_navigation_guard",
+              fixture.guard_status[-1]["reason"] in ("localization_tf_stale", "scan_or_tf_stale"))
+        pump(1.2, map_tf=False)
+        check("navigation_stops_after_keyboard_release_if_transform_stale", serial_equals(0))
+        pump(1.2)
+        check("navigation_recovers_after_transform_returns", serial_equals(240))
+
+        keyboard_after_fault_checks = len(keyboard)
         pump(0.8, joy_mode="normal")
         check("joy_normal_deadman_overrides_active_navigation", serial_equals(200))
-        check("idle_keyboard_does_not_starve_joy", keyboard == [])
+        check("idle_keyboard_does_not_starve_joy", len(keyboard) == keyboard_after_fault_checks)
         pump(0.8, joy_mode="slow")
         check("joy_slow_deadman_overrides_active_navigation", serial_equals(75))
         pump(0.8, joy_mode="both")
@@ -341,14 +373,14 @@ def run(args):
         result["observed"] = {
             "keyboard_commands": len(keyboard),
             "navigation_commands": len(fixture.outputs),
-            "requested_commands": len(fixture.requested),
-            "guard_commands": len(fixture.base),
+            "guarded_navigation_commands": len(fixture.requested),
+            "base_commands": len(fixture.base),
             "serial_packets": len(fixture.wire_packets),
         }
         result["streams"] = {
             "keyboard": keyboard,
-            "requested": fixture.requested,
-            "guard": fixture.base,
+            "guarded_navigation": fixture.requested,
+            "base": fixture.base,
             "serial": fixture.wire_packets,
         }
         (args.output_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n")

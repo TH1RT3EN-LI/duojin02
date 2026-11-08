@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 from ament_index_python.packages import get_package_share_directory
-from duojin02_slam_tools.snapshots import artifact_path, validate_map
+from duojin02_slam_tools.snapshots import artifact_path, validate_map, graph_input
 from launch import LaunchDescription
 from duojin02_bringup.middleware import middleware
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, Shutdown
@@ -32,16 +32,19 @@ def create_node(context):
         raise ValueError("start_at_dock must be true or false")
     dock = dock_value == "true"
     if graph:
-        prefix = Path(graph).expanduser().resolve()
+        prefix = graph_input(Path(graph).expanduser().resolve())
         if prefix.suffix == ".posegraph":
             prefix = prefix.with_suffix("")
-        for extension in (".posegraph", ".data"):
-            artifact = artifact_path(prefix, extension)
-            if not artifact.is_file() or artifact.stat().st_size == 0:
-                raise ValueError(f"Missing pose graph artifact: {artifact}")
-        raster = artifact_path(prefix, ".yaml")
-        if raster.exists():
-            validate_map(raster, require_graph=True)
+        if prefix.is_dir():
+            validate_map(prefix / "map.yaml", require_graph=True)
+        else:
+            for extension in (".posegraph", ".data"):
+                artifact = artifact_path(prefix, extension)
+                if not artifact.is_file() or artifact.stat().st_size == 0:
+                    raise ValueError(f"Missing pose graph artifact: {artifact}")
+            raster = artifact_path(prefix, ".yaml")
+            if raster.exists():
+                validate_map(raster, require_graph=True)
         if bool(start) == dock:
             raise ValueError(
                 "For continuation, specify either map_start_pose:='[x, y, yaw]' or start_at_dock:=true"

@@ -1,0 +1,27 @@
+{
+  "schema": "duojin02.actual-scan-component-fixture.v1",
+  "source_scan_id": "scan_front_link:1733375860478977632",
+  "database": "/oldresults/adapter-tf-lead/mapping_ros2_0.db3",
+  "scan_cdr_sha256": "bbd3d11a85d1cb4a606142c742bf7b2208782da7a8fe2f23b807e055f530880c",
+  "tf_cdr_sha256": [
+    "4d54dc26855a452612ff1750b2e85bb6fc19ea475ecfb1f7a5ea402b870389ca",
+    "12900c47b5e58a1fec995136bc0ab0c677aa7870bf40e35b4fedc515a46df200",
+    "5992d177ed3a1297745b44e10920d7b205d1ef2a021ae7ca16493c52e4b3689b",
+    "e7e2655297f8d2b848add8d580a993bcc9014315b6442e74a3eb68e6b79abe8e",
+    "e4bcf6e1d7c2d683c3380bda458fb8c68e4a78bc8f0443d488604e0d2edb8b83",
+    "65c8f17640a9f73eafbb6c4ad544432cea80b4d92a4a0a2f9738801e60c924e6",
+    "77b7c9acca2bbe7b6fde856a994fa13a5745d499ef7303455bd09b1a4d178069",
+    "ad017d12ae5cfaf99b1b7dfe912c002527ef6528a73fbbfc6e00f15dc7d7b1b6",
+    "3bb65b50abb9c891ecc4e6137f774885ce204ec8bc330a8b47a7142abe48cd0f"
+  ],
+  "fixture_sha256": "2c420f8ff7c1b2e4f1c308fb05b49f4f45c4007fad10acf6e57344081c867903",
+  "finite_short_indices": [
+    590,
+    670,
+    678,
+    804
+  ],
+  "scope": "original source rays and original TF support; no GT or fitted time offset",
+  "clock_evidence": "uncalibrated",
+  "beam_order_evidence": "original-index-increasing-time-assumed"
+}

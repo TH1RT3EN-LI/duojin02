@@ -31,7 +31,10 @@ def generate_launch_description():
     twist_mux_config_path = os.path.join(bringup_share, "config", "twist_mux.yaml")
 
     urdf_file = os.path.join(description_share, "urdf", "duojin02.xacro")
-    robot_description = ParameterValue(Command(["xacro", " ", urdf_file]), value_type=str)
+    robot_description = ParameterValue(
+        Command(["xacro", " ", urdf_file, " lidar_yaw_deg:=", LaunchConfiguration("lidar_yaw_deg")]),
+        value_type=str,
+    )
 
     joint_state_publisher = Node(
         package="joint_state_publisher",
@@ -107,7 +110,7 @@ def generate_launch_description():
         name="twist_mux",
         output="screen",
         parameters=[mux_parameters(twist_mux_config_path), {"use_sim_time": False}],
-        remappings=[("/cmd_vel_out", "/cmd_vel_requested")],
+        remappings=[("/cmd_vel_out", "/cmd_vel_base")],
     )
 
     base_driver_node = Node(
@@ -140,6 +143,7 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument("base_serial_baudrate", default_value="115200"),
             DeclareLaunchArgument("lidar_serial_port", default_value="/dev/lslidar"),
+            DeclareLaunchArgument("lidar_yaw_deg", default_value="3.7", description="Laser yaw relative to the chassis, in degrees (provisional calibration)"),
             DeclareLaunchArgument("odom0", default_value="/odom"),
             DeclareLaunchArgument("imu0", default_value="/imu"),
             DeclareLaunchArgument("publish_robot_model", default_value="true"),

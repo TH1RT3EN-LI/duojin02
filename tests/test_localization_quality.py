@@ -52,7 +52,10 @@ def test_unobserved_unknown_and_invalid_unsampled_ray_cannot_support_pose():
     values[1] = -math.inf
     assert not score(rings(), values, increment=2 * math.pi / 540)["valid"]
     values[1] = math.nan
-    assert not score(rings(), values, increment=2 * math.pi / 540)["valid"]
+    assert score(rings(), values, increment=2 * math.pi / 540)["valid"]
+    mixed = score(rings(), [2.0] * 45 + [math.nan] * 45)
+    assert mixed["valid"] and mixed["compared"] == 45 and mixed["unobserved"] == 45
+    assert not score(rings(), [math.nan] * 90)["valid"]
     assert not score(rings(), [2.0] * 90, increment=0)["valid"]
     assert not score(rings(), [2.0] * 90, minimum=-0.1)["valid"]
 

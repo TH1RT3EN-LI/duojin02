@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <robot name="duojin02" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- Provisional +3.7° fit; validate against an independent external target. -->
+  <xacro:arg name="lidar_yaw_deg" default="3.7" />
   <xacro:include filename="duojin02_hardware.xacro" />
-  <xacro:duojin02_hardware_model />
+  <xacro:duojin02_hardware_model lidar_scan_yaw="${float('$(arg lidar_yaw_deg)') * pi / 180.0}" />
 </robot>

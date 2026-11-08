@@ -168,7 +168,7 @@ def reload_graph(prefix, root, launch_file=None):
 def reject_corrupt_graph(root, launch_file=None):
     prefix = root / "corrupt-graph"
     for suffix in (".posegraph", ".data"):
-        original = root / "maps" / ("rotation_recorded" + suffix)
+        original = root / "maps" / "rotation_recorded" / ("graph" + suffix)
         Path(str(prefix) + suffix).write_bytes(original.read_bytes()[:16])
     configure_isolation()
     environment = dict(os.environ)
@@ -239,7 +239,7 @@ def run(root):
             ],
             check=True,
         )
-        validate_map(root / "maps" / f"rotation_{route}.yaml")
+        validate_map(root / "maps" / f"rotation_{route}" / "map.yaml")
     reports = [
         json.loads(path.read_text()) for path in (root / "maps").glob("offline-session-*.json")
     ]

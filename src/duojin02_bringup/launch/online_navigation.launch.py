@@ -32,7 +32,12 @@ def generate_launch_description():
         LaunchConfiguration("slam_params_file"),
         os.path.join(own, "config/lattice_primitives/duojin02_omni_2cm_rich_lattice.json"),
     )
-    ready = Node(package="duojin02_bringup", executable="localization_readiness", output="screen")
+    ready = Node(
+        package="duojin02_bringup",
+        executable="localization_readiness",
+        parameters=[{"require_amcl_estimate": False}],
+        output="screen",
+    )
     navigation = GroupAction(
         [
             include(
@@ -70,6 +75,7 @@ def generate_launch_description():
             DeclareLaunchArgument("base_serial_port", default_value="/dev/duojin02_controller"),
             DeclareLaunchArgument("base_serial_baudrate", default_value="115200"),
             DeclareLaunchArgument("lidar_serial_port", default_value="/dev/lslidar"),
+            DeclareLaunchArgument("lidar_yaw_deg", default_value="3.7", description="Laser yaw relative to the chassis, in degrees"),
             DeclareLaunchArgument("odom0", default_value="/odom"),
             DeclareLaunchArgument("imu0", default_value="/imu"),
             include(
@@ -83,6 +89,7 @@ def generate_launch_description():
                         "base_serial_port",
                         "base_serial_baudrate",
                         "lidar_serial_port",
+                        "lidar_yaw_deg",
                         "odom0",
                         "imu0",
                     )

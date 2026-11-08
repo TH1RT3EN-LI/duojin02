@@ -119,6 +119,32 @@ class ScanReadiness:
             return False
 
 
+class EstimateReadiness:
+    """Require a recent completed AMCL handoff, not just an old TF."""
+    def __init__(self, timeout_s=1.0):
+        self.timeout_s = timeout_s
+        self.received_at = None
+        self.ready = False
+
+    def receive(self, message, wall):
+        self.ready = False
+        self.received_at = wall if math.isfinite(wall) else None
+        matches = [status for status in message.status if status.name == "amcl/estimate_contract"]
+        if len(matches) != 1:
+            return
+        values = [(item.key, item.value) for item in matches[0].values]
+        fields = dict(values)
+        if len(fields) != len(values):
+            return
+        self.ready = (fields.get("global_acquisition_pending") == "false" and
+                      fields.get("first_pf_confirmation_pending") == "false" and
+                      fields.get("valid_observation") == "true")
+
+    def poll(self, wall):
+        return (self.ready and self.received_at is not None and math.isfinite(wall) and
+                0 <= wall - self.received_at < self.timeout_s)
+
+
 def main():
     import rclpy
     from rclpy.node import Node
@@ -126,21 +152,31 @@ def main():
     from rclpy.time import Time
     from rcl_interfaces.msg import ParameterDescriptor
     from sensor_msgs.msg import LaserScan
+    from diagnostic_msgs.msg import DiagnosticArray
     from tf2_ros import Buffer, TransformListener
 
     rclpy.init()
     node = Node("navigation_localization_readiness")
     timeout = node.declare_parameter("timeout_s", 0.0, ParameterDescriptor(read_only=True)).value
+    require_amcl = node.declare_parameter(
+        "require_amcl_estimate", True, ParameterDescriptor(read_only=True)
+    ).value
     buffer = Buffer()
     listener = TransformListener(buffer, node)
     limits = safety_defaults()
     scans = ScanReadiness(limits["scan_timeout_s"])
+    estimate = EstimateReadiness() if require_amcl else None
     subscription = node.create_subscription(
         LaserScan,
         "/scan",
         lambda m: scans.receive(m, node.get_clock().now().nanoseconds, time.monotonic()),
         qos_profile_sensor_data,
     )
+    if estimate is not None:
+        estimate_subscription = node.create_subscription(
+            DiagnosticArray, "amcl_estimate_contract",
+            lambda message: estimate.receive(message, time.monotonic()), 10,
+        )
 
     def exact_tf_ready(scan):
         stamp = Time.from_msg(scan.header.stamp)
@@ -157,11 +193,13 @@ def main():
     start = time.monotonic()
     ready = False
     node.get_logger().info(
-        "Waiting for live scan and map localization; fixed maps require an initial pose."
+        "Waiting for live scan and map localization; "
+        + ("AMCL estimate required." if require_amcl else "online SLAM mode.")
     )
     while rclpy.ok() and (timeout <= 0 or time.monotonic() - start < timeout):
         rclpy.spin_once(node, timeout_sec=0.05)
-        if scans.poll(node.get_clock().now().nanoseconds, time.monotonic(), exact_tf_ready):
+        if ((estimate is None or estimate.poll(time.monotonic())) and
+            scans.poll(node.get_clock().now().nanoseconds, time.monotonic(), exact_tf_ready)):
             ready = True
             break
     node.destroy_node()

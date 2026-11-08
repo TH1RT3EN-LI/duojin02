@@ -47,7 +47,7 @@ class SensorFixture(Node):
         for topic, target in [
             ("/cmd_vel", self.outputs),
             ("/cmd_vel_base", self.base),
-            ("/cmd_vel_requested", self.requested),
+            ("/cmd_vel_nav_guarded", self.requested),
         ]:
             self.create_subscription(
                 Twist,
@@ -99,7 +99,8 @@ class SensorFixture(Node):
             next_clock += 0.001
             time.sleep(max(0.0, next_clock - time.monotonic()))
 
-    def pump(self, duration, *, scan=True, invalid=False, nav=None, manual=None, range_m=2.0):
+    def pump(self, duration, *, scan=True, invalid=False, nav=None, manual=None, range_m=2.0,
+             map_tf=True):
         until = time.monotonic() + duration
         while time.monotonic() < until:
             now = time.monotonic()
@@ -140,7 +141,8 @@ class SensorFixture(Node):
                     self.get_clock().now() + rclpy.duration.Duration(seconds=0.1)
                 ).to_msg()
                 transform.transform.rotation.w = 1.0
-                self.map_tf.sendTransform(transform)
+                if map_tf:
+                    self.map_tf.sendTransform(transform)
             if self.master is not None:
                 if now >= self.next_feedback:
                     self.next_feedback = now + 0.1

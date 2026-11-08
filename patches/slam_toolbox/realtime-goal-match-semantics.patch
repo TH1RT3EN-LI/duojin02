@@ -1,0 +1,380 @@
+--- a/lib/karto_sdk/include/karto_sdk/Mapper.h
++++ b/lib/karto_sdk/include/karto_sdk/Mapper.h
+@@ -1484,6 +1484,53 @@
+ class KARTO_EXPORT ScanMatcher
+ {
+ public:
++  // These controls/diagnostics deliberately are not serialized: old archives keep
++  // their wire format and reload with compatibility defaults.
++  struct AttainedMode {
++    Pose2 pose;  // attained representative, never a mean across plateaus
++    Pose2 centroid;
++    kt_int32u plateau_size = 0;
++    kt_double search_center_cost = 0.0;
++  };
++  struct MatchStage {
++    Pose2 search_center;
++    std::string lattice_context;
++    Pose2 selected_pose;
++    kt_double peak_score = 0.0;
++    kt_double selected_pose_score = 0.0;
++    std::vector<AttainedMode> modes;
++    bool unresolved = false;
++    bool selection_tied = false;
++    bool doing_fine_match = false;
++  };
++  struct MatchDiagnostics {
++    kt_double peak_score = 0.0;
++    kt_double selected_pose_score = 0.0;
++    Pose2 selected_pose;
++    std::vector<AttainedMode> modes;  // connected equal-global-maximum plateaus
++    bool unresolved = false;         // includes earlier coarse/expansion ambiguity
++    bool selection_tied = false;     // declared search-center policy could not break a tie
++    bool projected_to_attained = false;
++    std::string selection_policy = "legacy_all_maxima_mean";
++    std::vector<MatchStage> stages;
++    bool prior_weighted = false;
++    bool mode_diagnostics_collected = false;
++    bool score_evaluated = false;
++    bool boundary_hit = false;
++    std::string degeneracy_status = "unknown_not_geometric_information";
++    std::string support_identity_status = "unknown_external_grid";
++    measurement::Evidence support;  // owned exact query/reference views + poses
++    std::shared_ptr<const measurement::ViewPayload> correlation_grid_payload;
++    std::string final_lattice_context;
++  };
++  void SetCollectMatchDiagnostics(bool value) {m_CollectMatchDiagnostics = value;}
++  // Explicit expensive replay capture; provenance and scoring do not require it.
++  void SetCaptureCorrelationGrid(bool value) {m_CaptureCorrelationGrid = value;}
++  void SetSelectAttainedMode(bool value) {m_SelectAttainedMode = value;}
++  void SetReturnSelectedPoseScore(bool value) {m_ReturnSelectedPoseScore = value;}
++  const MatchDiagnostics & GetLastMatchDiagnostics() const {return m_LastMatchDiagnostics;}
++  // Re-evaluate the actual returned pose on the still unchanged correlation grid.
++  kt_double EvaluatePoseOnCurrentGrid(LocalizedRangeScan * scan, const Pose2 & pose);
+   ScanMatcher()
+   {
+   }
+@@ -1664,6 +1711,11 @@
+   }
+ 
+ private:
++  bool m_CollectMatchDiagnostics = false;
++  bool m_CaptureCorrelationGrid = false;
++  bool m_SelectAttainedMode = false;
++  bool m_ReturnSelectedPoseScore = true;
++  MatchDiagnostics m_LastMatchDiagnostics;
+   Mapper * m_pMapper;
+   CorrelationGrid * m_pCorrelationGrid;
+   Grid<kt_double> * m_pSearchSpaceProbs;
+--- a/lib/karto_sdk/src/Mapper.cpp
++++ b/lib/karto_sdk/src/Mapper.cpp
+@@ -151,6 +151,15 @@
+   }
+   e.context = context.str(); return e;
+ }
++const LocalizedRangeScanVector & DiagnosticReferenceScans(const LocalizedRangeScanVector & scans)
++{return scans;}
++LocalizedRangeScanVector DiagnosticReferenceScans(const LocalizedRangeScanMap & scans)
++{
++  LocalizedRangeScanVector result;
++  for (const auto & item : scans) {result.push_back(item.second);}
++  return result;
++}
++
+ // Restores all frontend state touched before the graph-commit point, including
+ // alternate localization/docking entry points that replace running/last scans.
+ class FrontendTransaction
+@@ -763,6 +772,10 @@
+   // best guess of pose is based off of adjusted odometer reading
+   if (pScan->GetNumberOfRangeReadings() == 0 || pScan->GetPointReadings(true).empty()) {
+     rMean = scanPose;
++    m_LastMatchDiagnostics = MatchDiagnostics{};
++    m_LastMatchDiagnostics.selected_pose = scanPose;
++    m_LastMatchDiagnostics.unresolved = true;
++    m_LastMatchDiagnostics.support_identity_status = "no_eligible_query_geometry";
+ 
+     // maximum covariance
+     rCovariance(0, 0) = MAX_VARIANCE;    // XX
+@@ -801,12 +814,14 @@
+   Vector2<kt_double> coarseSearchResolution(2 * m_pCorrelationGrid->GetResolution(),
+     2 * m_pCorrelationGrid->GetResolution());
+ 
++  std::vector<MatchStage> stages;
+   // actual scan-matching
+   kt_double bestResponse = CorrelateScan(pScan, scanPose, coarseSearchOffset,
+       coarseSearchResolution,
+       m_pMapper->m_pCoarseSearchAngleOffset->GetValue(),
+       m_pMapper->m_pCoarseAngleResolution->GetValue(),
+       doPenalize, rMean, rCovariance, false);
++  stages.insert(stages.end(), m_LastMatchDiagnostics.stages.begin(), m_LastMatchDiagnostics.stages.end());
+ 
+   if (m_pMapper->m_pUseResponseExpansion->GetValue() == true) {
+     if (math::DoubleEqual(bestResponse, 0.0)) {
+@@ -821,6 +836,7 @@
+         bestResponse = CorrelateScan(pScan, scanPose, coarseSearchOffset, coarseSearchResolution,
+             newSearchAngleOffset, m_pMapper->m_pCoarseAngleResolution->GetValue(),
+             doPenalize, rMean, rCovariance, false);
++        stages.insert(stages.end(), m_LastMatchDiagnostics.stages.begin(), m_LastMatchDiagnostics.stages.end());
+ 
+         if (math::DoubleEqual(bestResponse, 0.0) == false) {
+           break;
+@@ -843,6 +859,12 @@
+         0.5 * m_pMapper->m_pCoarseAngleResolution->GetValue(),
+         m_pMapper->m_pFineSearchAngleOffset->GetValue(),
+         doPenalize, rMean, rCovariance, true);
++    stages.insert(stages.end(), m_LastMatchDiagnostics.stages.begin(), m_LastMatchDiagnostics.stages.end());
++  }
++  m_LastMatchDiagnostics.stages = std::move(stages);
++  for (const auto & stage : m_LastMatchDiagnostics.stages) {
++    m_LastMatchDiagnostics.unresolved |= stage.unresolved;
++    m_LastMatchDiagnostics.selection_tied |= stage.selection_tied;
+   }
+ 
+ #ifdef KARTO_DEBUG
+@@ -852,6 +874,35 @@
+ #endif
+   assert(math::InRange(rMean.GetHeading(), -KT_PI, KT_PI));
+ 
++  // The lightweight immutable contract retains exact input views, reference
++  // poses, estimator configuration and lattice. Grid bytes are optional replay
++  // diagnostics; the returned score was evaluated on the live unchanged grid.
++  const auto references = DiagnosticReferenceScans(rBaseScans);
++  m_LastMatchDiagnostics.support = MatchEvidence(m_pMapper, pScan, references,
++    "scanmatcher-final.v2", scanPose, doPenalize, doRefineMatch);
++  std::ostringstream context;
++  context << m_LastMatchDiagnostics.support.context << ";final-lattice=";
++  IdentityString(context, m_LastMatchDiagnostics.final_lattice_context);
++  context << ";grid=" << m_pCorrelationGrid->GetWidth() << ',' << m_pCorrelationGrid->GetHeight()
++          << ',' << std::hexfloat << m_pCorrelationGrid->GetResolution() << ';';
++  IdentityPose(context, Pose2(m_pCorrelationGrid->GetCoordinateConverter()->GetOffset(), 0.0));
++  for (const auto & stage : m_LastMatchDiagnostics.stages) {
++    context << ";stage="; IdentityString(context, stage.lattice_context);
++    IdentityPose(context, stage.selected_pose); context << stage.peak_score << "," << stage.selected_pose_score;
++  }
++  context << ";returned-score=" << m_ReturnSelectedPoseScore << ";attained-selection=" << m_SelectAttainedMode;
++  if (m_SelectAttainedMode || m_CollectMatchDiagnostics) {
++    context << ";mode-center-variances=" << m_pMapper->m_pDistanceVariancePenalty->GetValue()
++            << "," << m_pMapper->m_pAngleVariancePenalty->GetValue();
++  }
++  m_LastMatchDiagnostics.support.context = context.str();
++  m_LastMatchDiagnostics.support_identity_status = "exact_owned_query_reference_pose_lattice_grid_not_retained";
++  if (m_CaptureCorrelationGrid) {
++    const auto * gridBytes = reinterpret_cast<const char *>(m_pCorrelationGrid->GetDataPointer());
++    m_LastMatchDiagnostics.correlation_grid_payload = std::make_shared<const measurement::ViewPayload>(
++      std::string(gridBytes, m_pCorrelationGrid->GetDataSize()));
++    m_LastMatchDiagnostics.support_identity_status = "exact_owned_query_reference_pose_lattice_grid";
++  }
+   return bestResponse;
+ }
+ 
+@@ -933,18 +984,20 @@
+   kt_double searchAngleOffset, kt_double searchAngleResolution,
+   kt_bool doPenalize, Pose2 & rMean, Matrix3 & rCovariance, kt_bool doingFineMatch)
+ {
++  // The caller may alias rSearchCenter and rMean during refinement.
++  const Pose2 searchCenter = rSearchCenter;
+   assert(searchAngleResolution != 0.0);
+ 
+   // setup lookup arrays
+   m_pGridLookup->ComputeOffsets(pScan,
+-    rSearchCenter.GetHeading(), searchAngleOffset, searchAngleResolution);
++    searchCenter.GetHeading(), searchAngleOffset, searchAngleResolution);
+ 
+   // only initialize probability grid if computing positional covariance (during coarse match)
+   if (!doingFineMatch) {
+     m_pSearchSpaceProbs->Clear();
+ 
+     // position search grid - finds lower left corner of search grid
+-    Vector2<kt_double> offset(rSearchCenter.GetPosition() - rSearchSpaceOffset);
++    Vector2<kt_double> offset(searchCenter.GetPosition() - rSearchSpaceOffset);
+     m_pSearchSpaceProbs->GetCoordinateConverter()->SetOffset(offset);
+   }
+ 
+@@ -978,11 +1031,11 @@
+   m_pPoseResponse = new std::pair<kt_double, Pose2>[poseResponseSize];
+ 
+   Vector2<kt_int32s> startGridPoint =
+-    m_pCorrelationGrid->WorldToGrid(Vector2<kt_double>(rSearchCenter.GetX() +
+-      startX, rSearchCenter.GetY() + startY));
++    m_pCorrelationGrid->WorldToGrid(Vector2<kt_double>(searchCenter.GetX() +
++      startX, searchCenter.GetY() + startY));
+ 
+   // this isn't good but its the fastest way to iterate. Should clean up later.
+-  m_rSearchCenter = rSearchCenter;
++  m_rSearchCenter = searchCenter;
+   m_searchAngleOffset = searchAngleOffset;
+   m_nAngles = nAngles;
+   m_searchAngleResolution = searchAngleResolution;
+@@ -1045,6 +1098,90 @@
+     throw std::runtime_error("Mapper FATAL ERROR - Unable to find best position");
+   }
+ 
++  // Keep disconnected attained maxima separate. Six-neighbour connectivity is
++  // defined on this exact fixed candidate lattice, including angle. It neither
++  // estimates posterior masses nor detects lower local maxima outside this set.
++  m_LastMatchDiagnostics = MatchDiagnostics{};
++  m_LastMatchDiagnostics.peak_score = math::Minimum(bestResponse, 1.0);
++  m_LastMatchDiagnostics.prior_weighted = doPenalize;
++  std::ostringstream lattice;
++  IdentityPose(lattice, searchCenter);
++  lattice << std::hexfloat << rSearchSpaceOffset.GetX() << ',' << rSearchSpaceOffset.GetY() << ';'
++          << rSearchSpaceResolution.GetX() << ',' << rSearchSpaceResolution.GetY() << ';'
++          << searchAngleOffset << ',' << searchAngleResolution << ';' << doPenalize << ',' << doingFineMatch;
++  m_LastMatchDiagnostics.final_lattice_context = lattice.str();
++  Pose2 attainedFallback = averagePose;
++  if (m_CollectMatchDiagnostics || m_SelectAttainedMode) {
++    m_LastMatchDiagnostics.mode_diagnostics_collected = true;
++    // Tie breaking uses the existing search-center scales, not a new likelihood
++    // or a claim that a selected mode is physically correct. An exact tie stays
++    // unresolved; lattice order is only the final deterministic fallback.
++    const double positionScale = m_pMapper->m_pDistanceVariancePenalty->GetValue();
++    const double angleScale = m_pMapper->m_pAngleVariancePenalty->GetValue();
++    if (!(positionScale > 0.0 && angleScale > 0.0 && std::isfinite(positionScale) &&
++      std::isfinite(angleScale))) {throw std::runtime_error("Invalid mode tie-break scales");}
++    auto poseDistance = [&](const Pose2 & a, const Pose2 & b) {
++        return (a.GetPosition() - b.GetPosition()).SquaredLength() / positionScale +
++          math::Square(math::NormalizeAngle(a.GetHeading() - b.GetHeading())) / angleScale;
++      };
++    std::vector<unsigned char> visited(poseResponseSize, 0);
++    const kt_int32u row = nX * nAngles;
++    for (kt_int32u seed = 0; seed < poseResponseSize; ++seed) {
++      if (visited[seed] || !math::DoubleEqual(m_pPoseResponse[seed].first, bestResponse)) {continue;}
++      AttainedMode mode;
++      std::vector<kt_int32u> queue{seed};
++      visited[seed] = 1;
++      Vector2<kt_double> positionSum;
++      double cosineSum = 0.0, sineSum = 0.0;
++      mode.search_center_cost = std::numeric_limits<double>::infinity();
++      for (size_t cursor = 0; cursor < queue.size(); ++cursor) {
++        const kt_int32u i = queue[cursor], a = i % nAngles, x = (i / nAngles) % nX, y = i / row;
++        const Pose2 & p = m_pPoseResponse[i].second;
++        ++mode.plateau_size;
++        positionSum += p.GetPosition(); cosineSum += cos(p.GetHeading()); sineSum += sin(p.GetHeading());
++        mode.search_center_cost = std::min(mode.search_center_cost, poseDistance(p, searchCenter));
++        auto append = [&](kt_int32u j) {
++            if (!visited[j] && math::DoubleEqual(m_pPoseResponse[j].first, bestResponse)) {
++              visited[j] = 1; queue.push_back(j);
++            }
++          };
++        if (a > 0) {append(i - 1);} if (a + 1 < nAngles) {append(i + 1);}
++        if (x > 0) {append(i - nAngles);} if (x + 1 < nX) {append(i + nAngles);}
++        if (y > 0) {append(i - row);} if (y + 1 < nY) {append(i + row);}
++      }
++      mode.centroid = Pose2(positionSum / mode.plateau_size,
++        std::hypot(cosineSum, sineSum) > 1e-12 ? atan2(sineSum, cosineSum) : searchCenter.GetHeading());
++      double closest = std::numeric_limits<double>::infinity(), closestPrior = closest;
++      for (const auto i : queue) {
++        const Pose2 & p = m_pPoseResponse[i].second;
++        const double d = poseDistance(p, mode.centroid), prior = poseDistance(p, searchCenter);
++        if (d < closest - 1e-12 || (std::abs(d - closest) <= 1e-12 && prior < closestPrior - 1e-12)) {
++          closest = d; closestPrior = prior; mode.pose = p;
++        }
++      }
++      m_LastMatchDiagnostics.modes.push_back(mode);
++    }
++    m_LastMatchDiagnostics.unresolved = m_LastMatchDiagnostics.modes.size() > 1 || bestResponse <= 0.0;
++    if (m_SelectAttainedMode && bestResponse > 0.0 && !m_LastMatchDiagnostics.modes.empty()) {
++      size_t selected = 0;
++      for (size_t i = 1; i < m_LastMatchDiagnostics.modes.size(); ++i) {
++        const double candidate = m_LastMatchDiagnostics.modes[i].search_center_cost;
++        const double incumbent = m_LastMatchDiagnostics.modes[selected].search_center_cost;
++        if (candidate < incumbent - 1e-12) {selected = i; m_LastMatchDiagnostics.selection_tied = false;}
++        else if (std::abs(candidate - incumbent) <= 1e-12) {m_LastMatchDiagnostics.selection_tied = true;}
++      }
++      const auto & mode = m_LastMatchDiagnostics.modes[selected];
++      averagePose = mode.centroid;
++      attainedFallback = mode.pose;
++      m_LastMatchDiagnostics.selection_policy = "nearest_search_center_plateau_supported_centroid";
++    }
++  }
++  const double angleDelta = std::abs(math::NormalizeAngle(averagePose.GetHeading() - searchCenter.GetHeading()));
++  m_LastMatchDiagnostics.boundary_hit =
++    (nX > 1 && std::abs(std::abs(averagePose.GetX() - searchCenter.GetX()) - rSearchSpaceOffset.GetX()) < rSearchSpaceResolution.GetX() * 1e-6) ||
++    (nY > 1 && std::abs(std::abs(averagePose.GetY() - searchCenter.GetY()) - rSearchSpaceOffset.GetY()) < rSearchSpaceResolution.GetY() * 1e-6) ||
++    (nAngles > 1 && std::abs(angleDelta - searchAngleOffset) < searchAngleResolution * 1e-6);
++
+   // delete pose response array
+   delete[] m_pPoseResponse;
+   m_pPoseResponse = nullptr;
+@@ -1055,10 +1192,10 @@
+ #endif
+ 
+   if (!doingFineMatch) {
+-    ComputePositionalCovariance(averagePose, bestResponse, rSearchCenter, rSearchSpaceOffset,
++    ComputePositionalCovariance(averagePose, bestResponse, searchCenter, rSearchSpaceOffset,
+       rSearchSpaceResolution, searchAngleResolution, rCovariance);
+   } else {
+-    ComputeAngularCovariance(averagePose, bestResponse, rSearchCenter,
++    ComputeAngularCovariance(averagePose, bestResponse, searchCenter,
+       searchAngleOffset, searchAngleResolution, rCovariance);
+   }
+ 
+@@ -1075,7 +1212,67 @@
+   assert(math::InRange(bestResponse, 0.0, 1.0));
+   assert(math::InRange(rMean.GetHeading(), -KT_PI, KT_PI));
+ 
+-  return bestResponse;
++  m_LastMatchDiagnostics.selected_pose = rMean;
++  // Compatibility default adds no mode enumeration or extra lookup rebuild.
++  if (!m_CollectMatchDiagnostics && !m_SelectAttainedMode && !m_ReturnSelectedPoseScore) {
++    return bestResponse;
++  }
++  m_LastMatchDiagnostics.score_evaluated = true;
++  auto scorePose = [&](const Pose2 & pose) {
++      kt_double score = EvaluatePoseOnCurrentGrid(pScan, pose);
++      if (doPenalize && score > 0.0) {
++        const kt_double squaredDistance = (pose.GetPosition() - searchCenter.GetPosition()).SquaredLength();
++        const kt_double distancePenalty = math::Maximum(1.0 - DISTANCE_PENALTY_GAIN * squaredDistance /
++          m_pMapper->m_pDistanceVariancePenalty->GetValue(), m_pMapper->m_pMinimumDistancePenalty->GetValue());
++        const kt_double angleDistance = math::NormalizeAngle(pose.GetHeading() - searchCenter.GetHeading());
++        const kt_double anglePenalty = math::Maximum(1.0 - ANGLE_PENALTY_GAIN * math::Square(angleDistance) /
++          m_pMapper->m_pAngleVariancePenalty->GetValue(), m_pMapper->m_pMinimumAnglePenalty->GetValue());
++        score *= distancePenalty * anglePenalty;
++      }
++      return score;
++    };
++  kt_double selectedScore = scorePose(rMean);
++  // A connected plateau can be non-convex. Keep its centroid only when the
++  // unchanged native objective supports it; otherwise return an attained cell.
++  if (m_SelectAttainedMode && bestResponse > 0.0 && !math::DoubleEqual(selectedScore, bestResponse)) {
++    rMean = attainedFallback;
++    m_LastMatchDiagnostics.projected_to_attained = true;
++    // scorePose rebuilds lookup offsets. Restore the lattice before recomputing
++    // covariance about the changed output pose; covariance remains shape only.
++    m_pGridLookup->ComputeOffsets(pScan, searchCenter.GetHeading(), searchAngleOffset, searchAngleResolution);
++    if (!doingFineMatch) {
++      ComputePositionalCovariance(rMean, bestResponse, searchCenter, rSearchSpaceOffset,
++        rSearchSpaceResolution, searchAngleResolution, rCovariance);
++    } else {
++      ComputeAngularCovariance(rMean, bestResponse, searchCenter,
++        searchAngleOffset, searchAngleResolution, rCovariance);
++    }
++    selectedScore = scorePose(rMean);
++  }
++  m_LastMatchDiagnostics.selected_pose = rMean;
++  m_LastMatchDiagnostics.selected_pose_score = selectedScore;
++  const double finalAngleDelta = std::abs(math::NormalizeAngle(rMean.GetHeading() - searchCenter.GetHeading()));
++  m_LastMatchDiagnostics.boundary_hit =
++    (nX > 1 && std::abs(std::abs(rMean.GetX() - searchCenter.GetX()) - rSearchSpaceOffset.GetX()) < rSearchSpaceResolution.GetX() * 1e-6) ||
++    (nY > 1 && std::abs(std::abs(rMean.GetY() - searchCenter.GetY()) - rSearchSpaceOffset.GetY()) < rSearchSpaceResolution.GetY() * 1e-6) ||
++    (nAngles > 1 && std::abs(finalAngleDelta - searchAngleOffset) < searchAngleResolution * 1e-6);
++  MatchStage stage;
++  stage.search_center = searchCenter; stage.lattice_context = m_LastMatchDiagnostics.final_lattice_context;
++  stage.selected_pose = rMean;
++  stage.peak_score = m_LastMatchDiagnostics.peak_score; stage.selected_pose_score = selectedScore;
++  stage.modes = m_LastMatchDiagnostics.modes; stage.unresolved = m_LastMatchDiagnostics.unresolved;
++  stage.selection_tied = m_LastMatchDiagnostics.selection_tied; stage.doing_fine_match = doingFineMatch;
++  m_LastMatchDiagnostics.stages.push_back(std::move(stage));
++  return m_ReturnSelectedPoseScore ? selectedScore : bestResponse;
++}
++
++kt_double ScanMatcher::EvaluatePoseOnCurrentGrid(LocalizedRangeScan * scan, const Pose2 & pose)
++{
++  // Same native rounding, beam roster/coverage and immutable grid as the search.
++  const double center = std::nextafter(pose.GetHeading(), std::numeric_limits<double>::infinity());
++  m_pGridLookup->ComputeOffsets(scan, center, center - pose.GetHeading(), 1.0);
++  const auto cell = m_pCorrelationGrid->WorldToGrid(pose.GetPosition());
++  return GetResponse(0, m_pCorrelationGrid->GridIndex(cell));
+ }
+ 
+ /**

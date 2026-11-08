@@ -90,7 +90,7 @@ def run(args):
                 "--params-file",
                 str(mux_file),
                 "-r",
-                "/cmd_vel_out:=/cmd_vel_requested",
+                "/cmd_vel_out:=/cmd_vel_base",
             ],
         )
 
@@ -103,6 +103,10 @@ def run(args):
                 safety,
                 "-p",
                 "velocity_guard:use_sim_time:=true",
+                "-r",
+                "/cmd_vel_requested:=/cmd_vel",
+                "-r",
+                "/cmd_vel_base:=/cmd_vel_nav_guarded",
             ],
         )
         start(

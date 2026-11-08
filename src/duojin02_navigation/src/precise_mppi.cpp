@@ -1,4 +1,6 @@
 #include "duojin02_navigation/tracking.hpp"
+#include "duojin02_navigation/task_goal_contract.hpp"
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include "duojin02_navigation/velocity_limits.hpp"
 #include "duojin02_navigation/local_grid_snapshot.hpp"
 #include "duojin02_navigation/path_target.hpp"
@@ -22,6 +24,28 @@ public:
     statistics_ = {};
     compute_fault_latched_ = false;
     auto node = parent.lock();
+    // Passive contracts: no admission thresholds or command sources are added.
+    contract_publisher_ = node->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+        "task_state_at_control", rclcpp::QoS(10));
+    goal_contract_subscription_ = node->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+        "task_goal_contract", rclcpp::QoS(1).transient_local(),
+        [this](diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr msg) {
+          std::lock_guard<std::mutex> lock(limits_mutex_);
+          for (const auto &status : msg->status) if (status.name == "navigation/task_goal") {
+            goal_contract_.clear();
+            for (const auto &field : status.values) goal_contract_[field.key] = field.value;
+          }
+        });
+    estimate_contract_subscription_ = node->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+        "amcl_estimate_contract", rclcpp::QoS(10),
+        [this](diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr msg) {
+          std::lock_guard<std::mutex> lock(limits_mutex_);
+          for (const auto &status : msg->status) if (status.name == "amcl/estimate_contract") {
+            estimate_contract_.clear();
+            for (const auto &field : status.values) estimate_contract_[field.key] = field.value;
+            estimate_contract_receipt_steady_ns_ = steadyNowNs();
+          }
+        });
     limits_.configure({node->get_parameter(name + ".vx_max").as_double(),
                        node->get_parameter(name + ".vx_min").as_double(),
                        node->get_parameter(name + ".vy_max").as_double(),
@@ -72,7 +96,17 @@ public:
       RCLCPP_INFO(logger_, "use_gpu=false: original CPU geometry and configured MPPI core");
   }
 
+  void activate() override {
+    duojin02_mppi_controller::MPPIController::activate();
+    if (contract_publisher_) contract_publisher_->on_activate();
+  }
+  void deactivate() override {
+    if (contract_publisher_) contract_publisher_->on_deactivate();
+    duojin02_mppi_controller::MPPIController::deactivate();
+  }
+
   void cleanup() override {
+    RCLCPP_INFO(logger_, "TASK_CONTRACT_SUMMARY record_failures=%lu", contract_record_failures_);
     RCLCPP_INFO(logger_,
                 "CUDA_LOCAL_CONTROLLER_SUMMARY cycles=%lu compute_failures=%lu exceptions=%lu "
                 "fault_latched_stops=%lu "
@@ -108,6 +142,11 @@ public:
                   statistics.cuda_batches, statistics.boundary_rechecks);
     }
     geometry_.reset();
+    goal_contract_subscription_.reset();
+    estimate_contract_subscription_.reset();
+    contract_publisher_.reset();
+    goal_contract_.clear();
+    estimate_contract_.clear();
     duojin02_mppi_controller::MPPIController::cleanup();
   }
 
@@ -140,19 +179,30 @@ public:
     const auto cycle_start = std::chrono::steady_clock::now();
     std::lock_guard<std::mutex> lock(limits_mutex_);
     CycleTimer timer{statistics_, cycle_start};
+    control_consumed_steady_ns_ = steadyNowNs();
+    goal_transform_trace_ = {};
+    have_consumed_goal_ = false;
+    control_boundary_steady_ns_ = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        cycle_start.time_since_epoch()).count();
     try {
-      return computeCommand(pose, speed, checker);
+      auto command = computeCommand(pose, speed, checker);
+      recordTaskState(pose, speed, command);
+      return command;
     } catch (const duojin_mppi::OptimizerComputeError &error) {
       ++statistics_.compute_failures;
       compute_fault_latched_ = true;
       RCLCPP_ERROR_THROTTLE(logger_, *clock_, 2000, "MPPI device computation stopped motion: %s", error.what());
-      return stopped(pose);
+      const auto command = stopped(pose);
+      recordTaskState(pose, speed, command);
+      return command;
     } catch (const ComputeFailure &error) {
       ++statistics_.compute_failures;
       compute_fault_latched_ = true;
       RCLCPP_ERROR_THROTTLE(logger_, *clock_, 2000, "GPU geometry stopped motion: %s",
                             error.what());
-      return stopped(pose);
+      const auto command = stopped(pose);
+      recordTaskState(pose, speed, command);
+      return command;
     } catch (...) {
       ++statistics_.exceptions;
       throw;
@@ -195,10 +245,13 @@ private:
       goal.header.stamp = pose.header.stamp;
       tf2::doTransform(
           goal, target,
-          freshTransform(pose.header.frame_id, goal.header.frame_id, pose.header.stamp));
+          freshTransform(pose.header.frame_id, goal.header.frame_id, pose.header.stamp,
+                         &goal_transform_trace_));
     } catch (const tf2::TransformException &) {
       return sampledCommand(pose, speed, checker);
     }
+    consumed_goal_target_ = target;
+    have_consumed_goal_ = true;
     const double distance = std::hypot(target.pose.position.x - pose.pose.position.x,
                                        target.pose.position.y - pose.pose.position.y);
     if (distance <= .45 && directApproachClear(pose, target)) {
@@ -350,15 +403,125 @@ private:
 
   geometry_msgs::msg::TransformStamped freshTransform(const std::string &destination,
                                                       const std::string &source,
-                                                      const builtin_interfaces::msg::Time &stamp) {
+                                                      const builtin_interfaces::msg::Time &stamp,
+                                                      GoalTransformTrace *trace = nullptr) {
+    if (trace) {
+      trace->source_frame = source;
+      trace->destination_frame = destination;
+      trace->query_stamp_ns = rclcpp::Time(stamp).nanoseconds();
+      trace->status = "lookup_failed";
+    }
     try {
-      return tf_buffer_->lookupTransform(destination, source, stamp, tf2::durationFromSec(.005));
+      const auto tf = tf_buffer_->lookupTransform(destination, source, stamp, tf2::durationFromSec(.005));
+      if (trace) {
+        trace->status = "exact_query";
+        trace->used_stamp_ns = rclcpp::Time(tf.header.stamp).nanoseconds();
+      }
+      return tf;
     } catch (const tf2::TransformException &) {
       const auto tf = tf_buffer_->lookupTransform(destination, source, tf2::TimePointZero);
 
       if (std::abs((rclcpp::Time(stamp) - rclcpp::Time(tf.header.stamp)).seconds()) > .20)
         throw;
+      if (trace) {
+        trace->status = "latest_fallback";
+        trace->used_stamp_ns = rclcpp::Time(tf.header.stamp).nanoseconds();
+      }
       return tf;
+    }
+  }
+
+  static int64_t steadyNowNs() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+  }
+
+  void recordTaskState(const geometry_msgs::msg::PoseStamped &pose,
+                       const geometry_msgs::msg::Twist &speed,
+                       const geometry_msgs::msg::TwistStamped &command) noexcept {
+    try {
+      if (!contract_publisher_) return;
+      ContractFields fields;
+      fields["schema"] = "state_at_control.v1";
+      fields["contract_record_failures"] = std::to_string(contract_record_failures_);
+      fields["control_boundary_steady_ns"] = std::to_string(control_boundary_steady_ns_);
+      fields["control_consumed_steady_ns"] = std::to_string(control_consumed_steady_ns_);
+      fields["command_available_steady_ns"] = std::to_string(steadyNowNs());
+      fields["steady_clock_scope"] = "host_monotonic";
+      fields["pose_stamp_ns"] = std::to_string(rclcpp::Time(pose.header.stamp).nanoseconds());
+      fields["pose_frame"] = pose.header.frame_id;
+      fields["pose_x"] = contractNumber(pose.pose.position.x);
+      fields["pose_y"] = contractNumber(pose.pose.position.y);
+      fields["pose_yaw"] = contractNumber(tf2::getYaw(pose.pose.orientation));
+      fields["measured_twist_source_stamp_ns"] = "unknown_nav2_interface_has_no_stamp";
+      fields["task_error_semantics"] = "base_footprint_relative_to_consumed_virtual_goal";
+      if (have_consumed_goal_) {
+        const double yaw = tf2::getYaw(pose.pose.orientation);
+        const double dx = consumed_goal_target_.pose.position.x - pose.pose.position.x;
+        const double dy = consumed_goal_target_.pose.position.y - pose.pose.position.y;
+        fields["task_error_x"] = contractNumber(std::cos(yaw)*dx + std::sin(yaw)*dy);
+        fields["task_error_y"] = contractNumber(-std::sin(yaw)*dx + std::cos(yaw)*dy);
+        fields["task_error_yaw"] = contractNumber(std::remainder(
+            tf2::getYaw(consumed_goal_target_.pose.orientation)-yaw, 2*M_PI));
+      }
+      fields["measured_vx"] = contractNumber(speed.linear.x);
+      fields["measured_vy"] = contractNumber(speed.linear.y);
+      fields["measured_wz"] = contractNumber(speed.angular.z);
+      fields["requested_vx"] = contractNumber(command.twist.linear.x);
+      fields["requested_vy"] = contractNumber(command.twist.linear.y);
+      fields["requested_wz"] = contractNumber(command.twist.angular.z);
+      fields["command_queue"] = "unknown";
+      fields["actuator_model"] = "uncalibrated_preserved_existing_control";
+      fields["task_uncertainty"] = "unknown";
+      fields["physical_arrival_guarantee"] = "unknown";
+      fields["state_propagation"] = "controller_supplied_pose_no_additional_v_tau";
+      fields["goal_transform"] = goal_transform_trace_.status;
+      fields["goal_transform_source"] = goal_transform_trace_.source_frame;
+      fields["goal_transform_destination"] = goal_transform_trace_.destination_frame;
+      fields["goal_transform_query_ns"] = std::to_string(goal_transform_trace_.query_stamp_ns);
+      fields["goal_transform_used_ns"] = std::to_string(goal_transform_trace_.used_stamp_ns);
+      bool matched = false;
+      if (have_goal_) {
+        const auto &p = goal_.pose.position;
+        const auto &q = goal_.pose.orientation;
+        fields["plan_endpoint_frame"] = goal_.header.frame_id;
+        fields["plan_endpoint_x"] = contractNumber(p.x);
+        fields["plan_endpoint_y"] = contractNumber(p.y);
+        fields["plan_endpoint_yaw"] = contractNumber(tf2::getYaw(q));
+        matched = sameRequestedEndpoint(goal_contract_, goal_.header.frame_id,
+                                        p.x, p.y, q.x, q.y, q.z, q.w);
+      }
+      fields["goal_identity_association"] = "unverified_no_action_goal_id";
+      fields["goal_migration"] = "original_frozen_metadata_no_automatic_migration";
+      const auto goal_map = goal_contract_.find("map_identity");
+      const auto estimate_map = estimate_contract_.find("map_identity");
+      fields["map_identity_consistency"] =
+          goal_map == goal_contract_.end() || estimate_map == estimate_contract_.end() ||
+          goal_map->second == "unknown" || estimate_map->second == "unknown" ? "unknown" :
+          (goal_map->second == estimate_map->second ? "equal" : "mismatch_diagnostic_only");
+      fields["original_request_association"] = matched ? "exact_endpoint_pose_match_action_identity_unknown" : "unmatched_or_unavailable";
+      for (const auto &field : goal_contract_) fields["observed_goal." + field.first] = field.second;
+      // The ROS TF and diagnostics are independent topics. Do not claim this
+      // latest diagnostic is the atomically consumed correction version.
+      fields["estimate_association"] = "latest_received_diagnostic_not_atomic_with_tf";
+      fields["estimate_receipt_steady_ns"] = std::to_string(estimate_contract_receipt_steady_ns_);
+      for (const auto &field : estimate_contract_) fields["observed_estimate." + field.first] = field.second;
+      diagnostic_msgs::msg::DiagnosticStatus status;
+      status.name = "navigation/state_at_control";
+      status.message = "metadata_only_uncalibrated";
+      for (const auto &field : fields) {
+        diagnostic_msgs::msg::KeyValue value;
+        value.key = field.first;
+        value.value = field.second;
+        status.values.push_back(std::move(value));
+      }
+      diagnostic_msgs::msg::DiagnosticArray message;
+      message.header.stamp = clock_->now();
+      message.status.push_back(std::move(status));
+      contract_publisher_->publish(message);
+    } catch (...) {
+      // Observation failure must not change the already computed command.
+      ++contract_record_failures_;
     }
   }
 
@@ -642,6 +805,16 @@ private:
     }
   }
 
+  rclcpp_lifecycle::LifecyclePublisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr contract_publisher_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr goal_contract_subscription_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr estimate_contract_subscription_;
+  ContractFields goal_contract_, estimate_contract_;
+  GoalTransformTrace goal_transform_trace_;
+  geometry_msgs::msg::PoseStamped consumed_goal_target_;
+  bool have_consumed_goal_{false};
+  int64_t control_boundary_steady_ns_{0}, control_consumed_steady_ns_{0};
+  int64_t estimate_contract_receipt_steady_ns_{0};
+  uint64_t contract_record_failures_{0};
   Polygon polygon_;
   std::vector<Point> obstacles_;
   LocalGridSnapshot grid_;

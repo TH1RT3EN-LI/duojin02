@@ -23,6 +23,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdexcept>
 
 #include "nav2_amcl/sensors/laser/laser.hpp"
 
@@ -62,6 +63,14 @@ Laser::reallocTempData(int new_max_samples, int new_max_obs)
   for (int k = 0; k < max_samples_; k++) {
     temp_obs_[k] = new double[max_obs_]();
   }
+}
+
+void Laser::setLikelihoodTemperatureBeta(double beta)
+{
+  if (!std::isfinite(beta) || beta <= 0.0 || beta > 1.0) {
+    throw std::invalid_argument("likelihood_temperature_beta must be finite and in (0,1]");
+  }
+  likelihood_temperature_beta_ = beta;
 }
 
 void Laser::configureObservationBackend(const std::string & mode, int min_particles, int log_every)

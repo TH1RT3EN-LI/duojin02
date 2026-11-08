@@ -1,11 +1,8 @@
 """Resolve and verify already-prepared SLAM test source without network or writes."""
 
 import argparse
-import hashlib
-import json
+import importlib.util
 from pathlib import Path
-import subprocess
-import os
 import sys
 
 
@@ -13,28 +10,17 @@ PACKAGED_SOURCE = Path("/opt/duojin02/test_sources/slam_toolbox")
 
 
 def verify(root, source):
-    patch_directory = root / "patches/slam_toolbox"
-    provenance = json.loads((patch_directory / "source.json").read_text())
-    patch = patch_directory / provenance["patch"]
-    expected = {**provenance, "patch_sha256": hashlib.sha256(patch.read_bytes()).hexdigest()}
-    if json.loads((source / "hardware_build.json").read_text()) != expected:
-        raise ValueError("source revision or patch checksum differs from the current checkout")
+    # Share production provenance checks, including a complete source tree digest for
+    # stacked patches. This remains read-only and never fetches a source archive.
+    spec = importlib.util.spec_from_file_location(
+        "prepare_slam_backend", Path(__file__).resolve().parents[2] / "scripts/prepare_slam_backend.py"
+    )
+    backend = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(backend)
+    backend.verify_prepared_source(root, source)
     if not (source / "solvers/ceres_solver.cpp").is_file():
         raise ValueError("prepared source is missing solvers/ceres_solver.cpp")
-    environment = {**os.environ, "GIT_CEILING_DIRECTORIES": str(source.parent)}
-    for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE"):
-        environment.pop(key, None)
-    result = subprocess.run(
-        ["git", "apply", "--no-index", "--reverse", "--check", str(patch)],
-        cwd=source,
-        env=environment,
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode:
-        raise ValueError(
-            f"prepared source does not contain the current patch: {result.stderr.strip()}"
-        )
+
     return source
 
 

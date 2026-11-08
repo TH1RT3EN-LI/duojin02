@@ -15,9 +15,21 @@ duojin02_source_cuda_local() {
     echo 'Build this architecture first with ./scripts/build_cuda_local.sh' >&2
     return 1
   fi
+  if ! python3 "$cuda_workspace/scripts/cuda_install_provenance.py" verify --prefix "$cuda_prefix"; then
+    echo 'Rebuild the current package sources with ./scripts/build_cuda_local.sh.' >&2
+    return 1
+  fi
+  if [[ -r "$cuda_workspace/install/slam_backend/setup.bash" ]] &&
+    ! python3 "$cuda_workspace/scripts/cuda_install_provenance.py" verify-backend --prefix "$cuda_workspace/install/slam_backend"; then
+    echo 'Rebuild the SLAM backend with ./scripts/build_slam_backend.sh.' >&2
+    return 1
+  fi
   source /opt/ros/humble/setup.bash || return $?
   if [[ -r /opt/duojin02/source.sh ]]; then
     source /opt/duojin02/source.sh || return $?
+  fi
+  if [[ -r "$cuda_workspace/install/slam_backend/setup.bash" ]]; then
+    source "$cuda_workspace/install/slam_backend/setup.bash" || return $?
   fi
   source "$cuda_prefix/setup.bash" || return $?
   export LD_LIBRARY_PATH="$cuda_prefix/lib:${LD_LIBRARY_PATH:-}"

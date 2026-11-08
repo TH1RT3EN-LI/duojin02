@@ -67,3 +67,23 @@ def test_patch_update_replaces_old_prepared_source_without_download(tmp_path, mo
     provenance = json.loads((destination / "hardware_build.json").read_text())
     assert provenance["patch_sha256"] != old_provenance["patch_sha256"]
     assert provenance["patch_sha256"] == hashlib.sha256(patch.read_bytes()).hexdigest()
+
+
+def test_stacked_patches_are_applied_in_order_and_verify_complete_source(tmp_path):
+    destination, patch = make_cached_backend(tmp_path)
+    extra = patch.parent / "second.patch"
+    extra.write_text("--- a/main.cpp\n+++ b/main.cpp\n@@ -1 +1 @@\n-patched\n+stacked\n")
+    manifest_path = patch.parent / "source.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["patches"] = [patch.name, extra.name]
+    manifest_path.write_text(json.dumps(manifest))
+    backend.prepare(tmp_path, destination)
+    assert (destination / "main.cpp").read_text() == "stacked\n"
+    backend.verify_prepared_source(tmp_path, destination)
+    (destination / "untracked.cpp").write_text("unexpected source\n")
+    import pytest
+    with pytest.raises(ValueError, match="source tree"):
+        backend.verify_prepared_source(tmp_path, destination)
+    backend.prepare(tmp_path, destination)
+    assert not (destination / "untracked.cpp").exists()
+    assert (destination / "main.cpp").read_text() == "stacked\n"

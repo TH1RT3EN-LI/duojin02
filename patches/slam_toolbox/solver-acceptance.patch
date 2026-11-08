@@ -1,0 +1,285 @@
+--- a/solvers/ceres_solver.hpp
++++ b/solvers/ceres_solver.hpp
+@@ -16,6 +16,7 @@
+ #include <unordered_map>
+ #include <utility>
+ #include <cmath>
++#include <limits>
+ #include "karto_sdk/Mapper.h"
+ #include "solvers/ceres_utils.h"
+ 
+@@ -31,6 +32,32 @@
+ class CeresSolver : public karto::ScanSolver
+ {
+ public:
++  // Numerical result in the current graph gauge. A usable Ceres termination is
++  // separate from transaction acceptance and from a free-gradient stopping test.
++  // Gradients are derivatives of the whitened objective in world metres/radians;
++  // their mixed-unit norm is not a physical trajectory-accuracy claim.
++  struct ObjectiveEvaluation
++  {
++    bool valid{false};
++    double cost{std::numeric_limits<double>::quiet_NaN()};
++    double free_gradient_infinity_norm{std::numeric_limits<double>::quiet_NaN()};
++    double free_gradient_l2_norm{std::numeric_limits<double>::quiet_NaN()};
++    std::size_t free_dimension{0};
++  };
++  struct SolveResult
++  {
++    bool attempted{false}, accepted{false}, free_gradient_tolerance_met{false};
++    std::string decision{"not_run"};
++    std::string exception_message;
++    ObjectiveEvaluation before, candidate, committed;
++    ceres::Solver::Summary native_summary;
++    double anchor_max_component_change{0.0};
++    double maximum_node_translation_change_m{0.0};
++    double maximum_node_yaw_change_rad{0.0};
++    double allowed_cost_increase{0.0};
++  };
++  const SolveResult & GetLastSolveResult() const {return last_solve_result_;}
++
+   CeresSolver();
+   virtual ~CeresSolver();
+ 
+@@ -63,6 +90,8 @@
+ private:
+   void WriteDiagnosticState(const char * phase, const ceres::Solver::Summary * summary = nullptr);
+   void FlushDiagnostics();
++  ObjectiveEvaluation EvaluateObjective();
++  SolveResult last_solve_result_;
+   std::ofstream diagnostics_;
+   std::string loss_name_;
+   std::string diagnostic_state_mode_{"full"};
+--- a/solvers/ceres_solver.cpp
++++ b/solvers/ceres_solver.cpp
+@@ -12,6 +12,7 @@
+ #include <iomanip>
+ #include <algorithm>
+ #include <sstream>
++#include <limits>
+ 
+ namespace solver_plugins
+ {
+@@ -237,8 +238,12 @@
+ /*****************************************************************************/
+ {
+   boost::mutex::scoped_lock lock(nodes_mutex_);
++  // Clear before every early return, so a failed solve cannot republish an old result.
++  corrections_.clear();
++  last_solve_result_ = SolveResult{};
+ 
+   if (nodes_->size() == 0) {
++    last_solve_result_.decision = "no_nodes";
+     RCLCPP_WARN(node_->get_logger(),
+       "CeresSolver: Ceres was called when there are no nodes."
+       " This shouldn't happen.");
+@@ -297,25 +302,76 @@
+     was_constant_set_ = true;
+   }
+ 
++  // Back up values, never replace the unordered_map: Ceres holds pointers into it.
++  const auto saved_nodes = *nodes_;
++  const auto restore_nodes = [this, &saved_nodes]() {
++      for (const auto & entry : saved_nodes) {nodes_->at(entry.first) = entry.second;}
++    };
+   ++optimization_id_;
+   WriteDiagnosticState("optimization_begin");
+   ceres::Solver::Summary summary;
+-  ceres::Solve(options_, problem_, &summary);
++  auto & result = last_solve_result_;
++  try {
++    result.before = EvaluateObjective();
++    if (!has_first_node_ || !result.before.valid || problem_->NumResidualBlocks() == 0) {
++      result.decision = !has_first_node_ ? "no_constrained_anchor" :
++        (!result.before.valid ? "invalid_initial_objective" : "no_residuals");
++      summary.termination_type = ceres::FAILURE;
++      summary.message = result.decision;
++    } else {
++      result.attempted = true;
++      ceres::Solve(options_, problem_, &summary);
++      // Evaluate the current problem separately from Summary, including its actual loss,
++      // all current factors/weights and only the free scalar parameter blocks.
++      result.candidate = EvaluateObjective();
++      result.anchor_max_component_change =
++        (nodes_->at(first_node_id_) - saved_nodes.at(first_node_id_)).cwiseAbs().maxCoeff();
++      for (const auto & entry : *nodes_) {
++        const auto & before = saved_nodes.at(entry.first);
++        result.maximum_node_translation_change_m = std::max(
++          result.maximum_node_translation_change_m, (entry.second - before).head<2>().norm());
++        result.maximum_node_yaw_change_rad = std::max(result.maximum_node_yaw_change_rad,
++          std::abs(NormalizeAngle(entry.second(2) - before(2))));
++      }
++      result.allowed_cost_increase = 64.0 * std::numeric_limits<double>::epsilon() *
++        std::max(1.0, std::abs(result.before.cost));
++      if (!summary.IsSolutionUsable()) {result.decision = "unusable_solution";}
++      else if (!result.candidate.valid) {result.decision = "invalid_candidate_objective";}
++      else if (result.anchor_max_component_change != 0.0) {result.decision = "anchor_changed";}
++      else if (result.candidate.cost > result.before.cost + result.allowed_cost_increase) {
++        result.decision = "objective_increased";
++      } else {
++        result.accepted = true;
++        result.free_gradient_tolerance_met =
++          result.candidate.free_gradient_infinity_norm <= options_.gradient_tolerance;
++        result.decision = result.free_gradient_tolerance_met ?
++          "accepted_stationary" : "accepted_not_stationary";
++      }
++    }
++  } catch (const std::exception & error) {
++    result.decision = "solver_exception";
++    result.exception_message = error.what();
++    summary.termination_type = ceres::FAILURE;
++    summary.message = result.exception_message;
++  } catch (...) {
++    result.decision = "solver_exception";
++    result.exception_message = "Unknown exception";
++    summary.termination_type = ceres::FAILURE;
++    summary.message = result.exception_message;
++  }
++  if (!result.accepted) {restore_nodes();}
++  result.committed = EvaluateObjective();
++  result.native_summary = summary;
++  // This event describes the committed state, and separately preserves the candidate
++  // evaluation and native summary. A rejected candidate never reaches Mapper.
+   WriteDiagnosticState("optimization_end", &summary);
+-  if (debug_logging_) {
+-    std::cout << summary.FullReport() << '\n';
+-  }
+-
+-  if (!summary.IsSolutionUsable()) {
+-    RCLCPP_WARN(node_->get_logger(), "CeresSolver: "
+-      "Ceres could not find a usable solution to optimize.");
++  if (debug_logging_) {std::cout << summary.FullReport() << '\n';}
++  if (!result.accepted) {
++    RCLCPP_WARN(node_->get_logger(), "CeresSolver: rolled back solve: %s", result.decision.c_str());
+     return;
+   }
+ 
+-  // store corrected poses
+-  if (!corrections_.empty()) {
+-    corrections_.clear();
+-  }
++  // Only the validated transaction can publish corrected poses.
+   corrections_.reserve(nodes_->size());
+   karto::Pose2 pose;
+   ConstGraphIterator iter = nodes_->begin();
+@@ -327,6 +383,48 @@
+   }
+ }
+ 
++CeresSolver::ObjectiveEvaluation CeresSolver::EvaluateObjective()
++{
++  ObjectiveEvaluation result;
++  std::vector<int> ids;
++  for (const auto & entry : *nodes_) {
++    if (!entry.second.allFinite()) {return result;}
++    ids.push_back(entry.first);
++  }
++  std::sort(ids.begin(), ids.end());
++  ceres::Problem::EvaluateOptions evaluation_options;
++  evaluation_options.apply_loss_function = true;
++  evaluation_options.num_threads = options_.num_threads;
++  for (int id : ids) {
++    auto & pose = nodes_->at(id);
++    for (int axis = 0; axis < 3; ++axis) {
++      double * parameter = &pose(axis);
++      if (problem_->HasParameterBlock(parameter) && !problem_->IsParameterBlockConstant(parameter)) {
++        evaluation_options.parameter_blocks.push_back(parameter);
++      }
++    }
++  }
++  std::vector<double> gradient;
++  // An empty parameter list means "all" to Ceres, so request cost alone when all
++  // blocks are fixed. In that case the free-space gradient has dimension zero.
++  const bool has_free_parameters = !evaluation_options.parameter_blocks.empty();
++  if (!problem_->Evaluate(evaluation_options, &result.cost, nullptr,
++    has_free_parameters ? &gradient : nullptr, nullptr) || !std::isfinite(result.cost))
++  {
++    return result;
++  }
++  result.free_dimension = gradient.size();
++  result.free_gradient_infinity_norm = 0.0;
++  result.free_gradient_l2_norm = 0.0;
++  for (double value : gradient) {
++    if (!std::isfinite(value)) {return result;}
++    result.free_gradient_infinity_norm = std::max(result.free_gradient_infinity_norm, std::abs(value));
++    result.free_gradient_l2_norm = std::hypot(result.free_gradient_l2_norm, value);
++  }
++  result.valid = true;
++  return result;
++}
++
+ /*****************************************************************************/
+ const karto::ScanSolver::IdPoseVector & CeresSolver::GetCorrections() const
+ /*****************************************************************************/
+@@ -348,6 +446,7 @@
+   boost::mutex::scoped_lock lock(nodes_mutex_);
+ 
+   corrections_.clear();
++  last_solve_result_ = SolveResult{};
+   edge_ids_.clear();
+   diagnostic_nodes_.clear();
+   if (diagnostics_.is_open()) {
+@@ -705,13 +804,61 @@
+     diagnostics_ << ']';
+   }
+   if (summary) {
++    const auto & result = last_solve_result_;
++    const auto & committed = result.committed;
+     diagnostics_ << ",\"usable\":" << (summary->IsSolutionUsable() ? "true" : "false")
+       << ",\"termination_type\":" << static_cast<int>(summary->termination_type)
+-      << ",\"initial_cost\":" << JsonNumber{summary->initial_cost}
+-      << ",\"final_cost\":" << JsonNumber{summary->final_cost}
++      << ",\"initial_cost\":" << JsonNumber{result.before.cost}
++      << ",\"final_cost\":" << JsonNumber{committed.cost}
++      << ",\"native_initial_cost\":" << JsonNumber{summary->initial_cost}
++      << ",\"native_final_cost\":" << JsonNumber{summary->final_cost}
+       << ",\"successful_steps\":" << summary->num_successful_steps
+       << ",\"unsuccessful_steps\":" << summary->num_unsuccessful_steps
+       << ",\"total_time_seconds\":" << JsonNumber{summary->total_time_in_seconds};
++    const auto write_evaluation = [this](const ObjectiveEvaluation & value) {
++        diagnostics_ << "{\"valid\":" << (value.valid ? "true" : "false")
++          << ",\"cost\":" << JsonNumber{value.cost}
++          << ",\"free_gradient_infinity_norm\":" << JsonNumber{value.free_gradient_infinity_norm}
++          << ",\"free_gradient_l2_norm\":" << JsonNumber{value.free_gradient_l2_norm}
++          << ",\"free_dimension\":" << value.free_dimension << '}';
++      };
++    diagnostics_ << ",\"termination_message\":" << JsonString(summary->message)
++      << ",\"full_report\":" << JsonString(summary->FullReport())
++      << ",\"attempted\":" << (result.attempted ? "true" : "false")
++      << ",\"accepted\":" << (result.accepted ? "true" : "false")
++      << ",\"acceptance_decision\":" << JsonString(result.decision)
++      << ",\"free_gradient_tolerance_met\":" << (result.free_gradient_tolerance_met ? "true" : "false")
++      << ",\"solver_exception\":" << JsonString(result.exception_message)
++      << ",\"anchor_max_component_change\":" << JsonNumber{result.anchor_max_component_change}
++      << ",\"maximum_node_translation_change_m\":" << JsonNumber{result.maximum_node_translation_change_m}
++      << ",\"maximum_node_yaw_change_rad\":" << JsonNumber{result.maximum_node_yaw_change_rad}
++      << ",\"allowed_cost_increase\":" << JsonNumber{result.allowed_cost_increase}
++      << ",\"objective_scale\":\"half_robust_sum_squared_whitened_source_base_xy_yaw\""
++      << ",\"gradient_parameter_units\":\"world_x_m_y_m_yaw_rad_mixed_norm_not_physical_precision\""
++      << ",\"configured_function_tolerance\":" << options_.function_tolerance
++      << ",\"configured_gradient_tolerance\":" << options_.gradient_tolerance
++      << ",\"configured_parameter_tolerance\":" << options_.parameter_tolerance
++      << ",\"objective_before\":";
++    write_evaluation(result.before);
++    diagnostics_ << ",\"objective_candidate\":"; write_evaluation(result.candidate);
++    diagnostics_ << ",\"objective_committed\":"; write_evaluation(committed);
++    diagnostics_ << ",\"iterations\":[";
++    bool first_iteration = true;
++    for (const auto & iteration : summary->iterations) {
++      if (!first_iteration) {diagnostics_ << ',';} first_iteration = false;
++      diagnostics_ << "{\"iteration\":" << iteration.iteration
++        << ",\"step_valid\":" << (iteration.step_is_valid ? "true" : "false")
++        << ",\"step_successful\":" << (iteration.step_is_successful ? "true" : "false")
++        << ",\"step_nonmonotonic\":" << (iteration.step_is_nonmonotonic ? "true" : "false")
++        << ",\"cost\":" << JsonNumber{iteration.cost}
++        << ",\"cost_change\":" << JsonNumber{iteration.cost_change}
++        << ",\"gradient_max_norm\":" << JsonNumber{iteration.gradient_max_norm}
++        << ",\"gradient_l2_norm\":" << JsonNumber{iteration.gradient_norm}
++        << ",\"trial_step_mixed_norm\":" << JsonNumber{iteration.step_norm}
++        << ",\"relative_decrease\":" << JsonNumber{iteration.relative_decrease}
++        << ",\"trust_region_radius\":" << JsonNumber{iteration.trust_region_radius} << '}';
++    }
++    diagnostics_ << ']';
+   }
+   diagnostics_ << "}\n";
+   FlushDiagnostics();

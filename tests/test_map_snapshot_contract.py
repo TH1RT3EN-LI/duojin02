@@ -123,3 +123,46 @@ def test_boolean_values_are_not_real_map_geometry(tmp_path, geometry):
     selected.write_text(f"image: map.pgm\n{geometry}\n")
     with pytest.raises(ValueError, match="Invalid map"):
         validate_map(selected)
+
+
+def test_scan_geometry_sidecar_is_published_hashed_and_checked(tmp_path):
+    with reserve_snapshot(tmp_path, "deskew") as (pending, final):
+        artifact_path(pending, ".yaml").write_text("image: deskew.pgm\nresolution: 0.01\norigin: [-26.125937054897271, -12.140692030483075, 0]\n")
+        artifact_path(pending, ".pgm").write_bytes(b"P5\n1 1\n255\n\xfe")
+        artifact_path(pending, ".posegraph").write_bytes(b"graph")
+        artifact_path(pending, ".data").write_bytes(b"scans")
+        contract = {"schema": "duojin02.scan_geometry.v1", "scan_motion_compensation": True}
+        artifact_path(pending, ".scan_geometry.json").write_text(json.dumps(contract))
+        selected = commit_snapshot(pending, final, {"slam_parameters": {"scan_motion_compensation": True}})
+    manifest = json.loads(selected.with_suffix(".snapshot.json").read_text())
+    assert manifest["files"]["scan_geometry"]["name"] == "deskew.scan_geometry.json"
+    validate_map(selected, require_graph=True)
+    selected.with_suffix(".scan_geometry.json").write_text("{}")
+    with pytest.raises(ValueError, match="modified snapshot"):
+        validate_map(selected)
+
+
+@pytest.mark.parametrize("parameter,value", [("scan_motion_compensation", True), ("capture_time_offset_sec", .01), ("scan_reference_fraction", .5), ("capture_time_mapping_id", "custom-v1"), ("capture_time_mapping_source", "device-log")])
+def test_new_motion_or_time_mapping_cannot_silently_drop_sidecar(tmp_path, parameter, value):
+    with reserve_snapshot(tmp_path, "missing") as (pending, final):
+        artifact_path(pending, ".yaml").write_text("image: missing.pgm\nresolution: 0.01\norigin: [0, 0, 0]\n")
+        artifact_path(pending, ".pgm").write_bytes(b"P5\n1 1\n255\n\xfe")
+        with pytest.raises(ValueError, match="requires a scan_geometry sidecar"):
+            commit_snapshot(pending, final, {"slam_parameters": {parameter: value}}, include_graph=False)
+    assert not list(tmp_path.glob("missing.*"))
+
+
+def test_raster_only_export_preserves_complete_read_only_geometry_contract(tmp_path):
+    parameters = {
+        "scan_motion_compensation": True, "capture_time_offset_sec": .015,
+        "capture_time_mapping_id": "independent-calibration-v1",
+        "capture_time_mapping_source": "device-log",
+        "scan_reference_fraction": .5, "scan_max_tf_gap_sec": .1,
+    }
+    with reserve_snapshot(tmp_path, "raster") as (pending, final):
+        artifact_path(pending, ".yaml").write_text("image: raster.pgm\nresolution: 0.01\norigin: [0, 0, 0]\n")
+        artifact_path(pending, ".pgm").write_bytes(b"P5\n1 1\n255\n\xfe")
+        selected = commit_snapshot(pending, final, {"slam_parameters": parameters}, include_graph=False)
+    from duojin02_bringup.scan_geometry import contract
+    assert json.loads(selected.with_suffix(".scan_geometry.json").read_text()) == contract(parameters)
+    validate_map(selected)

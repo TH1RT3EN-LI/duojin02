@@ -16,6 +16,10 @@ def generate_launch_description():
                 executable="velocity_guard",
                 name="velocity_guard",
                 parameters=[config, {"use_sim_time": False}],
+                remappings=[
+                    ("/cmd_vel_requested", "/cmd_vel"),
+                    ("/cmd_vel_base", "/cmd_vel_nav_guarded"),
+                ],
                 output="screen",
             ),
         ]

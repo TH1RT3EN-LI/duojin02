@@ -22,6 +22,8 @@
 #define NAV2_AMCL__AMCL_NODE_HPP_
 
 #include <atomic>
+#include <chrono>
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>
@@ -29,6 +31,13 @@
 #include <vector>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "nav2_amcl/estimate_contract.hpp"
+#include "nav2_amcl/global_acquisition.hpp"
+#include "nav2_amcl/acquisition_executor.hpp"
+#include "nav2_amcl/pf/posterior_snapshot.hpp"
+#include "nav2_amcl/pf/fine_modes.hpp"
+#include "duojin02_scan_geometry/ros_scan_geometry.hpp"
 #include "message_filters/subscriber.h"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_amcl/motion_model/motion_model.hpp"
@@ -196,6 +205,34 @@ protected:
    * @brief Handle when a laser scan is received
    */
   void laserReceived(sensor_msgs::msg::LaserScan::ConstSharedPtr laser_scan);
+  void processLaserScan(sensor_msgs::msg::LaserScan::ConstSharedPtr laser_scan,
+    const duojin02_scan_geometry::TimedScan * geometry = nullptr,
+    int64_t received_ros_ns = 0, int64_t received_steady_ns = 0);
+  void drainPendingScans();
+  void publishEstimateContract();
+  EstimateContract estimate_contract_;
+  std::unique_ptr<AcquisitionExecutor> global_acquisition_;
+  bool global_acquisition_pending_{false};
+  bool global_tracking_confirmation_pending_{false};
+  bool acquisition_consumed_scan_{false};
+  int64_t acquisition_consumed_stamp_ns_{std::numeric_limits<int64_t>::min()};
+  std::string global_acquisition_status_{"not_requested"};
+  FineModeSet fine_modes_;
+  double fine_mean_score_{NAN}, fine_mode_score_{NAN};
+  pf_vector_t fine_scored_mean_pose_{{NAN, NAN, NAN}};
+  pf_vector_t fine_scored_mode_pose_{{NAN, NAN, NAN}};
+  bool fine_modes_valid_{false};
+  rclcpp_lifecycle::LifecyclePublisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr
+    estimate_contract_pub_;
+  duojin02_scan_geometry::Config scan_geometry_config_;
+  std::unique_ptr<duojin02_scan_geometry::RosScanGeometry> scan_geometry_;
+  struct PendingScan {
+    sensor_msgs::msg::LaserScan::ConstSharedPtr scan;
+    std::chrono::steady_clock::time_point received;
+    int64_t received_ros_ns;
+  };
+  std::deque<PendingScan> pending_scans_;
+  rclcpp::TimerBase::SharedPtr scan_retry_timer_;
 
   // Services and service callbacks
   /*
@@ -302,13 +339,19 @@ protected:
    * @brief Whether the pf needs to be updated
    */
   bool shouldUpdateFilter(const pf_vector_t pose, pf_vector_t & delta);
+
+  // Replay the original scan-gated prediction sequence from a delayed anchor.
+  // The final nonzero tail is consumed so subsequent PF motion starts at now.
+  void applyAcquisitionMotion(const AcquisitionDispatch & dispatch);
   /*
    * @brief Update the PF
    */
   bool updateFilter(
     const int & laser_index,
     const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
-    const pf_vector_t & pose);
+    const pf_vector_t & pose,
+    const duojin02_scan_geometry::TimedScan * geometry = nullptr,
+    int64_t raw_stamp_ns = 0);
   /*
    * @brief Publish particle cloud
    */
@@ -318,7 +361,7 @@ protected:
    */
   bool getMaxWeightHyp(
     std::vector<amcl_hyp_t> & hyps, amcl_hyp_t & max_weight_hyps,
-    int & max_weight_hyp);
+    int & max_weight_hyp, const PosteriorSnapshot * snapshot = nullptr);
   /*
    * @brief Publish robot pose in map frame from AMCL
    */
@@ -331,7 +374,8 @@ protected:
   void calculateMaptoOdomTransform(
     const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
     const std::vector<amcl_hyp_t> & hyps,
-    const int & max_weight_hyp);
+    const int & max_weight_hyp,
+    const duojin02_scan_geometry::TimedScan * geometry = nullptr);
   /*
    * @brief Publish TF transformation from map to odom
    */

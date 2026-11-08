@@ -33,11 +33,15 @@ __global__ void scoreBeams(ObservationSettings settings, ObservationMap map, con
   const auto beam=beams[b]; const auto pose=poses[p];
   // Neutral elements for ignored and padded beams. Invalid negative infinity and
   // bearing values cannot safely index a map; ask the unchanged CPU oracle.
-  if (beam.range >= range_max || !isfinite(beam.range) || !isfinite(beam.bearing)) {
+  if (!beam.included) {
     probabilities[k]=settings.probability_model ? 1.0 : 0.0; return;
   }
-  const double x=pose.x+beam.range*cos(pose.yaw+beam.bearing);
-  const double y=pose.y+beam.range*sin(pose.yaw+beam.bearing);
+  const double x=settings.endpoints_in_base_frame ?
+    pose.x+cos(pose.yaw)*beam.endpoint_x-sin(pose.yaw)*beam.endpoint_y :
+    pose.x+beam.range*cos(pose.yaw+beam.bearing);
+  const double y=settings.endpoints_in_base_frame ?
+    pose.y+sin(pose.yaw)*beam.endpoint_x+cos(pose.yaw)*beam.endpoint_y :
+    pose.y+beam.range*sin(pose.yaw+beam.bearing);
   const double gx=(x-map.origin_x)/map.scale+0.5;
   const double gy=(y-map.origin_y)/map.scale+0.5;
   if (!isfinite(gx) || !isfinite(gy)) {
@@ -80,7 +84,7 @@ __global__ void combineBeams(ObservationSettings settings, const double * probab
       if (!skipping || *skip_error || mask[b]) { sum+=log(probability); }
     } else { sum+=probability*probability*probability; }
   }
-  factors[p]=settings.probability_model ? exp(sum) : sum;
+  factors[p]=settings.probability_model ? settings.likelihood_temperature_beta*sum : sum;
 }
 class CudaObservation final : public DeviceObservation {
   cudaStream_t stream_{};
@@ -103,13 +107,13 @@ public:
     check(cudaStreamSynchronize(stream_),"AMCL finish map upload");
   }
   bool score(const ObservationSettings & settings, const ObservationPose * poses, int particles,
-    const ObservationBeam * beams, int beam_count, double range_max, bool converged, double * factors) override {
+    const ObservationBeam * beams, int beam_count, double range_max, bool converged, double * factors, int * effective_mask) override {
     if (particles<=0) { return true; }
     if (beam_count<=0) {
-      for (int i=0; i<particles; ++i) { factors[i]=1.0; }
+      for (int i=0; i<particles; ++i) { factors[i]=settings.probability_model ? 0.0 : 1.0; }
       return true;
     }
-    int boundary=0;
+    int boundary=0, skip_error=0;
     StreamDrain drain{stream_};
     const size_t pairs=static_cast<size_t>(particles)*beam_count;
     poses_.reserve(particles); beams_.reserve(beam_count); probabilities_.reserve(pairs);
@@ -131,7 +135,12 @@ public:
     check(cudaGetLastError(),"AMCL combineBeams kernel");
     check(cudaMemcpyAsync(factors,factors_.ptr,particles*sizeof(double),cudaMemcpyDeviceToHost,stream_),"AMCL download factors");
     check(cudaMemcpyAsync(&boundary,flags_.ptr,sizeof(int),cudaMemcpyDeviceToHost,stream_),"AMCL download guard");
+    if (skipping) {
+      check(cudaMemcpyAsync(effective_mask,mask_.ptr,beam_count*sizeof(int),cudaMemcpyDeviceToHost,stream_),"AMCL download mask");
+      check(cudaMemcpyAsync(&skip_error,flags_.ptr+1,sizeof(int),cudaMemcpyDeviceToHost,stream_),"AMCL download skip flag");
+    }
     check(cudaStreamSynchronize(stream_),"AMCL complete observation");
+    if (skipping && skip_error) {for (int b=0; b<beam_count; ++b) {effective_mask[b]=1;}}
     return boundary==0;
   }
 };

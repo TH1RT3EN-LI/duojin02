@@ -1,0 +1,897 @@
+--- a/solvers/ceres_solver.cpp
++++ b/solvers/ceres_solver.cpp
+@@ -9,16 +9,40 @@
+ #include <utility>
+ #include "ceres_solver.hpp"
+ #include <stdexcept>
++#include <iomanip>
++#include <algorithm>
++#include <sstream>
+ 
+ namespace solver_plugins
+ {
++namespace
++{
++std::string JsonString(const std::string & value)
++{
++  std::ostringstream out;
++  out << '\"';
++  for (unsigned char c : value) {
++    if (c == '\"' || c == '\\') {out << '\\' << c;}
++    else if (c < 0x20) {out << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(c) << std::dec;}
++    else {out << c;}
++  }
++  out << '\"';
++  return out.str();
++}
++struct JsonNumber {double value;};
++std::ostream & operator<<(std::ostream & out, JsonNumber number)
++{
++  if (std::isfinite(number.value)) {out << number.value;} else {out << "null";}
++  return out;
++}
++}  // namespace
++
+ 
+ /*****************************************************************************/
+ CeresSolver::CeresSolver()
+ : nodes_(new std::unordered_map<int, Eigen::Vector3d>()),
+-  blocks_(new std::unordered_map<std::size_t,
+-    ceres::ResidualBlockId>()),
+-  problem_(NULL), was_constant_set_(false)
++  blocks_(new ConstraintMap()),
++  loss_function_(NULL), problem_(NULL), angle_local_parameterization_(NULL), was_constant_set_(false)
+ /*****************************************************************************/
+ {
+ }
+@@ -41,6 +65,36 @@
+       std::string("LM"));
+   loss_fn = node->declare_parameter("ceres_loss_function",
+       std::string("None"));
++  rcl_interfaces::msg::ParameterDescriptor scale_descriptor;
++  scale_descriptor.read_only = true;
++  scale_descriptor.description = "Positive finite robust loss radius in whitened residual coordinates (dimensionless)";
++  loss_scale_ = node->declare_parameter("ceres_loss_scale", 0.7, scale_descriptor);
++  if (!std::isfinite(loss_scale_) || loss_scale_ <= 0.0) {
++    throw std::invalid_argument("ceres_loss_scale must be positive and finite (whitened residual radius)");
++  }
++  if (loss_fn != "None" && loss_fn != "HuberLoss" && loss_fn != "CauchyLoss") {
++    throw std::invalid_argument("ceres_loss_function must be None, HuberLoss or CauchyLoss");
++  }
++  loss_name_ = loss_fn;
++  rcl_interfaces::msg::ParameterDescriptor diagnostic_descriptor;
++  diagnostic_descriptor.read_only = true;
++  diagnostic_descriptor.description = "Append-only Ceres JSONL events; empty disables diagnostics";
++  const auto diagnostic_path = node->declare_parameter("ceres_diagnostics_path", std::string(""), diagnostic_descriptor);
++  diagnostic_state_mode_ = node->declare_parameter("ceres_diagnostics_state_mode", std::string("full"), diagnostic_descriptor);
++  if (diagnostic_state_mode_ != "full" && diagnostic_state_mode_ != "delta") {
++    throw std::invalid_argument("ceres_diagnostics_state_mode must be full or delta");
++  }
++  if (!diagnostic_path.empty()) {
++    diagnostics_.open(diagnostic_path, std::ios::out | std::ios::app);
++    if (!diagnostics_) {throw std::runtime_error("Cannot open ceres_diagnostics_path");}
++    diagnostics_ << std::setprecision(17);
++    diagnostics_ << "{\"event\":\"session\",\"schema\":2,\"loss\":\"" << loss_name_
++      << "\",\"loss_scale\":" << loss_scale_
++      << ",\"state_mode\":" << JsonString(diagnostic_state_mode_)
++      << ",\"state_reconstruction\":\"apply_node_events_then_optimization_changed_nodes\",\"scale_unit\":\"whitened_residual_radius\","
++      << "\"residual_coordinates\":\"source_base_xy_yaw\",\"whitening\":\"upper_llt_left\"}\n";
++    FlushDiagnostics();
++  }
+   mode = node->declare_parameter("mode", std::string("mapping"));
+   debug_logging_ = node->get_parameter("debug_logging").as_bool();
+ 
+@@ -56,11 +110,11 @@
+   if (loss_fn == "HuberLoss") {
+     RCLCPP_INFO(node_->get_logger(),
+       "CeresSolver: Using HuberLoss loss function.");
+-    loss_function_ = new ceres::HuberLoss(0.7);
++    loss_function_ = new ceres::HuberLoss(loss_scale_);
+   } else if (loss_fn == "CauchyLoss") {
+     RCLCPP_INFO(node_->get_logger(),
+       "CeresSolver: Using CauchyLoss loss function.");
+-    loss_function_ = new ceres::CauchyLoss(0.7);
++    loss_function_ = new ceres::CauchyLoss(loss_scale_);
+   }
+ 
+   // choose linear solver default CHOL
+@@ -243,8 +297,11 @@
+     was_constant_set_ = true;
+   }
+ 
++  ++optimization_id_;
++  WriteDiagnosticState("optimization_begin");
+   ceres::Solver::Summary summary;
+   ceres::Solve(options_, problem_, &summary);
++  WriteDiagnosticState("optimization_end", &summary);
+   if (debug_logging_) {
+     std::cout << summary.FullReport() << '\n';
+   }
+@@ -291,6 +348,12 @@
+   boost::mutex::scoped_lock lock(nodes_mutex_);
+ 
+   corrections_.clear();
++  edge_ids_.clear();
++  diagnostic_nodes_.clear();
++  if (diagnostics_.is_open()) {
++    diagnostics_ << "{\"event\":\"reset\",\"after_optimization_id\":" << optimization_id_ << "}\n";
++    FlushDiagnostics();
++  }
+   was_constant_set_ = false;
+ 
+   if (problem_) {
+@@ -308,7 +371,7 @@
+   }
+ 
+   nodes_ = new std::unordered_map<int, Eigen::Vector3d>();
+-  blocks_ = new std::unordered_map<std::size_t, ceres::ResidualBlockId>();
++  blocks_ = new ConstraintMap();
+   problem_ = new ceres::Problem(options_problem_);
+   has_first_node_ = false;
+ 
+@@ -330,7 +393,22 @@
+   const int id = pVertex->GetObject()->GetUniqueId();
+ 
+   boost::mutex::scoped_lock lock(nodes_mutex_);
+-  nodes_->insert(std::pair<int, Eigen::Vector3d>(id, pose2d));
++  const bool inserted = nodes_->insert(std::pair<int, Eigen::Vector3d>(id, pose2d)).second;
++  if (diagnostics_.is_open()) {
++    const auto * scan = pVertex->GetObject();
++    diagnostics_ << "{\"event\":\"node_added\",\"node_id\":" << id
++      << ",\"inserted\":" << (inserted ? "true" : "false")
++      << ",\"time\":" << JsonNumber{scan->GetTime()}
++      << ",\"raw_stamp_ns\":" << scan->GetRawScanStampNs()
++      << ",\"reference_stamp_ns\":" << scan->GetPhysicalReferenceNs()
++      << ",\"sensor_name\":" << JsonString(scan->GetSensorName().ToString())
++      << ",\"geometry_version\":" << JsonString(scan->GetGeometryVersion())
++      << ",\"time_mapping_id\":" << JsonString(scan->GetTimeMappingId())
++      << ",\"pose\":[" << JsonNumber{nodes_->at(id)(0)} << ','
++      << JsonNumber{nodes_->at(id)(1)} << ',' << JsonNumber{nodes_->at(id)(2)} << "]}\n";
++    diagnostic_nodes_[id] = nodes_->at(id);
++    FlushDiagnostics();
++  }
+ 
+   if (nodes_->size() == 1) {
+     first_node_id_ = id;
+@@ -360,6 +438,10 @@
+     RCLCPP_WARN(node_->get_logger(),
+       "CeresSolver: Failed to add constraint, could not find nodes.");
+     return;
++  }
++
++  if (blocks_->count(std::make_pair(node1, node2)) != 0) {
++    throw std::invalid_argument("Duplicate directed constraint in Ceres graph");
+   }
+ 
+   // extract transformation
+@@ -375,7 +457,11 @@
+   information(1, 1) = precisionMatrix(1, 1);
+   information(1, 2) = information(2, 1) = precisionMatrix(1, 2);
+   information(2, 2) = precisionMatrix(2, 2);
+-  Eigen::Matrix3d sqrt_information = information.llt().matrixU();
++  Eigen::LLT<Eigen::Matrix3d> llt(information);
++  if (!information.allFinite() || llt.info() != Eigen::Success) {
++    throw std::invalid_argument("Constraint covariance must have finite positive definite information");
++  }
++  Eigen::Matrix3d sqrt_information = llt.matrixU();
+ 
+   // populate residual and parameterization for heading normalization
+   ceres::CostFunction * cost_function = PoseGraph2dErrorTerm::Create(pose2d(0),
+@@ -389,8 +475,47 @@
+   problem_->SetParameterization(&node2it->second(2),
+     angle_local_parameterization_);
+ 
+-  blocks_->insert(std::pair<std::size_t, ceres::ResidualBlockId>(
+-      GetHash(node1, node2), block));
++  blocks_->insert(std::make_pair(std::make_pair(node1, node2), block));
++  edge_ids_[block] = ++next_edge_id_;
++  if (diagnostics_.is_open()) {
++    diagnostics_ << "{\"event\":\"edge_added\",\"edge_id\":" << next_edge_id_
++      << ",\"pending_optimization_id\":" << optimization_id_ + 1
++      << ",\"source_id\":" << node1 << ",\"target_id\":" << node2
++      << ",\"source_time\":" << JsonNumber{pEdge->GetSource()->GetObject()->GetTime()}
++      << ",\"target_time\":" << JsonNumber{pEdge->GetTarget()->GetObject()->GetTime()}
++      << ",\"source_raw_stamp_ns\":" << pEdge->GetSource()->GetObject()->GetRawScanStampNs()
++      << ",\"target_raw_stamp_ns\":" << pEdge->GetTarget()->GetObject()->GetRawScanStampNs()
++      << ",\"source_reference_stamp_ns\":" << pEdge->GetSource()->GetObject()->GetPhysicalReferenceNs()
++      << ",\"target_reference_stamp_ns\":" << pEdge->GetTarget()->GetObject()->GetPhysicalReferenceNs()
++      << ",\"source_geometry_version\":" << JsonString(pEdge->GetSource()->GetObject()->GetGeometryVersion())
++      << ",\"target_geometry_version\":" << JsonString(pEdge->GetTarget()->GetObject()->GetGeometryVersion())
++      << ",\"provenance\":" << JsonString(pLinkInfo->GetSource()) << ",\"chain_ids\":[";
++    bool first = true;
++    for (int id : pLinkInfo->GetChain()) {
++      if (!first) {diagnostics_ << ',';} first = false; diagnostics_ << id;
++    }
++    diagnostics_ << "],\"coarse_response\":" << JsonNumber{pLinkInfo->GetCoarseResponse()}
++      << ",\"fine_response\":" << JsonNumber{pLinkInfo->GetFineResponse()}
++      << ",\"search_center_sensor_pose\":";
++    const auto & provenance = pLinkInfo->GetSource();
++    if (provenance == "near_chain" || provenance == "explicit_loop" || provenance == "cross_sensor") {
++      diagnostics_ << '[' << JsonNumber{pLinkInfo->GetSearchCenter().GetX()} << ','
++        << JsonNumber{pLinkInfo->GetSearchCenter().GetY()} << ','
++        << JsonNumber{pLinkInfo->GetSearchCenter().GetHeading()} << ']';
++    } else {
++      diagnostics_ << "null";
++    }
++    diagnostics_ << ",\"search_boundary_hit\":null,\"measurement_base_i\":[" << JsonNumber{pose2d(0)} << ',' << JsonNumber{pose2d(1)}
++      << ',' << JsonNumber{pose2d(2)} << "],\"covariance_base_i_row_major\":[";
++    for (int row = 0; row < 3; ++row) {
++      for (int col = 0; col < 3; ++col) {
++        if (row || col) {diagnostics_ << ',';}
++        diagnostics_ << JsonNumber{pLinkInfo->GetCovariance()(row, col)};
++      }
++    }
++    diagnostics_ << "]}\n";
++    FlushDiagnostics();
++  }
+ }
+ 
+ /*****************************************************************************/
+@@ -411,6 +536,10 @@
+     }
+     for (auto block = blocks_->begin(); block != blocks_->end(); ) {
+       if (incident_blocks.count(block->second) != 0) {
++        if (diagnostics_.is_open()) {
++          diagnostics_ << "{\"event\":\"edge_removed\",\"edge_id\":" << edge_ids_.at(block->second) << "}\n";
++        }
++        edge_ids_.erase(block->second);
+         block = blocks_->erase(block);
+       } else {
+         ++block;
+@@ -427,6 +556,11 @@
+       was_constant_set_ = false;
+     }
+     nodes_->erase(nodeit);
++    diagnostic_nodes_.erase(id);
++    if (diagnostics_.is_open()) {
++      diagnostics_ << "{\"event\":\"node_removed\",\"node_id\":" << id << "}\n";
++      FlushDiagnostics();
++    }
+   } else {
+     RCLCPP_ERROR(node_->get_logger(), "RemoveNode: Failed to find node matching id %i",
+       (int)id);
+@@ -438,14 +572,24 @@
+ /*****************************************************************************/
+ {
+   boost::mutex::scoped_lock lock(nodes_mutex_);
+-  std::unordered_map<std::size_t, ceres::ResidualBlockId>::iterator it_a =
+-    blocks_->find(GetHash(sourceId, targetId));
+-  std::unordered_map<std::size_t, ceres::ResidualBlockId>::iterator it_b =
+-    blocks_->find(GetHash(targetId, sourceId));
++  ConstraintMap::iterator it_a =
++    blocks_->find(std::make_pair(sourceId, targetId));
++  ConstraintMap::iterator it_b =
++    blocks_->find(std::make_pair(targetId, sourceId));
+   if (it_a != blocks_->end()) {
++    if (diagnostics_.is_open()) {
++      diagnostics_ << "{\"event\":\"edge_removed\",\"edge_id\":" << edge_ids_.at(it_a->second) << "}\n";
++      FlushDiagnostics();
++    }
++    edge_ids_.erase(it_a->second);
+     problem_->RemoveResidualBlock(it_a->second);
+     blocks_->erase(it_a);
+   } else if (it_b != blocks_->end()) {
++    if (diagnostics_.is_open()) {
++      diagnostics_ << "{\"event\":\"edge_removed\",\"edge_id\":" << edge_ids_.at(it_b->second) << "}\n";
++      FlushDiagnostics();
++    }
++    edge_ids_.erase(it_b->second);
+     problem_->RemoveResidualBlock(it_b->second);
+     blocks_->erase(it_b);
+   } else {
+@@ -465,6 +609,13 @@
+     double yaw_init = it->second(2);
+     it->second = pose;
+     it->second(2) += yaw_init;
++    if (diagnostics_.is_open()) {
++      diagnostics_ << "{\"event\":\"node_modified\",\"node_id\":" << unique_id
++        << ",\"pose\":[" << JsonNumber{it->second(0)} << ','
++        << JsonNumber{it->second(1)} << ',' << JsonNumber{it->second(2)} << "]}\n";
++      diagnostic_nodes_[unique_id] = it->second;
++      FlushDiagnostics();
++    }
+   }
+ }
+ 
+@@ -487,6 +638,85 @@
+   return nodes_;
+ }
+ 
++void CeresSolver::RecordMatchDiagnostic(const std::string & json)
++{
++  boost::mutex::scoped_lock lock(nodes_mutex_);
++  if (!diagnostics_.is_open()) {return;}
++  if (json.empty() || json.front() != '{' || json.back() != '}' ||
++    json.find('\n') != std::string::npos) {
++    throw std::invalid_argument("Mapper diagnostic must be a single JSON object");
++  }
++  diagnostics_ << "{\"event\":\"mapper_match\",\"match_id\":" << ++diagnostic_match_id_
++    << ",\"after_optimization_id\":" << optimization_id_
++    << ",\"detail\":" << json << "}\n";
++  FlushDiagnostics();
++}
++
++void CeresSolver::FlushDiagnostics()
++{
++  diagnostics_.flush();
++  if (!diagnostics_) {throw std::runtime_error("Failed to write Ceres graph diagnostics");}
++}
++
++void CeresSolver::WriteDiagnosticState(const char * phase, const ceres::Solver::Summary * summary)
++{
++  if (!diagnostics_.is_open()) {return;}
++  diagnostics_ << "{\"event\":\"" << phase << "\",\"optimization_id\":" << optimization_id_
++    << ",\"anchor_id\":";
++  if (has_first_node_) {diagnostics_ << first_node_id_;} else {diagnostics_ << "null";}
++  diagnostics_ << ",\"state_mode\":" << JsonString(diagnostic_state_mode_)
++    << ",\"node_count\":" << nodes_->size() << ",\"edge_count\":" << blocks_->size()
++    << (diagnostic_state_mode_ == "delta" ? ",\"changed_nodes\":[" : ",\"nodes\":[");
++  std::vector<int> ids;
++  for (const auto & entry : *nodes_) {ids.push_back(entry.first);}
++  std::sort(ids.begin(), ids.end());
++  bool first = true;
++  for (int id : ids) {
++    const auto & pose = nodes_->at(id);
++    const auto previous = diagnostic_nodes_.find(id);
++    if (diagnostic_state_mode_ == "delta" && previous != diagnostic_nodes_.end() &&
++      (previous->second.array() == pose.array()).all()) {continue;}
++    if (!first) {diagnostics_ << ',';} first = false;
++    diagnostics_ << '[' << id << ',' << JsonNumber{pose(0)} << ',' << JsonNumber{pose(1)} << ',' << JsonNumber{pose(2)} << ']';
++    diagnostic_nodes_[id] = pose;
++  }
++  diagnostics_ << ']';
++  // Delta mode records every edge definition once. Whitened residuals and robust cost
++  // are exactly reconstructible from these and the before/after node states.
++  if (diagnostic_state_mode_ == "full") {
++    diagnostics_ << ",\"edges\":[";
++    first = true;
++    for (const auto & entry : *blocks_) {
++      double cost = 0.0, residuals[3];
++      const bool valid = problem_->EvaluateResidualBlock(entry.second, false, &cost, residuals, nullptr);
++      if (!first) {diagnostics_ << ',';} first = false;
++      diagnostics_ << "{\"edge_id\":" << edge_ids_.at(entry.second) << ",\"whitened_squared_norm\":";
++      if (valid && std::isfinite(cost)) {
++        const double norm = 2.0 * cost;
++        double rho[3] = {norm, 1.0, 0.0};
++        if (loss_function_) {loss_function_->Evaluate(norm, rho);}
++        diagnostics_ << norm << ",\"rho_prime\":" << rho[1]
++          << ",\"robust_cost\":" << 0.5 * rho[0];
++      } else {
++        diagnostics_ << "null,\"rho_prime\":null,\"robust_cost\":null";
++      }
++      diagnostics_ << '}';
++    }
++    diagnostics_ << ']';
++  }
++  if (summary) {
++    diagnostics_ << ",\"usable\":" << (summary->IsSolutionUsable() ? "true" : "false")
++      << ",\"termination_type\":" << static_cast<int>(summary->termination_type)
++      << ",\"initial_cost\":" << JsonNumber{summary->initial_cost}
++      << ",\"final_cost\":" << JsonNumber{summary->final_cost}
++      << ",\"successful_steps\":" << summary->num_successful_steps
++      << ",\"unsuccessful_steps\":" << summary->num_unsuccessful_steps
++      << ",\"total_time_seconds\":" << JsonNumber{summary->total_time_in_seconds};
++  }
++  diagnostics_ << "}\n";
++  FlushDiagnostics();
++}
++
+ }  // namespace solver_plugins
+ 
+ #include "pluginlib/class_list_macros.hpp"
+--- a/solvers/ceres_solver.hpp
++++ b/solvers/ceres_solver.hpp
+@@ -10,6 +10,9 @@
+ #include <ceres/local_parameterization.h>
+ #include <ceres/ceres.h>
+ #include <vector>
++#include <fstream>
++#include <map>
++#include <cstdint>
+ #include <unordered_map>
+ #include <utility>
+ #include <cmath>
+@@ -36,6 +39,7 @@
+   virtual const karto::ScanSolver::IdPoseVector & GetCorrections() const;
+ 
+   virtual void Compute();  // Solve
++  virtual void RecordMatchDiagnostic(const std::string & json);
+   virtual void Clear();  // Resets the corrections
+   virtual void Reset();  // Resets the solver plugin clean
+   virtual void Configure(rclcpp::Node::SharedPtr node);
+@@ -57,6 +61,17 @@
+   virtual void GetNodeOrientation(const int & unique_id, double & pose);
+ 
+ private:
++  void WriteDiagnosticState(const char * phase, const ceres::Solver::Summary * summary = nullptr);
++  void FlushDiagnostics();
++  std::ofstream diagnostics_;
++  std::string loss_name_;
++  std::string diagnostic_state_mode_{"full"};
++  std::unordered_map<int, Eigen::Vector3d> diagnostic_nodes_;
++  std::uint64_t diagnostic_match_id_{0};
++  double loss_scale_{0.7};
++  std::uint64_t optimization_id_{0}, next_edge_id_{0};
++  std::unordered_map<ceres::ResidualBlockId, std::uint64_t> edge_ids_;
++
+   // karto
+   karto::ScanSolver::IdPoseVector corrections_;
+ 
+@@ -70,7 +85,8 @@
+ 
+   // graph
+   std::unordered_map<int, Eigen::Vector3d> * nodes_;
+-  std::unordered_map<size_t, ceres::ResidualBlockId> * blocks_;
++  using ConstraintMap = std::map<std::pair<int, int>, ceres::ResidualBlockId>;
++  ConstraintMap * blocks_;
+   // IDs survive rehash; the separate flag keeps node ID zero a valid anchor.
+   int first_node_id_{0};
+   bool has_first_node_{false};
+--- a/lib/karto_sdk/include/karto_sdk/Mapper.h
++++ b/lib/karto_sdk/include/karto_sdk/Mapper.h
+@@ -17,6 +17,8 @@
+ 
+ #ifndef KARTO_SDK__MAPPER_H_
+ #define KARTO_SDK__MAPPER_H_
++
++#include <boost/serialization/version.hpp>
+ 
+ #include <map>
+ #include <vector>
+@@ -223,11 +225,32 @@
+     return m_Covariance;
+   }
+ 
++  // Diagnostic provenance never participates in the optimization objective.
++  void SetProvenance(const std::string & source, const std::vector<int> & chain,
++    double coarse, double fine, const Pose2 & center)
++  {
++    m_Source = source;
++    m_Chain = chain;
++    m_CoarseResponse = coarse;
++    m_FineResponse = fine;
++    m_SearchCenter = center;
++  }
++  const std::string & GetSource() const {return m_Source;}
++  const std::vector<int> & GetChain() const {return m_Chain;}
++  double GetCoarseResponse() const {return m_CoarseResponse;}
++  double GetFineResponse() const {return m_FineResponse;}
++  const Pose2 & GetSearchCenter() const {return m_SearchCenter;}
++
+ private:
+   Pose2 m_Pose1;
+   Pose2 m_Pose2;
+   Pose2 m_PoseDifference;
+   Matrix3 m_Covariance;
++  std::string m_Source{"unknown_legacy"};
++  std::vector<int> m_Chain;
++  double m_CoarseResponse{-1.0};
++  double m_FineResponse{-1.0};
++  Pose2 m_SearchCenter;
+ 
+   friend class boost::serialization::access;
+   template<class Archive>
+@@ -238,6 +261,13 @@
+     ar & BOOST_SERIALIZATION_NVP(m_Pose2);
+     ar & BOOST_SERIALIZATION_NVP(m_PoseDifference);
+     ar & BOOST_SERIALIZATION_NVP(m_Covariance);
++    if (version >= 1) {
++      ar & BOOST_SERIALIZATION_NVP(m_Source);
++      ar & BOOST_SERIALIZATION_NVP(m_Chain);
++      ar & BOOST_SERIALIZATION_NVP(m_CoarseResponse);
++      ar & BOOST_SERIALIZATION_NVP(m_FineResponse);
++      ar & BOOST_SERIALIZATION_NVP(m_SearchCenter);
++    }
+   }
+ };    // LinkInfo
+ 
+@@ -748,7 +778,8 @@
+    * @param pScan
+    * @param rCovariance uncertainty of match
+    */
+-  void AddEdges(LocalizedRangeScan * pScan, const Matrix3 & rCovariance);
++  void AddEdges(LocalizedRangeScan * pScan, const Matrix3 & rCovariance,
++    double sequentialResponse = -1.0, const Pose2 & sequentialSearchCenter = Pose2());
+ 
+   /**
+    * Tries to close a loop using the given scan with the scans from the given device
+@@ -855,7 +886,10 @@
+     LocalizedRangeScan * pFromScan,
+     LocalizedRangeScan * pToScan,
+     const Pose2 & rMean,
+-    const Matrix3 & rCovariance);
++    const Matrix3 & rCovariance,
++    const std::string & source = "unknown_legacy",
++    const std::vector<int> & chain = {}, double coarse = -1.0, double fine = -1.0,
++    const Pose2 & center = Pose2());
+ 
+   /**
+    * Find nearby chains of scans and link them to scan if response is high enough
+@@ -878,7 +912,9 @@
+     const LocalizedRangeScanVector & rChain,
+     LocalizedRangeScan * pScan,
+     const Pose2 & rMean,
+-    const Matrix3 & rCovariance);
++    const Matrix3 & rCovariance,
++    const std::string & source = "unknown_legacy", double coarse = -1.0,
++    double fine = -1.0, const Pose2 & center = Pose2());
+ 
+   /**
+    * Find chains of scans that are close to given scan
+@@ -980,6 +1016,9 @@
+   virtual void Compute() = 0;
+ 
+   virtual void Configure(rclcpp::Node::SharedPtr node) = 0;
++
++  // Optional append-only mapper events. Other solver plugins may ignore diagnostics.
++  virtual void RecordMatchDiagnostic(const std::string & /*json*/) {}
+ 
+   /**
+    * Get corrected poses after optimization
+@@ -2500,4 +2539,6 @@
+ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Mapper)
+ }  // namespace karto
+ 
++BOOST_CLASS_VERSION(karto::LinkInfo, 1)
++
+ #endif  // KARTO_SDK__MAPPER_H_
+--- a/lib/karto_sdk/src/Mapper.cpp
++++ b/lib/karto_sdk/src/Mapper.cpp
+@@ -21,6 +21,7 @@
+ #include <assert.h>
+ #include <boost/serialization/vector.hpp>
+ #include <sstream>
++#include <iomanip>
+ #include <fstream>
+ #include <stdexcept>
+ #include <queue>
+@@ -52,6 +53,76 @@
+   #define MAX_VARIANCE            500.0
+   #define DISTANCE_PENALTY_GAIN   0.2
+   #define ANGLE_PENALTY_GAIN      0.2
++
++
++namespace
++{
++void MatchJsonString(std::ostream & out, const std::string & value)
++{
++  out << '"';
++  for (unsigned char c : value) {
++    if (c == '"' || c == '\\') {out << '\\' << c;}
++    else if (c < 0x20) {out << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(c) << std::dec;}
++    else {out << c;}
++  }
++  out << '"';
++}
++void MatchJsonNumber(std::ostream & out, double value)
++{
++  if (std::isfinite(value)) {out << value;} else {out << "null";}
++}
++void MatchJsonPose(std::ostream & out, const Pose2 & pose)
++{
++  out << '['; MatchJsonNumber(out, pose.GetX()); out << ',';
++  MatchJsonNumber(out, pose.GetY()); out << ',';
++  MatchJsonNumber(out, pose.GetHeading()); out << ']';
++}
++// Diagnostic side channel: no values from this function feed matching or optimization.
++void RecordMapperMatch(ScanSolver * solver, const char * stage, const std::string & source,
++  const LocalizedRangeScan * query, const std::vector<int> & chain,
++  double coarse, double fine, const Pose2 & center, const Pose2 & result,
++  const Matrix3 & covariance, const char * decision, const char * reason,
++  int source_node_id = -1, double response_threshold = -1.0, double variance_threshold = -1.0)
++{
++  if (solver == NULL) {return;}
++  std::ostringstream out; out << std::setprecision(17);
++  out << "{\"stage\":"; MatchJsonString(out, stage);
++  out << ",\"provenance\":"; MatchJsonString(out, source);
++  out << ",\"query_id\":" << query->GetUniqueId()
++      << ",\"query_raw_stamp_ns\":" << query->GetRawScanStampNs()
++      << ",\"query_reference_stamp_ns\":" << query->GetPhysicalReferenceNs()
++      << ",\"query_sensor_name\":"; MatchJsonString(out, query->GetSensorName().ToString());
++  out << ",\"query_geometry_version\":"; MatchJsonString(out, query->GetGeometryVersion());
++  out << ",\"query_has_prepared_geometry\":" << (query->HasDeskewGeometry() ? "true" : "false")
++      << ",\"time_mapping_id\":"; MatchJsonString(out, query->GetTimeMappingId());
++  out << ",\"chain_ids\":[";
++  bool first = true; for (int id : chain) {if (!first) {out << ',';} first = false; out << id;}
++  out << "],\"source_node_id\":" << source_node_id << ",\"coarse_response\":"; MatchJsonNumber(out, coarse);
++  out << ",\"fine_response\":"; MatchJsonNumber(out, fine);
++  out << ",\"response_threshold\":"; MatchJsonNumber(out, response_threshold);
++  out << ",\"variance_threshold\":"; MatchJsonNumber(out, variance_threshold);
++  out << ",\"search_center_sensor_pose\":"; MatchJsonPose(out, center);
++  out << ",\"result_sensor_pose\":"; MatchJsonPose(out, result);
++  out << ",\"covariance_coordinates\":\"mapper_sensor_world_xy_yaw\",\"covariance_row_major\":[";
++  for (int row = 0; row < 3; ++row) {
++    for (int col = 0; col < 3; ++col) {if (row || col) {out << ',';} MatchJsonNumber(out, covariance(row,col));}
++  }
++  out << "],\"decision\":"; MatchJsonString(out, decision);
++  out << ",\"reason\":"; MatchJsonString(out, reason); out << '}';
++  solver->RecordMatchDiagnostic(out.str());
++}
++std::vector<int> MatchChainIds(const LocalizedRangeScanVector & chain)
++{
++  std::vector<int> result; for (const auto * scan : chain) {result.push_back(scan->GetUniqueId());}
++  return result;
++}
++std::vector<int> MatchChainIds(const LocalizedRangeScanMap & chain)
++{
++  std::vector<int> result;
++  for (const auto & scan : chain) {result.push_back(scan.second->GetUniqueId());}
++  return result;
++}
++}  // namespace
+ 
+ ////////////////////////////////////////////////////////////////////////////////////////
+ ////////////////////////////////////////////////////////////////////////////////////////
+@@ -1431,11 +1502,18 @@
+   return nullptr;
+ }
+ 
+-void MapperGraph::AddEdges(LocalizedRangeScan * pScan, const Matrix3 & rCovariance)
++void MapperGraph::AddEdges(LocalizedRangeScan * pScan, const Matrix3 & rCovariance,
++  double sequentialResponse, const Pose2 & sequentialSearchCenter)
+ {
+   MapperSensorManager * pSensorManager = m_pMapper->m_pMapperSensorManager;
+ 
+   const Name rSensorName = pScan->GetSensorName();
++  if (sequentialResponse >= 0.0) {
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "sequential", pScan,
++      MatchChainIds(pSensorManager->GetRunningScans(rSensorName)), -1.0,
++      sequentialResponse, sequentialSearchCenter, pScan->GetSensorPose(), rCovariance,
++      "accepted", "sequential_no_response_gate");
++  }
+ 
+   // link to previous scan
+   kt_int32s previousScanNum = pScan->GetStateId() - 1;
+@@ -1445,7 +1523,9 @@
+     if (!pPrevScan) {
+       return;
+     }
+-    LinkScans(pPrevScan, pScan, pScan->GetSensorPose(), rCovariance);
++    LinkScans(pPrevScan, pScan, pScan->GetSensorPose(), rCovariance, "sequential",
++      MatchChainIds(pSensorManager->GetRunningScans(rSensorName)), -1.0,
++      sequentialResponse, sequentialSearchCenter);
+   }
+ 
+   Pose2Vector means;
+@@ -1473,7 +1553,14 @@
+         pScan,
+         pSensorManager->GetScans(rCandidateSensorName),
+         bestPose, covariance);
+-      LinkScans(pSensorManager->GetScan(rCandidateSensorName, 0), pScan, bestPose, covariance);
++      RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "cross_sensor", pScan,
++        MatchChainIds(pSensorManager->GetScans(rCandidateSensorName)), -1.0, response,
++        pScan->GetSensorPose(), bestPose, covariance,
++        response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() ? "accepted" : "rejected",
++        response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() ? "weighted_mean_gate_passed" : "weighted_mean_response",
++        -1, m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue());
++      LinkScans(pSensorManager->GetScan(rCandidateSensorName, 0), pScan, bestPose, covariance,
++        "cross_sensor", {}, -1.0, response, pScan->GetSensorPose());
+ 
+       // only add to means and covariances if response was high "enough"
+       if (response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue()) {
+@@ -1486,7 +1573,8 @@
+     Pose2 scanPose = pScan->GetSensorPose();
+     means.push_back(scanPose);
+     covariances.push_back(rCovariance);
+-    LinkChainToScan(pSensorManager->GetRunningScans(rSensorName), pScan, scanPose, rCovariance);
++    LinkChainToScan(pSensorManager->GetRunningScans(rSensorName), pScan, scanPose, rCovariance,
++      "running_chain", -1.0, sequentialResponse, sequentialSearchCenter);
+   }
+ 
+   // link to other near chains (chains that include new scan are invalid)
+@@ -1506,6 +1594,7 @@
+   LocalizedRangeScanVector candidateChain = FindPossibleLoopClosure(pScan, rSensorName, scanIndex);
+ 
+   while (!candidateChain.empty()) {
++    const Pose2 searchCenter = pScan->GetSensorPose();
+     Pose2 bestPose;
+     Matrix3 covariance;
+     kt_double coarseResponse = m_pLoopScanMatcher->MatchScan(pScan, candidateChain,
+@@ -1519,6 +1608,17 @@
+       " (< " << m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue() << ")";
+ 
+     m_pMapper->FireLoopClosureCheck(stream.str());
++    const bool coarseAccepted =
++      coarseResponse > m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue() &&
++      covariance(0, 0) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue() &&
++      covariance(1, 1) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue();
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer, "coarse", "explicit_loop", pScan,
++      MatchChainIds(candidateChain), coarseResponse, -1.0, searchCenter, bestPose, covariance,
++      coarseAccepted ? "accepted" : "rejected",
++      coarseAccepted ? "coarse_gate_passed" :
++      (coarseResponse <= m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue() ? "coarse_response" : "coarse_variance"),
++      -1, m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue(),
++      m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue());
+ 
+     if ((coarseResponse > m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue()) &&
+       (covariance(0, 0) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue()) &&
+@@ -1538,6 +1638,11 @@
+       stream1 << "FINE RESPONSE: " << fineResponse << " (>" <<
+         m_pMapper->m_pLoopMatchMinimumResponseFine->GetValue() << ")" << std::endl;
+       m_pMapper->FireLoopClosureCheck(stream1.str());
++      RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "explicit_loop", &tmpScan,
++        MatchChainIds(candidateChain), coarseResponse, fineResponse, searchCenter, bestPose, covariance,
++        fineResponse < m_pMapper->m_pLoopMatchMinimumResponseFine->GetValue() ? "rejected" : "accepted",
++        fineResponse < m_pMapper->m_pLoopMatchMinimumResponseFine->GetValue() ? "fine_response" : "fine_gate_passed",
++        -1, m_pMapper->m_pLoopMatchMinimumResponseFine->GetValue());
+ 
+       if (fineResponse < m_pMapper->m_pLoopMatchMinimumResponseFine->GetValue()) {
+         m_pMapper->FireLoopClosureCheck("REJECTED!");
+@@ -1545,7 +1650,8 @@
+         m_pMapper->FireBeginLoopClosure("Closing loop...");
+ 
+         pScan->SetSensorPose(bestPose);
+-        LinkChainToScan(candidateChain, pScan, bestPose, covariance);
++        LinkChainToScan(candidateChain, pScan, bestPose, covariance, "explicit_loop",
++          coarseResponse, fineResponse, searchCenter);
+         CorrectPoses();
+ 
+         m_pMapper->FireEndLoopClosure("Loop closed!");
+@@ -1618,18 +1724,27 @@
+ 
+ void MapperGraph::LinkScans(
+   LocalizedRangeScan * pFromScan, LocalizedRangeScan * pToScan,
+-  const Pose2 & rMean, const Matrix3 & rCovariance)
++  const Pose2 & rMean, const Matrix3 & rCovariance,
++  const std::string & source, const std::vector<int> & chain,
++  double coarse, double fine, const Pose2 & center)
+ {
+   kt_bool isNewEdge = true;
+   Edge<LocalizedRangeScan> * pEdge = AddEdge(pFromScan, pToScan, isNewEdge);
+ 
++  RecordMapperMatch(m_pMapper->m_pScanOptimizer, "link", source, pToScan,
++    chain, coarse, fine, center, rMean, rCovariance,
++    pEdge == NULL ? "rejected" : (isNewEdge ? "added" : "duplicate"),
++    pEdge == NULL ? "invalid_vertex" : (isNewEdge ? "new_edge" : "existing_edge_preserved"),
++    pFromScan->GetUniqueId());
+   if (pEdge == NULL) {
+     return;
+   }
+ 
+   // only attach link information if the edge is new
+   if (isNewEdge == true) {
+-    pEdge->SetLabel(new LinkInfo(pFromScan->GetCorrectedPose(), pToScan->GetCorrectedAt(rMean), rCovariance));
++    auto * info = new LinkInfo(pFromScan->GetCorrectedPose(), pToScan->GetCorrectedAt(rMean), rCovariance);
++    info->SetProvenance(source, chain, coarse, fine, center);
++    pEdge->SetLabel(info);
+     if (m_pMapper->m_pScanOptimizer != NULL) {
+       m_pMapper->m_pScanOptimizer->AddConstraint(pEdge);
+     }
+@@ -1652,17 +1767,24 @@
+     // match scan against "near" chain
+     kt_double response = m_pMapper->m_pSequentialScanMatcher->MatchScan(pScan, *iter, mean,
+         covariance, false);
++    const bool accepted = response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() - KT_TOLERANCE;
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "near_chain", pScan,
++      MatchChainIds(*iter), -1.0, response, pScan->GetSensorPose(), mean, covariance,
++      accepted ? "accepted" : "rejected", accepted ? "fine_gate_passed" : "fine_response",
++      -1, m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() - KT_TOLERANCE);
+     if (response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() - KT_TOLERANCE) {
+       rMeans.push_back(mean);
+       rCovariances.push_back(covariance);
+-      LinkChainToScan(*iter, pScan, mean, covariance);
++      LinkChainToScan(*iter, pScan, mean, covariance, "near_chain", -1.0, response,
++        pScan->GetSensorPose());
+     }
+   }
+ }
+ 
+ void MapperGraph::LinkChainToScan(
+   const LocalizedRangeScanVector & rChain, LocalizedRangeScan * pScan,
+-  const Pose2 & rMean, const Matrix3 & rCovariance)
++  const Pose2 & rMean, const Matrix3 & rCovariance,
++  const std::string & source, double coarse, double fine, const Pose2 & center)
+ {
+   Pose2 pose = pScan->GetReferencePose(m_pMapper->m_pUseScanBarycenter->GetValue());
+ 
+@@ -1676,7 +1798,13 @@
+   if (squaredDistance <
+     math::Square(m_pMapper->m_pLinkScanMaximumDistance->GetValue()) + KT_TOLERANCE)
+   {
+-    LinkScans(pClosestScan, pScan, rMean, rCovariance);
++    std::vector<int> chain;
++    for (auto * scan : rChain) {chain.push_back(scan->GetUniqueId());}
++    LinkScans(pClosestScan, pScan, rMean, rCovariance, source, chain, coarse, fine, center);
++  } else {
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer, "link", source, pScan,
++      MatchChainIds(rChain), coarse, fine, center, rMean, rCovariance,
++      "rejected", "link_maximum_distance", pClosestScan->GetUniqueId());
+   }
+ }
+ 
+@@ -2739,11 +2867,13 @@
+ 
+     Matrix3 cov;
+     cov.SetToIdentity();
++    double sequentialResponse = -1.0;
++    const Pose2 sequentialSearchCenter = pScan->GetSensorPose();
+ 
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);
+@@ -2759,7 +2889,7 @@
+     if (m_pUseScanMatching->GetValue()) {
+       // add to graph
+       m_pGraph->AddVertex(pScan);
+-      m_pGraph->AddEdges(pScan, cov);
++      m_pGraph->AddEdges(pScan, cov, sequentialResponse, sequentialSearchCenter);
+ 
+       m_pMapperSensorManager->AddRunningScan(pScan);
+ 
+@@ -2810,11 +2940,13 @@
+ 
+     Matrix3 cov;
+     cov.SetToIdentity();
++    double sequentialResponse = -1.0;
++    const Pose2 sequentialSearchCenter = pScan->GetSensorPose();
+ 
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);
+@@ -2834,7 +2966,7 @@
+     if (m_pUseScanMatching->GetValue()) {
+       // add to graph
+       scan_vertex = m_pGraph->AddVertex(pScan);
+-      m_pGraph->AddEdges(pScan, cov);
++      m_pGraph->AddEdges(pScan, cov, sequentialResponse, sequentialSearchCenter);
+ 
+       m_pMapperSensorManager->AddRunningScan(pScan);
+ 
+@@ -2900,11 +3032,13 @@
+ 
+   Matrix3 cov;
+   cov.SetToIdentity();
++  double sequentialResponse = -1.0;
++  const Pose2 sequentialSearchCenter = pScan->GetSensorPose();
+ 
+   // correct scan (if not first scan)
+   if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+     Pose2 bestPose;
+-    m_pSequentialScanMatcher->MatchScan(pScan,
++    sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
+       m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+       bestPose,
+       cov);
+@@ -2921,7 +3055,7 @@
+   if (m_pUseScanMatching->GetValue()) {
+     // add to graph
+     scan_vertex = m_pGraph->AddVertex(pScan);
+-    m_pGraph->AddEdges(pScan, cov);
++    m_pGraph->AddEdges(pScan, cov, sequentialResponse, sequentialSearchCenter);
+ 
+     m_pMapperSensorManager->AddRunningScan(pScan);
+ 
+@@ -3083,11 +3217,13 @@
+ 
+     Matrix3 cov;
+     cov.SetToIdentity();
++    double sequentialResponse = -1.0;
++    const Pose2 sequentialSearchCenter = pScan->GetSensorPose();
+ 
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);
+@@ -3105,7 +3241,7 @@
+     if (m_pUseScanMatching->GetValue()) {
+       // add to graph
+       m_pGraph->AddVertex(pScan);
+-      m_pGraph->AddEdges(pScan, cov);
++      m_pGraph->AddEdges(pScan, cov, sequentialResponse, sequentialSearchCenter);
+ 
+       m_pMapperSensorManager->AddRunningScan(pScan);
+ 

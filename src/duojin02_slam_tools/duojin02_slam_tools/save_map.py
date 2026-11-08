@@ -12,10 +12,9 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rcl_interfaces.msg import Parameter as ParameterMessage, ParameterDescriptor
 from rcl_interfaces.srv import GetParameters, ListParameters
-from nav_msgs.srv import GetMap
-from slam_toolbox.srv import SaveMap, SerializePoseGraph
+from slam_toolbox.srv import SaveSnapshot
 
-from .snapshots import commit_snapshot, reserve_snapshot
+from .snapshots import commit_bundle_snapshot, reserve_snapshot, validate_bundle
 
 
 DEFAULT_SAVE_TIMEOUT = 30.0
@@ -55,9 +54,13 @@ class SaveMapClient(Node):
         self.serialize_graph = self.declare_parameter("serialize_graph", True, descriptor).value
         if not math.isfinite(self.save_timeout) or self.save_timeout <= 0:
             raise ValueError("save_timeout must be finite and positive")
-        self.map_client = self.create_client(SaveMap, "/slam_toolbox/save_map")
-        self.refresh_client = self.create_client(GetMap, "/slam_toolbox/dynamic_map")
-        self.graph_client = self.create_client(SerializePoseGraph, "/slam_toolbox/serialize_map")
+        self.save_mode = self.declare_parameter("save_mode", "snapshot", descriptor).value
+        self.finalize_request_id = self.declare_parameter("finalize_request_id", "", descriptor).value
+        if self.save_mode not in ("snapshot", "finalize"):
+            raise ValueError("save_mode must be snapshot or finalize")
+        if self.save_mode == "finalize" and (not self.finalize_request_id or not self.serialize_graph):
+            raise ValueError("Finalize requires finalize_request_id and serialize_graph=true")
+        self.snapshot_client = self.create_client(SaveSnapshot, "/slam_toolbox/save_snapshot")
 
     def remaining(self):
         remaining = self.deadline - time.monotonic()
@@ -92,6 +95,13 @@ class SaveMapClient(Node):
         build = share / "hardware_build.json"
         if build.is_file():
             result["backend_build"] = json.loads(build.read_text())
+        saver_share = Path(get_package_share_directory("nav2_map_server"))
+        saver_build = saver_share / "hardware_build.json"
+        result["map_saver"] = {
+            "version": ET.parse(saver_share / "package.xml").findtext("version"),
+        }
+        if saver_build.is_file():
+            result["map_saver"]["build"] = json.loads(saver_build.read_text())
         names_client = self.create_client(ListParameters, "/slam_toolbox/list_parameters")
         values_client = self.create_client(GetParameters, "/slam_toolbox/get_parameters")
         try:
@@ -123,31 +133,23 @@ class SaveMapClient(Node):
                 pending,
                 final,
             ):
-                current = self.call(
-                    self.refresh_client, GetMap.Request(), "/slam_toolbox/dynamic_map"
-                )
-                if not current.map.info.width or not current.map.info.height:
-                    raise RuntimeError("SLAM has not produced a map yet")
-                request = SaveMap.Request()
-                request.name.data = str(pending)
-                response = self.call(self.map_client, request, "/slam_toolbox/save_map")
-                if response.result != SaveMap.Response.RESULT_SUCCESS:
-                    raise RuntimeError(f"Raster map save failed with result {response.result}")
-                if self.serialize_graph:
-                    graph_request = SerializePoseGraph.Request()
-                    graph_request.filename = str(pending)
-                    response = self.call(
-                        self.graph_client, graph_request, "/slam_toolbox/serialize_map"
-                    )
-                    if response.result != SerializePoseGraph.Response.RESULT_SUCCESS:
-                        raise RuntimeError(f"Pose graph save failed with result {response.result}")
-
-                saved = commit_snapshot(
-                    pending,
-                    final,
-                    self.provenance(),
-                    self.serialize_graph,
-                    validate_raster=True,
+                request = SaveSnapshot.Request()
+                request.mode = request.FINALIZE if self.save_mode == "finalize" else request.SNAPSHOT
+                request.filename = str(pending)
+                request.request_id = self.finalize_request_id if self.save_mode == "finalize" else ""
+                request.include_graph = self.serialize_graph
+                response = self.call(self.snapshot_client, request, "/slam_toolbox/save_snapshot")
+                if response.result != SaveSnapshot.Response.RESULT_SUCCESS:
+                    raise RuntimeError(f"Snapshot failed: {response.message}")
+                if self.save_mode == "finalize" and not response.state_committed:
+                    raise RuntimeError("Finalize returned no confirmed native commit")
+                if response.finalized != (self.save_mode == "finalize"):
+                    raise RuntimeError("Snapshot response operation mismatch")
+                native, _ = validate_bundle(pending, require_graph=self.serialize_graph)
+                if native["snapshot_id"] != response.snapshot_id or Path(response.manifest_path).resolve() != (pending / "snapshot.json").resolve():
+                    raise RuntimeError("Snapshot response identity/path does not match its bundle")
+                saved = commit_bundle_snapshot(
+                    pending, final, self.provenance(), require_graph=self.serialize_graph,
                 )
                 self.get_logger().info(f"Saved complete map snapshot: {saved}")
                 return 0

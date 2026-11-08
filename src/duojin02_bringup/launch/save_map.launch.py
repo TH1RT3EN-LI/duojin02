@@ -36,6 +36,8 @@ def generate_launch_description():
                 "serialize_graph": ParameterValue(
                     LaunchConfiguration("serialize_graph"), value_type=bool
                 ),
+                "save_mode": LaunchConfiguration("save_mode"),
+                "finalize_request_id": LaunchConfiguration("finalize_request_id"),
                 "use_sim_time": False,
             },
         ],
@@ -48,6 +50,8 @@ def generate_launch_description():
             DeclareLaunchArgument("output_dir", default_value="maps"),
             DeclareLaunchArgument("save_timeout", default_value=str(DEFAULT_SAVE_TIMEOUT)),
             DeclareLaunchArgument("serialize_graph", default_value="true"),
+            DeclareLaunchArgument("save_mode", default_value="snapshot"),
+            DeclareLaunchArgument("finalize_request_id", default_value=""),
             RegisterEventHandler(
                 OnProcessExit(target_action=save_map_client, on_exit=saved_map_exited)
             ),

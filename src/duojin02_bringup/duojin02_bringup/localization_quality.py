@@ -149,7 +149,7 @@ class MapEvidence:
         ):
             return {"valid": False, "reason": "invalid_scan_geometry", "hits": 0}
 
-        if any(r is None or math.isnan(r) or r == -math.inf or r < range_min for r in ranges):
+        if any(r is None or r == -math.inf or r < range_min for r in ranges):
             return {"valid": False, "reason": "invalid_scan_ray", "hits": 0}
 
         step = max(1, math.ceil(len(ranges) / policy.max_beams))
@@ -163,11 +163,11 @@ class MapEvidence:
         limit = min(range_max, policy.max_range)
         for i in range(0, len(ranges), step):
             r = ranges[i]
-            if r is None or math.isnan(r) or r == -math.inf or r < range_min:
+            if r is None or r == -math.inf or r < range_min:
                 invalid += 1
                 continue
 
-            if r == math.inf or r > range_max:
+            if math.isnan(r) or r == math.inf or r > range_max:
                 unobserved += 1
                 continue
             compared += 1

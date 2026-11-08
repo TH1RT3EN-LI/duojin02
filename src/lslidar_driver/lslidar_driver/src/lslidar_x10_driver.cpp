@@ -153,7 +153,9 @@ void LslidarX10Driver::pointcloudToLaserscan(const pcl::PointCloud<pcl::PointXYZ
   scan.angle_max = scan.angle_min + scan.angle_increment * (points_size - 1);
   scan.range_min = min_range;
   scan.range_max = max_range;
-  scan.ranges.assign(points_size, std::numeric_limits<float>::infinity());
+  // An empty bin can be unsampled or contain only filtered echoes; it does
+  // not certify free space and must not become a no-return clearing ray.
+  scan.ranges.assign(points_size, std::numeric_limits<float>::quiet_NaN());
   scan.intensities.assign(points_size, std::numeric_limits<float>::quiet_NaN());
 
   for (const auto &point : cloud.points) {
@@ -164,7 +166,7 @@ void LslidarX10Driver::pointcloudToLaserscan(const pcl::PointCloud<pcl::PointXYZ
       angle = -M_PI;
     const size_t index = std::min(static_cast<size_t>(points_size - 1),
                                   static_cast<size_t>(std::floor((angle + M_PI) / bin_width)));
-    if (range < scan.ranges[index]) {
+    if (std::isnan(scan.ranges[index]) || range < scan.ranges[index]) {
       scan.ranges[index] = range;
       scan.intensities[index] = point.intensity;
     }

@@ -21,8 +21,9 @@ RUN printf 'APT::Install-Recommends "false";\nAPT::Install-Suggests "false";\n' 
 
 FROM hardware_dependencies AS slam_source
 COPY scripts/prepare_slam_backend.py /source/scripts/prepare_slam_backend.py
-COPY patches/slam_toolbox /source/patches/slam_toolbox
-RUN /usr/bin/python3 /source/scripts/prepare_slam_backend.py --root /source --destination /source/backend/slam_toolbox
+COPY patches /source/patches
+RUN /usr/bin/python3 /source/scripts/prepare_slam_backend.py --root /source --destination /source/backend/slam_toolbox && \
+    /usr/bin/python3 /source/scripts/prepare_slam_backend.py --root /source --dependency nav2_map_server --destination /source/backend/nav2_map_server
 
 FROM hardware_dependencies AS cuda_toolkit
 ARG DUOJIN_ENABLE_CUDA=ON
@@ -39,9 +40,10 @@ FROM hardware_dependencies AS slam_builder
 ARG BUILD_JOBS=2
 ARG BUILD_WORKERS=1
 WORKDIR /opt/duojin02
-COPY scripts/environment.sh scripts/build_slam_backend.sh scripts/build_hardware.sh scripts/prepare_slam_backend.py ./scripts/
-COPY patches/slam_toolbox ./patches/slam_toolbox
-COPY --from=slam_source /source/backend/slam_toolbox ./.cache/slam_backend/src/slam_toolbox
+COPY scripts/environment.sh scripts/build_slam_backend.sh scripts/build_hardware.sh scripts/prepare_slam_backend.py scripts/cuda_install_provenance.py ./scripts/
+COPY patches ./patches
+COPY --from=slam_source /source/backend ./.cache/slam_backend/src
+COPY src/duojin02_scan_geometry ./src/duojin02_scan_geometry
 RUN ./scripts/build_slam_backend.sh
 
 FROM slam_builder AS builder

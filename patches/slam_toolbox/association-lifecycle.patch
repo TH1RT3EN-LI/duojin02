@@ -1,0 +1,484 @@
+--- a/lib/karto_sdk/include/karto_sdk/Mapper.h
++++ b/lib/karto_sdk/include/karto_sdk/Mapper.h
+@@ -800,7 +800,9 @@
+   /**
+    * Optimizes scan poses
+    */
+-  void CorrectPoses();
++  // True only when the solver explicitly accepted this computation and its
++  // finite corrections were committed. Unknown legacy plugins fail closed.
++  bool CorrectPoses(LocalizedRangeScan * requiredQuery = nullptr);
+ 
+   /**
+    * Find "nearby" (no further than given distance away) scans through graph links
+@@ -856,8 +858,30 @@
+   void UpdateLoopScanMatcher(kt_double rangeThreshold);
+ 
+ public:
++  enum class LinkStatus {Added, AlreadyOwned, Rejected, Queued};
++  struct LinkResult {
++    LinkStatus status{LinkStatus::Rejected};
++    Edge<LocalizedRangeScan> * edge{nullptr};
++    std::string reason;
++    // Separate graph ownership from an acknowledged backend factor.
++    bool backend_registered{false};
++    bool added() const {return status==LinkStatus::Added;}
++  };
++  struct LoopClosureResult {
++    LinkResult factor;
++    bool solve_attempted{false}, committed{false};
++    std::string decision;
++  };
++  // Complete the lifecycle of an already matched, fine-gate accepted candidate.
++  // The candidate pose remains private until an explicitly accepted graph solve.
++  LoopClosureResult CommitLoopClosureCandidate(
++    const LocalizedRangeScanVector & chain, LocalizedRangeScan * query,
++    const Pose2 & mean, const Matrix3 & covariance,
++    double coarse, double fine, const Pose2 & center,
++    const measurement::Evidence & evidence = measurement::Evidence());
+   Edge<LocalizedRangeScan> * FindMeasurementOwner(const measurement::Evidence & evidence) const;
+ private:
++  enum class RegistrationFailurePolicy {Propagate, RejectCandidate};
+   struct PendingLink {
+     LocalizedRangeScan * from; LocalizedRangeScan * to;
+     Pose2 mean; Matrix3 covariance; std::string source; std::vector<int> chain;
+@@ -901,7 +925,7 @@
+    * @param rMean
+    * @param rCovariance
+    */
+-  void LinkScans(
++  LinkResult LinkScans(
+     LocalizedRangeScan * pFromScan,
+     LocalizedRangeScan * pToScan,
+     const Pose2 & rMean,
+@@ -909,7 +933,8 @@
+     const std::string & source = "unknown_legacy",
+     const std::vector<int> & chain = {}, double coarse = -1.0, double fine = -1.0,
+     const Pose2 & center = Pose2(),
+-    const measurement::Evidence & evidence = measurement::Evidence());
++    const measurement::Evidence & evidence = measurement::Evidence(),
++    RegistrationFailurePolicy registrationFailure = RegistrationFailurePolicy::Propagate);
+ 
+   /**
+    * Find nearby chains of scans and link them to scan if response is high enough
+@@ -928,14 +953,16 @@
+    * @param rMean
+    * @param rCovariance
+    */
+-  void LinkChainToScan(
++  LinkResult LinkChainToScan(
+     const LocalizedRangeScanVector & rChain,
+     LocalizedRangeScan * pScan,
++    const LocalizedRangeScan & associationScan,
+     const Pose2 & rMean,
+     const Matrix3 & rCovariance,
+     const std::string & source = "unknown_legacy", double coarse = -1.0,
+     double fine = -1.0, const Pose2 & center = Pose2(),
+-    const measurement::Evidence & evidence = measurement::Evidence());
++    const measurement::Evidence & evidence = measurement::Evidence(),
++    RegistrationFailurePolicy registrationFailure = RegistrationFailurePolicy::Propagate);
+ 
+   /**
+    * Find chains of scans that are close to given scan
+@@ -1036,6 +1063,11 @@
+    */
+   virtual void Compute() = 0;
+ 
++  enum class ComputeState {Unknown, Accepted, Rejected};
++  // Implementations must distinguish computation acceptance from nonempty or
++  // stale corrections. A plugin that has not adopted this contract is unknown.
++  virtual ComputeState GetComputeState() const {return ComputeState::Unknown;}
++
+   virtual void Configure(rclcpp::Node::SharedPtr node) = 0;
+ 
+   // Optional append-only mapper events. Other solver plugins may ignore diagnostics.
+@@ -1062,11 +1094,16 @@
+   }
+ 
+   /**
+-   * Adds a constraint to the solver
++   * Adds a constraint to the solver. Implementations that acknowledge
++   * registration must retain no new factor if this function throws.
+    */
+   virtual void AddConstraint(Edge<LocalizedRangeScan> * /*pEdge*/)
+   {
+   }
++  // Legacy/no-op registration is unknown, not an acknowledged backend factor.
++  enum class ConstraintRegistration {Unknown, Registered, Rejected};
++  virtual ConstraintRegistration GetConstraintRegistration(kt_int32s,kt_int32s)
++  {return ConstraintRegistration::Unknown;}
+ 
+   /**
+    * Removes a constraint from the solver
+--- a/lib/karto_sdk/src/Mapper.cpp
++++ b/lib/karto_sdk/src/Mapper.cpp
+@@ -185,7 +185,8 @@
+   const LocalizedRangeScan * query, const std::vector<int> & chain,
+   double coarse, double fine, const Pose2 & center, const Pose2 & result,
+   const Matrix3 & covariance, const char * decision, const char * reason,
+-  int source_node_id = -1, double response_threshold = -1.0, double variance_threshold = -1.0)
++  int source_node_id = -1, double response_threshold = -1.0, double variance_threshold = -1.0,
++  const MapperGraph::LoopClosureResult * lifecycle = nullptr)
+ {
+   if (solver == NULL) {return;}
+   std::ostringstream out; out << std::setprecision(17);
+@@ -225,7 +226,20 @@
+     for (int col = 0; col < 3; ++col) {if (row || col) {out << ',';} MatchJsonNumber(out, covariance(row,col));}
+   }
+   out << "],\"decision\":"; MatchJsonString(out, decision);
+-  out << ",\"reason\":"; MatchJsonString(out, reason); out << '}';
++  out << ",\"reason\":"; MatchJsonString(out, reason);
++  if (lifecycle) {
++    const char * factor=lifecycle->factor.status==MapperGraph::LinkStatus::Added ? "added" :
++      (lifecycle->factor.status==MapperGraph::LinkStatus::AlreadyOwned ? "already_owned" :
++      (lifecycle->factor.status==MapperGraph::LinkStatus::Queued ? "queued" : "rejected"));
++    out << ",\"factor_result\":";MatchJsonString(out,factor);
++    out << ",\"factor_reason\":";MatchJsonString(out,lifecycle->factor.reason);
++    out << ",\"backend_factor_registered\":" << (lifecycle->factor.backend_registered ? "true" : "false")
++      << ",\"solve_attempted\":" << (lifecycle->solve_attempted ? "true" : "false")
++      << ",\"state_committed\":" << (lifecycle->committed ? "true" : "false")
++      << ",\"factor_retained\":" << (lifecycle->factor.added() ? "true" : "false")
++      << ",\"failed_solve_policy\":\"retain-associated-factor-no-state-commit.v1\"";
++  }
++  out << '}';
+   solver->RecordMatchDiagnostic(out.str());
+ }
+ std::vector<int> MatchChainIds(const LocalizedRangeScanVector & chain)
+@@ -1714,7 +1728,7 @@
+     }
+     means.push_back(scanPose);
+     covariances.push_back(rCovariance);
+-    LinkChainToScan(pSensorManager->GetRunningScans(rSensorName), pScan, scanPose, rCovariance,
++    LinkChainToScan(pSensorManager->GetRunningScans(rSensorName), pScan, *pScan, scanPose, rCovariance,
+       "running_chain", -1.0, sequentialResponse, sequentialSearchCenter,sequentialEvidence);
+   }
+ 
+@@ -1832,16 +1846,9 @@
+       if (!fineAccepted) {
+         m_pMapper->FireLoopClosureCheck("REJECTED!");
+       } else {
+-        m_pMapper->FireBeginLoopClosure("Closing loop...");
+-
+-        pScan->SetSensorPose(bestPose);
+-        LinkChainToScan(candidateChain, pScan, bestPose, covariance, "explicit_loop",
+-          coarseResponse, fineResponse, searchCenter,loopEvidence);
+-        CorrectPoses();
+-
+-        m_pMapper->FireEndLoopClosure("Loop closed!");
+-
+-        loopClosed = true;
++        const auto closure=CommitLoopClosureCandidate(candidateChain,pScan,bestPose,covariance,
++          coarseResponse,fineResponse,searchCenter,loopEvidence);
++        loopClosed = loopClosed || closure.committed;
+       }
+     }
+ 
+@@ -1849,6 +1856,39 @@
+   }
+ 
+   return loopClosed;
++}
++
++MapperGraph::LoopClosureResult MapperGraph::CommitLoopClosureCandidate(
++  const LocalizedRangeScanVector & chain, LocalizedRangeScan * query,
++  const Pose2 & mean, const Matrix3 & covariance,
++  double coarse, double fine, const Pose2 & center,
++  const measurement::Evidence & evidence)
++{
++  LoopClosureResult result;
++  // Association uses the exact candidate reference geometry (including optional
++  // barycenter and sensor offset), without temporarily modifying published state.
++  LocalizedRangeScan candidate(*query,LocalizedRangeScan::MeasurementCloneTag{});
++  candidate.SetSensorPose(mean);
++  result.factor=LinkChainToScan(chain,query,candidate,mean,covariance,
++    "explicit_loop",coarse,fine,center,evidence,RegistrationFailurePolicy::RejectCandidate);
++  if (!result.factor.added()) {
++    result.decision=result.factor.status==LinkStatus::AlreadyOwned ?
++      "measurement_already_owned_no_solve" : "association_rejected_no_solve";
++  } else if (!result.factor.backend_registered) {
++    result.decision="factor_retained_backend_registration_unknown";
++  } else {
++    m_pMapper->FireBeginLoopClosure("Solving graph with associated loop factor...");
++    result.solve_attempted=m_pMapper->m_pScanOptimizer!=nullptr;
++    result.committed=CorrectPoses(query);
++    result.decision=result.committed ? "factor_added_state_committed" :
++      "factor_retained_solve_rejected";
++    m_pMapper->FireEndLoopClosure(result.committed ? "Loop closed!" :
++      "Loop factor retained; graph state not committed.");
++  }
++  RecordMapperMatch(m_pMapper->m_pScanOptimizer,"loop_commit","explicit_loop",query,
++    MatchChainIds(chain),coarse,fine,center,mean,covariance,
++    result.committed ? "committed" : "not_committed",result.decision.c_str(),-1,-1.0,-1.0,&result);
++  return result;
+ }
+ 
+ LocalizedRangeScan * MapperGraph::GetClosestScanToPose(
+@@ -1924,20 +1964,21 @@
+   return nullptr;
+ }
+ 
+-void MapperGraph::LinkScans(
++MapperGraph::LinkResult MapperGraph::LinkScans(
+   LocalizedRangeScan * pFromScan, LocalizedRangeScan * pToScan,
+   const Pose2 & rMean, const Matrix3 & rCovariance,
+   const std::string & source, const std::vector<int> & chain,
+-  double coarse, double fine, const Pose2 & center, const measurement::Evidence & evidence)
++  double coarse, double fine, const Pose2 & center, const measurement::Evidence & evidence,
++  RegistrationFailurePolicy registrationFailure)
+ {
+   if (m_PendingLinks) {
+     m_PendingLinks->push_back({pFromScan,pToScan,rMean,rCovariance,source,chain,coarse,fine,center,evidence});
+-    return;
+-  }
+-  if (FindMeasurementOwner(evidence)) {
++    return {LinkStatus::Queued,nullptr,"pending_frontend_transaction"};
++  }
++  if (auto * owner=FindMeasurementOwner(evidence)) {
+     RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pToScan,chain,coarse,fine,
+       center,rMean,rCovariance,"duplicate","measurement_already_owned",pFromScan->GetUniqueId());
+-    return;
++    return {LinkStatus::AlreadyOwned,owner,"measurement_already_owned"};
+   }
+   Matrix3 baseCovariance;
+   try {baseCovariance=measurement::sensorToBaseCovariance(rMean,
+@@ -1945,30 +1986,54 @@
+   catch (const std::exception &) {
+     RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pToScan,chain,coarse,fine,
+       center,rMean,rCovariance,"rejected","invalid_covariance_transport",pFromScan->GetUniqueId());
+-    return;
+-  }
++    return {LinkStatus::Rejected,nullptr,"invalid_covariance_transport"};
++  }
++  // Build the factor before exposing a new graph edge or evidence owner.
++  auto info=std::make_unique<LinkInfo>(pFromScan->GetCorrectedPose(),
++    pToScan->GetCorrectedAt(rMean),baseCovariance);
++  info->SetProvenance(source,chain,coarse,fine,center);
++  info->SetEvidence(evidence);
+   kt_bool isNewEdge = true;
+   Edge<LocalizedRangeScan> * pEdge = AddEdge(pFromScan, pToScan, isNewEdge);
+-
+-  RecordMapperMatch(m_pMapper->m_pScanOptimizer, "link", source, pToScan,
+-    chain, coarse, fine, center, rMean, rCovariance,
+-    pEdge == NULL ? "rejected" : (isNewEdge ? "added" : "duplicate"),
+-    pEdge == NULL ? "invalid_vertex" : (isNewEdge ? "new_edge" : "existing_edge_preserved"),
+-    pFromScan->GetUniqueId());
+-  if (pEdge == NULL) {
+-    return;
+-  }
+-
+-  // only attach link information if the edge is new
+-  if (isNewEdge == true) {
+-    auto * info = new LinkInfo(pFromScan->GetCorrectedPose(), pToScan->GetCorrectedAt(rMean), baseCovariance);
+-    info->SetProvenance(source, chain, coarse, fine, center);
+-    info->SetEvidence(evidence);
+-    pEdge->SetLabel(info);
+-    if (m_pMapper->m_pScanOptimizer != NULL) {
++  if (!pEdge || !isNewEdge) {
++    const char * reason=pEdge ? "existing_edge_preserved" : "invalid_vertex";
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pToScan,chain,coarse,fine,
++      center,rMean,rCovariance,pEdge ? "duplicate" : "rejected",reason,pFromScan->GetUniqueId());
++    return {LinkStatus::Rejected,pEdge,reason};
++  }
++  pEdge->SetLabel(info.release());
++  auto registration=ScanSolver::ConstraintRegistration::Unknown;
++  try {
++    if (m_pMapper->m_pScanOptimizer) {
+       m_pMapper->m_pScanOptimizer->AddConstraint(pEdge);
+-    }
+-  }
++      registration=m_pMapper->m_pScanOptimizer->GetConstraintRegistration(
++        pFromScan->GetUniqueId(),pToScan->GetUniqueId());
++      if (registration==ScanSolver::ConstraintRegistration::Rejected)
++        throw std::invalid_argument("Backend rejected factor registration");
++    }
++  } catch (...) {
++    // A failed registration must not leave a live graph owner. The solver's
++    // AddConstraint contract is atomic: on exception it retains no new factor.
++    for (auto * vertex : {pEdge->GetSource(),pEdge->GetTarget()}) {
++      const auto & edges=vertex->GetEdges();
++      const auto found=std::find(edges.begin(),edges.end(),pEdge);
++      if(found!=edges.end()) vertex->RemoveEdge(std::distance(edges.begin(),found));
++    }
++    const auto & edges=GetEdges();
++    const auto found=std::find(edges.begin(),edges.end(),pEdge);
++    if(found!=edges.end()) Graph<LocalizedRangeScan>::RemoveEdge(std::distance(edges.begin(),found));
++    delete pEdge;
++    // Mandatory frontend insertion has always propagated backend failures.
++    // Only an independently considered loop candidate may reject and continue.
++    if (registrationFailure==RegistrationFailurePolicy::Propagate) {throw;}
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pToScan,chain,coarse,fine,
++      center,rMean,rCovariance,"rejected","factor_registration_exception",pFromScan->GetUniqueId());
++    return {LinkStatus::Rejected,nullptr,"factor_registration_exception"};
++  }
++  RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pToScan,chain,coarse,fine,
++    center,rMean,rCovariance,"added","new_edge",pFromScan->GetUniqueId());
++  const bool registered=registration==ScanSolver::ConstraintRegistration::Registered;
++  return {LinkStatus::Added,pEdge,"new_edge",registered};
+ }
+ 
+ void MapperGraph::LinkNearChains(
+@@ -1999,24 +2064,29 @@
+     if (accepted) {
+       rMeans.push_back(mean);
+       rCovariances.push_back(covariance);
+-      LinkChainToScan(*iter, pScan, mean, covariance, "near_chain", -1.0, response,
++      LinkChainToScan(*iter, pScan, *pScan, mean, covariance, "near_chain", -1.0, response,
+         pScan->GetSensorPose());
+     }
+   }
+ }
+ 
+-void MapperGraph::LinkChainToScan(
++MapperGraph::LinkResult MapperGraph::LinkChainToScan(
+   const LocalizedRangeScanVector & rChain, LocalizedRangeScan * pScan,
++  const LocalizedRangeScan & associationScan,
+   const Pose2 & rMean, const Matrix3 & rCovariance,
+   const std::string & source, double coarse, double fine, const Pose2 & center,
+-  const measurement::Evidence & suppliedEvidence)
++  const measurement::Evidence & suppliedEvidence, RegistrationFailurePolicy registrationFailure)
+ {
+   const auto evidence = suppliedEvidence.known() ? suppliedEvidence :
+     MatchEvidence(m_pMapper,pScan,rChain,source,center,false);
+-  Pose2 pose = pScan->GetReferencePose(m_pMapper->m_pUseScanBarycenter->GetValue());
++  Pose2 pose = associationScan.GetReferencePose(m_pMapper->m_pUseScanBarycenter->GetValue());
+ 
+   LocalizedRangeScan * pClosestScan = GetClosestScanToPose(rChain, pose);
+-  assert(pClosestScan != NULL);
++  if (!pClosestScan) {
++    RecordMapperMatch(m_pMapper->m_pScanOptimizer,"link",source,pScan,{},coarse,fine,
++      center,rMean,rCovariance,"rejected","empty_reference_chain");
++    return {LinkStatus::Rejected,nullptr,"empty_reference_chain"};
++  }
+ 
+   Pose2 closestScanPose =
+     pClosestScan->GetReferencePose(m_pMapper->m_pUseScanBarycenter->GetValue());
+@@ -2027,11 +2097,12 @@
+   {
+     std::vector<int> chain;
+     for (auto * scan : rChain) {chain.push_back(scan->GetUniqueId());}
+-    LinkScans(pClosestScan, pScan, rMean, rCovariance, source, chain, coarse, fine, center,evidence);
++    return LinkScans(pClosestScan, pScan, rMean, rCovariance, source, chain, coarse, fine, center,evidence,registrationFailure);
+   } else {
+     RecordMapperMatch(m_pMapper->m_pScanOptimizer, "link", source, pScan,
+       MatchChainIds(rChain), coarse, fine, center, rMean, rCovariance,
+       "rejected", "link_maximum_distance", pClosestScan->GetUniqueId());
++    return {LinkStatus::Rejected,nullptr,"link_maximum_distance"};
+   }
+ }
+ 
+@@ -2349,13 +2420,37 @@
+   return chain;
+ }
+ 
+-void MapperGraph::CorrectPoses()
++bool MapperGraph::CorrectPoses(LocalizedRangeScan * requiredQuery)
+ {
+   // optimize scans!
+   ScanSolver * pSolver = m_pMapper->m_pScanOptimizer;
+   if (pSolver != NULL) {
+-    pSolver->Compute();
+-
++    try {pSolver->Compute();}
++    catch (...) {pSolver->Clear();return false;}
++    if (pSolver->GetComputeState()!=ScanSolver::ComputeState::Accepted ||
++      pSolver->GetCorrections().empty()) {
++      pSolver->Clear();
++      return false;
++    }
++
++    std::set<kt_int32s> correctedIds;
++    bool hasRequiredQuery=requiredQuery==nullptr;
++    // Validate the entire correction set before changing any mapper node. A
++    // partial, duplicate or foreign-id result cannot validate this loop query.
++    for (const auto & correction : pSolver->GetCorrections()) {
++      const auto & pose=correction.second;
++      auto * scan=m_pMapper->m_pMapperSensorManager->GetScan(correction.first);
++      if (!std::isfinite(pose.GetX()) || !std::isfinite(pose.GetY()) ||
++        !std::isfinite(pose.GetHeading()) || !scan ||
++        !correctedIds.insert(correction.first).second) {pSolver->Clear();return false;}
++      const auto sensor=m_Vertices.find(scan->GetSensorName());
++      if(sensor==m_Vertices.end()) {pSolver->Clear();return false;}
++      const auto vertex=sensor->second.find(scan->GetStateId());
++      if(vertex==sensor->second.end() || vertex->second->GetObject()!=scan)
++        {pSolver->Clear();return false;}
++      hasRequiredQuery=hasRequiredQuery || scan==requiredQuery;
++    }
++    if (!hasRequiredQuery) {pSolver->Clear();return false;}
+     const_forEach(ScanSolver::IdPoseVector, &pSolver->GetCorrections())
+     {
+       LocalizedRangeScan * scan = m_pMapper->m_pMapperSensorManager->GetScan(iter->first);
+@@ -2366,7 +2461,9 @@
+     }
+ 
+     pSolver->Clear();
+-  }
++    return true;
++  }
++  return false;
+ }
+ 
+ void MapperGraph::UpdateLoopScanMatcher(kt_double rangeThreshold)
+--- a/solvers/ceres_solver.hpp
++++ b/solvers/ceres_solver.hpp
+@@ -66,6 +66,9 @@
+   virtual const karto::ScanSolver::IdPoseVector & GetCorrections() const;
+ 
+   virtual void Compute();  // Solve
++  ComputeState GetComputeState() const override {
++    return last_solve_result_.accepted ? ComputeState::Accepted : ComputeState::Rejected;
++  }
+   virtual void RecordMatchDiagnostic(const std::string & json);
+   virtual void Clear();  // Resets the corrections
+   virtual void Reset();  // Resets the solver plugin clean
+@@ -75,6 +78,7 @@
+   virtual void AddNode(karto::Vertex<karto::LocalizedRangeScan> * pVertex);
+   // Adds a constraint to the solver
+   virtual void AddConstraint(karto::Edge<karto::LocalizedRangeScan> * pEdge);
++  ConstraintRegistration GetConstraintRegistration(kt_int32s source,kt_int32s target) override;
+   // Get graph stored
+   virtual std::unordered_map<int, Eigen::Vector3d> * getGraph();
+   // Removes a node from the solver correction table
+--- a/solvers/ceres_solver.cpp
++++ b/solvers/ceres_solver.cpp
+@@ -534,9 +534,7 @@
+   if (node1it == nodes_->end() ||
+     node2it == nodes_->end() || node1it == node2it)
+   {
+-    RCLCPP_WARN(node_->get_logger(),
+-      "CeresSolver: Failed to add constraint, could not find nodes.");
+-    return;
++    throw std::invalid_argument("Constraint endpoints must be distinct live solver nodes");
+   }
+ 
+   if (blocks_->count(std::make_pair(node1, node2)) != 0) {
+@@ -569,6 +567,7 @@
+     cost_function, loss_function_,
+     &node1it->second(0), &node1it->second(1), &node1it->second(2),
+     &node2it->second(0), &node2it->second(1), &node2it->second(2));
++  try {
+   problem_->SetParameterization(&node1it->second(2),
+     angle_local_parameterization_);
+   problem_->SetParameterization(&node2it->second(2),
+@@ -639,6 +638,22 @@
+     diagnostics_ << "]}\n";
+     FlushDiagnostics();
+   }
++  } catch (...) {
++    // Graph insertion owns this factor only after the entire registration has
++    // succeeded. Restore residual bookkeeping before propagating an exception.
++    edge_ids_.erase(block);
++    blocks_->erase(std::make_pair(node1,node2));
++    problem_->RemoveResidualBlock(block);
++    throw;
++  }
++}
++
++karto::ScanSolver::ConstraintRegistration CeresSolver::GetConstraintRegistration(
++  kt_int32s source,kt_int32s target)
++{
++  boost::mutex::scoped_lock lock(nodes_mutex_);
++  return blocks_->count(std::make_pair(source,target)) ?
++    ConstraintRegistration::Registered : ConstraintRegistration::Rejected;
+ }
+ 
+ /*****************************************************************************/

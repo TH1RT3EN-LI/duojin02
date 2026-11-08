@@ -41,6 +41,7 @@ def test_hardware_package_graph_has_no_simulation_dependencies():
         "duojin02_navigation",
         "duojin02_mppi_controller",
         "duojin02_amcl_cuda",
+        "duojin02_scan_geometry",
         "lslidar_driver",
     }
     for name, tree in packages.items():
@@ -141,11 +142,11 @@ def test_nav2_uses_real_time_without_synthetic_initial_pose(tmp_path, monkeypatc
     assert "initial_pose_publisher" not in (BRINGUP / "launch/nav2.launch.py").read_text()
 
 
-def test_command_sources_reach_base_through_validated_velocity_arbitration():
+def test_navigation_is_guarded_before_manual_velocity_arbitration():
     config = yaml.safe_load((BRINGUP / "config/twist_mux.yaml").read_text())
     parameters = config["twist_mux"]["ros__parameters"]
     assert {entry["topic"] for entry in parameters["topics"].values()} == {
-        "/cmd_vel",
+        "/cmd_vel_nav_guarded",
         "/cmd_vel_keyboard",
         "/cmd_vel_normal",
         "/cmd_vel_slow",
@@ -164,13 +165,20 @@ def test_command_sources_reach_base_through_validated_velocity_arbitration():
             if "remappings" in fields:
                 nodes[package] = dict(ast.literal_eval(fields["remappings"]))
     output_topic = nodes["twist_mux"]["/cmd_vel_out"]
-    assert output_topic == "/cmd_vel_requested"
+    assert output_topic == nodes["duojin02_base_driver"]["/cmd_vel"] == "/cmd_vel_base"
+    guard_tree = ast.parse((BRINGUP / "launch/velocity_guard.launch.py").read_text())
+    guard_node = next(node for node in ast.walk(guard_tree)
+                      if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                      and node.func.id == "Node")
+    guard_fields = {item.arg: item.value for item in guard_node.keywords}
+    guard_remappings = dict(ast.literal_eval(guard_fields["remappings"]))
+    assert guard_remappings == {
+        "/cmd_vel_requested": "/cmd_vel",
+        "/cmd_vel_base": "/cmd_vel_nav_guarded",
+    }
     guard_source = (ROOT / "src/duojin02_navigation/src/velocity_guard.cpp").read_text()
     assert re.search(r'Twist\s*>\s*\(\s*"/cmd_vel_requested"\s*,\s*qos\s*,', guard_source)
-    assert re.search(
-        rf'Twist\s*>\s*\(\s*"{re.escape(nodes["duojin02_base_driver"]["/cmd_vel"])}"\s*,\s*qos\s*\)',
-        guard_source,
-    )
+    assert re.search(r'Twist\s*>\s*\(\s*"/cmd_vel_base"\s*,\s*qos\s*\)', guard_source)
     assert output_topic not in {entry["topic"] for entry in parameters["topics"].values()}
 
 

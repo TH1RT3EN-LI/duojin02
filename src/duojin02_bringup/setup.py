@@ -19,7 +19,10 @@ setup(
             glob("config/lattice_primitives/*.json") + glob("config/lattice_primitives/*.md"),
         ),
         (os.path.join("share", package_name, "config", "rviz"), glob("config/rviz/*.rviz")),
-        (os.path.join("share", package_name, "config", "foxglove"), glob("config/foxglove/*.yaml")),
+        (
+            os.path.join("share", package_name, "config", "foxglove"),
+            glob("config/foxglove/*.yaml") + glob("config/foxglove/*.json") + glob("config/foxglove/*.md"),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -29,6 +32,7 @@ setup(
     license="GPL-3.0-only",
     entry_points={
         "console_scripts": [
+            "task_goal_capture = duojin02_bringup.task_goal_capture:main",
             "localization_readiness = duojin02_bringup.localization_readiness:main",
             "localization_monitor = duojin02_bringup.localization_monitor:main",
         ],

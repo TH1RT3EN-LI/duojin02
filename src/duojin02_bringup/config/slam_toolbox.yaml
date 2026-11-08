@@ -13,6 +13,16 @@ slam_toolbox:
     map_frame: map
     base_frame: base_footprint
     scan_topic: /scan
+    # Identity preserves raw header time. A nonzero offset requires its evidence source.
+    scan_motion_compensation: false
+    capture_time_offset_sec: 0.0
+    capture_time_mapping_id: header-first-ray-assumed-v1
+    capture_time_mapping_source: ""
+    scan_reference_fraction: 0.0
+    scan_max_tf_gap_sec: 0.1
+    scan_tf_history_sec: 120.0
+    scan_geometry_pending_limit: 200
+    scan_geometry_wait_timeout_sec: 2.0
     use_map_saver: true
     mode: mapping
 

@@ -3,5 +3,17 @@
   "commit": "8293d21fe5c816d0405e0cc1f3eb46c70659c267",
   "archive_url": "https://codeload.github.com/SteveMacenski/slam_toolbox/tar.gz/8293d21fe5c816d0405e0cc1f3eb46c70659c267",
   "archive_sha256": "5cc31b72e89903ee1b2c44699e93a800e4e425f3b9eee17d7c0c20e12a66f8af",
-  "patch": "humble-hardware.patch"
+  "patch": "humble-hardware.patch",
+  "patches": [
+    "humble-hardware.patch",
+    "graph-diagnostics.patch",
+    "deskew.patch",
+    "model-evidence.patch",
+    "proposal-evidence.patch",
+    "solver-acceptance.patch",
+    "solver-evidence-provenance.patch",
+    "association-lifecycle.patch",
+    "graph-update-transaction.patch",
+    "realtime-goal-match-semantics.patch"
+  ]
 }

@@ -7,7 +7,29 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src/duojin02_bringup"))
-from duojin02_bringup.localization_readiness import ScanReadiness
+from duojin02_bringup.localization_readiness import EstimateReadiness, ScanReadiness
+
+
+def test_estimate_readiness_requires_fresh_completed_handoff():
+    from types import SimpleNamespace as S
+    state = EstimateReadiness(timeout_s=1.)
+    def contract(**fields):
+        return S(status=[S(name="amcl/estimate_contract", values=[S(key=k, value=v) for k, v in fields.items()])])
+    pending = dict(global_acquisition_pending="true", first_pf_confirmation_pending="false",
+                   valid_observation="false")
+    state.receive(contract(**pending), 10.)
+    assert not state.poll(10.1)
+    pending["global_acquisition_pending"] = "false"
+    pending["first_pf_confirmation_pending"] = "true"
+    state.receive(contract(**pending), 10.2)
+    assert not state.poll(10.3)
+    pending["first_pf_confirmation_pending"] = "false"
+    pending["valid_observation"] = "true"
+    state.receive(contract(**pending), 10.4)
+    assert state.poll(10.5)
+    assert not state.poll(11.4)
+    state.receive(S(status=[]), 11.)
+    assert not state.poll(11.)
 from duojin02_bringup import safety_profile
 from duojin02_bringup.safety_profile import safety_defaults
 

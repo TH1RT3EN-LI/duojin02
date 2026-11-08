@@ -1,0 +1,33 @@
+--- a/solvers/ceres_solver.cpp
++++ b/solvers/ceres_solver.cpp
+@@ -494,6 +494,30 @@
+     for (int id : pLinkInfo->GetChain()) {
+       if (!first) {diagnostics_ << ',';} first = false; diagnostics_ << id;
+     }
++    const auto objective_semantics = pLinkInfo->GetEvidence().objective();
++    const auto search_prior_reuse = objective_semantics == "legacy_prior_conditioned" ?
++      "prior_conditioned" : (objective_semantics == "lidar_correlation" ?
++      "proposal_window_only" : "unknown_legacy");
++    diagnostics_ << "],\"measurement_context\":" << JsonString(pLinkInfo->GetMeasurementIdentity())
++      << ",\"measurement_view_count\":" << pLinkInfo->GetEvidence().views.size()
++      << ",\"identity_equality\":\"context-and-exact-view-bytes\""
++      << ",\"payload_binding\":\"shared-exact-payloads-in-LinkInfo-v2-archive\""
++      << ",\"evidence_status\":" << JsonString(pLinkInfo->GetEvidenceStatus())
++      << ",\"covariance_model\":" << JsonString(pLinkInfo->GetEvidence().known() ?
++      "sensor-base.full-jacobian.v1" : "unknown_legacy")
++      << ",\"correlation_status\":\"unknown-cross-query-and-motion\""
++      << ",\"objective_semantics\":" << JsonString(objective_semantics)
++      << ",\"search_prior_reuse\":" << JsonString(search_prior_reuse)
++      << ",\"penalize\":";
++    if (objective_semantics == "legacy_prior_conditioned") {diagnostics_ << "true";}
++    else if (objective_semantics == "lidar_correlation") {diagnostics_ << "false";}
++    else {diagnostics_ << "null";}
++    diagnostics_ << ",\"raw_sources\":[";
++    bool first_raw_source = true;
++    for (const auto & raw_source : pLinkInfo->GetEvidence().raw_sources) {
++      if (!first_raw_source) {diagnostics_ << ',';} first_raw_source = false;
++      diagnostics_ << JsonString(raw_source);
++    }
+     diagnostics_ << "],\"coarse_response\":" << JsonNumber{pLinkInfo->GetCoarseResponse()}
+       << ",\"fine_response\":" << JsonNumber{pLinkInfo->GetFineResponse()}
+       << ",\"search_center_sensor_pose\":";

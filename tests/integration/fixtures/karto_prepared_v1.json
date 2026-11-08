@@ -1,0 +1,9 @@
+{
+  "schema": "duojin02.karto_fixture.v1",
+  "archive_class_version": 1,
+  "sha256": "6922f8ca84bd849f59d81599e66e35b6818f4a19ca0efb27c9ac152621bd19df",
+  "generator": "tests/integration/karto_prepared_v1_writer.cpp",
+  "generator_backend": "pre-contract-repair installed/slam_backend (LocalizedRangeScan archive v1)",
+  "purpose": "actual old prepared archive must explicitly reject missing typed beam state",
+  "expected_error": "Prepared scan archive v1 lacks beam states; rebuild using typed-rays.v2"
+}

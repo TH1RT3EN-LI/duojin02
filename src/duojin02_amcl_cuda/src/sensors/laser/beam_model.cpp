@@ -125,6 +125,10 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
 bool
 BeamModel::sensorUpdate(pf_t * pf, LaserData * data)
 {
+  if (data->endpoints) {
+    throw std::invalid_argument("beam raycast model cannot consume prepared per-beam origins");
+  }
+  data->validatePrepared();
   if (max_beams_ < 2) {
     return false;
   }

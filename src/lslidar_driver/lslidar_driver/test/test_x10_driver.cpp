@@ -248,7 +248,7 @@ TEST_F(X10Test, StartupOverridesRemainEffectiveAndRuntimeServicesRejectChanges) 
     EXPECT_EQ(scan.header.frame_id, "probe_laser");
     EXPECT_FLOAT_EQ(scan.range_min, 1.5f);
     EXPECT_FLOAT_EQ(scan.range_max, 2.5f);
-    EXPECT_TRUE(std::isinf(scan.ranges[270]));
+    EXPECT_TRUE(std::isnan(scan.ranges[270]));
     EXPECT_TRUE(std::any_of(scan.ranges.begin(), scan.ranges.end(),
                             [](float value) { return std::abs(value - 2.3f) < 1e-5f; }));
   }
@@ -342,7 +342,7 @@ TEST_F(X10Test, PublishesEmptySweepsInsteadOfLeavingStaleScanData) {
   for (const auto &scan : received) {
     ASSERT_EQ(scan.ranges.size(), 540u);
     EXPECT_TRUE(std::all_of(scan.ranges.begin(), scan.ranges.end(),
-                            [](float range) { return std::isinf(range); }));
+                            [](float range) { return std::isnan(range); }));
   }
 }
 
@@ -352,8 +352,8 @@ TEST_F(X10Test, FiltersRawDistancesAndStillPublishesSparseSweeps) {
   const auto received = collectFrames();
   ASSERT_EQ(received.size(), 3u);
   for (const auto &scan : received) {
-    EXPECT_TRUE(std::isinf(scan.ranges[270]));
-    EXPECT_TRUE(std::isinf(scan.ranges[405]));
+    EXPECT_TRUE(std::isnan(scan.ranges[270]));
+    EXPECT_TRUE(std::isnan(scan.ranges[405]));
     const auto valid = std::count_if(scan.ranges.begin(), scan.ranges.end(),
                                      [](float range) { return std::isfinite(range); });
     EXPECT_GT(valid, 0);

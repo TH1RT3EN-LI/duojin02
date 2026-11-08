@@ -27,6 +27,7 @@
   <depend>rclcpp_components</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>diagnostic_msgs</depend>
   <depend>message_filters</depend>
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
@@ -38,6 +39,7 @@
   <depend>launch_ros</depend>
   <depend>launch_testing</depend>
   <depend>pluginlib</depend>
+  <depend>duojin02_scan_geometry</depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>ament_lint_auto</test_depend>
 

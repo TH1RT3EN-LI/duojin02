@@ -19,195 +19,122 @@
  *
  */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <queue>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
+#include <vector>
+
 #include "nav2_amcl/map/map.hpp"
 
-/*
- * @class CellData
- * @brief Data about map cells
- */
-class CellData
+namespace
 {
-public:
-  map_t * map_;
-  unsigned int i_, j_;
-  unsigned int src_i_, src_j_;
-};
-
-/*
- * @class CachedDistanceMap
- * @brief Cached map with distances
- */
-class CachedDistanceMap
+// C++ integer division truncates toward zero; envelope breakpoints require floor.
+int64_t floor_div(int64_t numerator, int64_t denominator)
 {
-public:
-  /*
-   * @brief CachedDistanceMap constructor
-   */
-  CachedDistanceMap(double scale, double max_dist)
-  : distances_(NULL), scale_(scale), max_dist_(max_dist)
-  {
-    cell_radius_ = max_dist / scale;
-    distances_ = new double *[cell_radius_ + 2];
-    for (int i = 0; i <= cell_radius_ + 1; i++) {
-      distances_[i] = new double[cell_radius_ + 2];
-      for (int j = 0; j <= cell_radius_ + 1; j++) {
-        distances_[i][j] = sqrt(i * i + j * j);
-      }
-    }
-  }
-
-  /*
-   * @brief CachedDistanceMap destructor
-   */
-  ~CachedDistanceMap()
-  {
-    if (distances_) {
-      for (int i = 0; i <= cell_radius_ + 1; i++) {
-        delete[] distances_[i];
-      }
-      delete[] distances_;
-    }
-  }
-  double ** distances_;
-  double scale_;
-  double max_dist_;
-  int cell_radius_;
-};
-
-/*
- * @brief operator<
- */
-bool operator<(const CellData & a, const CellData & b)
-{
-  return a.map_->cells[MAP_INDEX(
-             a.map_, a.i_,
-             a.j_)].occ_dist > a.map_->cells[MAP_INDEX(b.map_, b.i_, b.j_)].occ_dist;
+  const int64_t quotient = numerator / denominator;
+  return quotient - (numerator % denominator < 0 ? 1 : 0);
 }
+}  // namespace
 
-/*
- * @brief get_distance_map
- * @param scale of cost information wrt distance
- * @param max_dist Maximum distance to cache from occupied information
- * @return Pointer to cached distance map
- */
-CachedDistanceMap *
-get_distance_map(double scale, double max_dist)
-{
-  static CachedDistanceMap * cdm = NULL;
-
-  if (!cdm || (cdm->scale_ != scale) || (cdm->max_dist_ != max_dist)) {
-    if (cdm) {
-      delete cdm;
-    }
-    cdm = new CachedDistanceMap(scale, max_dist);
-  }
-
-  return cdm;
-}
-
-/*
- * @brief enqueue cell data for caching
- */
-void enqueue(
-  map_t * map, int i, int j,
-  int src_i, int src_j,
-  std::priority_queue<CellData> & Q,
-  CachedDistanceMap * cdm,
-  unsigned char * marked)
-{
-  if (marked[MAP_INDEX(map, i, j)]) {
-    return;
-  }
-
-  int di = abs(i - src_i);
-  int dj = abs(j - src_j);
-  double distance = cdm->distances_[di][dj];
-
-  if (distance > cdm->cell_radius_) {
-    return;
-  }
-
-  map->cells[MAP_INDEX(map, i, j)].occ_dist = distance * map->scale;
-
-  CellData cell;
-  cell.map_ = map;
-  cell.i_ = i;
-  cell.j_ = j;
-  cell.src_i_ = src_i;
-  cell.src_j_ = src_j;
-
-  Q.push(cell);
-
-  marked[MAP_INDEX(map, i, j)] = 1;
-}
-
-/*
- * @brief Update the cspace distance values
- * @param map Map to update
- * @param max_occ_distance Maximum distance for occpuancy interest
- */
+// Exact, separable Euclidean distance to occupied cell CENTRES, capped in metres.
+// Unknown cells are query locations, not obstacles. First find the nearest
+// occupied cell in each column, then take the lower envelope of the horizontal
+// squared-distance parabolas. Selecting the envelope uses integer arithmetic;
+// only the final square root and conversion to metres are floating point.
 void map_update_cspace(map_t * map, double max_occ_dist)
 {
-  unsigned char * marked;
-  std::priority_queue<CellData> Q;
+  if (!map || !map->cells || map->size_x <= 0 || map->size_y <= 0 ||
+    !std::isfinite(map->scale) || map->scale <= 0.0 ||
+    !std::isfinite(max_occ_dist) || max_occ_dist < 0.0)
+  {
+    throw std::invalid_argument("map_update_cspace: invalid map or distance limit");
+  }
+  const size_t width = static_cast<size_t>(map->size_x);
+  const size_t height = static_cast<size_t>(map->size_y);
+  if (height > std::numeric_limits<size_t>::max() / width) {
+    throw std::length_error("map_update_cspace: map dimensions overflow");
+  }
+  const size_t count = width * height;
+  constexpr int32_t absent = std::numeric_limits<int32_t>::max();
+  // Allocate all scratch before changing the map. Scratch is 4*N + O(width)
+  // bytes, without a per-cell heap or a process-global mutable distance cache.
+  std::vector<int32_t> vertical(count, absent);
+  std::vector<int32_t> nearest(width, absent);
+  std::vector<int32_t> sites(width);
+  std::vector<int64_t> starts(width);
 
-  marked = new unsigned char[map->size_x * map->size_y];
-  memset(marked, 0, sizeof(unsigned char) * map->size_x * map->size_y);
-
-  map->max_occ_dist = max_occ_dist;
-
-  CachedDistanceMap * cdm = get_distance_map(map->scale, map->max_occ_dist);
-
-  // Enqueue all the obstacle cells
-  CellData cell;
-  cell.map_ = map;
-  for (int i = 0; i < map->size_x; i++) {
-    cell.src_i_ = cell.i_ = i;
-    for (int j = 0; j < map->size_y; j++) {
-      if (map->cells[MAP_INDEX(map, i, j)].occ_state == +1) {
-        map->cells[MAP_INDEX(map, i, j)].occ_dist = 0.0;
-        cell.src_j_ = cell.j_ = j;
-        marked[MAP_INDEX(map, i, j)] = 1;
-        Q.push(cell);
-      } else {
-        map->cells[MAP_INDEX(map, i, j)].occ_dist = max_occ_dist;
+  for (size_t y = 0; y < height; ++y) {
+    for (size_t x = 0; x < width; ++x) {
+      const size_t index = y * width + x;
+      if (map->cells[index].occ_state == +1) {
+        nearest[x] = static_cast<int32_t>(y);
+      }
+      if (nearest[x] != absent) {
+        vertical[index] = static_cast<int32_t>(y) - nearest[x];
+      }
+    }
+  }
+  std::fill(nearest.begin(), nearest.end(), absent);
+  for (size_t y = height; y-- > 0;) {
+    for (size_t x = 0; x < width; ++x) {
+      const size_t index = y * width + x;
+      if (map->cells[index].occ_state == +1) {
+        nearest[x] = static_cast<int32_t>(y);
+      }
+      if (nearest[x] != absent) {
+        vertical[index] = std::min(vertical[index], nearest[x] - static_cast<int32_t>(y));
       }
     }
   }
 
-  while (!Q.empty()) {
-    CellData current_cell = Q.top();
-    if (current_cell.i_ > 0) {
-      enqueue(
-        map, current_cell.i_ - 1, current_cell.j_,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+  for (size_t y = 0; y < height; ++y) {
+    const size_t row = y * width;
+    size_t size = 0;
+    for (int32_t q = 0; q < map->size_x; ++q) {
+      if (vertical[row + q] == absent) {
+        continue;
+      }
+      const int64_t dy = vertical[row + q];
+      const int64_t fq = dy * dy;
+      int64_t start = 0;
+      while (size > 0) {
+        const int64_t v = sites[size - 1];
+        const int64_t dv = vertical[row + static_cast<size_t>(v)];
+        // First integer x for which q is STRICTLY better than v:
+        // 2*(q-v)*x > fq + q*q - fv - v*v.
+        // int32 map dimensions guarantee both squared sums fit in int64.
+        start = floor_div(
+          fq + int64_t{q} * q - (dv * dv + v * v), 2 * (int64_t{q} - v)) + 1;
+        if (start > starts[size - 1]) {
+          break;
+        }
+        --size;
+      }
+      if (size == 0) {
+        start = 0;
+      }
+      if (start < map->size_x) {
+        sites[size] = q;
+        starts[size] = start;
+        ++size;
+      }
     }
-    if (current_cell.j_ > 0) {
-      enqueue(
-        map, current_cell.i_, current_cell.j_ - 1,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+    size_t active = 0;
+    for (size_t x = 0; x < width; ++x) {
+      double distance = max_occ_dist;
+      if (size > 0) {
+        while (active + 1 < size && starts[active + 1] <= static_cast<int64_t>(x)) {
+          ++active;
+        }
+        const int64_t dx = static_cast<int64_t>(x) - sites[active];
+        const int64_t dy = vertical[row + sites[active]];
+        distance = std::min(max_occ_dist, map->scale * std::sqrt(
+          static_cast<double>(dx * dx + dy * dy)));
+      }
+      map->cells[row + x].occ_dist = distance;
     }
-    if (static_cast<int>(current_cell.i_) < map->size_x - 1) {
-      enqueue(
-        map, current_cell.i_ + 1, current_cell.j_,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
-    }
-    if (static_cast<int>(current_cell.j_) < map->size_y - 1) {
-      enqueue(
-        map, current_cell.i_, current_cell.j_ + 1,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
-    }
-
-    Q.pop();
   }
-
-  delete[] marked;
+  map->max_occ_dist = max_occ_dist;
 }

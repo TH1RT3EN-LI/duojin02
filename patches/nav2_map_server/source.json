@@ -1,0 +1,11 @@
+{
+  "version": "1.1.20",
+  "commit": "a097086719c88f781aa59788eca29ac6ca5e56db",
+  "archive_url": "https://codeload.github.com/ros-navigation/navigation2/tar.gz/a097086719c88f781aa59788eca29ac6ca5e56db",
+  "archive_sha256": "8b0fdd2aa41947d48d543ad24a6e5dc7fe885f1014a2bd43e5410985c5ff31af",
+  "archive_subdirectory": "nav2_map_server",
+  "patch": "metadata-roundtrip.patch",
+  "patches": [
+    "metadata-roundtrip.patch"
+  ]
+}

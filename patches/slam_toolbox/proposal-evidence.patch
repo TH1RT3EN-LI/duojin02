@@ -1,0 +1,177 @@
+--- a/lib/karto_sdk/include/karto_sdk/Mapper.h
++++ b/lib/karto_sdk/include/karto_sdk/Mapper.h
+@@ -1423,6 +1423,19 @@
+     Pose2 & rMean, Matrix3 & rCovariance,
+     kt_bool doPenalize = true,
+     kt_bool doRefineMatch = true);
++
++  // Graph evidence is an uncalibrated LiDAR correlation measurement proxy.
++  // Odometry/history may propose its bounded search window, but must not be
++  // multiplied into this score and then inserted into the graph as new data.
++  // Legacy prior-weighted matching remains explicit through MatchScan.
++  template<class T = LocalizedRangeScanVector>
++  kt_double MatchLidarEvidence(
++    LocalizedRangeScan * scan, const T & references, Pose2 & mean,
++    Matrix3 & covariance, kt_bool refine = true)
++  {
++    return MatchScan<T>(scan, references, mean, covariance, false, refine);
++  }
++
+ 
+   /**
+    * Finds the best pose for the scan centering the search in the correlation grid
+--- a/lib/karto_sdk/include/karto_sdk/MeasurementModel.h
++++ b/lib/karto_sdk/include/karto_sdk/MeasurementModel.h
+@@ -152,7 +152,7 @@
+   std::string objective() const {
+     if(!known())return "unknown_legacy";
+     if(context.find("objective=legacy_prior_conditioned;")!=std::string::npos)return "legacy_prior_conditioned";
+-    if(context.find("objective=lidar_likelihood;")!=std::string::npos)return "lidar_likelihood";
++    if(context.find("objective=lidar_correlation;")!=std::string::npos)return "lidar_correlation";
+     return "unknown_legacy";
+   }
+   bool operator==(const Evidence & other) const {
+--- a/lib/karto_sdk/src/Mapper.cpp
++++ b/lib/karto_sdk/src/Mapper.cpp
+@@ -82,10 +82,14 @@
+ {out << value.size() << ':' << value;}
+ void IdentityPose(std::ostream & out, const Pose2 & p)
+ {out << std::hexfloat << p.GetX() << ',' << p.GetY() << ',' << p.GetHeading() << ';';}
+-void IdentityParameters(std::ostream & out, const Object & object)
++void IdentityParameters(std::ostream & out, const Object & object, bool includeSearchPenalty = true)
+ {
+   std::map<std::string, std::string> parameters;
+   for (auto * p : object.GetParameters()) {
++    const auto & name = p->GetName();
++    if (!includeSearchPenalty && (name == "DistanceVariancePenalty" ||
++      name == "AngleVariancePenalty" || name == "MinimumDistancePenalty" ||
++      name == "MinimumAnglePenalty")) {continue;}
+     std::ostringstream value;
+     if (auto * number = dynamic_cast<Parameter<kt_double> *>(p))
+       value << std::hexfloat << number->GetValue();
+@@ -137,8 +141,8 @@
+   measurement::Evidence e;
+   std::ostringstream context; context << "karto-estimator.v1;";
+   IdentityString(context, stage); IdentityPose(context, center);
+-  context << (penalize ? "objective=legacy_prior_conditioned;" : "objective=lidar_likelihood;");
+-  context << penalize << ';' << refine << ';'; IdentityParameters(context, *mapper);
++  context << (penalize ? "objective=legacy_prior_conditioned;" : "objective=lidar_correlation;");
++  context << penalize << ';' << refine << ';'; IdentityParameters(context, *mapper, penalize);
+   e.views.push_back(MeasurementView(query)); e.raw_sources.push_back(RawSource(query));
+   IdentityString(context, RawSource(query));
+   for (const auto * scan : references) {
+@@ -1637,7 +1641,7 @@
+     ~Transaction() {slot=nullptr;}
+   } transaction(m_PendingLinks,pending);
+   const auto sequentialEvidence = MatchEvidence(m_pMapper,pScan,
+-    pSensorManager->GetRunningScans(rSensorName),"sequential-running",sequentialSearchCenter,true);
++    pSensorManager->GetRunningScans(rSensorName),"sequential-running",sequentialSearchCenter,false);
+   if (sequentialResponse >= 0.0) {
+     RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "sequential", pScan,
+       MatchChainIds(pSensorManager->GetRunningScans(rSensorName)), -1.0,
+@@ -1679,10 +1683,10 @@
+ 
+       Pose2 bestPose;
+       Matrix3 covariance;
+-      kt_double response = m_pMapper->m_pSequentialScanMatcher->MatchScan<LocalizedRangeScanMap>(
+-        pScan,
++      kt_double response = m_pMapper->m_pSequentialScanMatcher->MatchLidarEvidence<LocalizedRangeScanMap>(pScan,
+         pSensorManager->GetScans(rCandidateSensorName),
+-        bestPose, covariance);
++        bestPose,
++        covariance);
+       RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "cross_sensor", pScan,
+         MatchChainIds(pSensorManager->GetScans(rCandidateSensorName)), -1.0, response,
+         pScan->GetSensorPose(), bestPose, covariance,
+@@ -1693,7 +1697,7 @@
+         ValidFusionCandidate(chart,bestPose,covariance)) {
+         LocalizedRangeScanVector references;
+         for (const auto & entry : pSensorManager->GetScans(rCandidateSensorName)) references.push_back(entry.second);
+-        const auto evidence=MatchEvidence(m_pMapper,pScan,references,"cross-sensor",pScan->GetSensorPose(),true);
++        const auto evidence=MatchEvidence(m_pMapper,pScan,references,"cross-sensor",pScan->GetSensorPose(),false);
+         LinkScans(pSensorManager->GetScan(rCandidateSensorName, 0), pScan, bestPose, covariance,
+           "cross_sensor", MatchChainIds(references), -1.0, response, pScan->GetSensorPose(),evidence);
+         means.push_back(bestPose);
+@@ -1772,8 +1776,11 @@
+     const Pose2 searchCenter = pScan->GetSensorPose();
+     Pose2 bestPose;
+     Matrix3 covariance;
+-    kt_double coarseResponse = m_pLoopScanMatcher->MatchScan(pScan, candidateChain,
+-        bestPose, covariance, false, false);
++    kt_double coarseResponse = m_pLoopScanMatcher->MatchLidarEvidence(pScan,
++        candidateChain,
++        bestPose,
++        covariance,
++        false);
+ 
+     std::stringstream stream;
+     stream << "COARSE RESPONSE: " << coarseResponse <<
+@@ -1805,9 +1812,10 @@
+       auto loopEvidence=MatchEvidence(m_pMapper,pScan,candidateChain,"loop-coarse-fine",searchCenter,false);
+       std::ostringstream finePrior;IdentityPose(finePrior,fineSearchCenter);
+       loopEvidence.context += finePrior.str();
+-      kt_double fineResponse = m_pMapper->m_pSequentialScanMatcher->MatchScan(&tmpScan,
+-          candidateChain,
+-          bestPose, covariance, false);
++      kt_double fineResponse = m_pMapper->m_pSequentialScanMatcher->MatchLidarEvidence(&tmpScan,
++        candidateChain,
++        bestPose,
++        covariance);
+ 
+       std::stringstream stream1;
+       stream1 << "FINE RESPONSE: " << fineResponse << " (>" <<
+@@ -1977,8 +1985,10 @@
+     Pose2 mean;
+     Matrix3 covariance;
+     // match scan against "near" chain
+-    kt_double response = m_pMapper->m_pSequentialScanMatcher->MatchScan(pScan, *iter, mean,
+-        covariance, false);
++    kt_double response = m_pMapper->m_pSequentialScanMatcher->MatchLidarEvidence(pScan,
++        *iter,
++        mean,
++        covariance);
+     const bool geometryAccepted=ValidFusionCandidate(chart,mean,covariance);
+     const bool accepted = response > m_pMapper->m_pLinkMatchMinimumResponseFine->GetValue() - KT_TOLERANCE && geometryAccepted;
+     RecordMapperMatch(m_pMapper->m_pScanOptimizer, "fine", "near_chain", pScan,
+@@ -3076,7 +3086,7 @@
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchLidarEvidence(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);
+@@ -3152,7 +3162,7 @@
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchLidarEvidence(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);
+@@ -3247,10 +3257,10 @@
+   // correct scan (if not first scan)
+   if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+     Pose2 bestPose;
+-    sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
+-      m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+-      bestPose,
+-      cov);
++    sequentialResponse = m_pSequentialScanMatcher->MatchLidarEvidence(pScan,
++        m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
++        bestPose,
++        cov);
+     pScan->SetSensorPose(bestPose);
+     if (covariance) {
+       *covariance = cov;
+@@ -3435,7 +3445,7 @@
+     // correct scan (if not first scan)
+     if (m_pUseScanMatching->GetValue() && pLastScan != NULL) {
+       Pose2 bestPose;
+-      sequentialResponse = m_pSequentialScanMatcher->MatchScan(pScan,
++      sequentialResponse = m_pSequentialScanMatcher->MatchLidarEvidence(pScan,
+         m_pMapperSensorManager->GetRunningScans(pScan->GetSensorName()),
+         bestPose,
+         cov);

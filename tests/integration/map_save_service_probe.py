@@ -1,4 +1,5 @@
 import os
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -12,10 +13,9 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.task import Future
 from rcl_interfaces.srv import GetParameters, ListParameters
-from nav_msgs.srv import GetMap
-from slam_toolbox.srv import SaveMap, SerializePoseGraph
+from slam_toolbox.srv import SaveSnapshot
 from std_srvs.srv import Trigger
-from duojin02_slam_tools.snapshots import artifact_path, validate_map
+from duojin02_slam_tools.snapshots import validate_map
 from duojin02_slam_tools.offline import await_response
 from ros_isolation import configure_isolation
 
@@ -28,46 +28,53 @@ def run():
     node = Node("slam_toolbox", start_parameter_services=False)
     mode = ["success"]
 
-    def refresh(request, response):
-        if mode[0] == "shared_budget":
-            time.sleep(0.15)
-        response.map.info.width = response.map.info.height = 1
-        return response
-
-    def raster(request, response):
+    def snapshot(request, response):
         if mode[0] == "timeout":
             time.sleep(1.2)
         if mode[0] == "shared_budget":
-            time.sleep(0.15)
-        if mode[0] == "raster_failure":
-            response.result = SaveMap.Response.RESULT_UNDEFINED_FAILURE
+            time.sleep(0.5)
+        response.result = SaveSnapshot.Response.RESULT_FAILED
+        if mode[0] in ("raster_failure", "graph_failure"):
+            response.message = "injected " + mode[0]
             return response
-        prefix = Path(request.name.data)
-        if prefix.parent.exists():
-            artifact_path(prefix, ".yaml").write_text(
-                f"image: {prefix.name}.pgm\nmode: trinary\nresolution: 0.03\n"
-                "origin: [0, 0, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n"
-            )
-            artifact_path(prefix, ".pgm").write_bytes(b"P5\n1 1\n255\n\xfe")
-        response.result = SaveMap.Response.RESULT_SUCCESS
+        directory = Path(request.filename)
+        # A timed-out client owns and removes the unpublished pending parent.
+        if not directory.parent.exists():
+            response.message = "client abandoned pending destination"
+            return response
+        directory.mkdir()
+        contents = {
+            "yaml": ("map.yaml", b"image: map.pgm\nmode: trinary\nresolution: 0.03\norigin: [0, 0, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n"),
+            "image": ("map.pgm", b"P5\n1 1\n255\n\xfe"),
+            "graph_update": ("graph_update.json", b'{"graph_revision":1}'),
+            "scan_geometry": ("scan_geometry.json", b'{"schema":"fixture-only"}'),
+            "input_boundary": ("input_boundary.json", b'{"admissions_paused":true,"queues_drained":true}'),
+            "runtime": ("runtime.json", b'{"source_marker_binding":"fixture-only"}'),
+        }
+        if request.include_graph:
+            contents.update(posegraph=("graph.posegraph", b"graph"), data=("graph.data", b"scans"))
+        entries = []
+        for role, (name, content) in sorted(contents.items()):
+            (directory / name).write_bytes(content)
+            entries.append(dict(role=role, path=name, sha256=hashlib.sha256(content).hexdigest(), size_bytes=len(content)))
+        finalized = request.mode == request.FINALIZE
+        operation = "finalize" if finalized else "snapshot"
+        identity = "".join(f'{e["role"]}\t{e["path"]}\t{e["sha256"]}\t{e["size_bytes"]}\n' for e in entries) + f"{operation}\n{request.request_id}\n"
+        snapshot_id = hashlib.sha256(identity.encode()).hexdigest()
+        (directory / "snapshot.json").write_text(json.dumps(dict(
+            schema_version=2, producer="slam_toolbox.SaveSnapshot.v1", snapshot_id=snapshot_id,
+            operation=operation, request_id=request.request_id, finalized=finalized,
+            consistency="single_graph_owner_boundary", files=entries,
+        )))
+        response.result = SaveSnapshot.Response.RESULT_SUCCESS
+        response.snapshot_id = snapshot_id if mode[0] != "wrong_identity" else "0" * 64
+        response.manifest_path = str(directory / "snapshot.json")
+        response.finalized = finalized
+        response.state_committed = finalized
+        response.commit_id = 1 if finalized else 0
         return response
 
-    def graph(request, response):
-        if mode[0] == "shared_budget":
-            time.sleep(0.3)
-        if mode[0] == "graph_failure":
-            response.result = SerializePoseGraph.Response.RESULT_FAILED_TO_WRITE_FILE
-            return response
-        prefix = Path(request.filename)
-        if prefix.parent.exists():
-            artifact_path(prefix, ".posegraph").write_bytes(b"graph")
-            artifact_path(prefix, ".data").write_bytes(b"scans")
-        response.result = SerializePoseGraph.Response.RESULT_SUCCESS
-        return response
-
-    node.create_service(SaveMap, "/slam_toolbox/save_map", raster)
-    node.create_service(GetMap, "/slam_toolbox/dynamic_map", refresh)
-    node.create_service(SerializePoseGraph, "/slam_toolbox/serialize_map", graph)
+    node.create_service(SaveSnapshot, "/slam_toolbox/save_snapshot", snapshot)
 
     def parameter_names(request, response):
         response.result.names = ["map_start_pose"]
@@ -99,7 +106,7 @@ def run():
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder)
 
-            def save(name, timeout="2.0"):
+            def save(name, timeout="2.0", save_mode="snapshot", request_id=""):
                 return subprocess.run(
                     [
                         "ros2",
@@ -113,6 +120,8 @@ def run():
                         f"map_name:={name}",
                         "-p",
                         f"save_timeout:={timeout}",
+                        "-p", f"save_mode:={save_mode}",
+                        *(["-p", f"finalize_request_id:={request_id}"] if request_id else []),
                     ],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
@@ -138,45 +147,52 @@ def run():
 
             success = save("room.v2")
             assert success.returncode == 0, success.stdout
-            validate_map(output / "room.v2.yaml")
-            snapshot = json.loads((output / "room.v2.snapshot.json").read_text())
-            assert snapshot["provenance"]["slam_parameters"]["map_start_pose"] == [1.0, 2.0, 0.5]
+            validate_map(output / "room.v2/map.yaml")
+            snapshot = json.loads((output / "room.v2.receipt.json").read_text())
+            assert snapshot["client_observed_provenance"]["slam_parameters"]["map_start_pose"] == [1.0, 2.0, 0.5]
+            missing_id = save("missing_finalize_id", save_mode="finalize")
+            assert missing_id.returncode != 0 and not (output / "missing_finalize_id").exists()
+            finalized = save("finalized", save_mode="finalize", request_id="declared-finalize-1")
+            assert finalized.returncode == 0, finalized.stdout
+            assert json.loads((output / "finalized/snapshot.json").read_text())["finalized"] is True
             launch_success = launch_save("launch_success")
             assert launch_success.returncode == 0, launch_success.stdout
-            validate_map(output / "launch_success.yaml")
+            validate_map(output / "launch_success/map.yaml")
             assert save("room.v2").returncode != 0, "existing map overwritten"
             mode[0] = "graph_failure"
             launch_failure = launch_save("launch_failure")
             assert (
                 launch_failure.returncode != 0
             ), "launch reported success after its save client failed"
-            assert not (output / "launch_failure.yaml").exists(), launch_failure.stdout
+            assert not (output / "launch_failure").exists(), launch_failure.stdout
             failure = save("failed_graph")
             assert (
-                failure.returncode != 0 and not (output / "failed_graph.yaml").exists()
+                failure.returncode != 0 and not (output / "failed_graph").exists()
             ), failure.stdout
+            mode[0] = "wrong_identity"
+            assert save("wrong_identity").returncode != 0 and not (output / "wrong_identity").exists()
             mode[0] = "raster_failure"
             assert save("failed_raster").returncode != 0
             mode[0] = "timeout"
             began = time.monotonic()
             expired = save("expired", timeout="0.2")
             assert (
-                expired.returncode != 0 and not (output / "expired.yaml").exists()
+                expired.returncode != 0 and not (output / "expired").exists()
             ), expired.stdout
             assert time.monotonic() - began < 5
             time.sleep(1.3)
             mode[0] = "shared_budget"
             shared = save("shared_budget", timeout="0.4")
             assert (
-                shared.returncode != 0 and not (output / "shared_budget.yaml").exists()
+                shared.returncode != 0 and not (output / "shared_budget").exists()
             ), shared.stdout
             time.sleep(0.4)
             mode[0] = "metadata_incomplete"
             partial = save("metadata_incomplete")
             assert partial.returncode == 0, partial.stdout
-            validate_map(output / "metadata_incomplete.yaml")
-            provenance = json.loads((output / "metadata_incomplete.snapshot.json").read_text())[
-                "provenance"
+            validate_map(output / "metadata_incomplete/map.yaml")
+            provenance = json.loads((output / "metadata_incomplete.receipt.json").read_text())[
+                "client_observed_provenance"
             ]
             assert provenance["algorithm"] == "slam_toolbox" and provenance["version"]
             assert provenance["backend_build"] and "incomplete" in provenance["warnings"][0]
@@ -186,9 +202,9 @@ def run():
             mode[0] = "metadata_timeout"
             warned = save("metadata_timeout", timeout="0.4")
             assert warned.returncode == 0, warned.stdout
-            validate_map(output / "metadata_timeout.yaml")
-            provenance = json.loads((output / "metadata_timeout.snapshot.json").read_text())[
-                "provenance"
+            validate_map(output / "metadata_timeout/map.yaml")
+            provenance = json.loads((output / "metadata_timeout.receipt.json").read_text())[
+                "client_observed_provenance"
             ]
             assert provenance["backend_build"] and provenance["warnings"]
             time.sleep(0.9)
@@ -223,7 +239,7 @@ def run():
             finally:
                 control.destroy_node()
             print(
-                "map service/launch success, launch failure status propagation, existing-name refusal, graph/raster failures, one save budget, "
+                "single-RPC immutable bundle service/launch success, response identity binding, launch failure status propagation, existing-name refusal, graph/raster failures, one save budget, "
                 "metadata timeout/incomplete warning, delayed/stalled/dead-process phase budgets: passed"
             )
     finally:

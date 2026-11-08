@@ -3,8 +3,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from duojin02_bringup.gpu_profile import gpu_parameters, use_gpu_argument
+from duojin02_bringup.scan_geometry import validate_localization_launch
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
@@ -35,6 +36,7 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="false"),
         DeclareLaunchArgument("autostart", default_value="true"),
         DeclareLaunchArgument("log_level", default_value="info"),
+        OpaqueFunction(function=validate_localization_launch),
         Node(package="nav2_map_server", executable="map_server", name="map_server",
              output="screen", parameters=[params], arguments=arguments, remappings=remappings),
         Node(package="duojin02_amcl_cuda", executable="amcl", name="amcl",

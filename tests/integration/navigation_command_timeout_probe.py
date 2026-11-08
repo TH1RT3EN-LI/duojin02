@@ -95,7 +95,7 @@ def run(args):
                 "--params-file",
                 str(mux_file),
                 "-r",
-                "/cmd_vel_out:=/cmd_vel_requested",
+                "/cmd_vel_out:=/cmd_vel_base",
             ],
         )
 
@@ -108,6 +108,10 @@ def run(args):
                 str(ROOT / "src/duojin02_bringup/config/safety.yaml"),
                 "-p",
                 "velocity_guard:use_sim_time:=true",
+                "-r",
+                "/cmd_vel_requested:=/cmd_vel",
+                "-r",
+                "/cmd_vel_base:=/cmd_vel_nav_guarded",
             ],
         )
         start(
@@ -220,7 +224,8 @@ def run(args):
             "raw": raw,
             "smoothed": smooth,
             "navigation": fixture.outputs,
-            "guard": fixture.base,
+            "guarded_navigation": fixture.requested,
+            "base": fixture.base,
             "serial": fixture.wire_packets,
         }
         result["published"] = {

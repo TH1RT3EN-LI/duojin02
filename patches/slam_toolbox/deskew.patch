@@ -1,0 +1,1183 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,6 +17,7 @@
+ find_package(sensor_msgs REQUIRED)
+ find_package(tf2 REQUIRED)
+ find_package(tf2_ros REQUIRED)
++find_package(duojin02_scan_geometry REQUIRED)
+ find_package(visualization_msgs REQUIRED)
+ find_package(pluginlib REQUIRED)
+ find_package(tf2_geometry_msgs REQUIRED)
+@@ -46,6 +47,7 @@
+   sensor_msgs
+   tf2
+   tf2_ros
++  duojin02_scan_geometry
+   visualization_msgs
+   pluginlib
+   tf2_geometry_msgs
+--- a/include/slam_toolbox/slam_toolbox_common.hpp
++++ b/include/slam_toolbox/slam_toolbox_common.hpp
+@@ -43,6 +43,10 @@
+ 
+ #include "slam_toolbox/toolbox_types.hpp"
+ #include "slam_toolbox/slam_mapper.hpp"
++#include "duojin02_scan_geometry/ros_scan_geometry.hpp"
++#include <deque>
++#include <chrono>
++#include <mutex>
+ #include "slam_toolbox/snap_utils.hpp"
+ #include "slam_toolbox/laser_utils.hpp"
+ #include "slam_toolbox/get_pose_helper.hpp"
+@@ -74,6 +78,13 @@
+   void setParams();
+   void setSolver();
+   void setROSInterfaces();
++
++  // Keep raw source messages unchanged. All estimator times use the physical reference.
++  builtin_interfaces::msg::Time physicalScanStamp(const sensor_msgs::msg::LaserScan & scan) const;
++  bool physicalOdomPose(const sensor_msgs::msg::LaserScan & scan, karto::Pose2 & pose);
++  void enqueuePhysicalScan(sensor_msgs::msg::LaserScan::ConstSharedPtr scan);
++  void drainPhysicalScans();
++  bool scanGeometryContractMatches(const std::string & prefix) const;
+ 
+   // callbacks
+   virtual void laserCallback(sensor_msgs::msg::LaserScan::ConstSharedPtr scan) = 0;
+@@ -126,6 +137,24 @@
+     const std::shared_ptr<slam_toolbox::srv::Pause::Request> req,
+     std::shared_ptr<slam_toolbox::srv::Pause::Response> resp);
+ 
++  struct PendingPhysicalScan {
++    sensor_msgs::msg::LaserScan::ConstSharedPtr scan;
++    std::chrono::steady_clock::time_point received;
++  };
++  struct PreparedPhysicalScan {
++    std::weak_ptr<const sensor_msgs::msg::LaserScan> source;
++    duojin02_scan_geometry::TimedScan geometry;
++  };
++  duojin02_scan_geometry::Config scan_geometry_config_;
++  std::unique_ptr<duojin02_scan_geometry::RosScanGeometry> scan_geometry_;
++  std::deque<PendingPhysicalScan> pending_physical_scans_;
++  std::map<std::string, PreparedPhysicalScan> prepared_physical_scans_;
++  std::mutex physical_scan_mutex_;
++  std::recursive_mutex physical_dispatch_mutex_;
++  size_t max_pending_physical_scans_ = 200;
++  double pending_physical_scan_timeout_sec_ = 2.0;
++  rclcpp::TimerBase::SharedPtr physical_scan_timer_;
++
+   // ROS-y-ness
+   std::unique_ptr<tf2_ros::Buffer> tf_;
+   std::unique_ptr<tf2_ros::TransformListener> tfL_;
+--- a/lib/karto_sdk/include/karto_sdk/Karto.h
++++ b/lib/karto_sdk/include/karto_sdk/Karto.h
+@@ -37,6 +37,8 @@
+ #include <boost/serialization/string.hpp>
+ #include <boost/serialization/array.hpp>
+ #include <boost/version.hpp>
++#include <boost/serialization/version.hpp>
++#include <cstdint>
+ 
+ #include <string>
+ #include <fstream>
+@@ -4431,8 +4433,15 @@
+       gridY = (m_Size.GetHeight() / m_Scale - rWorld.GetY() + m_Offset.GetY()) * m_Scale;
+     }
+ 
+-    return Vector2<kt_int32s>(static_cast<kt_int32s>(math::Round(gridX)),
+-             static_cast<kt_int32s>(math::Round(gridY)));
++    const double roundedX = math::Round(gridX), roundedY = math::Round(gridY);
++    if (!std::isfinite(roundedX) || !std::isfinite(roundedY) ||
++      roundedX < std::numeric_limits<kt_int32s>::min() ||
++      roundedX > std::numeric_limits<kt_int32s>::max() ||
++      roundedY < std::numeric_limits<kt_int32s>::min() ||
++      roundedY > std::numeric_limits<kt_int32s>::max())
++    {throw Exception("Non-finite or unrepresentable world-to-grid coordinate");}
++    return Vector2<kt_int32s>(static_cast<kt_int32s>(roundedX),
++             static_cast<kt_int32s>(roundedY));
+   }
+ 
+   /**
+@@ -4635,9 +4644,14 @@
+    */
+   virtual void Resize(kt_int32s width, kt_int32s height)
+   {
++    if (width < 0 || height < 0 || width > std::numeric_limits<kt_int32s>::max() - 7)
++    {throw Exception("Invalid grid dimensions");}
++    const std::int64_t step = ((static_cast<std::int64_t>(width) + 7) / 8) * 8;
++    if (step * height > std::numeric_limits<kt_int32s>::max())
++    {throw Exception("Grid allocation exceeds representable index space");}
+     m_Width = width;
+     m_Height = height;
+-    m_WidthStep = math::AlignValue<kt_int32s>(width, 8);
++    m_WidthStep = static_cast<kt_int32s>(step);
+ 
+     if (m_pData != NULL) {
+       delete[] m_pData;
+@@ -4689,7 +4703,12 @@
+       }
+     }
+ 
+-    kt_int32s index = rGrid.GetX() + (rGrid.GetY() * m_WidthStep);
++    const std::int64_t wideIndex = static_cast<std::int64_t>(rGrid.GetX()) +
++      static_cast<std::int64_t>(rGrid.GetY()) * m_WidthStep;
++    if (wideIndex < std::numeric_limits<kt_int32s>::min() ||
++      wideIndex > std::numeric_limits<kt_int32s>::max())
++    {throw Exception("Grid offset exceeds representable index space");}
++    const kt_int32s index = static_cast<kt_int32s>(wideIndex);
+ 
+     if (boundaryCheck == true) {
+       assert(math::IsUpTo(index, GetDataSize()));
+@@ -4873,7 +4892,8 @@
+    */
+   void TraceLine(kt_int32s x0, kt_int32s y0, kt_int32s x1, kt_int32s y1, Functor * f = NULL)
+   {
+-    kt_bool steep = abs(y1 - y0) > abs(x1 - x0);
++    kt_bool steep = std::abs(static_cast<std::int64_t>(y1) - y0) >
++      std::abs(static_cast<std::int64_t>(x1) - x0);
+     if (steep) {
+       std::swap(x0, y0);
+       std::swap(x1, y1);
+@@ -4883,11 +4903,11 @@
+       std::swap(y0, y1);
+     }
+ 
+-    kt_int32s deltaX = x1 - x0;
+-    kt_int32s deltaY = abs(y1 - y0);
+-    kt_int32s error = 0;
++    const std::int64_t deltaX = static_cast<std::int64_t>(x1) - x0;
++    const std::int64_t deltaY = std::abs(static_cast<std::int64_t>(y1) - y0);
++    std::int64_t error = 0;
+     kt_int32s ystep;
+-    kt_int32s y = y0;
++    std::int64_t y = y0;
+ 
+     if (y0 < y1) {
+       ystep = 1;
+@@ -4897,7 +4917,7 @@
+ 
+     kt_int32s pointX;
+     kt_int32s pointY;
+-    for (kt_int32s x = x0; x <= x1; x++) {
++    for (std::int64_t x = x0; x <= x1; x++) {
+       if (steep) {
+         pointX = y;
+         pointY = x;
+@@ -5214,9 +5234,7 @@
+   {
+   }
+ 
+-  LaserRangeScan()
+-  {
+-  }
++  LaserRangeScan() : m_pRangeReadings(nullptr), m_NumberOfRangeReadings(0) {}
+ 
+   /**
+    * Constructs a scan from the given sensor with the given readings
+@@ -5247,7 +5265,7 @@
+    * Gets the range readings of this scan
+    * @return range readings of this scan
+    */
+-  inline kt_double * GetRangeReadings() const
++  inline const kt_double * GetRangeReadings() const
+   {
+     return m_pRangeReadings;
+   }
+@@ -5261,7 +5279,7 @@
+    * Sets the range readings for this scan
+    * @param rRangeReadings
+    */
+-  inline void SetRangeReadings(const RangeReadingsVector & rRangeReadings)
++  virtual void SetRangeReadings(const RangeReadingsVector & rRangeReadings)
+   {
+     // ignore for now! XXXMAE BUGUBUG 05/21/2010 << TODO(lucbettaieb): What the heck is this??
+     // if (rRangeReadings.size() != GetNumberOfRangeReadings())
+@@ -5294,6 +5312,7 @@
+     } else {
+       delete[] m_pRangeReadings;
+       m_pRangeReadings = NULL;
++      m_NumberOfRangeReadings = 0;
+     }
+   }
+ 
+@@ -5419,14 +5438,35 @@
+   /**
+    * Constructs a range scan from the given range finder with the given readings
+    */
+-  LocalizedRangeScan(const Name & rSensorName, const RangeReadingsVector & rReadings)
++  struct LegacyRawTag {};
++  LocalizedRangeScan(const Name & rSensorName, const RangeReadingsVector & rReadings, LegacyRawTag)
+   : LaserRangeScan(rSensorName, rReadings),
+     m_IsDirty(true)
+   {
+   }
+ 
+-  LocalizedRangeScan()
+-  {}
++  LocalizedRangeScan() : m_IsDirty(true) {}
++
++  // Copies the immutable measurement, never reconstructs it from raw audit ranges.
++  // Pose is subsequently free to change during coarse/fine refinement.
++  struct MeasurementCloneTag {};
++  LocalizedRangeScan(const LocalizedRangeScan & source, MeasurementCloneTag)
++  : LaserRangeScan(source.GetSensorName(), source.GetRangeReadingsVector()),
++    m_LocalDeskewPoints(source.m_LocalDeskewPoints), m_LocalRayOrigins(source.m_LocalRayOrigins),
++    m_BeamStampNs(source.m_BeamStampNs), m_OriginalBeamIndices(source.m_OriginalBeamIndices),
++    m_BeamStates(source.m_BeamStates), m_SensorMinimumRange(source.m_SensorMinimumRange),
++    m_SensorMaximumRange(source.m_SensorMaximumRange), m_RawScanStampNs(source.m_RawScanStampNs),
++    m_PhysicalReferenceNs(source.m_PhysicalReferenceNs), m_TimeMappingId(source.m_TimeMappingId),
++    m_TimeMappingSource(source.m_TimeMappingSource), m_OdometricPose(source.m_OdometricPose),
++    m_CorrectedPose(source.m_CorrectedPose), m_IsDirty(true)
++  {
++    if (source.GetObjectType() != ObjectType_LocalizedRangeScan)
++    {throw Exception("Measurement clone does not support derived scan representations");}
++    if (!source.GetCustomData().empty())
++    {throw Exception("Measurement clone cannot silently drop custom sensor data");}
++    SetUniqueId(source.GetUniqueId()); SetStateId(source.GetStateId()); SetTime(source.GetTime());
++    ValidatePreparedGeometry();
++  }
+ 
+   /**
+    * Destructor
+@@ -5510,6 +5550,7 @@
+ 
+   inline void SetBarycenterPose(Pose2 & bcenter)
+   {
++    if (HasDeskewGeometry()) {throw Exception("Prepared barycenter is a derived cache");}
+     m_BarycenterPose = bcenter;
+   }
+ 
+@@ -5542,6 +5583,8 @@
+ 
+   inline void SetIsDirty(kt_bool & rIsDirty)
+   {
++    if (HasDeskewGeometry() && !rIsDirty)
++    {throw Exception("Prepared cache cannot bypass geometry recomputation");}
+     m_IsDirty = rIsDirty;
+   }
+ 
+@@ -5604,7 +5647,93 @@
+ 
+   inline void SetBoundingBox(BoundingBox2 & bbox)
+   {
++    if (HasDeskewGeometry()) {throw Exception("Prepared bounding box is a derived cache");}
+     m_BoundingBox = bbox;
++  }
++
++  // Sensor validity is independent from algorithm min/max selection.
++  enum class BeamState : std::uint8_t {Invalid = 0, Hit = 1, NoReturn = 2};
++  // Prepared robot-reference geometry is authoritative; raw ranges are audit-only.
++  inline bool HasDeskewGeometry() const {return !m_LocalDeskewPoints.empty();}
++  inline const char * GetGeometryVersion() const
++  {return HasDeskewGeometry() ? "prepared-typed-rays.v2" : "legacy-raw.v0";}
++  inline void SetScanTimeProvenance(std::int64_t raw, std::int64_t physical,
++    const std::string & mapping, const std::string & source)
++  {
++    if (HasDeskewGeometry()) {throw Exception("Prepared measurement provenance is immutable");}
++    m_RawScanStampNs = raw; m_PhysicalReferenceNs = physical;
++    m_TimeMappingId = mapping; m_TimeMappingSource = source;
++  }
++  inline std::int64_t GetRawScanStampNs() const {return m_RawScanStampNs;}
++  inline std::int64_t GetPhysicalReferenceNs() const {return m_PhysicalReferenceNs;}
++  inline const std::string & GetTimeMappingId() const {return m_TimeMappingId;}
++  inline const std::string & GetTimeMappingSource() const {return m_TimeMappingSource;}
++  inline const std::vector<std::int64_t> & GetBeamStampNs() const {return m_BeamStampNs;}
++  inline const std::vector<kt_int32u> & GetOriginalBeamIndices() const
++  {return m_OriginalBeamIndices;}
++  // The driver's sensor validity limits are separate from mapper algorithm gates.
++  // Historical v0/v1 raw archives use their only recorded (legacy) limits.
++  inline void SetRawSensorLimits(double minimum, double maximum)
++  {
++    if (HasDeskewGeometry() || !std::isfinite(minimum) || !std::isfinite(maximum) ||
++      minimum < 0 || maximum <= minimum)
++    {throw Exception("Invalid or immutable raw sensor limits");}
++    m_SensorMinimumRange = minimum; m_SensorMaximumRange = maximum;
++  }
++  inline double GetRawSensorMinimumRange() const
++  {return std::isfinite(m_SensorMinimumRange) ? m_SensorMinimumRange : GetLaserRangeFinder()->GetMinimumRange();}
++  inline double GetRawSensorMaximumRange() const
++  {return std::isfinite(m_SensorMaximumRange) ? m_SensorMaximumRange : GetLaserRangeFinder()->GetMaximumRange();}
++  inline BeamState GetBeamState(kt_int32u index) const
++  {
++    if (index >= GetNumberOfRangeReadings()) {throw Exception("Beam index out of range");}
++    if (HasDeskewGeometry()) {return static_cast<BeamState>(m_BeamStates.at(index));}
++    const double range = GetRangeReadings()[index];
++    if ((std::isinf(range) && range > 0) || range == GetRawSensorMaximumRange())
++    {return BeamState::NoReturn;}
++    if (!std::isfinite(range) || range < GetRawSensorMinimumRange() ||
++      range > GetRawSensorMaximumRange()) {return BeamState::Invalid;}
++    return BeamState::Hit;
++  }
++  inline double GetBeamDistance(kt_int32u index) const
++  {
++    return GetBeamState(index) == BeamState::NoReturn ?
++      GetRawSensorMaximumRange() : GetRangeReadings()[index];
++  }
++  inline bool IsBeamMatchable(kt_int32u index) const
++  {
++    return GetBeamState(index) == BeamState::Hit &&
++      math::InRange(GetBeamDistance(index), GetLaserRangeFinder()->GetMinimumRange(),
++      GetLaserRangeFinder()->GetRangeThreshold());
++  }
++  inline bool IsBeamRayTraceable(kt_int32u index) const
++  {return GetBeamState(index) != BeamState::Invalid;}
++  void SetRangeReadings(const RangeReadingsVector & readings) override
++  {
++    if (HasDeskewGeometry())
++    {throw Exception("Prepared measurement raw audit ranges are immutable");}
++    LaserRangeScan::SetRangeReadings(readings); m_IsDirty = true;
++  }
++  inline void SetDeskewGeometry(const PointVectorDouble & points,
++    const PointVectorDouble & origins, const std::vector<std::int64_t> & stamps,
++    const std::vector<kt_int32u> & originalIndices, const std::vector<std::uint8_t> & states)
++  {
++    if (GetObjectType() != ObjectType_LocalizedRangeScan)
++    {throw Exception("Prepared geometry cannot be attached to alternate scan representations");}
++    if (HasDeskewGeometry()) {throw Exception("Prepared measurement geometry is immutable");}
++    ValidatePreparedInput(points, origins, stamps, originalIndices, states);
++    m_LocalDeskewPoints = points; m_LocalRayOrigins = origins;
++    m_BeamStampNs = stamps; m_OriginalBeamIndices = originalIndices;
++    m_BeamStates = states; m_IsDirty = true;
++  }
++  inline Vector2<kt_double> GetRayOrigin(kt_int32u index) const
++  {
++    if (!IsBeamRayTraceable(index)) {throw Exception("Invalid beam has no consumable ray origin");}
++    if (!HasDeskewGeometry()) {return GetSensorPose().GetPosition();}
++    const auto & local = m_LocalRayOrigins.at(index);
++    Transform transform(GetCorrectedPose());
++    const Pose2 world = transform.TransformPose(Pose2(local, 0.0));
++    return world.GetPosition();
+   }
+ 
+   /**
+@@ -5629,6 +5758,7 @@
+ 
+   inline void SetPointReadings(PointVectorDouble & points, kt_bool setFiltered = false)
+   {
++    if (HasDeskewGeometry()) {throw Exception("Prepared geometry caches cannot be replaced");}
+     if (setFiltered) {
+       m_PointReadings = points;
+     } else {
+@@ -5645,6 +5775,28 @@
+   {
+     LaserRangeFinder * pLaserRangeFinder = GetLaserRangeFinder();
+ 
++    if (pLaserRangeFinder != NULL && HasDeskewGeometry()) {
++      m_PointReadings.clear(); m_UnfilteredPointReadings.clear();
++      m_BoundingBox = BoundingBox2();
++      Vector2<kt_double> sum;
++      Transform transform(GetCorrectedPose());
++      for (kt_int32u i = 0; i < m_LocalDeskewPoints.size(); ++i) {
++        const auto & local = m_LocalDeskewPoints[i];
++        Vector2<kt_double> point(0, 0);
++        if (IsBeamRayTraceable(i)) {
++          const Pose2 world = transform.TransformPose(Pose2(local, 0.0));
++          point = world.GetPosition();
++          if (IsBeamMatchable(i))
++          {m_PointReadings.push_back(point); sum += point;}
++        }
++        m_UnfilteredPointReadings.push_back(point);
++      }
++      m_BarycenterPose = m_PointReadings.empty() ? GetSensorPose() :
++        Pose2(sum / static_cast<kt_double>(m_PointReadings.size()), 0.0);
++      UpdateMatchBoundingBox();
++      m_IsDirty = false;
++      return;
++    }
+     if (pLaserRangeFinder != NULL) {
+       m_PointReadings.clear();
+       m_UnfilteredPointReadings.clear();
+@@ -5658,8 +5810,12 @@
+       Vector2<kt_double> rangePointsSum;
+       kt_int32u beamNum = 0;
+       for (kt_int32u i = 0; i < pLaserRangeFinder->GetNumberOfRangeReadings(); i++, beamNum++) {
+-        kt_double rangeReading = GetRangeReadings()[i];
+-        if (!math::InRange(rangeReading, pLaserRangeFinder->GetMinimumRange(), rangeThreshold)) {
++        kt_double rangeReading = GetBeamDistance(i);
++        if (!IsBeamRayTraceable(i)) {
++          m_UnfilteredPointReadings.push_back(Vector2<double>(0, 0));
++          continue;
++        }
++        if (!IsBeamMatchable(i)) {
+           kt_double angle = scanPose.GetHeading() + minimumAngle + beamNum * angularResolution;
+ 
+           Vector2<kt_double> point;
+@@ -5691,16 +5847,34 @@
+         m_BarycenterPose = scanPose;
+       }
+ 
+-      // calculate bounding box of scan
+-      m_BoundingBox = BoundingBox2();
+-      m_BoundingBox.Add(scanPose.GetPosition());
+-      forEach(PointVectorDouble, &m_PointReadings)
+-      {
+-        m_BoundingBox.Add(*iter);
++      UpdateMatchBoundingBox();
++    }
++
++    m_IsDirty = false;
++  }
++
++  // Preserve the legacy map extent policy: sensor pose plus selected hit endpoints.
++  // Prepared scans additionally retain the corresponding physical per-beam origins.
++  // No-return and algorithm-excluded rays are clipped by native insertion at this extent.
++  void UpdateMatchBoundingBox()
++  {
++    m_BoundingBox = BoundingBox2();
++    m_BoundingBox.Add(GetSensorPose().GetPosition());
++    if (!HasDeskewGeometry()) {
++      for (const auto & point : m_PointReadings) {
++        if (std::isfinite(point.GetX()) && std::isfinite(point.GetY()))
++        {m_BoundingBox.Add(point);}
+       }
+-    }
+-
+-    m_IsDirty = false;
++      return;
++    }
++    for (size_t i = 0; i < m_UnfilteredPointReadings.size(); ++i) {
++      if (!IsBeamMatchable(i)) {continue;}
++      const auto & point = m_UnfilteredPointReadings[i];
++      const auto origin = GetRayOrigin(i);
++      if (!std::isfinite(origin.GetX()) || !std::isfinite(origin.GetY()) ||
++        !std::isfinite(point.GetX()) || !std::isfinite(point.GetY())) {continue;}
++      m_BoundingBox.Add(origin); m_BoundingBox.Add(point);
++    }
+   }
+ 
+   /**
+@@ -5718,13 +5892,94 @@
+     ar & BOOST_SERIALIZATION_NVP(m_BoundingBox);
+     ar & BOOST_SERIALIZATION_NVP(m_IsDirty);
+     ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(LaserRangeScan);
++    if (version > 0) {
++      ar & BOOST_SERIALIZATION_NVP(m_LocalDeskewPoints);
++      ar & BOOST_SERIALIZATION_NVP(m_LocalRayOrigins);
++      ar & BOOST_SERIALIZATION_NVP(m_BeamStampNs);
++      ar & BOOST_SERIALIZATION_NVP(m_OriginalBeamIndices);
++      ar & BOOST_SERIALIZATION_NVP(m_RawScanStampNs);
++      ar & BOOST_SERIALIZATION_NVP(m_PhysicalReferenceNs);
++      ar & BOOST_SERIALIZATION_NVP(m_TimeMappingId);
++      ar & BOOST_SERIALIZATION_NVP(m_TimeMappingSource);
++      if (version > 1) {
++        ar & BOOST_SERIALIZATION_NVP(m_BeamStates);
++        ar & BOOST_SERIALIZATION_NVP(m_SensorMinimumRange);
++        ar & BOOST_SERIALIZATION_NVP(m_SensorMaximumRange);
++      }
++      if (Archive::is_loading::value) {
++        if (m_LocalDeskewPoints.size() != m_LocalRayOrigins.size() ||
++          m_BeamStampNs.size() != m_LocalDeskewPoints.size() ||
++          m_OriginalBeamIndices.size() != m_LocalDeskewPoints.size() ||
++          (!m_LocalDeskewPoints.empty() && m_LocalDeskewPoints.size() != GetNumberOfRangeReadings()))
++        {throw Exception("Corrupt serialized deskew geometry");}
++        if (version == 1 && HasDeskewGeometry())
++        {throw Exception("Prepared scan archive v1 lacks beam states; rebuild using typed-rays.v2");}
++        ValidatePreparedGeometry();
++        // Recompute derived world caches from the persisted reference geometry.
++        m_IsDirty = true;
++      }
++    }
+   }
+ 
+ private:
++  void ValidatePreparedInput(const PointVectorDouble & points, const PointVectorDouble & origins,
++    const std::vector<std::int64_t> & stamps, const std::vector<kt_int32u> & indices,
++    const std::vector<std::uint8_t> & states) const
++  {
++    if (points.empty() || points.size() != GetNumberOfRangeReadings() ||
++      origins.size() != points.size() || stamps.size() != points.size() ||
++      indices.size() != points.size() || states.size() != points.size())
++    {throw Exception("Prepared geometry must preserve all original beam identities");}
++    if (!std::isfinite(m_SensorMinimumRange) || !std::isfinite(m_SensorMaximumRange) ||
++      m_SensorMinimumRange < 0 || m_SensorMaximumRange <= m_SensorMinimumRange)
++    {throw Exception("Prepared adapter requires explicit valid raw sensor limits");}
++    std::vector<bool> seen(points.size(), false);
++    for (size_t i = 0; i < points.size(); ++i) {
++      if (indices[i] >= seen.size() || seen[indices[i]] || states[i] > 2)
++      {throw Exception("Corrupt prepared beam identity");}
++      seen[indices[i]] = true;
++      const double raw = GetRangeReadings()[i];
++      const bool noReturn = (std::isinf(raw) && raw > 0) || raw == m_SensorMaximumRange;
++      const bool hit = std::isfinite(raw) && raw >= m_SensorMinimumRange && raw < m_SensorMaximumRange;
++      const std::uint8_t expected = noReturn ? 2 : hit ? 1 : 0;
++      if (states[i] != expected)
++      {throw Exception("Prepared beam state contradicts raw sensor validity");}
++      if (states[i] == 0) {continue;}
++      if (!std::isfinite(points[i].GetX()) || !std::isfinite(points[i].GetY()) ||
++        !std::isfinite(origins[i].GetX()) || !std::isfinite(origins[i].GetY()))
++      {throw Exception("Corrupt non-finite prepared ray");}
++      const double length = std::hypot(points[i].GetX() - origins[i].GetX(),
++        points[i].GetY() - origins[i].GetY());
++      const double distance = noReturn ? m_SensorMaximumRange : raw;
++      if (!std::isfinite(length) || std::abs(length - distance) > 1e-7 * (1 + distance))
++      {throw Exception("Prepared ray length contradicts raw measurement");}
++    }
++  }
++  void ValidatePreparedGeometry() const
++  {
++    if (!HasDeskewGeometry()) {
++      if (!m_LocalRayOrigins.empty() || !m_BeamStampNs.empty() ||
++        !m_OriginalBeamIndices.empty() || !m_BeamStates.empty())
++      {throw Exception("Prepared fields without authoritative geometry");}
++      return;
++    }
++    ValidatePreparedInput(m_LocalDeskewPoints, m_LocalRayOrigins, m_BeamStampNs,
++      m_OriginalBeamIndices, m_BeamStates);
++  }
+   LocalizedRangeScan(const LocalizedRangeScan &);
+   const LocalizedRangeScan & operator=(const LocalizedRangeScan &);
+ 
+ private:
++  PointVectorDouble m_LocalDeskewPoints;
++  PointVectorDouble m_LocalRayOrigins;
++  std::vector<std::int64_t> m_BeamStampNs;
++  std::vector<kt_int32u> m_OriginalBeamIndices;
++  std::vector<std::uint8_t> m_BeamStates;
++  double m_SensorMinimumRange = std::numeric_limits<double>::quiet_NaN();
++  double m_SensorMaximumRange = std::numeric_limits<double>::quiet_NaN();
++  std::int64_t m_RawScanStampNs = 0, m_PhysicalReferenceNs = 0;
++  std::string m_TimeMappingId, m_TimeMappingSource;
++
+   /**
+    * Odometric pose of robot
+    */
+@@ -5790,7 +6045,7 @@
+     const Name & rSensorName, const RangeReadingsVector & rReadings,
+     const PointVectorDouble & rPoints)
+   : m_Points(rPoints),
+-    LocalizedRangeScan(rSensorName, rReadings)
++    LocalizedRangeScan(rSensorName, rReadings, LocalizedRangeScan::LegacyRawTag{})
+   {
+   }
+ 
+@@ -6108,8 +6363,14 @@
+     kt_double scale = 1.0 / resolution;
+     Size2<kt_double> size = boundingBox.GetSize();
+ 
+-    rWidth = static_cast<kt_int32s>(math::Round(size.GetWidth() * scale));
+-    rHeight = static_cast<kt_int32s>(math::Round(size.GetHeight() * scale));
++    const double width = math::Round(size.GetWidth() * scale);
++    const double height = math::Round(size.GetHeight() * scale);
++    if (!std::isfinite(width) || !std::isfinite(height) || width < 0 || height < 0 ||
++      width > std::numeric_limits<kt_int32s>::max() ||
++      height > std::numeric_limits<kt_int32s>::max())
++    {throw Exception("Map bounding box exceeds representable grid dimensions");}
++    rWidth = static_cast<kt_int32s>(width);
++    rHeight = static_cast<kt_int32s>(height);
+     rOffset = boundingBox.GetMinimum();
+   }
+ 
+@@ -6152,7 +6413,6 @@
+     kt_double maxRange = laserRangeFinder->GetMaximumRange();
+     kt_double minRange = laserRangeFinder->GetMinimumRange();
+ 
+-    Vector2<kt_double> scanPosition = pScan->GetSensorPose().GetPosition();
+     // get scan point readings
+     const PointVectorDouble & rPointReadings = pScan->GetPointReadings(false);
+ 
+@@ -6163,23 +6423,28 @@
+     const_forEachAs(PointVectorDouble, &rPointReadings, pointsIter)
+     {
+       Vector2<kt_double> point = *pointsIter;
+-      kt_double rangeReading = pScan->GetRangeReadings()[pointIndex];
+-      kt_bool isEndPointValid = rangeReading < (rangeThreshold - KT_TOLERANCE);
+-
+-      if (rangeReading <= minRange || rangeReading >= maxRange || std::isnan(rangeReading)) {
++      if (!pScan->IsBeamRayTraceable(pointIndex) ||
++        pScan->GetBeamDistance(pointIndex) < minRange) {pointIndex++; continue;}
++      const Vector2<kt_double> rayOrigin = pScan->GetRayOrigin(pointIndex);
++      kt_double rangeReading = pScan->GetBeamDistance(pointIndex);
++      kt_bool isEndPointValid = pScan->GetBeamState(pointIndex) == LocalizedRangeScan::BeamState::Hit &&
++        rangeReading < (rangeThreshold - KT_TOLERANCE);
++
++      if (!std::isfinite(point.GetX()) || !std::isfinite(point.GetY()) ||
++        !std::isfinite(rayOrigin.GetX()) || !std::isfinite(rayOrigin.GetY())) {
+         // ignore these readings
+         pointIndex++;
+         continue;
+       } else if (rangeReading >= rangeThreshold) {
+         // trace up to range reading
+         kt_double ratio = rangeThreshold / rangeReading;
+-        kt_double dx = point.GetX() - scanPosition.GetX();
+-        kt_double dy = point.GetY() - scanPosition.GetY();
+-        point.SetX(scanPosition.GetX() + ratio * dx);
+-        point.SetY(scanPosition.GetY() + ratio * dy);
++        kt_double dx = point.GetX() - rayOrigin.GetX();
++        kt_double dy = point.GetY() - rayOrigin.GetY();
++        point.SetX(rayOrigin.GetX() + ratio * dx);
++        point.SetY(rayOrigin.GetY() + ratio * dy);
+       }
+ 
+-      kt_bool isInMap = RayTrace(scanPosition, point, isEndPointValid, doUpdate);
++      kt_bool isInMap = RayTrace(rayOrigin, point, isEndPointValid, doUpdate);
+       if (!isInMap) {
+         isAllInMap = false;
+       }
+@@ -6802,11 +7067,16 @@
+     kt_double angleOffset,
+     kt_double angleResolution)
+   {
+-    assert(angleOffset != 0.0);
+-    assert(angleResolution != 0.0);
+-
+-    kt_int32u nAngles =
+-      static_cast<kt_int32u>(math::Round(angleOffset * 2.0 / angleResolution) + 1);
++    if (!std::isfinite(angleCenter) || !std::isfinite(angleOffset) ||
++      !std::isfinite(angleResolution) || angleOffset <= 0 || angleResolution <= 0 ||
++      !std::isfinite(angleCenter - angleOffset) || !std::isfinite(angleCenter + angleOffset))
++    {throw Exception("Non-finite or invalid angular lookup support");}
++
++    const double angleCount = math::Round(angleOffset * 2.0 / angleResolution) + 1;
++    if (!std::isfinite(angleCount) || angleCount < 1 ||
++      angleCount > std::numeric_limits<kt_int32u>::max())
++    {throw Exception("Invalid lookup angle dimensions");}
++    const kt_int32u nAngles = static_cast<kt_int32u>(angleCount);
+     SetSize(nAngles);
+ 
+     //////////////////////////////////////////////////////
+@@ -6868,8 +7138,8 @@
+     {
+       const Vector2<kt_double> & rPosition = iter->GetPosition();
+ 
+-      if (std::isnan(pScan->GetRangeReadings()[readingIndex]) ||
+-        std::isinf(pScan->GetRangeReadings()[readingIndex]))
++      if (!pScan->IsBeamMatchable(readingIndex) ||
++        !std::isfinite(rPosition.GetX()) || !std::isfinite(rPosition.GetY()))
+       {
+         pAngleIndexPointer[readingIndex] = INVALID_SCAN;
+         readingIndex++;
+@@ -6883,12 +7153,13 @@
+       offset.SetY(sine * rPosition.GetX() + cosine * rPosition.GetY());
+ 
+       // have to compensate for the grid offset when getting the grid index
+-      Vector2<kt_int32s> gridPoint = m_pGrid->WorldToGrid(offset + rGridOffset);
+-
+-      // use base GridIndex to ignore ROI
+-      kt_int32s lookupIndex = m_pGrid->Grid<T>::GridIndex(gridPoint, false);
+-
+-      pAngleIndexPointer[readingIndex] = lookupIndex;
++      try {
++        const auto gridPoint = m_pGrid->WorldToGrid(offset + rGridOffset);
++        // Relative lookup offsets may lie outside ROI, but must remain representable.
++        pAngleIndexPointer[readingIndex] = m_pGrid->Grid<T>::GridIndex(gridPoint, false);
++      } catch (const Exception &) {
++        pAngleIndexPointer[readingIndex] = INVALID_SCAN;
++      }
+ 
+       readingIndex++;
+     }
+@@ -7018,6 +7289,7 @@
+ BOOST_CLASS_EXPORT_KEY(karto::Name);
+ BOOST_CLASS_EXPORT_KEY(karto::SensorData);
+ BOOST_CLASS_EXPORT_KEY(karto::LocalizedRangeScan);
++BOOST_CLASS_VERSION(karto::LocalizedRangeScan, 2)
+ BOOST_CLASS_EXPORT_KEY(karto::LaserRangeScan);
+ BOOST_CLASS_EXPORT_KEY(karto::LaserRangeFinder);
+ BOOST_CLASS_EXPORT_KEY(karto::CustomData);
+--- a/lib/karto_sdk/src/Karto.cpp
++++ b/lib/karto_sdk/src/Karto.cpp
+@@ -170,36 +170,28 @@
+   kt_bool flipY) const
+ {
+   PointVectorDouble pointReadings;
+-
+-  Pose2 scanPose = pLocalizedRangeScan->GetSensorPose();
+-
+-  // compute point readings
+-  kt_int32u beamNum = 0;
+-  kt_double * pRangeReadings = pLocalizedRangeScan->GetRangeReadings();
+-  for (kt_int32u i = 0; i < m_NumberOfRangeReadings; i++, beamNum++) {
+-    kt_double rangeReading = pRangeReadings[i];
+-
+-    if (ignoreThresholdPoints) {
+-      if (!math::InRange(rangeReading, GetMinimumRange(), GetRangeThreshold())) {
+-        continue;
+-      }
+-    } else {
+-      rangeReading = math::Clip(rangeReading, GetMinimumRange(), GetRangeThreshold());
++  const auto & points = pLocalizedRangeScan->GetPointReadings(false);
++  for (kt_int32u i = 0; i < points.size(); ++i) {
++    if (ignoreThresholdPoints ? !pLocalizedRangeScan->IsBeamMatchable(i) :
++      !pLocalizedRangeScan->IsBeamRayTraceable(i)) {continue;}
++    if (pLocalizedRangeScan->GetBeamDistance(i) < GetMinimumRange()) {continue;}
++    const auto & endpoint = points[i];
++    if (!std::isfinite(endpoint.GetX()) || !std::isfinite(endpoint.GetY())) {continue;}
++    Vector2<kt_double> point = endpoint;
++    if (!ignoreThresholdPoints) {
++      const auto origin = pLocalizedRangeScan->GetRayOrigin(i);
++      const double range = pLocalizedRangeScan->GetBeamDistance(i);
++      if (!(range > 0) || !std::isfinite(range)) {continue;}
++      const double ratio = std::min(range, GetRangeThreshold()) / range;
++      point.SetX(origin.GetX() + ratio * (point.GetX() - origin.GetX()));
++      point.SetY(origin.GetY() + ratio * (point.GetY() - origin.GetY()));
+     }
+-
+-    kt_double angle = scanPose.GetHeading() + GetMinimumAngle() + beamNum * GetAngularResolution();
+-
+-    Vector2<kt_double> point;
+-
+-    point.SetX(scanPose.GetX() + (rangeReading * cos(angle)));
+-    point.SetY(scanPose.GetY() + (rangeReading * sin(angle)));
+-
+     if (pCoordinateConverter != NULL) {
+-      Vector2<kt_int32s> gridPoint = pCoordinateConverter->WorldToGrid(point, flipY);
+-      point.SetX(gridPoint.GetX());
+-      point.SetY(gridPoint.GetY());
++      try {
++        const auto gridPoint = pCoordinateConverter->WorldToGrid(point, flipY);
++        point.SetX(gridPoint.GetX()); point.SetY(gridPoint.GetY());
++      } catch (const Exception &) {continue;}
+     }
+-
+     pointReadings.push_back(point);
+   }
+ 
+--- a/lib/karto_sdk/src/Mapper.cpp
++++ b/lib/karto_sdk/src/Mapper.cpp
+@@ -93,6 +93,20 @@
+       << ",\"query_reference_stamp_ns\":" << query->GetPhysicalReferenceNs()
+       << ",\"query_sensor_name\":"; MatchJsonString(out, query->GetSensorName().ToString());
+   out << ",\"query_geometry_version\":"; MatchJsonString(out, query->GetGeometryVersion());
++  const auto sourceBeamCount = query->GetNumberOfRangeReadings();
++  size_t eligibleFiniteHits = 0;
++  if (sourceBeamCount != 0) {
++    const auto & points = query->GetPointReadings(false);
++    for (size_t i = 0; i < points.size(); ++i) {
++      if (query->IsBeamMatchable(i) && std::isfinite(points[i].GetX()) &&
++        std::isfinite(points[i].GetY())) {++eligibleFiniteHits;}
++    }
++  }
++  out << ",\"source_beam_roster_count\":" << sourceBeamCount
++      << ",\"eligible_finite_hit_count\":" << eligibleFiniteHits
++      << ",\"eligible_hit_count_stage\":\"before_angle_and_grid_support\""
++      << ",\"response_denominator\":" << sourceBeamCount
++      << ",\"response_normalization_policy\":\"source-beam-roster.coverage.v1\"";
+   out << ",\"query_has_prepared_geometry\":" << (query->HasDeskewGeometry() ? "true" : "false")
+       << ",\"time_mapping_id\":"; MatchJsonString(out, query->GetTimeMappingId());
+   out << ",\"chain_ids\":[";
+@@ -615,7 +629,7 @@
+ 
+   // scan has no readings; cannot do scan matching
+   // best guess of pose is based off of adjusted odometer reading
+-  if (pScan->GetNumberOfRangeReadings() == 0) {
++  if (pScan->GetNumberOfRangeReadings() == 0 || pScan->GetPointReadings(true).empty()) {
+     rMean = scanPose;
+ 
+     // maximum covariance
+@@ -1150,7 +1164,9 @@
+   // put in all valid points
+   const_forEach(PointVectorDouble, &validPoints)
+   {
+-    Vector2<kt_int32s> gridPoint = m_pCorrelationGrid->WorldToGrid(*iter);
++    Vector2<kt_int32s> gridPoint;
++    try {gridPoint = m_pCorrelationGrid->WorldToGrid(*iter);}
++    catch (const Exception &) {continue;}
+     if (!math::IsUpTo(gridPoint.GetX(), m_pCorrelationGrid->GetROI().GetWidth()) ||
+       !math::IsUpTo(gridPoint.GetY(), m_pCorrelationGrid->GetROI().GetHeight()))
+     {
+@@ -1185,7 +1201,7 @@
+   LocalizedRangeScan * pScan,
+   const Vector2<kt_double> & rViewPoint) const
+ {
+-  const PointVectorDouble & rPointReadings = pScan->GetPointReadings();
++  const PointVectorDouble & rPointReadings = pScan->GetPointReadings(true);
+ 
+   // points must be at least 10 cm away when making comparisons of inside/outside of viewpoint
+   const kt_double minSquareDistance = math::Square(0.1);    // in m^2
+@@ -1201,7 +1217,8 @@
+   {
+     Vector2<kt_double> currentPoint = *iter;
+ 
+-    if (firstTime && !std::isnan(currentPoint.GetX()) && !std::isnan(currentPoint.GetY())) {
++    if (!std::isfinite(currentPoint.GetX()) || !std::isfinite(currentPoint.GetY())) {continue;}
++    if (firstTime) {
+       firstPoint = currentPoint;
+       firstTime = false;
+     }
+@@ -1244,35 +1261,24 @@
+ {
+   kt_double response = 0.0;
+ 
+-  // add up value for each point
+-  kt_int8u * pByte = m_pCorrelationGrid->GetDataPointer() + gridPositionIndex;
+-
+   const LookupArray * pOffsets = m_pGridLookup->GetLookupArray(angleIndex);
+   assert(pOffsets != NULL);
+-
+-  // get number of points in offset list
+-  kt_int32u nPoints = pOffsets->GetSize();
+-  if (nPoints == 0) {
+-    return response;
+-  }
+-
+-  // calculate response
+-  kt_int32s * pAngleIndexPointer = pOffsets->GetArrayPointer();
+-  for (kt_int32u i = 0; i < nPoints; i++) {
+-    // ignore points that fall off the grid
+-    kt_int32s pointGridIndex = gridPositionIndex + pAngleIndexPointer[i];
+-    if (!math::IsUpTo(pointGridIndex,
+-      m_pCorrelationGrid->GetDataSize()) || pAngleIndexPointer[i] == INVALID_SCAN)
+-    {
+-      continue;
+-    }
+-
+-    // uses index offsets to efficiently find location of point in the grid
+-    response += pByte[pAngleIndexPointer[i]];
+-  }
+-
+-  // normalize response
+-  response /= (nPoints * GridStates_Occupied);
++  const kt_int32u nPoints = pOffsets->GetSize();
++  const kt_int32s * offsets = pOffsets->GetArrayPointer();
++  const auto * grid = m_pCorrelationGrid->GetDataPointer();
++  kt_int32u eligible = 0;
++  for (kt_int32u i = 0; i < nPoints; ++i) {
++    if (offsets[i] == INVALID_SCAN) {continue;}
++    ++eligible;
++    const std::int64_t pointIndex = static_cast<std::int64_t>(gridPositionIndex) + offsets[i];
++    if (pointIndex < 0 || pointIndex >= m_pCorrelationGrid->GetDataSize()) {continue;}
++    response += grid[static_cast<size_t>(pointIndex)];
++  }
++  // Preserve the calibrated source-roster coverage confidence. Invalid beams
++  // never enter the numerator or index lookup, but still lower observation coverage:
++  // score = (eligible hits / source beams) * eligible-hit mean response.
++  if (nPoints == 0 || eligible == 0) {return 0.0;}
++  response /= static_cast<double>(nPoints) * GridStates_Occupied;
+   assert(fabs(response) <= 1.0);
+ 
+   return response;
+@@ -1624,11 +1630,7 @@
+       (covariance(0, 0) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue()) &&
+       (covariance(1, 1) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue()))
+     {
+-      LocalizedRangeScan tmpScan(pScan->GetSensorName(), pScan->GetRangeReadingsVector());
+-      tmpScan.SetUniqueId(pScan->GetUniqueId());
+-      tmpScan.SetTime(pScan->GetTime());
+-      tmpScan.SetStateId(pScan->GetStateId());
+-      tmpScan.SetCorrectedPose(pScan->GetCorrectedPose());
++      LocalizedRangeScan tmpScan(*pScan, LocalizedRangeScan::MeasurementCloneTag{});
+       tmpScan.SetSensorPose(bestPose);    // This also updates OdometricPose.
+       kt_double fineResponse = m_pMapper->m_pSequentialScanMatcher->MatchScan(&tmpScan,
+           candidateChain,
+--- a/package.xml
++++ b/package.xml
+@@ -19,6 +19,7 @@
+   <build_depend>nav_msgs</build_depend>
+   <build_depend>rclcpp</build_depend>
+   <build_depend>sensor_msgs</build_depend>
++  <depend>duojin02_scan_geometry</depend>
+   <build_depend>tf2_ros</build_depend>
+   <build_depend>tf2</build_depend>
+   <build_depend>tf2_sensor_msgs</build_depend>
+--- a/src/merge_maps_kinematic.cpp
++++ b/src/merge_maps_kinematic.cpp
+@@ -201,6 +201,16 @@
+   tf2::Transform & submap_correction)
+ /*****************************************************************************/
+ {
++  if ((*iter)->HasDeskewGeometry()) {
++    // A map-frame change modifies the physical reference pose, never the immutable
++    // per-beam measurement or one hand-written world-coordinate cache.
++    const Pose2 corrected = applyCorrection((*iter)->GetCorrectedPose(), submap_correction);
++    const Pose2 odometric = applyCorrection((*iter)->GetOdometricPose(), submap_correction);
++    (*iter)->SetOdometricPose(odometric);
++    (*iter)->SetCorrectedPoseAndUpdate(corrected);
++    return;
++  }
++
+   // TRANSFORM BARYCENTERR POSE
+   const Pose2 bary_center_pose = (*iter)->GetBarycenterPose();
+   auto bary_center_pose_corr =
+--- a/src/slam_toolbox_async.cpp
++++ b/src/slam_toolbox_async.cpp
+@@ -37,9 +37,10 @@
+ {
+   // store scan header
+   scan_header = scan->header;
++  scan_header.stamp = physicalScanStamp(*scan);
+   // no odom info
+   Pose2 pose;
+-  if (!pose_helper_->getOdomPose(pose, scan->header.stamp)) {
++  if (!physicalOdomPose(*scan, pose)) {
+     RCLCPP_WARN(get_logger(), "Failed to compute odom pose");
+     return;
+   }
+--- a/src/slam_toolbox_common.cpp
++++ b/src/slam_toolbox_common.cpp
+@@ -197,6 +197,24 @@
+ void SlamToolbox::setROSInterfaces()
+ /*****************************************************************************/
+ {
++  scan_geometry_config_ = duojin02_scan_geometry::declareConfig(*this);
++  rcl_interfaces::msg::ParameterDescriptor descriptor; descriptor.read_only = true;
++  const int pending_limit = declare_parameter<int>("scan_geometry_pending_limit", 200, descriptor);
++  pending_physical_scan_timeout_sec_ = declare_parameter<double>(
++    "scan_geometry_wait_timeout_sec", 2.0, descriptor);
++  if (pending_limit < 1 || !std::isfinite(pending_physical_scan_timeout_sec_) ||
++    pending_physical_scan_timeout_sec_ <= 0.0)
++  {throw std::invalid_argument("invalid scan geometry pending queue configuration");}
++  max_pending_physical_scans_ = static_cast<size_t>(pending_limit);
++  if (scan_geometry_config_.enabled && enable_interactive_mode_) {
++    throw std::invalid_argument("deskew geometry requires enable_interactive_mode=false; raw-scan interactive replay is unsupported");
++  }
++  scan_geometry_ = std::make_unique<duojin02_scan_geometry::RosScanGeometry>(
++    *this, scan_geometry_config_.tf_history_sec);
++  physical_scan_timer_ = create_wall_timer(std::chrono::milliseconds(10),
++    std::bind(&SlamToolbox::drainPhysicalScans, this));
++  RCLCPP_INFO(get_logger(), "Scan geometry contract: %s",
++    duojin02_scan_geometry::contractJson(scan_geometry_config_).c_str());
+   double tmp_val = 30.;
+   tmp_val = this->declare_parameter("tf_buffer_duration", tmp_val);
+   tf_ = std::make_unique<tf2_ros::Buffer>(this->get_clock(),
+@@ -240,7 +258,101 @@
+     *scan_filter_sub_, *tf_, odom_frame_, scan_queue_size_, shared_from_this(),
+     tf2::durationFromSec(transform_timeout_.seconds()));
+   scan_filter_->registerCallback(
+-    std::bind(&SlamToolbox::laserCallback, this, std::placeholders::_1));
++    std::bind(&SlamToolbox::enqueuePhysicalScan, this, std::placeholders::_1));
++}
++
++/*****************************************************************************/
++builtin_interfaces::msg::Time SlamToolbox::physicalScanStamp(
++  const sensor_msgs::msg::LaserScan & scan) const
++{
++  return duojin02_scan_geometry::stampMsg(
++    duojin02_scan_geometry::referenceStampNs(scan, scan_geometry_config_));
++}
++
++bool SlamToolbox::physicalOdomPose(const sensor_msgs::msg::LaserScan & scan, Pose2 & pose)
++{
++  if (duojin02_scan_geometry::legacyContract(scan_geometry_config_)) {
++    return pose_helper_->getOdomPose(pose, scan.header.stamp);
++  }
++  const auto key = duojin02_scan_geometry::frameName(scan.header.frame_id) + ":" +
++    std::to_string(duojin02_scan_geometry::stampNs(scan.header.stamp));
++  std::lock_guard<std::mutex> lock(physical_scan_mutex_);
++  const auto found = prepared_physical_scans_.find(key);
++  if (found == prepared_physical_scans_.end()) {return false;}
++  const auto & reference = found->second.geometry.odom_from_base_reference;
++  pose = Pose2(reference.x, reference.y, reference.yaw);
++  return true;
++}
++
++void SlamToolbox::enqueuePhysicalScan(sensor_msgs::msg::LaserScan::ConstSharedPtr scan)
++{
++  std::lock_guard<std::recursive_mutex> dispatch_lock(physical_dispatch_mutex_);
++  // D0 identity follows the historical path and introduces no extra TF dependency.
++  if (duojin02_scan_geometry::legacyContract(scan_geometry_config_)) {
++    try {
++      (void)physicalScanStamp(*scan);
++      laserCallback(scan);
++    } catch (const duojin02_scan_geometry::Error & error) {
++      RCLCPP_WARN(get_logger(), "scan_geometry_drop raw_stamp=%ld reason=%s",
++        static_cast<int64_t>(scan->header.stamp.sec) * 1000000000 + scan->header.stamp.nanosec,
++        error.what());
++    }
++    return;
++  }
++  if (pending_physical_scans_.size() >= max_pending_physical_scans_) {
++    RCLCPP_ERROR(get_logger(), "scan_geometry_drop reason=pending_queue_limit raw_stamp=%ld",
++      static_cast<int64_t>(scan->header.stamp.sec) * 1000000000 + scan->header.stamp.nanosec);
++    return;
++  }
++  pending_physical_scans_.push_back({scan, std::chrono::steady_clock::now()});
++  drainPhysicalScans();
++}
++
++void SlamToolbox::drainPhysicalScans()
++{
++  std::lock_guard<std::recursive_mutex> dispatch_lock(physical_dispatch_mutex_);
++  while (!pending_physical_scans_.empty()) {
++    const auto pending = pending_physical_scans_.front();
++    const auto scan = pending.scan;
++    try {
++      auto geometry = scan_geometry_config_.enabled ?
++        scan_geometry_->prepare(*scan, scan_geometry_config_, odom_frame_, base_frame_) :
++        scan_geometry_->prepareReference(*scan, scan_geometry_config_, odom_frame_, base_frame_);
++      {
++        std::lock_guard<std::mutex> lock(physical_scan_mutex_);
++        for (auto it = prepared_physical_scans_.begin(); it != prepared_physical_scans_.end();) {
++          if (it->second.source.expired()) {it = prepared_physical_scans_.erase(it);} else {++it;}
++        }
++        const auto key = geometry.source_scan_id;
++        if (prepared_physical_scans_.count(key) != 0) {
++          throw duojin02_scan_geometry::Error(duojin02_scan_geometry::Failure::InvalidInput,
++            "duplicate source scan ID while an earlier scan is still queued");
++        }
++        prepared_physical_scans_[key] = {scan, std::move(geometry)};
++      }
++    } catch (const duojin02_scan_geometry::Error & error) {
++      const double waited = std::chrono::duration<double>(
++        std::chrono::steady_clock::now() - pending.received).count();
++      if ((error.reason == duojin02_scan_geometry::Failure::MissingFuture ||
++        error.reason == duojin02_scan_geometry::Failure::MissingFrame) &&
++        waited < pending_physical_scan_timeout_sec_) {return;}
++      RCLCPP_WARN(get_logger(), "scan_geometry_drop raw_stamp=%ld reason=%s waited_sec=%.6f",
++        static_cast<int64_t>(scan->header.stamp.sec) * 1000000000 + scan->header.stamp.nanosec,
++        error.what(), waited);
++      pending_physical_scans_.pop_front();
++      continue;
++    }
++    pending_physical_scans_.pop_front();
++    laserCallback(scan);
++  }
++}
++
++bool SlamToolbox::scanGeometryContractMatches(const std::string & prefix) const
++{
++  std::ifstream input(prefix + ".scan_geometry.json");
++  if (!input) {return duojin02_scan_geometry::legacyContract(scan_geometry_config_);}
++  const std::string actual((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
++  return actual == duojin02_scan_geometry::contractJson(scan_geometry_config_);
+ }
+ 
+ /*****************************************************************************/
+@@ -434,7 +546,11 @@
+   tf2::Stamped<tf2::Transform> base_to_map(
+     tf2::Transform(q, tf2::Vector3(corrected_pose.GetX(),
+     corrected_pose.GetY(), 0.0)).inverse(), tf2_ros::fromMsg(t), base_frame_);
+-  try {
++  if (!duojin02_scan_geometry::legacyContract(scan_geometry_config_)) {
++    // Use the same SE(2) interpolation that defined all base-reference beam geometry.
++    odom_to_map = tf2::Stamped<tf2::Transform>(smapper_->toTfPose(odom_pose) * base_to_map,
++      tf2_ros::fromMsg(t), odom_frame_);
++  } else try {
+     geometry_msgs::msg::TransformStamped base_to_map_msg, odom_to_map_msg;
+ 
+     // https://github.com/ros2/geometry2/issues/176
+@@ -495,10 +611,48 @@
+ 
+   // create localized range scan
+   LocalizedRangeScan * range_scan = new LocalizedRangeScan(
+-    laser->GetName(), readings);
++    laser->GetName(), readings, LocalizedRangeScan::LegacyRawTag{});
++  range_scan->SetRawSensorLimits(scan->range_min, scan->range_max);
++  const auto raw_ns = duojin02_scan_geometry::stampNs(scan->header.stamp);
++  const auto reference_ns = duojin02_scan_geometry::referenceStampNs(*scan, scan_geometry_config_);
++  range_scan->SetScanTimeProvenance(raw_ns, reference_ns,
++    scan_geometry_config_.mapping_id, scan_geometry_config_.mapping_source);
++  if (!duojin02_scan_geometry::legacyContract(scan_geometry_config_)) {
++    duojin02_scan_geometry::TimedScan geometry;
++    const auto key = duojin02_scan_geometry::frameName(scan->header.frame_id) + ":" + std::to_string(raw_ns);
++    {
++      std::lock_guard<std::mutex> lock(physical_scan_mutex_);
++      const auto found = prepared_physical_scans_.find(key);
++      if (found == prepared_physical_scans_.end()) {
++        delete range_scan;
++        throw std::runtime_error("deskew scan lacks its prepared source geometry");
++      }
++      geometry = std::move(found->second.geometry); prepared_physical_scans_.erase(found);
++    }
++    if (scan_geometry_config_.enabled) {
++    karto::PointVectorDouble points, origins;
++    std::vector<std::int64_t> stamps;
++    std::vector<kt_int32u> indices;
++    std::vector<std::uint8_t> states;
++    const bool inverted = lasers_[scan->header.frame_id].isInverted();
++    for (size_t j = 0; j < geometry.beams.size(); ++j) {
++      const auto & beam = geometry.beams[inverted ? geometry.beams.size() - 1 - j : j];
++      const auto state = static_cast<std::uint8_t>(beam.state);
++      if (state == 0) {
++        points.emplace_back(0, 0); origins.emplace_back(0, 0);
++      } else {
++        const auto endpoint = beam.endpointPoint(), origin = beam.originPoint();
++        points.emplace_back(endpoint.x, endpoint.y); origins.emplace_back(origin.x, origin.y);
++      }
++      states.push_back(state);
++      stamps.push_back(beam.stamp_ns); indices.push_back(beam.original_index);
++    }
++    range_scan->SetDeskewGeometry(points, origins, stamps, indices, states);
++    }
++  }
+   range_scan->SetOdometricPose(transformed_pose);
+   range_scan->SetCorrectedPose(transformed_pose);
+-  range_scan->SetTime(rclcpp::Time(scan->header.stamp).nanoseconds()/1.e9);
++  range_scan->SetTime(reference_ns / 1.e9);
+   return range_scan;
+ }
+ 
+@@ -508,7 +662,7 @@
+   const Pose2 & pose)
+ /*****************************************************************************/
+ {
+-  const rclcpp::Time stamp(scan->header.stamp);
++  const rclcpp::Time stamp(physicalScanStamp(*scan));
+   ++received_scan_count_;
+   if (first_measurement_) {
+     last_processed_scan_time_ = stamp;
+@@ -603,10 +757,10 @@
+     }
+ 
+     setTransformFromPoses(range_scan->GetCorrectedPose(), odom_pose,
+-      scan->header.stamp, update_reprocessing_transform);
++      physicalScanStamp(*scan), update_reprocessing_transform);
+     dataset_->Add(range_scan);
+ 
+-    publishPose(range_scan->GetCorrectedPose(), covariance, scan->header.stamp);
++    publishPose(range_scan->GetCorrectedPose(), covariance, physicalScanStamp(*scan));
+   } else {
+     delete range_scan;
+     range_scan = nullptr;
+@@ -698,7 +852,10 @@
+ 
+   boost::mutex::scoped_lock lock(smapper_mutex_);
+   if (serialization::write(filename, *smapper_->getMapper(), *dataset_, shared_from_this())) {
+-    resp->result = resp->RESULT_SUCCESS;
++    std::ofstream contract(filename + ".scan_geometry.json", std::ios::trunc);
++    contract << duojin02_scan_geometry::contractJson(scan_geometry_config_);
++    contract.flush();
++    resp->result = contract.good() ? resp->RESULT_SUCCESS : resp->RESULT_FAILED_TO_WRITE_FILE;
+   } else {
+     resp->result = resp->RESULT_FAILED_TO_WRITE_FILE;
+   }
+@@ -799,6 +956,10 @@
+     filename = snap_utils::getSnapPath() + std::string("/") + filename;
+   }
+ 
++  if (!scanGeometryContractMatches(filename)) {
++    RCLCPP_ERROR(get_logger(), "Saved graph scan geometry/time contract differs from the current consumer; rebuild or select matching parameters");
++    return false;
++  }
+   std::unique_ptr<Dataset> dataset = std::make_unique<Dataset>();
+   std::unique_ptr<Mapper> mapper = std::make_unique<Mapper>();
+ 
+--- a/src/slam_toolbox_localization.cpp
++++ b/src/slam_toolbox_localization.cpp
+@@ -120,9 +120,10 @@
+ {
+   // store scan header
+   scan_header = scan->header;
++  scan_header.stamp = physicalScanStamp(*scan);
+   // no odom info
+   Pose2 pose;
+-  if (!pose_helper_->getOdomPose(pose, scan->header.stamp)) {
++  if (!physicalOdomPose(*scan, pose)) {
+     RCLCPP_WARN(get_logger(), "Failed to compute odom pose");
+     return;
+   }
+@@ -197,9 +198,9 @@
+   } else {
+     // compute our new transform
+     setTransformFromPoses(range_scan->GetCorrectedPose(), odom_pose,
+-      scan->header.stamp, update_reprocessing_transform);
+-
+-    publishPose(range_scan->GetCorrectedPose(), covariance, scan->header.stamp);
++      physicalScanStamp(*scan), update_reprocessing_transform);
++
++    publishPose(range_scan->GetCorrectedPose(), covariance, physicalScanStamp(*scan));
+   }
+ 
+   return range_scan;
+--- a/src/slam_toolbox_sync.cpp
++++ b/src/slam_toolbox_sync.cpp
+@@ -124,9 +124,10 @@
+   }
+   // store scan header
+   scan_header = scan->header;
++  scan_header.stamp = physicalScanStamp(*scan);
+   // no odom info
+   Pose2 pose;
+-  if (!pose_helper_->getOdomPose(pose, scan->header.stamp)) {
++  if (!physicalOdomPose(*scan, pose)) {
+     RCLCPP_WARN(get_logger(), "Failed to compute odom pose");
+     boost::mutex::scoped_lock lock(q_mutex_);
+     ++invalid_scans_;

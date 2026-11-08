@@ -37,11 +37,16 @@ def pick_latest_map_yaml(package_name: str = _PACKAGE_NAME) -> str:
     newest_mtime = -1.0
 
     if maps_dir.is_dir():
-        for path in maps_dir.glob("*.yaml"):
+        candidates = list(maps_dir.glob("*.yaml")) + [
+            child / "map.yaml" for child in maps_dir.iterdir()
+            if child.is_dir() and (child / "snapshot.json").is_file()
+        ]
+        for path in candidates:
             if not path.is_file():
                 continue
-            if path.stem.isdigit():
-                numeric_maps.append((int(path.stem), path))
+            identifier = path.parent.name if path.name == "map.yaml" else path.stem
+            if identifier.isdigit():
+                numeric_maps.append((int(identifier), path))
             mtime = path.stat().st_mtime
             if mtime > newest_mtime:
                 newest_mtime = mtime
@@ -71,6 +76,8 @@ def resolve_map_yaml(map_value: str, package_name: str = _PACKAGE_NAME) -> str:
         path = get_workspace_root(package_name) / path
 
     resolved = path.resolve(strict=False)
+    if resolved.is_dir() and (resolved / "snapshot.json").is_file():
+        resolved = resolved / "map.yaml"
     if not resolved.is_file():
         raise FileNotFoundError(f"Map yaml not found: {resolved}")
     validate_map(resolved)

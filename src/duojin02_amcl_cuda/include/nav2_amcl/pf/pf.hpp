@@ -57,6 +57,33 @@ typedef double (* pf_sensor_model_fn_t) (
   struct _pf_sample_set_t * set);
 
 
+// Per-observation contract. Rejected observations preserve the motion-updated prior.
+typedef enum {
+  PF_SENSOR_OK = 0,
+  PF_SENSOR_NO_INFORMATION,
+  PF_SENSOR_INVALID_WEIGHT,
+  PF_SENSOR_ZERO_SUPPORT
+} pf_sensor_status_t;
+typedef enum {
+  PF_RESAMPLE_NONE = 0,
+  PF_RESAMPLE_SINGLE_BIN_CAP,
+  PF_RESAMPLE_KLD_LIMIT,
+  PF_RESAMPLE_MAX_CAP
+} pf_resample_stop_t;
+typedef struct {
+  unsigned long long update_count, rejected_updates, resample_count;
+  pf_sensor_status_t status;
+  double log_evidence, log_weight_min, log_weight_max, ess;
+  // Observation-before/after statistics, before any resampling can turn weights
+  // uniform and conceal a concentrated posterior.
+  double prior_ess, prior_max_weight, posterior_max_weight, posterior_entropy;
+  int observation_input_count;
+  int resample_input_count, resample_output_count, occupied_bins;
+  int second_bin_sample, kld_limit, unique_parents, random_injections, distinct_lineages;
+  double kld_unclipped_limit, duplicate_fraction, resample_input_ess;
+  pf_resample_stop_t stop_reason;
+} pf_diagnostics_t;
+
 // Information for a single sample
 typedef struct
 {
@@ -65,6 +92,8 @@ typedef struct
 
   // Weight for this pose
   double weight;
+  // Persistent root ancestry; random recovery samples begin new lineages.
+  unsigned long long lineage;
 } pf_sample_t;
 
 
@@ -80,6 +109,7 @@ typedef struct
   // Cluster statistics
   pf_vector_t mean;
   pf_matrix_t cov;
+  int angular_chart_valid;
 
   // Workspace
   double m[4], c[2][2];
@@ -104,6 +134,11 @@ typedef struct _pf_sample_set_t
   pf_vector_t mean;
   pf_matrix_t cov;
   int converged;
+  int angular_chart_valid;
+  // Sensor callbacks fill log likelihoods atomically, without changing prior weights.
+  double * log_likelihoods;
+  double * sensor_prior_weights;
+  int log_likelihoods_ready, sensor_no_information;
 } pf_sample_set_t;
 
 
@@ -123,6 +158,9 @@ typedef struct _pf_t
 
   // Running averages, slow and fast, of likelihood
   double w_slow, w_fast;
+  double log_w_slow, log_w_fast;
+  unsigned long long next_lineage;
+  pf_diagnostics_t diagnostics;
 
   // Decay rates for running averages
   double alpha_slow, alpha_fast;
@@ -156,6 +194,15 @@ void pf_init_model(pf_t * pf, pf_init_model_fn_t init_fn, void * init_data);
 
 // Update the filter with some new sensor observation
 void pf_update_sensor(pf_t * pf, pf_sensor_model_fn_t sensor_fn, void * sensor_data);
+
+// Rebuild the histogram and weighted moments after an update without resampling.
+void pf_recompute_stats(pf_t * pf);
+// ESS gate; ratio=0 preserves legacy unconditional resampling. Invalid ratios return -1.
+int pf_should_resample(const pf_t * pf, double ratio);
+// Standard normal quantile for a new explicit probability contract; invalid p returns NaN.
+double pf_kld_probability_to_z(double probability);
+const char * pf_sensor_status_name(pf_sensor_status_t status);
+const char * pf_resample_stop_name(pf_resample_stop_t reason);
 
 // Resample the distribution
 void pf_update_resample(pf_t * pf, void * random_pose_data);
