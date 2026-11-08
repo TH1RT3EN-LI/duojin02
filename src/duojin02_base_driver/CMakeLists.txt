@@ -12,6 +12,7 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -19,6 +20,10 @@ find_package(serial_driver REQUIRED)
 find_package(io_context REQUIRED)
 
 if(BUILD_TESTING)
+  enable_testing()
+  add_executable(feedback_pipeline_checks test/feedback_pipeline_checks.cpp src/quaternion_solution.cpp)
+  target_include_directories(feedback_pipeline_checks PRIVATE include)
+  add_test(NAME feedback_pipeline_checks COMMAND feedback_pipeline_checks)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
   set(ament_cmake_cpplint_FOUND TRUE)
@@ -37,6 +42,7 @@ ament_target_dependencies(
   geometry_msgs
   nav_msgs
   sensor_msgs
+  diagnostic_msgs
   std_msgs
   tf2
   tf2_geometry_msgs

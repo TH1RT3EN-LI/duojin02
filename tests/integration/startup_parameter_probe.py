@@ -77,6 +77,8 @@ def run(args):
         "odom_z_scale_positive": 1.1,
         "odom_z_scale_negative": 0.9,
         "loop_hz": 100,
+        "feedback_queue_capacity": 128,
+        "diagnostic_hz": 2.0,
         "command_timeout_s": 0.37,
         "imu_yaw_rate_bias": 0.01,
         "imu_yaw_rate_variance": 0.02,

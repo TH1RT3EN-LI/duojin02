@@ -2,6 +2,8 @@ base_driver:
   ros__parameters:
     use_sim_time: false
     loop_hz: 200
+    feedback_queue_capacity: 256
+    diagnostic_hz: 1.0
     odom_x_scale: 1.0
     odom_y_scale: 1.0
     odom_z_scale_positive: 1.0

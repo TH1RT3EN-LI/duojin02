@@ -53,15 +53,15 @@ void QuaternionSolution::set_accel_lpf_alpha(float alpha) noexcept {
   }
 }
 
-void QuaternionSolution::update(float gx, float gy, float gz, float ax, float ay, float az,
+bool QuaternionSolution::update(float gx, float gy, float gz, float ax, float ay, float az,
                                 float dt) noexcept {
   if (!finite(dt) || dt <= 0.0f)
-    return;
+    return false;
   if (dt > 0.5f)
-    return;
+    return false;
 
   if (!finite(gx) || !finite(gy) || !finite(gz) || !finite(ax) || !finite(ay) || !finite(az)) {
-    return;
+    return false;
   }
 
   if (accel_lpf_alpha_ < 1.0f) {
@@ -163,7 +163,7 @@ void QuaternionSolution::update(float gx, float gy, float gz, float ax, float ay
   const float qn = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
   if (!finite(qn) || qn < 1e-12f) {
     reset();
-    return;
+    return false;
   }
   const float inv_qn = inv_sqrt(qn);
 
@@ -171,6 +171,7 @@ void QuaternionSolution::update(float gx, float gy, float gz, float ax, float ay
   q_.x = q1 * inv_qn;
   q_.y = q2 * inv_qn;
   q_.z = q3 * inv_qn;
+  return true;
 }
 
 }

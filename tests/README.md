@@ -32,6 +32,20 @@ Docker 测试环境；已有 Humble 时直接运行，也可显式传 `--docker`
 
 ## CUDA 与专项回放
 
+底盘反馈队列、错帧恢复和姿态更新有效性的 C++ 检查已纳入 `navigation` 组。
+需要比较旧版与候选版时，在 Humble 环境构建两个独立安装后运行：
+
+```bash
+python3 tests/integration/base_driver_hardening_probe.py \
+  --baseline /path/to/baseline/lib/duojin02_base_driver/duojin02_base_driver_node \
+  --candidate /path/to/candidate/lib/duojin02_base_driver/duojin02_base_driver_node \
+  --output-dir output/base-driver-comparison
+```
+
+该探针在隔离 ROS 域中启动真实节点，通过 PTY 输入协议字节；测试专用 `/clock` 用于比较
+相同接收时刻下的数值，不用于推断串口突发帧的真实采样时间。它检查正常输出相等、突发顺序、
+错帧恢复、溢出计数、时间跳变和非法参数，并保存 JSON 与节点日志。
+
 ```bash
 python3 scripts/validate_cuda_algorithms.py --architecture 120 --jobs 2 --frames 60
 ```

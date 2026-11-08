@@ -11,6 +11,7 @@
 - [项目署名](../AUTHORS.md)：维护者身份、本地新增代码署名与上游来源。
 - [测试说明](../tests/README.md)：常规检查、原生组件与实验探针。
 - [2026-11-08 维护记录](project-maintenance-20261108.md)：整理、验证与同步范围。
+- [底盘反馈与 IMU 发布加固](base-driver-hardening-20261108.md)：修改前后对比、本机安装与证据边界。
 - [人工粗略起点与自动定位修正](local-initialization.md)：固定地图初始化。
 - [雷达水平角记录](lidar-yaw-calibration-20261107.md)：暂定标定值及适用范围。
 - [Foxglove 配置](../src/duojin02_bringup/config/foxglove/README.md)：建图和导航布局。

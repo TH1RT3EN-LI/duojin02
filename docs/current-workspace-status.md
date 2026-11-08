@@ -48,6 +48,13 @@
 
 同日后续将项目维护者、打包元数据和本地新增代码的既有版权行统一为 `litianshun <litianshun.cn@gmail.com>`，见 [项目署名](../AUTHORS.md)。版权注释也属于来源清单的输入；此次修订后，现有 SLAM 后端与 CUDA 安装均需重建以重新匹配源码，算法和运行逻辑未改动。
 
+同日底盘反馈与 IMU 发布加固通过修改前后 PTY 对比后，已重建并选择
+`install/managed-base-feedback-20261108/` 下的 `hardware`、`slam_backend` 和 `cuda-local-v3`。
+三个常用安装链接均指向此轮目录，旧安装保留；`hardware` 仅覆盖底盘驱动，其余硬件依赖来自镜像。
+当前 CUDA 入口来源校验通过，运行进程与测试二进制哈希一致。429 项 Python、40 项 CUDA/导航原生
+及底盘专项检查通过；部署后从正常入口复测。无实车数据，本轮不构成 IMU 方差标定或整机精度验收。
+详细行为、对比数据、回退方式和日志位置见 [底盘反馈与 IMU 发布加固](base-driver-hardening-20261108.md)。
+
 `scripts/validate_cuda_algorithms.py` 会在其所在工作区使用 `DUOJIN_CLEAN_BUILD=ON` 重建对应构建目录；不要在需要保留旧构建产物的目录里直接运行它。
 
 后续测试应以实际 10 Hz 雷达或保持原始节奏的录包为基准；约 10 Hz 的 LILocBench 抽帧只是公开数据对照。当前版尚无实际雷达、Jetson 和完整建图→定位→导航的验收结果。

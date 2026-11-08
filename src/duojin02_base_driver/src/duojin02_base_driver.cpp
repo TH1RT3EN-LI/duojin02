@@ -21,6 +21,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "std_msgs/msg/float32.hpp"
 
 #include "tf2/LinearMath/Quaternion.h"
@@ -28,6 +29,7 @@
 
 #include "duojin02_base_driver/quaternion_solution.hpp"
 #include "duojin02_base_driver/driver_types.hpp"
+#include "duojin02_base_driver/feedback_pipeline.hpp"
 
 using namespace std::chrono_literals;
 
@@ -59,6 +61,11 @@ public:
         this->declare_parameter<double>("command_timeout_s", 0.25, startup_parameter);
     if (!std::isfinite(command_timeout_s_) || command_timeout_s_ <= 0.0)
       throw std::invalid_argument("command_timeout_s must be finite and positive");
+    if (serial_baud_rate_ <= 0 || loop_hz_ <= 0)
+      throw std::invalid_argument("serial_baud_rate and loop_hz must be positive");
+    for (double scale : {odom_x_scale_, odom_y_scale_, odom_z_scale_positive_, odom_z_scale_negative_})
+      if (!std::isfinite(scale))
+        throw std::invalid_argument("odometry scales must be finite");
     serial_cfg_ = drivers::serial_driver::SerialPortConfig(
         static_cast<uint32_t>(serial_baud_rate_), drivers::serial_driver::FlowControl::NONE,
         drivers::serial_driver::Parity::NONE, drivers::serial_driver::StopBits::ONE);
@@ -66,6 +73,17 @@ public:
         this->declare_parameter<double>("imu_yaw_rate_bias", 0.0, startup_parameter);
     const double imu_yaw_rate_variance =
         this->declare_parameter<double>("imu_yaw_rate_variance", 1e-6, startup_parameter);
+    if (!std::isfinite(imu_yaw_rate_bias_))
+      throw std::invalid_argument("imu_yaw_rate_bias must be finite");
+    if (!std::isfinite(imu_yaw_rate_variance) || imu_yaw_rate_variance <= 0.0)
+      throw std::invalid_argument("imu_yaw_rate_variance must be finite and positive");
+    const auto capacity = this->declare_parameter<int>("feedback_queue_capacity", 256, startup_parameter);
+    if (capacity < 1 || capacity > 4096)
+      throw std::invalid_argument("feedback_queue_capacity must be in [1,4096]");
+    feedback_ = duojin02::FeedbackQueue<FeedbackSample>(static_cast<size_t>(capacity));
+    const auto diagnostic_hz = this->declare_parameter<double>("diagnostic_hz", 1.0, startup_parameter);
+    if (!std::isfinite(diagnostic_hz) || diagnostic_hz <= 0.0 || diagnostic_hz > 100.0)
+      throw std::invalid_argument("diagnostic_hz must be finite and in (0,100]");
     auto load_twist_variances = [this, startup_parameter](const std::string &name,
                                                           const std::array<double, 36> &defaults) {
       std::vector<double> diagonal;
@@ -73,8 +91,12 @@ public:
         diagonal.push_back(defaults[axis * 7]);
       const auto values =
           this->declare_parameter<std::vector<double>>(name, diagonal, startup_parameter);
+      if (values.size() != 6)
+        throw std::invalid_argument(name + " must contain exactly six variances");
       std::array<double, 36> result{};
       for (size_t axis = 0; axis < 6; ++axis) {
+        if (!std::isfinite(values[axis]) || values[axis] <= 0.0)
+          throw std::invalid_argument(name + " variances must be finite and positive");
         result[axis * 7] = values.at(axis);
       }
       return result;
@@ -87,6 +109,7 @@ public:
     voltage_pub_ = this->create_publisher<std_msgs::msg::Float32>("battery_voltage", 10);
     odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 50);
     imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", 20);
+    diagnostics_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("diagnostics", 10);
 
     cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
         "cmd_vel", rclcpp::QoS(1),
@@ -110,6 +133,11 @@ public:
     odom_msg_.child_frame_id = robot_frame_id_;
     odom_msg_.pose.pose.position.z = 0.0;
 
+    last_frame_steady_time_ = std::chrono::steady_clock::now();
+    attitude_filter_.set_g_ref(9.80665f);
+    attitude_filter_.set_gate_width_g(0.30f);
+    attitude_filter_.set_accel_lpf_alpha(0.30f);
+
     try_open_serial_port();
     if (!serial_ || !serial_->is_open()) {
       serial_retry_timer_ = this->create_wall_timer(
@@ -118,14 +146,11 @@ public:
 
     auto period = std::chrono::duration<double>(1.0 / loop_hz_);
     timer_ = this->create_wall_timer(period, std::bind(&Duojin02BaseDriverNode::on_timer, this));
-
-    last_frame_steady_time_ = std::chrono::steady_clock::now();
+    diagnostics_timer_ = this->create_wall_timer(std::chrono::duration<double>(1.0 / diagnostic_hz),
+        std::bind(&Duojin02BaseDriverNode::publish_diagnostics, this));
 
     RCLCPP_INFO(this->get_logger(), "duojin02_base_driver node started");
 
-    attitude_filter_.set_g_ref(9.80665f);
-    attitude_filter_.set_gate_width_g(0.30f);
-    attitude_filter_.set_accel_lpf_alpha(0.30f);
   }
 
   ~Duojin02BaseDriverNode() override {
@@ -143,11 +168,21 @@ public:
     }
     if (serial_ && serial_->is_open())
       serial_->close();
+    io_ctx_.waitForExit();
 
     RCLCPP_INFO(this->get_logger(), "duojin02_base_driver node shutting down");
   }
 
 private:
+  struct FeedbackSample {
+    duojin02::VelPosData velocity;
+    sensor_msgs::msg::Imu imu;
+    float voltage;
+    rclcpp::Time stamp;
+    std::chrono::steady_clock::time_point received;
+    uint64_t sequence;
+  };
+
   static inline uint8_t xor_checksum(const uint8_t *data, std::size_t len) noexcept {
     uint8_t sum = 0;
     for (std::size_t i = 0; i < len; ++i)
@@ -231,9 +266,10 @@ private:
     serial_reconnecting_ = true;
     {
       std::lock_guard<std::mutex> lk(state_mtx_);
-      frame_ready_ = false;
+      feedback_.clear();
     }
     sample_time_ready_ = false;
+    orientation_updated_ = false;
 
     RCLCPP_ERROR(this->get_logger(), "Serial error: %s — closing port and scheduling reconnect.",
                  reason.c_str());
@@ -251,7 +287,10 @@ private:
       }
     }
 
-    rx_count_ = 0;
+    {
+      std::lock_guard<std::mutex> lk(receive_mtx_);
+      parser_.reset();
+    }
 
     if (!serial_retry_timer_) {
       serial_retry_timer_ = this->create_wall_timer(
@@ -285,12 +324,11 @@ private:
         return;
       }
     }
-    duojin02::VelPosData vel;
-    sensor_msgs::msg::Imu imu;
-    float voltage = 0.0f;
-    rclcpp::Time received_stamp;
     std::chrono::steady_clock::time_point last_received;
-    const bool has_frame = get_sensor_data(vel, imu, voltage, received_stamp, last_received);
+    {
+      std::lock_guard<std::mutex> lk(state_mtx_);
+      last_received = last_frame_steady_time_;
+    }
     const double since_last =
         std::chrono::duration<double>(std::chrono::steady_clock::now() - last_received).count();
     if (since_last > 0.5) {
@@ -298,17 +336,39 @@ private:
                           " seconds (silent failure)");
       return;
     }
-    if (!has_frame) {
-      return;
+    std::vector<FeedbackSample> samples;
+    {
+      std::lock_guard<std::mutex> lk(state_mtx_);
+      samples = feedback_.take(16);
     }
+    for (auto &sample : samples)
+      process_feedback(sample);
+  }
+
+  void process_feedback(FeedbackSample &sample) {
+    auto vel = sample.velocity;
+    auto &imu = sample.imu;
+    const auto &received_stamp = sample.stamp;
     double dt = 0.0;
-    if (sample_time_ready_ && received_stamp > last_sample_time_) {
-      dt = (received_stamp - last_sample_time_).seconds();
-      if (dt > duojin02::MAX_DELTA_T)
-        dt = 0.0;
+    if (sample_time_ready_) {
+      if (sample.sequence != last_sample_sequence_ + 1) {
+        ++sequence_gaps_;
+      } else if (received_stamp <= last_sample_time_) {
+        ++nonpositive_time_steps_;
+      } else {
+        dt = (received_stamp - last_sample_time_).seconds();
+        if (dt > duojin02::MAX_DELTA_T) {
+          dt = 0.0;
+          ++large_time_steps_;
+        }
+      }
     }
     last_sample_time_ = received_stamp;
+    last_sample_sequence_ = sample.sequence;
     sample_time_ready_ = true;
+    orientation_updated_ = false;
+    max_queue_delay_s_ = std::max(max_queue_delay_s_,
+        std::chrono::duration<double>(std::chrono::steady_clock::now() - sample.received).count());
     imu.angular_velocity.z -= imu_yaw_rate_bias_;
     vel.x = static_cast<float>(vel.x * odom_x_scale_);
     vel.y = static_cast<float>(vel.y * odom_y_scale_);
@@ -334,7 +394,7 @@ private:
       while (robot_pos_.z < -duojin02::PI)
         robot_pos_.z += 2.0f * duojin02::PI;
 
-      attitude_filter_.update(
+      orientation_updated_ = attitude_filter_.update(
           static_cast<float>(imu.angular_velocity.x), static_cast<float>(imu.angular_velocity.y),
           static_cast<float>(imu.angular_velocity.z), static_cast<float>(imu.linear_acceleration.x),
           static_cast<float>(imu.linear_acceleration.y),
@@ -346,25 +406,57 @@ private:
     imu.orientation.x = q.x;
     imu.orientation.y = q.y;
     imu.orientation.z = q.z;
+    if (!orientation_updated_) {
+      imu.orientation_covariance[0] = -1.0;
+      ++orientation_unavailable_;
+    }
 
     publish_odom(received_stamp, vel);
     publish_imu(received_stamp, imu);
-    publish_voltage(voltage);
+    publish_voltage(sample.voltage);
+    ++published_feedback_;
   }
 
-  bool get_sensor_data(duojin02::VelPosData &vel, sensor_msgs::msg::Imu &imu, float &voltage,
-                       rclcpp::Time &stamp, std::chrono::steady_clock::time_point &last_received) {
-    std::lock_guard<std::mutex> lk(state_mtx_);
-    last_received = last_frame_steady_time_;
-    if (!frame_ready_) {
-      return false;
+  void publish_diagnostics() {
+    diagnostic_msgs::msg::DiagnosticStatus status;
+    status.name = "base_driver/feedback";
+    status.hardware_id = usart_port_name_;
+    auto value = [&status](const std::string &key, const auto &item) {
+      diagnostic_msgs::msg::KeyValue field;
+      field.key = key;
+      field.value = std::to_string(item);
+      status.values.push_back(std::move(field));
+    };
+    {
+      std::lock_guard<std::mutex> receive_lock(receive_mtx_);
+      std::lock_guard<std::mutex> state_lock(state_mtx_);
+      const auto age = std::chrono::duration<double>(
+          std::chrono::steady_clock::now() - last_frame_steady_time_).count();
+      status.level = age > 0.5 || serial_reconnecting_ || !orientation_updated_ ?
+          diagnostic_msgs::msg::DiagnosticStatus::WARN : diagnostic_msgs::msg::DiagnosticStatus::OK;
+      value("received_frames", feedback_.received);
+      value("published_frames", published_feedback_);
+      value("queued_frames", feedback_.size());
+      value("overflow_dropped_frames", feedback_.overflow_dropped);
+      value("reset_discarded_frames", feedback_.discarded);
+      value("queue_high_watermark", feedback_.high_watermark);
+      value("checksum_errors", parser_.checksum_errors);
+      value("tail_errors", parser_.tail_errors);
+      value("discarded_bytes", parser_.bytes_discarded);
+      value("last_feedback_age_s", age);
     }
-    frame_ready_ = false;
-    vel = robot_vel_;
-    imu = imu_msg_;
-    voltage = power_voltage_;
-    stamp = latest_frame_stamp_;
-    return true;
+    value("sequence_gaps", sequence_gaps_);
+    value("nonpositive_time_steps", nonpositive_time_steps_);
+    value("large_time_steps", large_time_steps_);
+    value("orientation_updated", orientation_updated_);
+    value("orientation_unavailable_frames", orientation_unavailable_);
+    value("orientation_covariance_calibrated", false);
+    value("max_queue_delay_s", max_queue_delay_s_);
+    status.message = "host receive timestamps; relative attitude covariance uncalibrated";
+    diagnostic_msgs::msg::DiagnosticArray message;
+    message.header.stamp = now();
+    message.status.push_back(std::move(status));
+    diagnostics_pub_->publish(message);
   }
 
   void start_serial_receive() {
@@ -392,40 +484,16 @@ private:
     if (n > data.size())
       n = data.size();
 
+    std::lock_guard<std::mutex> lk(receive_mtx_);
     for (size_t i = 0; i < n; ++i) {
       push_byte_and_parse(data[i]);
     }
   }
 
   void push_byte_and_parse(uint8_t byte) {
-    if (rx_count_ == 0) {
-      if (byte != duojin02::FRAME_HEADER) {
-        return;
-      }
-      rx_buf_[0] = byte;
-      rx_count_ = 1;
-      return;
-    }
-
-    rx_buf_[rx_count_] = byte;
-    rx_count_++;
-
-    if (rx_count_ < static_cast<int>(duojin02::RECEIVE_DATA_SIZE)) {
-      return;
-    }
-
-    rx_count_ = 0;
-
-    if (rx_buf_[duojin02::RECEIVE_DATA_SIZE - 1] != duojin02::FRAME_TAIL) {
-      return;
-    }
-
-    const uint8_t check = xor_checksum(rx_buf_.data(), 22);
-    if (check != rx_buf_[22]) {
-      return;
-    }
-
-    decode_frame_and_update_state(rx_buf_);
+    duojin02::FeedbackParser::Frame frame;
+    if (parser_.push(byte, frame))
+      decode_frame_and_update_state(frame);
   }
 
   void decode_frame_and_update_state(const std::array<uint8_t, duojin02::RECEIVE_DATA_SIZE> &rx) {
@@ -469,7 +537,9 @@ private:
       power_voltage_ = v;
       latest_frame_stamp_ = this->now();
       last_frame_steady_time_ = std::chrono::steady_clock::now();
-      frame_ready_ = true;
+      const auto sequence = feedback_.received + 1;
+      feedback_.push(FeedbackSample{robot_vel_, imu_msg_, power_voltage_, latest_frame_stamp_,
+                                    last_frame_steady_time_, sequence});
     }
   }
 
@@ -564,11 +634,15 @@ private:
       RCLCPP_WARN(this->get_logger(), "connected — sent stop command to lower controller");
       {
         std::lock_guard<std::mutex> lk(state_mtx_);
-        frame_ready_ = false;
+        feedback_.clear();
         last_frame_steady_time_ = std::chrono::steady_clock::now();
       }
       sample_time_ready_ = false;
-      rx_count_ = 0;
+      orientation_updated_ = false;
+      {
+        std::lock_guard<std::mutex> lk(receive_mtx_);
+        parser_.reset();
+      }
       start_serial_receive();
       serial_reconnecting_ = false;
       if (serial_retry_timer_) {
@@ -595,25 +669,31 @@ private:
   double imu_yaw_rate_bias_{0.0};
   std::array<double, 36> odom_twist_moving_{}, odom_twist_stopped_{};
 
-  int rx_count_{0};
-  std::array<uint8_t, duojin02::RECEIVE_DATA_SIZE> rx_buf_{};
+  duojin02::FeedbackParser parser_;
+  std::mutex receive_mtx_;
   std::atomic<bool> shutting_down_{false};
   bool serial_reconnecting_{false};
 
   std::atomic<bool> serial_eof_detected_{false};
 
-  bool frame_ready_{false};
+  duojin02::FeedbackQueue<FeedbackSample> feedback_;
   std::mutex state_mtx_;
 
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr voltage_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr diagnostics_timer_;
   rclcpp::TimerBase::SharedPtr serial_retry_timer_;
 
   rclcpp::Time last_sample_time_, latest_frame_stamp_;
   bool sample_time_ready_{false};
+  bool orientation_updated_{false};
+  uint64_t last_sample_sequence_{0}, published_feedback_{0}, sequence_gaps_{0};
+  uint64_t nonpositive_time_steps_{0}, large_time_steps_{0}, orientation_unavailable_{0};
+  double max_queue_delay_s_{0.0};
   std::chrono::steady_clock::time_point last_frame_steady_time_;
   std::chrono::steady_clock::time_point last_command_time_;
   double command_timeout_s_{0.25};
@@ -641,7 +721,13 @@ private:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Duojin02BaseDriverNode>());
+  int result = 0;
+  try {
+    rclcpp::spin(std::make_shared<Duojin02BaseDriverNode>());
+  } catch (const std::exception &error) {
+    RCLCPP_FATAL(rclcpp::get_logger("duojin02_base_driver"), "%s", error.what());
+    result = 1;
+  }
   rclcpp::shutdown();
-  return 0;
+  return result;
 }

@@ -58,7 +58,7 @@ public:
     return q_;
   }
 
-  void update(float gx, float gy, float gz, float ax, float ay, float az, float dt) noexcept;
+  bool update(float gx, float gy, float gz, float ax, float ay, float az, float dt) noexcept;
 
 private:
   static inline bool finite(float v) noexcept;

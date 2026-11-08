@@ -221,6 +221,7 @@ def navigation(directory, output, slam_source=None):
         "recovery_bt_checks", "gpu_geometry_checks", "guard_association_probe",
         "guard_admission_probe", "scan_validity_checks",
     ])
+    run_ctest(directory / "build/duojin02_base_driver", ["feedback_pipeline_checks"])
     for name, arguments in navigation_probes(directory / "install", output):
         probe(name, *arguments)
 
