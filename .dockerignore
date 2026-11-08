@@ -5,6 +5,9 @@ install
 log
 maps
 ws
+output
+bags
+tmp
 __pycache__
 **/__pycache__
 **/*.pyc

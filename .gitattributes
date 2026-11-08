@@ -1,4 +1,4 @@
-# Unified patches retain upstream context markers on otherwise blank lines.
-patches/**/*.patch whitespace=-blank-at-eol
+# Preserve unified patch context and final separators without rewriting patch hashes.
+patches/**/*.patch whitespace=-blank-at-eol,-blank-at-eof
 # Preserve captured tool output byte for byte, including trailing spaces.
 docs/evidence/navigation-narrow/*.log whitespace=-blank-at-eol
