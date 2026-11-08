@@ -20,7 +20,7 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="李天顺",
+    maintainer="litianshun",
     maintainer_email="litianshun.cn@gmail.com",
     description="Keyboard and joystick teleoperation for the Duojin mobile base.",
     license="GPL-3.0-only",

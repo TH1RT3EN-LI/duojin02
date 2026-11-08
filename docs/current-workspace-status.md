@@ -46,6 +46,8 @@
 
 2026-11-08 整理时，当前 SLAM 安装的来源校验通过；`install/cuda-local-v3` 的源码清单与现有 Foxglove 配置、仲裁配置等输入不一致，CUDA 加载入口会要求重建。本轮未改写已有安装或构建产物，也未重新执行 GPU 算法验收。运行当前代码前按 README 的顺序重建后端与 CUDA 组件。整理内容、进程退出竞态修正及本轮测试记录见 [2026-11-08 维护记录](project-maintenance-20261108.md)。
 
+同日后续将项目维护者、打包元数据和本地新增代码的既有版权行统一为 `litianshun <litianshun.cn@gmail.com>`，见 [项目署名](../AUTHORS.md)。版权注释也属于来源清单的输入；此次修订后，现有 SLAM 后端与 CUDA 安装均需重建以重新匹配源码，算法和运行逻辑未改动。
+
 `scripts/validate_cuda_algorithms.py` 会在其所在工作区使用 `DUOJIN_CLEAN_BUILD=ON` 重建对应构建目录；不要在需要保留旧构建产物的目录里直接运行它。
 
 后续测试应以实际 10 Hz 雷达或保持原始节奏的录包为基准；约 10 Hz 的 LILocBench 抽帧只是公开数据对照。当前版尚无实际雷达、Jetson 和完整建图→定位→导航的验收结果。

@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin02 contributors. SPDX-License-Identifier: GPL-3.0-only
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: GPL-3.0-only
 #ifndef DUOJIN02_SCAN_GEOMETRY__GEOMETRY_HPP_
 #define DUOJIN02_SCAN_GEOMETRY__GEOMETRY_HPP_
 

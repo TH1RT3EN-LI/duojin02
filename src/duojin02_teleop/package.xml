@@ -3,7 +3,7 @@
   <name>duojin02_teleop</name>
   <version>0.0.0</version>
   <description>Keyboard and joystick teleoperation for the Duojin mobile base.</description>
-  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
   <license>GPL-3.0-only</license>
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>

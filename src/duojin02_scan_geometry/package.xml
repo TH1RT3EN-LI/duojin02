@@ -3,7 +3,7 @@
   <name>duojin02_scan_geometry</name>
   <version>0.1.0</version>
   <description>Source-preserving scan timing and bounded-support planar beam geometry.</description>
-  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend><depend>sensor_msgs</depend><depend>tf2_msgs</depend>

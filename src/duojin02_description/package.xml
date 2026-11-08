@@ -3,7 +3,7 @@
   <name>duojin02_description</name>
   <version>0.0.0</version>
   <description>duojin02 robot URDF 模型描述</description>
-  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
   <license>GPL-3.0-only</license>
   <exec_depend>xacro</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>

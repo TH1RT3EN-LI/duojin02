@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin contributors. SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: LGPL-2.1-or-later
 // Independent exhaustive yaw-block oracle: score every finite-domain leaf,
 // verify xy/yaw envelopes, tail groups, whole-mode competition, and fail-closed
 // resource/mutable-map contracts. This does not claim continuous pose accuracy.

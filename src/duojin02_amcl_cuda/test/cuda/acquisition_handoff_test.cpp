@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin contributors. SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: LGPL-2.1-or-later
 #include "nav2_amcl/amcl_node.hpp"
 #include <cstdlib>
 #include <stdexcept>

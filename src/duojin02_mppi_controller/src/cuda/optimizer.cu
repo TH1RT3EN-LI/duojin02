@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin contributors. SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: Apache-2.0
 #include "duojin02_mppi_controller/cuda_optimizer.hpp"
 #include "normal.hpp"
 #include <cuda_runtime.h>

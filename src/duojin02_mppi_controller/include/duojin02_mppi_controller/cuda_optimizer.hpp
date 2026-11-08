@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin contributors. SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: Apache-2.0
 #pragma once
 #include <cstddef>
 #include <cstdint>

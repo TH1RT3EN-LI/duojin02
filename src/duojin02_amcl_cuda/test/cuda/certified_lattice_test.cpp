@@ -1,4 +1,4 @@
-// Copyright 2026 Duojin contributors. SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright 2026 litianshun <litianshun.cn@gmail.com>. SPDX-License-Identifier: LGPL-2.1-or-later
 // Independent exhaustive finite-domain oracle: score all candidates directly,
 // check every tested block bound and the complete outside-mode competitor set.
 #include <algorithm>

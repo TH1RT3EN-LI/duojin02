@@ -41,6 +41,15 @@
 
 ## 验证与提交
 
+项目维护者及本地新增代码署名统一为 `litianshun <litianshun.cn@gmail.com>`；
+使用该身份创建 Git 提交，保留上游原始版权与许可证。署名范围和历史别名见
+[AUTHORS.md](AUTHORS.md)。新克隆可在仓库内执行：
+
+```bash
+git config --local user.name litianshun
+git config --local user.email litianshun.cn@gmail.com
+```
+
 ```bash
 git status --short --branch
 git diff --check

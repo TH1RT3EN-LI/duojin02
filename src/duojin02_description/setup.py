@@ -16,7 +16,7 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="李天顺",
+    maintainer="litianshun",
     maintainer_email="litianshun.cn@gmail.com",
     description="duojin02 robot description",
     license="GPL-3.0-only",

@@ -3,7 +3,7 @@
   <name>duojin02_bringup</name>
   <version>0.0.0</version>
   <description>Real-hardware bringup for Duojin02: serial base, lidar, localization and navigation.</description>
-  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
   <license>GPL-3.0-only</license>
   <exec_depend>launch</exec_depend>
   <exec_depend>rclpy</exec_depend>

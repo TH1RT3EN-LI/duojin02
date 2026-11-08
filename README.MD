@@ -174,6 +174,6 @@ DEV_LIST=/dev/duojin02_controller,/dev/lslidar ./scripts/dev.sh
 
 历史试验数据保留在 `docs/evidence/`，旧报告可从 Git 历史查阅。
 
-自研 `duojin02_*` 包使用 GPL-3.0-only；第三方遵循各自许可证，雷达来源见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。项目维护：李天顺（litianshun.cn@gmail.com）。
+自研 `duojin02_*` 包使用 GPL-3.0-only；第三方遵循各自许可证，雷达来源见 [UPSTREAM.md](src/lslidar_driver/UPSTREAM.md)。项目维护：litianshun（litianshun.cn@gmail.com），完整署名约定见 [AUTHORS.md](AUTHORS.md)。
 
 实时目标实施与独立验证入口见 [任意地图目标实施合同](docs/realtime-goal-implementation.md)。物理 2 cm/1° 与 95% 联合到达率尚未验收。

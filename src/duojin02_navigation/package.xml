@@ -3,7 +3,7 @@
   <name>duojin02_navigation</name>
   <version>0.3.0</version>
   <description>Source-pinned CUDA MPPI, indexed geometry and batched control validation with CPU braking admission.</description>
-  <maintainer email="litianshun.cn@gmail.com">李天顺</maintainer>
+  <maintainer email="litianshun.cn@gmail.com">litianshun</maintainer>
   <license>GPL-3.0-only</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>
